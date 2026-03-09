@@ -195,13 +195,13 @@ OPENROUTER_API_KEY=sk-or-...
 
 ```
                     ┌──────────────────────────────────┐
-                    │       Frontend (Next.js 14)       │
-                    │   Dashboard · Chat · Analytics     │
+                    │       Frontend (Next.js 14)      │
+                    │   Dashboard · Chat · Analytics   │
                     └───────────────┬──────────────────┘
                                     │ REST + WebSocket
                     ┌───────────────▼──────────────────┐
-                    │        API Layer (FastAPI)         │
-                    │   Routes · Middleware · Auth       │
+                    │        API Layer (FastAPI)       │
+                    │   Routes · Middleware · Auth     │
                     └───────────────┬──────────────────┘
                                     │
            ┌────────────────────────┼────────────────────────┐
@@ -212,9 +212,9 @@ OPENROUTER_API_KEY=sk-or-...
  └─────────┬─────────┘  └──────────┬──────────┘  └──────────┬──────────┘
            │                        │                        │
  ┌─────────▼────────────────────────▼────────────────────────▼──────────┐
- │                        Infrastructure                                │
- │   PostgreSQL · Redis · Ollama · pgvector                            │
- └─────────────────────────────────────────────────────────────────────┘
+ │                            Infrastructure                            │
+ │                PostgreSQL · Redis · Ollama · pgvector                │
+ └────────────────────────────────────────────────────────────────────–─┘
 ```
 
 L'architecture suit le pattern **hexagonal** (ports & adapters). Voir [docs/architecture.md](docs/architecture.md) pour les détails.
