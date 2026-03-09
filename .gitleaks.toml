@@ -1,0 +1,12 @@
+title = "Tawiza Gitleaks Config"
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''\.env\.example$''',
+    '''\.env\.local\.example$''',
+    '''docs/.*\.md$''',
+    '''tests/.*''',
+    '''frontend/bun\.lock$''',
+    '''frontend/package-lock\.json$''',
+]
