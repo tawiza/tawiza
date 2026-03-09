@@ -43,23 +43,19 @@ Les données sont envoyées à [PostHog](https://posthog.com) hébergé dans l'*
 
 ## Comment désactiver
 
-### Backend (Python)
-
-Dans votre fichier `.env` :
+Ajoutez dans votre fichier `.env` :
 
 ```bash
 TELEMETRY_ENABLED=false
 ```
 
-### Frontend (Next.js)
-
-Dans votre fichier `.env.local` :
+Et dans `frontend/.env.local` :
 
 ```bash
 NEXT_PUBLIC_TELEMETRY_ENABLED=false
 ```
 
-C'est tout. Aucune donnée ne sera envoyée.
+C'est tout. Aucune donnée ne sera envoyée. La clé PostHog présente dans le code est une clé **write-only** — elle ne peut qu'envoyer des événements anonymes, pas lire quoi que ce soit.
 
 ## Implémentation
 

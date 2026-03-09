@@ -14,8 +14,12 @@ from pathlib import Path
 from loguru import logger
 
 TELEMETRY_ENABLED = os.getenv("TELEMETRY_ENABLED", "true").lower() in ("true", "1", "yes")
-POSTHOG_API_KEY = os.getenv("POSTHOG_API_KEY", "")
-POSTHOG_HOST = os.getenv("POSTHOG_HOST", "https://eu.i.posthog.com")
+
+# PostHog project key — points to the Tawiza team's analytics dashboard.
+# This is a write-only key (cannot read data). Users can opt out entirely
+# by setting TELEMETRY_ENABLED=false.
+POSTHOG_API_KEY = "phc_PLACEHOLDER_REPLACE_AFTER_POSTHOG_SETUP"
+POSTHOG_HOST = "https://eu.i.posthog.com"
 
 _posthog_client = None
 

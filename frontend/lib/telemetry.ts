@@ -11,8 +11,11 @@ const TELEMETRY_ENABLED =
   process.env.NEXT_PUBLIC_TELEMETRY_ENABLED !== 'false' &&
   process.env.NEXT_PUBLIC_TELEMETRY_ENABLED !== '0';
 
-const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY || '';
-const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com';
+// PostHog project key — points to the Tawiza team's analytics dashboard.
+// This is a write-only key (cannot read data). Users can opt out entirely
+// by setting NEXT_PUBLIC_TELEMETRY_ENABLED=false.
+const POSTHOG_KEY = 'phc_PLACEHOLDER_REPLACE_AFTER_POSTHOG_SETUP';
+const POSTHOG_HOST = 'https://eu.i.posthog.com';
 
 let initialized = false;
 
