@@ -61,7 +61,7 @@ jobs:
         run: pytest tests/unit -v --cov=src --cov-report=xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: github.event_name == 'push'
         with:
           file: ./coverage.xml
