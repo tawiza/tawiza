@@ -6,7 +6,7 @@
     ██║   ██║  ██║╚███╔███╔╝██║███████╗██║  ██║
     ╚═╝   ╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝╚══════╝╚═╝  ╚═╝
 ```
-<img width="500" height="500" alt="v4-terracotta-static-removebg-preview" src="https://github.com/user-attachments/assets/5c7e78ef-ac89-481d-a975-27719f9e8a6f" />
+
 
 # Tawiza — Intelligence territoriale propulsée par l'IA
 <p align="center">
