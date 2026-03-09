@@ -9,12 +9,15 @@
 
 # Tawiza — Intelligence territoriale propulsée par l'IA
 
+[![Status: Beta](https://img.shields.io/badge/Status-Beta-orange.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Website](https://img.shields.io/badge/Website-tawiza.fr-indigo.svg)](https://hamidedefr.github.io/tawiza-landing/)
+
+> **⚠️ Beta** — Ce projet est en développement actif. L'API, le schéma de données et les fonctionnalités peuvent changer. On est preneurs de retours et de contributions !
 
 > Parce que scraper l'INSEE à la main, c'est so 2020.
 
@@ -126,14 +129,27 @@ cp .env.example .env
 docker compose up -d
 ```
 
-### LLM local (optionnel)
+### Modèles Ollama
+
+Tawiza utilise [Ollama](https://ollama.ai) pour le LLM en local. Aucune donnée n'est envoyée vers le cloud.
 
 ```bash
-# Installer Ollama (https://ollama.ai)
+# Installer Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
-ollama pull qwen2.5:7b           # Modèle principal
-ollama pull nomic-embed-text      # Embeddings
 ```
+
+| Modèle | Rôle | VRAM | Commande |
+|--------|------|------|----------|
+| `qwen2.5:7b` | Chat par défaut, contextualisation | ~5 Go | `ollama pull qwen2.5:7b` |
+| `nomic-embed-text` | Embeddings (pgvector, RAG) | ~300 Mo | `ollama pull nomic-embed-text` |
+| `qwen3.5:27b` | Agent TAJINE, analyses complexes | ~17 Go | `ollama pull qwen3.5:27b` |
+| `qwen3:8b` | Résumés, synthèses | ~5 Go | `ollama pull qwen3:8b` |
+
+**Minimum pour démarrer** : `qwen2.5:7b` + `nomic-embed-text` (~5 Go VRAM).
+
+**Recommandé** : ajouter `qwen3.5:27b` pour des analyses TAJINE de qualité (~17 Go VRAM, GPU 24 Go+).
+
+> Les modèles sont configurables via les variables d'environnement `OLLAMA__DEFAULT_MODEL` et `OLLAMA__EMBEDDING_MODEL` dans `.env`.
 
 ---
 
