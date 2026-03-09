@@ -306,7 +306,6 @@ OPENROUTER_API_KEY=sk-or-...
   <img width="750" alt="Tawiza Architecture Diagram" src="https://github.com/user-attachments/assets/a0a8d145-ed6a-4803-9fb4-fd10271d5e42" style="border-radius: 12px;" />
 </p>
 
-> [Ouvrir le diagramme interactif sur Excalidraw](https://excalidraw.com/#json=ExdBrD05gBN8pVe48EI3D,0dlRnvFQ86n0uw451FsiWQ)
 
 Le diagramme illustre les **6 couches** de la plateforme et comment elles interagissent :
 
