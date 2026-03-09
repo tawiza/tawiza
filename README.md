@@ -219,7 +219,7 @@ OPENROUTER_API_KEY=sk-or-...
 ```
 
 L'architecture suit le pattern **hexagonal** (ports & adapters). Voir [docs/architecture.md](docs/architecture.md) pour les détails.
-<img width="1600" height="1600" alt="Architecture-2026-03-09-0547 excalidraw" src="https://github.com/user-attachments/assets/a0a8d145-ed6a-4803-9fb4-fd10271d5e42" />
+<img width="750" height="750" alt="Architecture-2026-03-09-0547 excalidraw" src="https://github.com/user-attachments/assets/a0a8d145-ed6a-4803-9fb4-fd10271d5e42" />
 
 ---
 
