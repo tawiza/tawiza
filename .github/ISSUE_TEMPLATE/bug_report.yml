@@ -1,0 +1,88 @@
+name: "Bug Report"
+description: "Signaler un bug pour nous aider a ameliorer Tawiza"
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de prendre le temps de signaler ce bug !
+        Remplissez le formulaire ci-dessous pour nous aider a reproduire et corriger le probleme.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      description: Une description claire et concise du bug.
+      placeholder: "Quand je clique sur X, il se passe Y au lieu de Z..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Etapes pour reproduire
+      description: Comment reproduire le comportement.
+      placeholder: |
+        1. Aller sur '...'
+        2. Cliquer sur '...'
+        3. Voir l'erreur
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+      description: Ce qui devrait se passer a la place.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Composant concerne
+      options:
+        - Backend (API)
+        - Frontend (Dashboard)
+        - Agent TAJINE
+        - Sources de donnees
+        - Docker / Deploiement
+        - Documentation
+        - Autre
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environnement
+      description: |
+        Informations sur votre environnement.
+      value: |
+        - OS: [e.g. Ubuntu 22.04]
+        - Python: [e.g. 3.11.8]
+        - Node.js: [e.g. 20.x]
+        - Docker: [e.g. 24.0]
+        - Navigateur: [e.g. Firefox 120]
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Collez les logs pertinents ici.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Verification
+      options:
+        - label: J'ai cherche dans les issues existantes et ce bug n'a pas deja ete signale
+          required: true
+        - label: J'utilise la derniere version de Tawiza
+          required: false

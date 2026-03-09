@@ -1,0 +1,27 @@
+# Tawiza - Code Owners
+# Ces personnes seront automatiquement ajoutees en reviewers sur les PRs
+
+# Global - le mainteneur principal review tout
+* @hamidedefr
+
+# Backend
+/src/ @hamidedefr
+/app/ @hamidedefr
+/tests/ @hamidedefr
+
+# Frontend
+/frontend/ @hamidedefr
+
+# Infrastructure & CI
+/docker/ @hamidedefr
+/.github/ @hamidedefr
+/infrastructure/ @hamidedefr
+
+# Documentation
+/docs/ @hamidedefr
+README.md @hamidedefr
+
+# Security-sensitive files - require explicit review
+SECURITY.md @hamidedefr
+.env.example @hamidedefr
+docker-compose*.yml @hamidedefr

@@ -1,0 +1,46 @@
+# Ollama with GPU support (AMD ROCm)
+# Usage: docker compose -f docker/docker-compose.ollama-gpu.yml up -d
+#
+# For NVIDIA CUDA, replace the image and GPU config:
+#   image: ollama/ollama
+#   deploy:
+#     resources:
+#       reservations:
+#         devices:
+#           - driver: nvidia
+#             count: 1
+#             capabilities: [gpu]
+# And remove the devices/security_opt/group_add sections.
+
+services:
+  ollama:
+    image: ollama/ollama:rocm
+    container_name: tawiza-ollama
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    security_opt:
+      - seccomp:unconfined
+    group_add:
+      - "44"   # video
+      - "993"  # render
+    environment:
+      - OLLAMA_GPU_LAYERS=-1
+      - HIP_VISIBLE_DEVICES=0
+      - ROCR_VISIBLE_DEVICES=0
+      - OLLAMA_PARALLEL=4
+      - OLLAMA_KEEP_ALIVE=24h
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

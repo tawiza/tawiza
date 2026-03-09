@@ -1,0 +1,1282 @@
+{
+  "growth_pole": {
+    "name": "Growth Pole Theory",
+    "author": "Perroux (1950)",
+    "category": "regional_growth",
+    "description": "Economic growth radiates from dynamic sectors/regions",
+    "indicators": [
+      "concentration",
+      "growth",
+      "spillover"
+    ],
+    "strategy_alignment": {
+      "investment": 0.9,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.3,
+      "exit": 0.2
+    }
+  },
+  "cumulative_causation": {
+    "name": "Cumulative Causation",
+    "author": "Myrdal (1957)",
+    "category": "regional_growth",
+    "description": "Virtuous/vicious circles amplify regional inequalities over time",
+    "indicators": [
+      "growth_trend",
+      "migration",
+      "capital_flow",
+      "divergence"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.75,
+      "exit": 0.8
+    }
+  },
+  "unbalanced_growth": {
+    "name": "Unbalanced Growth",
+    "author": "Hirschman (1958)",
+    "category": "regional_growth",
+    "description": "Strategic investment in key sectors creates linkages upstream/downstream",
+    "indicators": [
+      "forward_linkage",
+      "backward_linkage",
+      "sector_dominance"
+    ],
+    "strategy_alignment": {
+      "investment": 0.9,
+      "monitoring": 0.5,
+      "diversification": 0.4,
+      "caution": 0.3,
+      "exit": 0.2
+    }
+  },
+  "core_periphery": {
+    "name": "Core-Periphery Model",
+    "author": "Friedmann (1966)",
+    "category": "regional_growth",
+    "description": "Dominant core exploits peripheral regions, creating dependency",
+    "indicators": [
+      "dependency",
+      "resource_extraction",
+      "value_added_location"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.8,
+      "diversification": 0.85,
+      "caution": 0.7,
+      "exit": 0.6
+    }
+  },
+  "export_base": {
+    "name": "Export Base Theory",
+    "author": "North (1955)",
+    "category": "regional_growth",
+    "description": "Regional growth driven by export sectors with local multiplier effects",
+    "indicators": [
+      "export_ratio",
+      "multiplier",
+      "basic_sector_share"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.7,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "stages_of_growth": {
+    "name": "Stages of Economic Growth",
+    "author": "Rostow (1960)",
+    "category": "regional_growth",
+    "description": "Regions pass through stages from traditional to mature economy",
+    "indicators": [
+      "development_stage",
+      "takeoff_potential",
+      "maturity"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.5,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "central_place": {
+    "name": "Central Place Theory",
+    "author": "Christaller (1933)",
+    "category": "location",
+    "description": "Hierarchical settlement patterns based on market reach",
+    "indicators": [
+      "hierarchy",
+      "service_range",
+      "threshold"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "agricultural_location": {
+    "name": "Agricultural Location Theory",
+    "author": "Von Thünen (1826)",
+    "category": "location",
+    "description": "Land use intensity decreases with distance from market center",
+    "indicators": [
+      "land_rent",
+      "distance_to_market",
+      "transport_cost"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.5,
+      "exit": 0.5
+    }
+  },
+  "industrial_location": {
+    "name": "Industrial Location Theory",
+    "author": "Weber (1909)",
+    "category": "location",
+    "description": "Optimal location minimizes transport costs (materials + labor + market)",
+    "indicators": [
+      "transport_costs",
+      "labor_cost",
+      "raw_material_access"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "bid_rent": {
+    "name": "Bid-Rent Theory",
+    "author": "Alonso (1964)",
+    "category": "location",
+    "description": "Land prices reflect accessibility trade-offs from city center",
+    "indicators": [
+      "land_price",
+      "accessibility",
+      "density"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.5,
+      "exit": 0.5
+    }
+  },
+  "market_area": {
+    "name": "Market Area Theory",
+    "author": "Lösch (1940)",
+    "category": "location",
+    "description": "Optimal market areas form hexagonal patterns minimizing costs",
+    "indicators": [
+      "market_coverage",
+      "competition_distance",
+      "demand_density"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "spatial_competition": {
+    "name": "Spatial Competition",
+    "author": "Hotelling (1929)",
+    "category": "location",
+    "description": "Competing firms tend to cluster at market center (minimal differentiation)",
+    "indicators": [
+      "competitor_proximity",
+      "market_center",
+      "differentiation"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.8,
+      "diversification": 0.6,
+      "caution": 0.6,
+      "exit": 0.4
+    }
+  },
+  "new_economic_geography": {
+    "name": "New Economic Geography",
+    "author": "Krugman (1991)",
+    "category": "agglomeration",
+    "description": "Agglomeration economies from increasing returns and transport costs",
+    "indicators": [
+      "agglomeration",
+      "transport_costs",
+      "scale"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.5,
+      "diversification": 0.7,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "industrial_district": {
+    "name": "Industrial District Theory",
+    "author": "Marshall (1890)",
+    "category": "agglomeration",
+    "description": "Clusters benefit from knowledge spillovers and specialized labor",
+    "indicators": [
+      "specialization",
+      "knowledge_spillover",
+      "labor_pool"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.6,
+      "diversification": 0.4,
+      "caution": 0.5,
+      "exit": 0.3
+    }
+  },
+  "agglomeration_economies": {
+    "name": "Agglomeration Economies",
+    "author": "Hoover (1937)",
+    "category": "agglomeration",
+    "description": "Urbanization (diversity) vs localization (specialization) externalities",
+    "indicators": [
+      "urbanization",
+      "localization",
+      "firm_density"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.6,
+      "diversification": 0.65,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "jacobs_externalities": {
+    "name": "Jacobs Externalities",
+    "author": "Jacobs (1969)",
+    "category": "agglomeration",
+    "description": "Urban diversity drives innovation through cross-sector knowledge flows",
+    "indicators": [
+      "diversity_index",
+      "cross_sector_innovation",
+      "urban_density"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.6,
+      "diversification": 0.85,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "spl": {
+    "name": "Systèmes Productifs Localisés (SPL)",
+    "author": "Courlet & Pecqueur (1992)",
+    "category": "french_territorial",
+    "description": "French localized productive systems combining SMEs and local know-how",
+    "indicators": [
+      "sme_density",
+      "local_supply_chain",
+      "tacit_knowledge"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.5,
+      "caution": 0.5,
+      "exit": 0.3
+    }
+  },
+  "milieux_innovateurs": {
+    "name": "Milieux Innovateurs",
+    "author": "GREMI/Aydalot (1986)",
+    "category": "french_territorial",
+    "description": "Innovative environments emerge from local synergies and networks",
+    "indicators": [
+      "innovation_rate",
+      "network_density",
+      "institutional_support"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.4,
+      "exit": 0.25
+    }
+  },
+  "economie_proximite": {
+    "name": "Économie de Proximité",
+    "author": "Rallet & Torre (2004)",
+    "category": "french_territorial",
+    "description": "Geographic + organized proximity enable coordination and learning",
+    "indicators": [
+      "geographic_proximity",
+      "organized_proximity",
+      "coordination_frequency"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "capital_territorial": {
+    "name": "Capital Territorial",
+    "author": "Camagni (2008)",
+    "category": "french_territorial",
+    "description": "Territory-specific assets (hard + soft) determine competitive advantage",
+    "indicators": [
+      "infrastructure",
+      "social_capital",
+      "institutional_quality"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.55,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "ressources_territoriales": {
+    "name": "Ressources Territoriales",
+    "author": "Colletis & Pecqueur (2005)",
+    "category": "french_territorial",
+    "description": "Latent resources can be activated through collective action",
+    "indicators": [
+      "latent_resources",
+      "activation_potential",
+      "collective_action"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "economie_residentielle": {
+    "name": "Économie Résidentielle",
+    "author": "Davezies (2008)",
+    "category": "french_territorial",
+    "description": "Residential economy (retirees, tourists, commuters) vs productive base",
+    "indicators": [
+      "residential_income",
+      "tourism_share",
+      "transfer_income"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.75,
+      "diversification": 0.8,
+      "caution": 0.6,
+      "exit": 0.5
+    }
+  },
+  "metropole_archipel": {
+    "name": "Économie d'Archipel",
+    "author": "Veltz (1996)",
+    "category": "french_territorial",
+    "description": "Networked metropolises dominate, territories in-between struggle",
+    "indicators": [
+      "metro_connectivity",
+      "network_position",
+      "inter_metro_flows"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.6,
+      "exit": 0.5
+    }
+  },
+  "cluster_diamond": {
+    "name": "Cluster Diamond",
+    "author": "Porter (1990)",
+    "category": "innovation",
+    "description": "Competitive advantage from 4 factors: demand, supply, rivalry, support",
+    "indicators": [
+      "factor_conditions",
+      "demand_conditions",
+      "rivalry",
+      "support_industries"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.65,
+      "diversification": 0.5,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "endogenous_growth": {
+    "name": "Endogenous Growth Theory",
+    "author": "Romer (1986), Lucas (1988)",
+    "category": "innovation",
+    "description": "Growth driven by internal factors: human capital, R&D, learning",
+    "indicators": [
+      "rd_intensity",
+      "education_level",
+      "patent_activity"
+    ],
+    "strategy_alignment": {
+      "investment": 0.9,
+      "monitoring": 0.55,
+      "diversification": 0.45,
+      "caution": 0.3,
+      "exit": 0.2
+    }
+  },
+  "triple_helix": {
+    "name": "Triple Helix Model",
+    "author": "Etzkowitz & Leydesdorff (2000)",
+    "category": "innovation",
+    "description": "University-Industry-Government interactions drive innovation",
+    "indicators": [
+      "university_research",
+      "industry_rd",
+      "public_support"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.4,
+      "exit": 0.25
+    }
+  },
+  "learning_regions": {
+    "name": "Learning Regions",
+    "author": "Morgan (1997)",
+    "category": "innovation",
+    "description": "Regions that learn collectively adapt better to economic shocks",
+    "indicators": [
+      "training_rate",
+      "adaptation_speed",
+      "knowledge_institutions"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.65,
+      "diversification": 0.6,
+      "caution": 0.45,
+      "exit": 0.3
+    }
+  },
+  "innovation_systems": {
+    "name": "Regional Innovation Systems",
+    "author": "Cooke (1992)",
+    "category": "innovation",
+    "description": "Regional ecosystem of firms, institutions, and networks for innovation",
+    "indicators": [
+      "innovation_network",
+      "institutional_thickness",
+      "tech_transfer"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.55,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "knowledge_spillovers": {
+    "name": "Knowledge Spillovers",
+    "author": "Jaffe (1989)",
+    "category": "innovation",
+    "description": "Geographically mediated knowledge flows benefit local firms",
+    "indicators": [
+      "patent_citations",
+      "university_proximity",
+      "startup_rate"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.55,
+      "diversification": 0.5,
+      "caution": 0.45,
+      "exit": 0.35
+    }
+  },
+  "smart_specialization": {
+    "name": "Smart Specialisation",
+    "author": "Foray (2009)",
+    "category": "innovation",
+    "description": "Regions should focus on unique strengths through entrepreneurial discovery",
+    "indicators": [
+      "specialization_rca",
+      "entrepreneurial_discovery",
+      "relatedness"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.4,
+      "caution": 0.45,
+      "exit": 0.3
+    }
+  },
+  "creative_class": {
+    "name": "Creative Class",
+    "author": "Florida (2002)",
+    "category": "innovation",
+    "description": "Regional growth correlates with concentration of creative workers",
+    "indicators": [
+      "creative_workers",
+      "tolerance_index",
+      "amenities"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.65,
+      "diversification": 0.7,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "regional_resilience": {
+    "name": "Regional Economic Resilience",
+    "author": "Martin (2012)",
+    "category": "resilience",
+    "description": "Capacity to resist, recover, reorient after economic shocks",
+    "indicators": [
+      "shock_resistance",
+      "recovery_speed",
+      "structural_change"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.85,
+      "diversification": 0.8,
+      "caution": 0.7,
+      "exit": 0.5
+    }
+  },
+  "evolutionary_econ_geography": {
+    "name": "Evolutionary Economic Geography",
+    "author": "Boschma & Martin (2010)",
+    "category": "resilience",
+    "description": "Path dependence and related variety shape regional trajectories",
+    "indicators": [
+      "path_dependence",
+      "related_variety",
+      "branching"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.7,
+      "diversification": 0.75,
+      "caution": 0.6,
+      "exit": 0.5
+    }
+  },
+  "circular_economy": {
+    "name": "Circular Economy",
+    "author": "Ellen MacArthur Foundation (2012)",
+    "category": "resilience",
+    "description": "Closed-loop systems reduce waste and create local value",
+    "indicators": [
+      "recycling_rate",
+      "industrial_symbiosis",
+      "material_efficiency"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.6,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.35
+    }
+  },
+  "territorial_ecology": {
+    "name": "Écologie Territoriale",
+    "author": "Barles (2010)",
+    "category": "resilience",
+    "description": "Metabolic analysis of territorial material/energy flows",
+    "indicators": [
+      "material_flow",
+      "energy_autonomy",
+      "ecological_footprint"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.75,
+      "diversification": 0.65,
+      "caution": 0.6,
+      "exit": 0.45
+    }
+  },
+  "product_lifecycle": {
+    "name": "Product Life Cycle",
+    "author": "Vernon (1966)",
+    "category": "industrial_transition",
+    "description": "Industries evolve through stages; production shifts to lower-cost regions",
+    "indicators": [
+      "industry_maturity",
+      "cost_advantage",
+      "standardization"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.8,
+      "diversification": 0.75,
+      "caution": 0.6,
+      "exit": 0.65
+    }
+  },
+  "industrial_restructuring": {
+    "name": "Industrial Restructuring",
+    "author": "Massey (1984)",
+    "category": "industrial_transition",
+    "description": "Spatial division of labor reshapes regional industrial landscapes",
+    "indicators": [
+      "employment_change",
+      "sector_shift",
+      "skill_mismatch"
+    ],
+    "strategy_alignment": {
+      "investment": 0.6,
+      "monitoring": 0.85,
+      "diversification": 0.8,
+      "caution": 0.7,
+      "exit": 0.6
+    }
+  },
+  "technological_paradigms": {
+    "name": "Technological Paradigms",
+    "author": "Dosi (1982)",
+    "category": "industrial_transition",
+    "description": "Major technological shifts create windows of opportunity for regions",
+    "indicators": [
+      "tech_adoption",
+      "paradigm_shift",
+      "disruption_potential"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "flexible_specialization": {
+    "name": "Flexible Specialization",
+    "author": "Piore & Sabel (1984)",
+    "category": "industrial_transition",
+    "description": "SME networks adapt better than mass producers to volatile markets",
+    "indicators": [
+      "sme_flexibility",
+      "network_adaptation",
+      "customization"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.65,
+      "diversification": 0.7,
+      "caution": 0.5,
+      "exit": 0.35
+    }
+  },
+  "path_dependence": {
+    "name": "Path Dependence",
+    "author": "Arthur (1989)",
+    "category": "industrial_transition",
+    "description": "Historical events and choices constrain future development paths",
+    "indicators": [
+      "historical_lock_in",
+      "switching_costs",
+      "institutional_inertia"
+    ],
+    "strategy_alignment": {
+      "investment": 0.6,
+      "monitoring": 0.75,
+      "diversification": 0.8,
+      "caution": 0.7,
+      "exit": 0.55
+    }
+  },
+  "lock_in": {
+    "name": "Lock-In Theory",
+    "author": "David (1985)",
+    "category": "industrial_transition",
+    "description": "Suboptimal technologies persist due to increasing returns and network effects",
+    "indicators": [
+      "technology_standard",
+      "switching_barrier",
+      "installed_base"
+    ],
+    "strategy_alignment": {
+      "investment": 0.55,
+      "monitoring": 0.8,
+      "diversification": 0.75,
+      "caution": 0.75,
+      "exit": 0.6
+    }
+  },
+  "labor_market_matching": {
+    "name": "Matching Theory",
+    "author": "Pissarides (1979)",
+    "category": "labor_markets",
+    "description": "Labor market efficiency depends on matching between skills and jobs",
+    "indicators": [
+      "vacancy_rate",
+      "unemployment_duration",
+      "skill_match"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.7,
+      "diversification": 0.55,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "human_capital_theory": {
+    "name": "Human Capital Theory",
+    "author": "Becker (1964)",
+    "category": "labor_markets",
+    "description": "Investment in education and skills drives regional productivity",
+    "indicators": [
+      "education_level",
+      "training_investment",
+      "skill_premium"
+    ],
+    "strategy_alignment": {
+      "investment": 0.9,
+      "monitoring": 0.55,
+      "diversification": 0.45,
+      "caution": 0.3,
+      "exit": 0.2
+    }
+  },
+  "brain_drain": {
+    "name": "Brain Drain",
+    "author": "Grubel & Scott (1966)",
+    "category": "labor_markets",
+    "description": "Skilled worker migration depletes regional human capital",
+    "indicators": [
+      "graduate_retention",
+      "migration_balance",
+      "talent_attraction"
+    ],
+    "strategy_alignment": {
+      "investment": 0.65,
+      "monitoring": 0.8,
+      "diversification": 0.6,
+      "caution": 0.75,
+      "exit": 0.65
+    }
+  },
+  "demographic_transition": {
+    "name": "Demographic Transition",
+    "author": "Notestein (1945)",
+    "category": "labor_markets",
+    "description": "Population structure evolves from high to low fertility/mortality",
+    "indicators": [
+      "age_structure",
+      "dependency_ratio",
+      "fertility_rate"
+    ],
+    "strategy_alignment": {
+      "investment": 0.65,
+      "monitoring": 0.8,
+      "diversification": 0.7,
+      "caution": 0.65,
+      "exit": 0.5
+    }
+  },
+  "age_structure_economics": {
+    "name": "Age Structure Economics",
+    "author": "Bloom & Canning (2004)",
+    "category": "labor_markets",
+    "description": "Demographic dividend when working-age population peaks",
+    "indicators": [
+      "working_age_share",
+      "pension_burden",
+      "demographic_window"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.55,
+      "caution": 0.5,
+      "exit": 0.45
+    }
+  },
+  "social_network_theory": {
+    "name": "Social Network Theory",
+    "author": "Granovetter (1973)",
+    "category": "network_economics",
+    "description": "Weak ties bridge clusters and enable information flow",
+    "indicators": [
+      "network_density",
+      "bridging_ties",
+      "information_diffusion"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.65,
+      "diversification": 0.7,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "embeddedness": {
+    "name": "Embeddedness Theory",
+    "author": "Granovetter (1985)",
+    "category": "network_economics",
+    "description": "Economic action is embedded in social relations and trust networks",
+    "indicators": [
+      "trust_level",
+      "repeat_transactions",
+      "social_ties"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.6,
+      "diversification": 0.55,
+      "caution": 0.5,
+      "exit": 0.35
+    }
+  },
+  "relational_capital": {
+    "name": "Relational Capital",
+    "author": "Capello & Faggian (2005)",
+    "category": "network_economics",
+    "description": "Value created through inter-firm relationships and collective learning",
+    "indicators": [
+      "partnership_density",
+      "knowledge_sharing",
+      "collaborative_innovation"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.65,
+      "diversification": 0.55,
+      "caution": 0.45,
+      "exit": 0.3
+    }
+  },
+  "global_value_chains": {
+    "name": "Global Value Chains",
+    "author": "Gereffi (1994)",
+    "category": "network_economics",
+    "description": "Regions compete for positioning in global production networks",
+    "indicators": [
+      "gvc_position",
+      "upgrading_potential",
+      "lead_firm_presence"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.55,
+      "exit": 0.45
+    }
+  },
+  "network_externalities": {
+    "name": "Network Externalities",
+    "author": "Katz & Shapiro (1985)",
+    "category": "network_economics",
+    "description": "Value increases with network size; tipping points matter",
+    "indicators": [
+      "network_size",
+      "adoption_rate",
+      "platform_effects"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.55,
+      "exit": 0.4
+    }
+  },
+  "urban_scaling": {
+    "name": "Urban Scaling Laws",
+    "author": "Bettencourt (2007)",
+    "category": "urban_economics",
+    "description": "Cities exhibit super-linear scaling in innovation, sub-linear in infrastructure",
+    "indicators": [
+      "city_size",
+      "innovation_per_capita",
+      "infrastructure_efficiency"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "polycentric_development": {
+    "name": "Polycentric Development",
+    "author": "ESDP (1999)",
+    "category": "urban_economics",
+    "description": "Balanced development through multiple interconnected urban centers",
+    "indicators": [
+      "urban_hierarchy",
+      "inter_city_flows",
+      "functional_complementarity"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.7,
+      "diversification": 0.75,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "urban_sprawl": {
+    "name": "Urban Sprawl Theory",
+    "author": "Brueckner (2000)",
+    "category": "urban_economics",
+    "description": "Low-density expansion creates inefficiencies and environmental costs",
+    "indicators": [
+      "density_gradient",
+      "commute_distance",
+      "land_consumption"
+    ],
+    "strategy_alignment": {
+      "investment": 0.6,
+      "monitoring": 0.75,
+      "diversification": 0.65,
+      "caution": 0.7,
+      "exit": 0.5
+    }
+  },
+  "gentrification": {
+    "name": "Gentrification Theory",
+    "author": "Smith (1979)",
+    "category": "urban_economics",
+    "description": "Rent gap drives reinvestment in inner-city areas",
+    "indicators": [
+      "rent_gap",
+      "income_change",
+      "property_renovation"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.55,
+      "caution": 0.6,
+      "exit": 0.45
+    }
+  },
+  "shrinking_cities": {
+    "name": "Shrinking Cities",
+    "author": "Oswalt (2005)",
+    "category": "urban_economics",
+    "description": "Urban decline requires adaptive strategies beyond growth paradigm",
+    "indicators": [
+      "population_loss",
+      "vacancy_rate",
+      "economic_decline"
+    ],
+    "strategy_alignment": {
+      "investment": 0.4,
+      "monitoring": 0.85,
+      "diversification": 0.7,
+      "caution": 0.85,
+      "exit": 0.75
+    }
+  },
+  "social_capital": {
+    "name": "Social Capital",
+    "author": "Putnam (1993)",
+    "category": "institutions",
+    "description": "Trust, norms, and networks enable collective action and development",
+    "indicators": [
+      "civic_participation",
+      "association_density",
+      "trust_index"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.65,
+      "diversification": 0.6,
+      "caution": 0.45,
+      "exit": 0.35
+    }
+  },
+  "institutional_thickness": {
+    "name": "Institutional Thickness",
+    "author": "Amin & Thrift (1995)",
+    "category": "institutions",
+    "description": "Dense institutional networks support regional economic development",
+    "indicators": [
+      "institution_density",
+      "inter_org_links",
+      "collective_representation"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.65,
+      "diversification": 0.55,
+      "caution": 0.45,
+      "exit": 0.35
+    }
+  },
+  "governance_quality": {
+    "name": "Governance Quality",
+    "author": "Rodríguez-Pose (2013)",
+    "category": "institutions",
+    "description": "Regional governance capacity determines development effectiveness",
+    "indicators": [
+      "administrative_capacity",
+      "corruption_level",
+      "policy_effectiveness"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.7,
+      "diversification": 0.55,
+      "caution": 0.55,
+      "exit": 0.4
+    }
+  },
+  "territorial_governance": {
+    "name": "Territorial Governance",
+    "author": "Gilly & Wallet (2001)",
+    "category": "institutions",
+    "description": "Multi-level coordination shapes territorial development trajectories",
+    "indicators": [
+      "multi_level_coordination",
+      "stakeholder_engagement",
+      "policy_coherence"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "place_based_policy": {
+    "name": "Place-Based Policy",
+    "author": "Barca (2009)",
+    "category": "institutions",
+    "description": "Tailored interventions outperform one-size-fits-all approaches",
+    "indicators": [
+      "policy_targeting",
+      "local_adaptation",
+      "intervention_effectiveness"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.7,
+      "diversification": 0.6,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "comparative_advantage": {
+    "name": "Comparative Advantage",
+    "author": "Ricardo (1817)",
+    "category": "globalization",
+    "description": "Regions benefit from specializing in their relative strengths",
+    "indicators": [
+      "export_specialization",
+      "trade_balance",
+      "revealed_advantage"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.4,
+      "caution": 0.45,
+      "exit": 0.35
+    }
+  },
+  "world_systems": {
+    "name": "World Systems Theory",
+    "author": "Wallerstein (1974)",
+    "category": "globalization",
+    "description": "Core-periphery relations at global scale structure development",
+    "indicators": [
+      "global_position",
+      "value_extraction",
+      "dependency"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.8,
+      "diversification": 0.75,
+      "caution": 0.65,
+      "exit": 0.55
+    }
+  },
+  "global_city": {
+    "name": "Global City",
+    "author": "Sassen (1991)",
+    "category": "globalization",
+    "description": "Command centers for global economy concentrate advanced services",
+    "indicators": [
+      "financial_services",
+      "headquarters",
+      "global_connectivity"
+    ],
+    "strategy_alignment": {
+      "investment": 0.9,
+      "monitoring": 0.6,
+      "diversification": 0.5,
+      "caution": 0.4,
+      "exit": 0.3
+    }
+  },
+  "glocalization": {
+    "name": "Glocalization",
+    "author": "Robertson (1995)",
+    "category": "globalization",
+    "description": "Global forces interact with local contexts to produce unique outcomes",
+    "indicators": [
+      "local_adaptation",
+      "global_integration",
+      "cultural_hybridization"
+    ],
+    "strategy_alignment": {
+      "investment": 0.75,
+      "monitoring": 0.7,
+      "diversification": 0.7,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "offshoring": {
+    "name": "Offshoring Theory",
+    "author": "Blinder (2006)",
+    "category": "globalization",
+    "description": "Service jobs face offshoring pressure based on impersonal vs personal nature",
+    "indicators": [
+      "task_tradability",
+      "digital_content",
+      "face_to_face_requirement"
+    ],
+    "strategy_alignment": {
+      "investment": 0.6,
+      "monitoring": 0.8,
+      "diversification": 0.7,
+      "caution": 0.75,
+      "exit": 0.6
+    }
+  },
+  "just_transition": {
+    "name": "Just Transition",
+    "author": "ILO (2015)",
+    "category": "green_transition",
+    "description": "Decarbonization must address social impacts on workers and communities",
+    "indicators": [
+      "carbon_intensity",
+      "transition_support",
+      "worker_retraining"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.75,
+      "diversification": 0.7,
+      "caution": 0.6,
+      "exit": 0.5
+    }
+  },
+  "ecological_modernization": {
+    "name": "Ecological Modernization",
+    "author": "Mol (1995)",
+    "category": "green_transition",
+    "description": "Environmental and economic goals can be reconciled through innovation",
+    "indicators": [
+      "eco_innovation",
+      "resource_efficiency",
+      "green_growth"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.6,
+      "diversification": 0.6,
+      "caution": 0.45,
+      "exit": 0.35
+    }
+  },
+  "bioeconomy": {
+    "name": "Bioeconomy",
+    "author": "EU (2012)",
+    "category": "green_transition",
+    "description": "Bio-based resources and processes create sustainable value chains",
+    "indicators": [
+      "bio_based_share",
+      "agricultural_innovation",
+      "waste_valorization"
+    ],
+    "strategy_alignment": {
+      "investment": 0.8,
+      "monitoring": 0.65,
+      "diversification": 0.7,
+      "caution": 0.5,
+      "exit": 0.4
+    }
+  },
+  "renewable_transition": {
+    "name": "Renewable Energy Transition",
+    "author": "Jacobsson & Johnson (2000)",
+    "category": "green_transition",
+    "description": "Technological innovation systems drive renewable energy adoption",
+    "indicators": [
+      "renewable_share",
+      "clean_tech_patents",
+      "energy_autonomy"
+    ],
+    "strategy_alignment": {
+      "investment": 0.85,
+      "monitoring": 0.65,
+      "diversification": 0.6,
+      "caution": 0.45,
+      "exit": 0.35
+    }
+  },
+  "territorial_metabolism": {
+    "name": "Territorial Metabolism",
+    "author": "Fischer-Kowalski (1998)",
+    "category": "green_transition",
+    "description": "Socioeconomic systems have material/energy throughput like organisms",
+    "indicators": [
+      "material_intensity",
+      "energy_consumption",
+      "waste_generation"
+    ],
+    "strategy_alignment": {
+      "investment": 0.7,
+      "monitoring": 0.8,
+      "diversification": 0.65,
+      "caution": 0.6,
+      "exit": 0.5
+    }
+  }
+}

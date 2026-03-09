@@ -1,0 +1,70 @@
+name: "Feature Request"
+description: "Proposer une nouvelle fonctionnalite pour Tawiza"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vous avez une idee pour ameliorer Tawiza ? On est tout ouie !
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Probleme ou besoin
+      description: Quel probleme cette fonctionnalite resoudrait-elle ?
+      placeholder: "Je suis frustre quand..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposee
+      description: Decrivez la solution que vous aimeriez voir.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considerees
+      description: Avez-vous envisage d'autres solutions ?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Composant concerne
+      options:
+        - Backend (API)
+        - Frontend (Dashboard)
+        - Agent TAJINE
+        - Nouvelle source de donnees
+        - DevEx / DX
+        - Documentation
+        - Autre
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Importance pour vous
+      options:
+        - "Nice to have"
+        - "Important"
+        - "Critique pour mon usage"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: Je suis pret(e) a contribuer a cette fonctionnalite via une PR
+          required: false
+        - label: J'ai verifie que cette fonctionnalite n'a pas deja ete proposee
+          required: true
