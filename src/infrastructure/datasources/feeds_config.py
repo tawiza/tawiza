@@ -4,6 +4,7 @@ Organized by category with metadata for filtering, priority, and language.
 Inspired by World Monitor's multi-variant feed architecture.
 """
 
+import os
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 

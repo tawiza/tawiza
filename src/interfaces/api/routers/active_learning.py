@@ -1,5 +1,6 @@
 """API routes for Active Learning system."""
 
+import os
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status

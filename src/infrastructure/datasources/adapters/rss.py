@@ -1,5 +1,6 @@
 """RSS/Atom feed adapter for startup news and tech content."""
 
+import os
 from datetime import datetime
 from typing import Any
 from urllib.parse import urlparse

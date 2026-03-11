@@ -1,6 +1,8 @@
 """API Router for Code Execution."""
 
 
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 

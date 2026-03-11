@@ -1,5 +1,6 @@
 # src/cli/ui/gpu_monitor.py
 """Moniteur GPU hybride - supporte host (ROCm) et VM (SSH)."""
+import os
 import re
 import subprocess
 from dataclasses import dataclass
