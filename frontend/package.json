@@ -79,7 +79,7 @@
     "react": "^19.0.0",
     "react-apexcharts": "1.4.1",
     "react-custom-scrollbars-2": "^4.5.0",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.14.0",
     "react-dom": "^19.0.0",
     "react-draggable": "^4.5.0",
     "react-grid-layout": "^2.2.2",
