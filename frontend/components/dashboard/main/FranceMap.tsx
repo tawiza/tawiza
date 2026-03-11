@@ -506,7 +506,7 @@ export default function FranceMap() {
         {Object.keys(deptData).length} départements · {microDepts.length} en alerte
       </div>
 
-      <style jsx global>{`
+      <style>{`
         .rich-tooltip {
           background: rgba(0, 0, 0, 0.92) !important;
           border: 1px solid rgba(245, 158, 11, 0.3) !important;
