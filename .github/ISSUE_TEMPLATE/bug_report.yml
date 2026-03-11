@@ -1,32 +1,31 @@
-name: "Bug Report"
-description: "Signaler un bug pour nous aider a ameliorer Tawiza"
-title: "[Bug]: "
-labels: ["bug", "triage"]
+name: Rapport de bug
+description: Signaler un bug ou un comportement inattendu
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Merci de prendre le temps de signaler ce bug !
-        Remplissez le formulaire ci-dessous pour nous aider a reproduire et corriger le probleme.
+        Merci de prendre le temps de signaler ce bug.
+        Remplissez le formulaire ci-dessous avec le plus de détails possible.
 
   - type: textarea
     id: description
     attributes:
-      label: Description du bug
-      description: Une description claire et concise du bug.
-      placeholder: "Quand je clique sur X, il se passe Y au lieu de Z..."
+      label: Description
+      description: Décrivez le bug de manière claire et concise.
+      placeholder: Décrivez le problème rencontré...
     validations:
       required: true
 
   - type: textarea
-    id: reproduction
+    id: steps
     attributes:
-      label: Etapes pour reproduire
-      description: Comment reproduire le comportement.
+      label: Étapes pour reproduire
+      description: Listez les étapes permettant de reproduire le bug.
       placeholder: |
         1. Aller sur '...'
         2. Cliquer sur '...'
-        3. Voir l'erreur
+        3. Observer l'erreur
     validations:
       required: true
 
@@ -34,37 +33,35 @@ body:
     id: expected
     attributes:
       label: Comportement attendu
-      description: Ce qui devrait se passer a la place.
+      description: Décrivez ce qui aurait dû se passer.
+      placeholder: Décrivez le comportement attendu...
     validations:
       required: true
 
-  - type: dropdown
-    id: component
+  - type: input
+    id: os
     attributes:
-      label: Composant concerne
-      options:
-        - Backend (API)
-        - Frontend (Dashboard)
-        - Agent TAJINE
-        - Sources de donnees
-        - Docker / Deploiement
-        - Documentation
-        - Autre
+      label: Système d'exploitation
+      description: Sur quel OS avez-vous rencontré le problème ?
+      placeholder: "ex: Ubuntu 24.04, macOS 15, Windows 11"
     validations:
-      required: true
+      required: false
 
-  - type: textarea
-    id: environment
+  - type: input
+    id: python-version
     attributes:
-      label: Environnement
-      description: |
-        Informations sur votre environnement.
-      value: |
-        - OS: [e.g. Ubuntu 22.04]
-        - Python: [e.g. 3.11.8]
-        - Node.js: [e.g. 20.x]
-        - Docker: [e.g. 24.0]
-        - Navigateur: [e.g. Firefox 120]
+      label: Version de Python
+      description: Quelle version de Python utilisez-vous ?
+      placeholder: "ex: 3.12.3"
+    validations:
+      required: false
+
+  - type: input
+    id: docker-version
+    attributes:
+      label: Version de Docker
+      description: Quelle version de Docker utilisez-vous ?
+      placeholder: "ex: 27.5.1"
     validations:
       required: false
 
@@ -74,15 +71,6 @@ body:
       label: Logs
       description: Collez les logs pertinents ici.
       render: shell
+      placeholder: Collez vos logs ici...
     validations:
       required: false
-
-  - type: checkboxes
-    id: checks
-    attributes:
-      label: Verification
-      options:
-        - label: J'ai cherche dans les issues existantes et ce bug n'a pas deja ete signale
-          required: true
-        - label: J'utilise la derniere version de Tawiza
-          required: false

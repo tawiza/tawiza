@@ -1,70 +1,45 @@
-name: "Feature Request"
-description: "Proposer une nouvelle fonctionnalite pour Tawiza"
-title: "[Feature]: "
-labels: ["enhancement"]
+name: Demande de fonctionnalité
+description: Proposer une nouvelle fonctionnalité ou une amélioration
+labels: ["amélioration"]
 body:
   - type: markdown
     attributes:
       value: |
-        Vous avez une idee pour ameliorer Tawiza ? On est tout ouie !
+        Merci de proposer une amélioration !
+        Décrivez votre idée le plus clairement possible.
 
   - type: textarea
-    id: problem
+    id: description
     attributes:
-      label: Probleme ou besoin
-      description: Quel probleme cette fonctionnalite resoudrait-elle ?
-      placeholder: "Je suis frustre quand..."
+      label: Description
+      description: Décrivez la fonctionnalité souhaitée.
+      placeholder: Décrivez la fonctionnalité...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Cas d'usage / Motivation
+      description: Pourquoi cette fonctionnalité serait-elle utile ? Quel problème résout-elle ?
+      placeholder: Expliquez le contexte et la motivation...
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: Solution proposee
-      description: Decrivez la solution que vous aimeriez voir.
+      label: Solution proposée
+      description: Si vous avez une idée de la mise en œuvre, décrivez-la ici.
+      placeholder: Décrivez votre proposition de solution...
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives considerees
-      description: Avez-vous envisage d'autres solutions ?
+      label: Alternatives envisagées
+      description: Avez-vous envisagé d'autres approches ?
+      placeholder: Décrivez les alternatives que vous avez considérées...
     validations:
       required: false
-
-  - type: dropdown
-    id: component
-    attributes:
-      label: Composant concerne
-      options:
-        - Backend (API)
-        - Frontend (Dashboard)
-        - Agent TAJINE
-        - Nouvelle source de donnees
-        - DevEx / DX
-        - Documentation
-        - Autre
-    validations:
-      required: true
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Importance pour vous
-      options:
-        - "Nice to have"
-        - "Important"
-        - "Critique pour mon usage"
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: contribution
-    attributes:
-      label: Contribution
-      options:
-        - label: Je suis pret(e) a contribuer a cette fonctionnalite via une PR
-          required: false
-        - label: J'ai verifie que cette fonctionnalite n'a pas deja ete proposee
-          required: true
