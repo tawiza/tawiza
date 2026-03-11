@@ -34,7 +34,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Website](https://img.shields.io/badge/Website-tawiza.fr-d97706.svg)](https://tawiza.fr)
 
-> ⚠️**Beta** — Ce projet est en developpement actif. L'API, le schema de donnees et les fonctionnalites peuvent changer. On est preneurs de retours et de contributions !
+> ⚠️ **Beta** — Ce projet est en developpement actif. L'API, le schema de donnees et les fonctionnalites peuvent changer. On est preneurs de retours et de contributions !
 
 > Parce que scraper l'INSEE a la main, c'est so 2020.
 
