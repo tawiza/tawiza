@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Middleware: auth gate.
- * 
+ * Proxy (Next.js 16): auth gate.
+ *
  * Protects /dashboard/* routes. Redirects to /login if no session.
  * Auth tokens stored in localStorage (client-side) + refresh_token cookie.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip auth entirely if SKIP_AUTH is set (e.g. behind Cloudflare Access)

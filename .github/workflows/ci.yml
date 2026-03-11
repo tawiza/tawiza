@@ -101,7 +101,7 @@ jobs:
 
       - name: Lint
         working-directory: frontend
-        run: npx next lint
+        run: npx eslint .
 
   docker:
     name: Docker Build

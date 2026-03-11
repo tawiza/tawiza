@@ -23,7 +23,7 @@ const THEMES = {
 
 export default function FlowFieldCanvas({ isStreaming = false, className = '' }: FlowFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const noise2D = useRef(createNoise2D());
   const particlesRef = useRef<Particle[]>([]);
   const timeRef = useRef(0);
