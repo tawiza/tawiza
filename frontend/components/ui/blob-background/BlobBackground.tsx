@@ -41,7 +41,7 @@ const COLORS = {
 
 export default function BlobBackground({ isStreaming = false, className = '' }: BlobBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const noise2D = useRef(createNoise2D());
   const blobsRef = useRef<Blob[]>([]);
   const timeRef = useRef(0);

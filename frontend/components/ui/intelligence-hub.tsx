@@ -56,7 +56,7 @@ const IntelligenceHub = memo(function IntelligenceHub({
   const [totalProcessed, setTotalProcessed] = useState(0);
   const [activeConnections, setActiveConnections] = useState(0);
   const pulseIdRef = useRef(0);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
 
   const center = size / 2;
   const radius = size * 0.35;
