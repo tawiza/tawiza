@@ -76,6 +76,7 @@
     "mini-svg-data-uri": "^1.4.4",
     "next": "^15.1.6",
     "next-themes": "^0.3.0",
+    "posthog-js": "^1.360.1",
     "react": "^19.0.0",
     "react-apexcharts": "1.4.1",
     "react-custom-scrollbars-2": "^4.5.0",
