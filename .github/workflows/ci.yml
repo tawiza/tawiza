@@ -58,7 +58,7 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://tawiza:test_password@localhost:5432/tawiza_test
           REDIS_URL: redis://localhost:6379/0
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest tests/unit -v --cov=src --cov-report=xml
+        run: pytest tests/unit -v --cov=src --cov-report=xml --no-header -q
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
