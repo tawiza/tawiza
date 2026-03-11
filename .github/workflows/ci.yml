@@ -97,8 +97,7 @@ jobs:
 
       - name: Typecheck
         working-directory: frontend
-        run: npx tsc --noEmit || true
-        continue-on-error: true
+        run: npx tsc --noEmit
 
       - name: Lint
         working-directory: frontend
