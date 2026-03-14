@@ -38,7 +38,7 @@
 
 > Parce que scraper l'INSEE à la main, c'est so 2020.
 
-**Tawiza** est une plateforme open source d'intelligence économique et territoriale française. Elle analyse les entreprises, les territoires et les dynamiques économiques en s'appuyant sur 18+ APIs gouvernementales, des agents IA cognitifs, et un systeme de collecte proactive de données.
+**Tawiza** est une plateforme open source d'intelligence économique et territoriale française. Elle analyse les entreprises, les territoires et les dynamiques économiques en s'appuyant sur 18+ APIs gouvernementales, des agents IA cognitifs, et un système de collecte proactive de données.
 
 > **Tawiza** (ⵜⴰⵡⵉⵣⴰ)  -  mot amazigh signifiant *entraide collective*. Parce que l'intelligence économique, c'est mieux à plusieurs.
 
@@ -47,13 +47,36 @@
 ## Pourquoi Tawiza ?
 
 - **Les données publiques françaises sont un trésor**... dispersé sur 18 APIs différentes, avec 18 formats différents, et 18 façons de paginer. On a fait le sale boulot pour vous.
-- **L'IA sans données réelles, c'est de la fiction**. Tawiza ne triche pas : zero mock, zero données synthétiques. Tout vient d'APIs gouvernementales en production.
+- **L'IA sans données réelles, c'est de la fiction**. Tawiza ne triche pas : zéro mock, zéro données synthétiques. Tout vient d'APIs gouvernementales en production.
 - **Analyser un territoire, ça ne devrait pas prendre 3 semaines**. Un agent IA cognitif (TAJINE) décompose votre question, collecte les données, et synthétise  -  pendant que vous prenez un café.
 - **Self-hostable, forkable, hackable**. Votre intelligence économique vous appartient.
 
 ---
 
-## Fonctionnalites
+## État du projet
+
+> Tawiza est en **beta active**. Certains modules sont stables, d'autres en cours de développement. Le tableau ci-dessous reflète l'état réel.
+
+| Module | État | Note |
+|--------|:----:|------|
+| **Dashboard web** (22 pages) | Stable | Interface chat fonctionnelle, cockpit territorial, analytics |
+| **API REST** (40+ endpoints) | Stable | Authentification JWT, middleware de sécurité, SSE streaming |
+| **Sources de données** (18+ APIs) | Stable | SIRENE, BODACC, BOAMP, DVF, INSEE, France Travail... |
+| **Agent TAJINE** (cycle PPDSL) | En cours | Simplification et calibrage en cours, résultats non garantis |
+| **Data Hunter** (collecte proactive) | En cours | Stratégies bandit et discovery à tester selon votre cas d'usage |
+| **Signaux & Décisions** | En cours | Détection d'anomalies et module décisions à valider |
+| **Crawler adaptatif** | En cours | Scheduling MAB et workers opérationnels, stabilisation en cours |
+| **CLI / TUI** (Typer + Textual) | En cours | Pas encore fonctionnel à 100%, en cours de finalisation |
+| **Knowledge Graph** (Neo4j) | Présent | Code réel, nécessite Neo4j en infra |
+| **Workforce CAMEL** (12 agents) | Présent | Fonctionne, mais dépend fortement de la qualité du LLM |
+| **Fine-tuning & Active Learning** | Présent | Pipeline LoRA/DPO, nécessite GPU et configuration MLflow |
+| **Veille automatisée** (Watcher) | Présent | Pollers BOAMP, BODACC, GDELT opérationnels |
+| **Investigation bayésienne** | Présent | Raisonnement probabiliste, extraction de signaux |
+| **Serveur MCP** (13 outils) | Présent | Intégration avec agents externes via Model Context Protocol |
+
+---
+
+## Fonctionnalités
 
 ### Agent TAJINE  -  Le cerveau
 
@@ -61,26 +84,30 @@ L'agent TAJINE suit le cycle **PPDSL** (Perceive-Plan-Delegate-Synthesize-Learn)
 
 | Niveau | Capacité | Exemple |
 |--------|----------|---------|
-| **Discovery** | Extraction factuelle | "Combien d'entreprises tech a Toulouse ?" |
+| **Discovery** | Extraction factuelle | "Combien d'entreprises tech à Toulouse ?" |
 | **Causal** | Analyse causale (DAG) | "Pourquoi le secteur BTP recule en Occitanie ?" |
 | **Scenario** | Simulation Monte Carlo | "Et si on doublait les subventions innovation ?" |
-| **Strategy** | Recommandations stratégiques | "Ou investir pour maximiser l'emploi ?" |
-| **Theoretical** | Principes généraux | "Quels facteurs structurels expliquent l'attractivite ?" |
+| **Strategy** | Recommandations stratégiques | "Où investir pour maximiser l'emploi ?" |
+| **Theoretical** | Principes généraux | "Quels facteurs structurels expliquent l'attractivité ?" |
 
-Chaque niveau s'appuie sur des modules spécialisés : raisonnement causal (DAG), simulation Monte Carlo, modelisation agent-based (ménages/entreprises), et debate multi-agents pour les questions complexes.
+Chaque niveau s'appuie sur des modules spécialisés : raisonnement causal (DAG), simulation Monte Carlo, modélisation agent-based (ménages/entreprises), et débat multi-agents pour les questions complexes.
+
+> **Note :** L'agent est en cours de simplification et de calibrage. Les résultats dépendent fortement du modèle LLM utilisé et ne sont pas garantis à ce stade.
 
 ### Data Hunter  -  La collecte proactive
 
-Le **Data Hunter** est le moteur de collecte intelligent de Tawiza. Au lieu d'interroger bêtement toutes les sources, il utilise 4 stratégies combinées :
+Le **Data Hunter** est le moteur de collecte intelligent de Tawiza. Au lieu d'interroger toutes les sources à l'aveugle, il utilise 4 stratégies combinées :
 
 | Stratégie | Méthode | Quand |
 |-----------|---------|-------|
-| **Hypothesis-driven** | Le LLM génère des hypothèses a valider | Questions complexes |
+| **Hypothesis-driven** | Le LLM génère des hypothèses à valider | Questions complexes |
 | **Bandit-optimized** | UCB1/LinUCB sélectionnent les meilleures sources | Mode normal |
 | **Graph-expanding** | Neo4j détecte les trous dans le graphe de connaissances | Enrichissement |
 | **Discovery** | ScrapeGraphAI découvre de nouveaux patterns d'extraction | Exploration |
 
 Le Data Hunter dispose aussi d'une version **résiliente** avec circuit breaker, retry exponentiel, cache multi-niveaux, et fallback automatique entre sources.
+
+> **Note :** Module en cours de tests. Les stratégies fonctionnent mais les résultats varient selon la configuration et les sources ciblées.
 
 ### Sources de données  -  18+ APIs intégrées
 
@@ -95,56 +122,56 @@ Le Data Hunter dispose aussi d'une version **résiliente** avec circuit breaker,
 | **BAN** | Géocodage adresses | Non |
 | **RNA** | Associations | Non |
 | **Subventions** | Aides territoriales | Non |
-| **OFGL** | Finances locales collectivites | Non |
-| **MELODI** | Données douanieres | Non |
+| **OFGL** | Finances locales collectivités | Non |
+| **MELODI** | Données douanières | Non |
 | **GDELT** | Événements mondiaux | Non |
 | **DBNomics** | Données macroéconomiques | Non |
 | **Google News** | Actualités | Non |
 | **CommonCrawl** | Archive web | Non |
 | **PyTrends** | Tendances Google | Non |
 | **RSS Enhanced** | News temps réel | Non |
-| **Wikipedia** | Pageviews (interet public) | Non |
+| **Wikipedia** | Pageviews (intérêt public) | Non |
 
-### Dashboard  -  15+ pages
+### Dashboard  -  22 pages
 
 - **Chat IA**  -  Questions en langage naturel (WebSocket temps réel, historique de conversations)
 - **Cockpit territorial**  -  Radar 6 axes, heatmaps, flux Sankey
 - **Analytics**  -  Timeseries BODACC, répartition sectorielle, prédictions
 - **Investigation**  -  Cartographie des relations inter-entreprises (graphe interactif), analyse de réseau, score écosystème
-- **Decisions**  -  Matrice d'impact, stakeholders RACI, graphe de relations
-- **Signaux**  -  Détection d'anomalies et micro-signaux (ML)
-- **News Intelligence**  -  Analyse et enrichissement croise des actualites
+- **Décisions**  -  Matrice d'impact, stakeholders RACI, graphe de relations *(en cours de validation)*
+- **Signaux**  -  Détection d'anomalies et micro-signaux (ML) *(en cours de validation)*
+- **News Intelligence**  -  Analyse et enrichissement croisé des actualités
 - **Web Intelligence**  -  Crawling adaptatif de sources configurables (Crawl Intel)
-- **Départements**  -  Classement, detail par département, scoring EPCI
+- **Départements**  -  Classement, détail par département, scoring EPCI
 - **Comparaison**  -  Benchmarking entre territoires
 - **Fine-tuning**  -  Pipeline d'amélioration continue (LoRA, LLM-as-Judge)
-- **Predictions**  -  Modèles ML avec feature importance et outliers
+- **Prédictions**  -  Modèles ML avec feature importance et outliers
 - **Sources**  -  Gestion et statut des sources de données
-- **Alertes**  -  Systeme de veille automatisée
+- **Alertes**  -  Système de veille automatisée
 
-### TUI  -  Interface terminal avancee
+### CLI & TUI  -  En cours de développement
 
-En plus du dashboard web, Tawiza propose une **TUI** (Terminal User Interface) complète avec Textual :
+Tawiza embarque une **CLI** (Typer) et une **TUI** (Textual) pour l'usage en terminal. Ces interfaces sont en cours de finalisation et ne sont pas encore fonctionnelles à 100%.
 
-- **Carte de France interactive** avec classement des départements
-- **Charts en terminal** (sparklines, gauges, barres) via Plotext
-- **Ecran TAJINE**  -  Dialogue avec l'agent directement en terminal
-- **Dashboard temps réel**  -  Metriques, statut des services, logs
-- **GPU Monitor**  -  Suivi VRAM/utilisation en temps réel
-- **Session recorder**  -  Enregistrement et replay de sessions
-- **Autocompletion dynamique**  -  Contextuelle selon l'etat du systeme
+Ce qui est implémenté :
+- Carte de France interactive avec classement des départements
+- Charts en terminal (sparklines, gauges, barres) via Plotext
+- Écran TAJINE  -  Dialogue avec l'agent en terminal
+- Dashboard temps réel  -  Métriques, statut des services, logs
+- GPU Monitor  -  Suivi VRAM/utilisation en temps réel
+- Autocomplétion dynamique contextuelle
 
 ```bash
-# Lancer la TUI
+# La CLI/TUI est en cours — utilisation à vos risques
 tawiza   # CLI v2 avec TUI Textual
 ```
 
 ### Analyse territoriale
 
-- **6 axes** : Infrastructure, Capital humain, Innovation, Export, Investissement, Durabilite
-- **Simulation Monte Carlo** + modelisation agent-based (ménages, entreprises)
-- **Scoring multi-facteurs** avec analyse d'attractivite territoriale
-- **Ecocartographe**  -  Cartographie automatique des écosystèmes territoriaux
+- **6 axes** : Infrastructure, Capital humain, Innovation, Export, Investissement, Durabilité
+- **Simulation Monte Carlo** + modélisation agent-based (ménages, entreprises)
+- **Scoring multi-facteurs** avec analyse d'attractivité territoriale
+- **Écocartographe**  -  Cartographie automatique des écosystèmes territoriaux
 - **Détection de points focaux** et analyse de réseau
 
 ### Knowledge Graph (Neo4j)
@@ -152,25 +179,24 @@ tawiza   # CLI v2 avec TUI Textual
 Tawiza construit un **graphe de connaissances** territorial avec Neo4j :
 
 - Relations entreprises-dirigeants-territoires-secteurs
-- Détection de gaps (relations manquantes, données obsoletes, entites incomplètes)
-- Algorithmes de centralite, detection de communautes, similarite
+- Détection de gaps (relations manquantes, données obsolètes, entités incomplètes)
+- Algorithmes de centralité, détection de communautés, similarité
 - Synchronisation batch avec file d'attente
 
-### Systeme multi-agents (CAMEL)
+### Système multi-agents (CAMEL)
 
-Pour les analyses complexes, Tawiza orchestre une **workforce** de 11 agents spécialisés :
+Pour les analyses complexes, Tawiza orchestre une **workforce** de 12 agents spécialisés :
 
-Analyst, Business Plan, Comparison, Data, Finance, Geo, Prospection, Simulation, Veille, Web, et un Orchestrateur qui coordonne le tout.
+Analyst, Business Plan, Comparison, Data, Finance, Geo, Orchestrator, Prospection, Simulation, Veille, Web, et un coordinateur général.
 
 ### Browser Automation & Crawling
 
-Trois backends de navigation stealth pour le scraping avance :
+Deux backends de navigation stealth pour le scraping avancé :
 
-- **Camoufox**  -  Firefox modifie avec fingerprint C++ (anti-detection)
+- **Camoufox**  -  Firefox modifié avec fingerprint C++ (anti-détection)
 - **Nodriver**  -  Chrome CDP stealth
-- **BrowserUse**  -  Agent browser LLM-driven
 
-Plus un **crawler adaptatif** avec :
+Plus un **crawler adaptatif** *(en cours de stabilisation)* avec :
 - Scheduling intelligent (Multi-Armed Bandit)
 - Pool de proxies et rotation de headers
 - Workers HTTPX (rapide) + Playwright (JS rendering)
@@ -178,16 +204,16 @@ Plus un **crawler adaptatif** avec :
 
 ### Veille automatisée (Watcher)
 
-Systeme de surveillance continue avec pollers spécialisés :
-- **BOAMP**  -  Nouveaux marches publics
+Système de surveillance continue avec pollers spécialisés :
+- **BOAMP**  -  Nouveaux marchés publics
 - **BODACC**  -  Annonces légales (faillites, créations)
 - **GDELT**  -  Événements mondiaux impactant les territoires
 - Notifications et alertes configurables
 
 ### Investigation & Risk Analysis
 
-- **Raisonnement bayésien** pour l'investigation d'entites
-- **Extraction de signaux** et detection d'anomalies
+- **Raisonnement bayésien** pour l'investigation d'entités
+- **Extraction de signaux** et détection d'anomalies
 - **Scoring de risque multi-facteurs** avec explications
 - **Analyse de crédibilité** des sources
 - **Cascade model** pour la propagation d'impacts
@@ -195,23 +221,17 @@ Systeme de surveillance continue avec pollers spécialisés :
 ### Active Learning & Fine-tuning
 
 Pipeline d'amélioration continue du LLM :
-- **Drift detection**  -  Détecte quand le modele se dégrade
+- **Drift detection**  -  Détecte quand le modèle se dégrade
 - **Feedback loop**  -  Les retours utilisateurs alimentent le retraining
 - **LoRA/QLoRA**  -  Fine-tuning efficace avec PEFT
 - **DPO/GRPO**  -  Alignement via TRL
 - **LLM-as-Judge**  -  Évaluation automatique de la qualité
 - **MLflow**  -  Tracking des expériences
 
-### Code Execution Sandbox
+### Serveur MCP
 
-Pour l'analyse exploratoire, Tawiza intègre des environnements d'execution isolés :
-- **E2B**  -  Sandbox cloud
-- **Open Interpreter**  -  Execution locale
-
-### MCP Server
-
-Tawiza expose un serveur **MCP** (Model Context Protocol) avec 12 outils :
-benchmark, browser, business plan, comparison, dashboard, analyse granulaire, vue macro, prospection, simulation, veille, recherche web, et coordination workforce.
+Tawiza expose un serveur **MCP** (Model Context Protocol) avec 13 outils :
+benchmark, browser, business plan, comparison, dashboard, analyse granulaire, vue macro, prospection, simulation, veille, recherche web, coordination workforce, et plus.
 
 ---
 
@@ -266,17 +286,17 @@ Idéal pour la vie privée et le contrôle total. Fonctionne avec **NVIDIA (CUDA
 curl -fsSL https://ollama.ai/install.sh | sh
 ```
 
-| Modele | Role | VRAM | Commande |
+| Modèle | Rôle | VRAM | Commande |
 |--------|------|------|----------|
 | `qwen2.5:7b` | Chat par défaut, contextualisation | ~5 Go | `ollama pull qwen2.5:7b` |
 | `nomic-embed-text` | Embeddings (pgvector, RAG) | ~300 Mo | `ollama pull nomic-embed-text` |
 | `qwen3.5:27b` | Agent TAJINE, analyses complexes | ~17 Go | `ollama pull qwen3.5:27b` |
-| `qwen3:8b` | Resumes, syntheses | ~5 Go | `ollama pull qwen3:8b` |
+| `qwen3:8b` | Résumés, synthèses | ~5 Go | `ollama pull qwen3:8b` |
 
 **Minimum** : `qwen2.5:7b` + `nomic-embed-text` (~5 Go VRAM).
-**Recommande** : ajouter `qwen3.5:27b` pour des analyses TAJINE de qualité (~17 Go VRAM, GPU 24 Go+).
+**Recommandé** : ajouter `qwen3.5:27b` pour des analyses TAJINE de qualité (~17 Go VRAM, GPU 24 Go+).
 
-> **GPU AMD (ROCm)** : Ollama supporte nativement ROCm. Assurez-vous d'installer la version avec le backend ROCm (`ollama-linux-amd64-rocm`). Teste avec RX 7900 XTX.
+> **GPU AMD (ROCm)** : Ollama supporte nativement ROCm. Assurez-vous d'installer la version avec le backend ROCm (`ollama-linux-amd64-rocm`). Testé avec RX 7900 XTX.
 >
 > **GPU NVIDIA (CUDA)** : Ollama détecte automatiquement CUDA. Aucune configuration supplémentaire nécessaire.
 >
@@ -292,14 +312,14 @@ GROQ_API_KEY=gsk_...          # Gratuit (rate-limited)
 OPENROUTER_API_KEY=sk-or-...  # Payant, large choix de modèles
 ```
 
-#### Option 3 : API Claude (recommande pour la qualité)
+#### Option 3 : API Claude (recommandé pour la qualité)
 
 Pour les meilleurs résultats d'analyse, utilisez [Claude](https://docs.anthropic.com/en/docs/about-claude/models) via l'API Anthropic ou un proxy OpenAI-compatible.
 
 ```bash
 # Dans .env  -  via OpenRouter (compatible OpenAI)
 OPENROUTER_API_KEY=sk-or-...
-# Le modele Claude sera automatiquement disponible via OpenRouter
+# Le modèle Claude sera automatiquement disponible via OpenRouter
 ```
 
 > Les modèles sont configurables via les variables d'environnement `OLLAMA__DEFAULT_MODEL` et `OLLAMA__EMBEDDING_MODEL` dans `.env`.
@@ -316,25 +336,25 @@ OPENROUTER_API_KEY=sk-or-...
 
 Le diagramme illustre les **6 couches** de la plateforme et comment elles interagissent :
 
-1. **Interfaces**  -  5 points d'entrée : dashboard web (Next.js 14), TUI terminal (Textual), CLI (Typer), WebSocket temps réel, et serveur MCP pour les agents externes. Toutes communiquent avec l'API via REST ou WebSocket.
+1. **Interfaces**  -  5 points d'entrée : dashboard web (Next.js 14), TUI terminal (Textual, en cours), CLI (Typer, en cours), WebSocket temps réel, et serveur MCP pour les agents externes.
 
-2. **API Layer (FastAPI)**  -  40+ endpoints REST avec authentification JWT, middleware de sécurité (rate limiting, CORS, request ID), streaming SSE pour les réponses longues de TAJINE, et tracing distribue OpenTélémétrie.
+2. **API Layer (FastAPI)**  -  40+ endpoints REST avec authentification JWT, middleware de sécurité (rate limiting, CORS, request ID), streaming SSE pour les réponses longues de TAJINE, et tracing distribué OpenTelemetry.
 
-3. **Application**  -  Les services metier orchestrent les cas d'usage : intelligence territoriale (scoring 6 axes), news intelligence (enrichissement croise d'actualites), moteur de relations inter-entreprises, scoring de risque multi-facteurs, et score d'écosystème territorial.
+3. **Application**  -  Les services métier orchestrent les cas d'usage : intelligence territoriale (scoring 6 axes), news intelligence (enrichissement croisé d'actualités), moteur de relations inter-entreprises, scoring de risque multi-facteurs, et score d'écosystème territorial.
 
-4. **Agents Cognitifs**  -  Le coeur intelligent de Tawiza. L'agent **TAJINE** suit le cycle PPDSL (Perceive-Plan-Delegate-Synthesize-Learn) avec 5 niveaux cognitifs et RAG. Le **Data Hunter** collecte proactivement les données via 4 stratégies (hypothèses LLM, bandits UCB1, expansion de graphe, discovery IA). La **CAMEL Workforce** orchestre 11 agents spécialisés. Le **Browser Stealth** automatise la navigation avec 3 backends anti-detection. Le **Crawler Adaptatif** planifie les crawls via Multi-Armed Bandit. Le **Watcher** surveille en continu BOAMP, BODACC et GDELT.
+4. **Agents Cognitifs**  -  Le cœur intelligent de Tawiza. L'agent **TAJINE** suit le cycle PPDSL avec 5 niveaux cognitifs et RAG. Le **Data Hunter** collecte proactivement les données via 4 stratégies. La **CAMEL Workforce** orchestre 12 agents spécialisés. Le **Crawler Adaptatif** planifie les crawls via Multi-Armed Bandit. Le **Watcher** surveille en continu BOAMP, BODACC et GDELT.
 
-5. **Sources & ML**  -  A gauche, les 18+ sources de données gouvernementales et publiques (SIRENE, BODACC, BOAMP, INSEE, DVF, France Travail, GDELT...). A droite, l'infrastructure ML : fine-tuning LoRA/QLoRA, active learning avec drift detection, knowledge graph Neo4j, recherche sémantique (Qdrant + pgvector), tracking MLflow, et sandbox d'execution de code (E2B).
+5. **Sources & ML**  -  À gauche, les 18+ sources de données gouvernementales et publiques. À droite, l'infrastructure ML : fine-tuning LoRA/QLoRA, active learning avec drift detection, knowledge graph Neo4j, recherche sémantique (Qdrant + pgvector), et tracking MLflow.
 
-6. **Storage & LLM**  -  La couche de persistance : PostgreSQL avec pgvector pour le stockage relationnel et vectoriel, Redis pour le cache multi-niveaux, Neo4j pour le graphe de connaissances, Qdrant pour la recherche sémantique haute performance. Cote LLM : Ollama en local (GPU NVIDIA/AMD), avec fallback vers Groq (gratuit) et OpenRouter (cloud multi-modèles).
+6. **Storage & LLM**  -  PostgreSQL avec pgvector pour le stockage relationnel et vectoriel, Redis pour le cache multi-niveaux, Neo4j pour le graphe de connaissances, Qdrant pour la recherche sémantique. Côté LLM : Ollama en local (GPU NVIDIA/AMD), avec fallback vers Groq (gratuit) et OpenRouter (cloud multi-modèles).
 
-L'architecture suit le pattern **hexagonal** (ports & adapters) avec une separation claire :
-- `src/domain/`  -  Entites, value objects, events (zero dépendance externe)
+L'architecture suit le pattern **hexagonal** (ports & adapters) :
+- `src/domain/`  -  Entités, value objects, events (zéro dépendance externe)
 - `src/application/`  -  Services, use cases, DTOs, ports
 - `src/infrastructure/`  -  Adapters (DB, APIs, LLM, agents, crawlers)
 - `src/interfaces/`  -  API REST, WebSocket, middleware
 
-Voir [docs/architecture.md](docs/architecture.md) pour les details.
+Voir [docs/architecture.md](docs/architecture.md) pour les détails.
 
 ---
 
@@ -344,7 +364,7 @@ Voir [docs/architecture.md](docs/architecture.md) pour les details.
 |--------|-------------|
 | **Backend** | Python 3.11+, FastAPI, SQLAlchemy (async), Alembic |
 | **Frontend** | Next.js 14, TypeScript, Tailwind CSS, shadcn/ui |
-| **TUI** | Textual, Plotext, Rich |
+| **TUI** | Textual, Plotext, Rich *(en cours)* |
 | **Visualisation** | Recharts, D3.js, Plotly, Leaflet (carte interactive) |
 | **Base de données** | PostgreSQL 17 + pgvector |
 | **Knowledge Graph** | Neo4j |
@@ -353,8 +373,7 @@ Voir [docs/architecture.md](docs/architecture.md) pour les details.
 | **LLM** | Ollama (local), Groq, OpenRouter, Claude API |
 | **ML** | scikit-learn, PEFT (LoRA), TRL (DPO/GRPO), MLflow |
 | **Web Scraping** | Crawl4AI, Playwright, Camoufox, ScrapeGraphAI |
-| **Browser Automation** | BrowserUse, Nodriver, Camoufox |
-| **Monitoring** | Prometheus, Grafana, Langfuse, OpenTélémétrie |
+| **Monitoring** | Prometheus, Grafana, Langfuse, OpenTelemetry |
 | **Tests** | pytest, pytest-asyncio |
 
 ---
@@ -384,7 +403,7 @@ SECRET_KEY=CHANGEZ_MOI_EN_PRODUCTION     # Obligatoire
 | [Architecture](docs/architecture.md) | Structure du projet |
 | [Configuration](docs/configuration.md) | Variables d'environnement |
 | [Data Sources](docs/data-sources.md) | Catalogue des 18+ APIs |
-| [API Reference](docs/api-référence.md) | Endpoints REST & WebSocket |
+| [API Reference](docs/api-reference.md) | Endpoints REST & WebSocket |
 | [Self-Hosting](docs/self-hosting.md) | Guide de déploiement |
 | [Télémétrie](docs/telemetry.md) | Données collectées et opt-out |
 | [Contributing](CONTRIBUTING.md) | Guide de contribution |
@@ -407,18 +426,30 @@ ruff check src/
 # PR !
 ```
 
-Consultez le [guide de contribution](CONTRIBUTING.md) pour les details. Les issues [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) sont un bon point de départ.
+Consultez le [guide de contribution](CONTRIBUTING.md) pour les détails. Les issues [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) sont un bon point de départ.
 
 ---
 
 ## Roadmap
 
+### En cours
+
+- [ ] Stabilisation de l'agent TAJINE (simplification, calibrage)
+- [ ] Finalisation CLI & TUI (fusion v2/v3, couverture complète)
+- [ ] Validation des modules Signaux et Décisions
+- [ ] Stabilisation du crawler adaptatif
+- [ ] Tests end-to-end du Data Hunter
+
+### Prévu
+
 - [ ] Internationalisation (i18n) du frontend
-- [ ] API GraphQL en complement du REST
 - [ ] Plugin system pour les sources de données communautaires
 - [ ] Mode offline avec cache local des APIs
-- [ ] Application mobile (React Native)
-- [ ] Integration Jupyter Notebook pour l'analyse exploratoire
+- [ ] Intégration Jupyter Notebook pour l'analyse exploratoire
+
+### À terme
+
+Certaines fonctionnalités actuellement séparées seront fusionnées au fil du temps pour simplifier l'architecture (ex : les différentes versions du CLI, les modules redondants de collecte).
 
 ---
 
