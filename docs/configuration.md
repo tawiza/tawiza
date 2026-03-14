@@ -1,6 +1,6 @@
 # Configuration
 
-Tawiza se configure entierement via des variables d'environnement. Copiez `.env.example` et adaptez.
+Tawiza se configure entièrement via des variables d'environnement. Copiez `.env.example` et adaptez.
 
 ## Variables essentielles
 
@@ -12,17 +12,17 @@ Tawiza se configure entierement via des variables d'environnement. Copiez `.env.
 | `APP_ENV` | `development` | Environnement (`development`, `production`) |
 | `DEBUG` | `true` | Mode debug |
 | `LOG_LEVEL` | `INFO` | Niveau de log (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
-| `API_HOST` | `0.0.0.0` | Adresse d'ecoute du backend |
+| `API_HOST` | `0.0.0.0` | Adresse d'écoute du backend |
 | `API_PORT` | `8000` | Port du backend |
-| `CORS_ORIGINS` | `http://localhost:3000` | Origines CORS autorisees (separes par virgule) |
+| `CORS_ORIGINS` | `http://localhost:3000` | Origines CORS autorisées (séparées par virgule) |
 
-### Base de donnees
+### Base de données
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DATABASE_URL` | `postgresql+asyncpg://tawiza:changeme@localhost:5433/tawiza` | URL de connexion PostgreSQL |
 | `DATABASE_POOL_SIZE` | `10` | Taille du pool de connexions |
-| `DATABASE_MAX_OVERFLOW` | `20` | Connexions supplementaires max |
+| `DATABASE_MAX_OVERFLOW` | `20` | Connexions supplémentaires max |
 
 ### Redis
 
@@ -35,7 +35,7 @@ Tawiza se configure entierement via des variables d'environnement. Copiez `.env.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | URL du serveur Ollama |
-| `OLLAMA_TIMEOUT` | `120` | Timeout des requetes (secondes) |
+| `OLLAMA_TIMEOUT` | `120` | Timeout des requêtes (secondes) |
 | `OLLAMA_POOL_CONNECTIONS` | `20` | Connexions dans le pool |
 
 ### pgvector (Embeddings)
@@ -43,7 +43,7 @@ Tawiza se configure entierement via des variables d'environnement. Copiez `.env.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `VECTORDB__ENABLED` | `true` | Activer la recherche vectorielle |
-| `VECTORDB__EMBEDDING_MODEL` | `nomic-embed-text` | Modele d'embedding Ollama |
+| `VECTORDB__EMBEDDING_MODEL` | `nomic-embed-text` | Modèle d'embedding Ollama |
 | `VECTORDB__EMBEDDING_DIM` | `768` | Dimension des vecteurs |
 | `VECTORDB__CHUNK_SIZE` | `512` | Taille des chunks de texte |
 
@@ -56,23 +56,23 @@ Tawiza se configure entierement via des variables d'environnement. Copiez `.env.
 | `FRANCE_TRAVAIL_CLIENT_ID` | — | Identifiant API France Travail |
 | `FRANCE_TRAVAIL_CLIENT_SECRET` | — | Secret API France Travail |
 
-### Securite
+### Sécurité
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SECRET_KEY` | `CHANGE_ME` | Cle secrete de l'application |
+| `SECRET_KEY` | `CHANGE_ME` | Clé secrète de l'application |
 | `SECURITY__JWT_ALGORITHM` | `HS256` | Algorithme JWT |
-| `SECURITY__JWT_EXPIRATION_MINUTES` | `60` | Duree de vie des tokens |
-| `RATE_LIMIT_PER_IP` | `100` | Requetes par minute par IP |
+| `SECURITY__JWT_EXPIRATION_MINUTES` | `60` | Durée de vie des tokens |
+| `RATE_LIMIT_PER_IP` | `100` | Requêtes par minute par IP |
 
 ### Services optionnels
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LABEL_STUDIO_URL` | — | URL de Label Studio (fine-tuning) |
-| `LABEL_STUDIO_API_KEY` | — | Cle API Label Studio |
+| `LABEL_STUDIO_API_KEY` | — | Clé API Label Studio |
 | `SENTRY_DSN` | — | DSN Sentry/GlitchTip (error tracking) |
-| `LANGFUSE_SECRET_KEY` | — | Cle Langfuse (LLM observability) |
+| `LANGFUSE_SECRET_KEY` | — | Clé Langfuse (LLM observability) |
 
 ## Frontend
 
@@ -85,7 +85,7 @@ Variables du frontend (dans `frontend/.env.local`) :
 
 ## Docker Compose
 
-Le `docker-compose.yml` utilise les variables de `.env` automatiquement. Les ports par defaut sont volontairement non-standard pour eviter les conflits :
+Le `docker-compose.yml` utilise les variables de `.env` automatiquement. Les ports par défaut sont volontairement non-standard pour éviter les conflits :
 
 - PostgreSQL : **5433** (pas 5432)
 - Redis : **6380** (pas 6379)
@@ -96,7 +96,7 @@ Le `docker-compose.yml` utilise les variables de `.env` automatiquement. Les por
 En production, assurez-vous de :
 
 1. **Changer tous les mots de passe** (`DATABASE_URL`, `SECRET_KEY`, `REDIS_URL`)
-2. **Desactiver le debug** (`DEBUG=false`, `APP_ENV=production`)
-3. **Configurer CORS** avec vos domaines specifiques
-4. **Utiliser HTTPS** via un reverse proxy (Caddy recommande)
+2. **Désactiver le debug** (`DEBUG=false`, `APP_ENV=production`)
+3. **Configurer CORS** avec vos domaines spécifiques
+4. **Utiliser HTTPS** via un reverse proxy (Caddy recommandé)
 5. **Configurer les rate limits** selon votre usage

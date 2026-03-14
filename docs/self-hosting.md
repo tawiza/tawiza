@@ -1,18 +1,18 @@
 # Guide de Self-Hosting
 
-Deployer Tawiza sur votre propre serveur.
+Déployer Tawiza sur votre propre serveur.
 
-## Prerequis serveur
+## Prérequis serveur
 
-- **OS** : Ubuntu 22.04+ / Debian 12+ recommande
+- **OS** : Ubuntu 22.04+ / Debian 12+ recommandé
 - **RAM** : 4 GB minimum (8 GB+ avec LLM local)
 - **CPU** : 2 cores minimum
 - **Disque** : 20 GB minimum
 - **GPU** : Optionnel (AMD ROCm ou NVIDIA CUDA pour LLM local)
 
-## Deploiement avec Docker Compose
+## Déploiement avec Docker Compose
 
-### 1. Preparation
+### 1. Préparation
 
 ```bash
 # Installer Docker
@@ -29,13 +29,13 @@ cp .env.example .env
 
 ### 2. Configuration production
 
-Editez `.env` :
+Éditez `.env` :
 
 ```bash
 APP_ENV=production
 DEBUG=false
 
-# IMPORTANT : generez des vrais secrets
+# IMPORTANT : générez des vrais secrets
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
 DATABASE_URL=postgresql+asyncpg://tawiza:VOTRE_MOT_DE_PASSE@db:5432/tawiza
 
@@ -48,14 +48,14 @@ CORS_ORIGINS=https://votre-domaine.fr
 ```bash
 docker compose -f docker-compose.yml up -d
 
-# Verifier
+# Vérifier
 docker compose ps
 docker compose logs -f --tail=50
 ```
 
 ### 4. Reverse proxy
 
-Nous recommandons **Caddy** pour sa simplicite (HTTPS automatique) :
+Nous recommandons **Caddy** pour sa simplicité (HTTPS automatique) :
 
 ```
 # /etc/caddy/Caddyfile
@@ -102,10 +102,10 @@ server {
 # Installer Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
 
-# Modele leger (CPU)
+# Modèle léger (CPU)
 ollama pull qwen2.5:7b
 
-# Modele performant (GPU recommande)
+# Modèle performant (GPU recommandé)
 ollama pull qwen2.5:32b
 
 # Embeddings
@@ -115,10 +115,10 @@ ollama pull nomic-embed-text
 ### GPU AMD (ROCm)
 
 ```bash
-# Verifier la detection GPU
+# Vérifier la détection GPU
 rocm-smi
 
-# Ollama detecte automatiquement ROCm
+# Ollama détecte automatiquement ROCm
 ollama run qwen2.5:7b "test"
 ```
 
@@ -126,11 +126,11 @@ ollama run qwen2.5:7b "test"
 
 ```bash
 # Installer NVIDIA Container Toolkit
-# Ollama detecte automatiquement CUDA
+# Ollama détecte automatiquement CUDA
 ollama run qwen2.5:7b "test"
 ```
 
-## Mise a jour
+## Mise à jour
 
 ```bash
 cd tawiza
@@ -146,7 +146,7 @@ docker compose exec backend alembic upgrade head
 ## Sauvegardes
 
 ```bash
-# Base de donnees
+# Base de données
 docker compose exec db pg_dump -U tawiza tawiza > backup_$(date +%Y%m%d).sql
 
 # Restauration
@@ -155,21 +155,21 @@ cat backup_20260309.sql | docker compose exec -T db psql -U tawiza tawiza
 
 ## Monitoring
 
-Tawiza expose des metriques Prometheus sur `/metrics` :
+Tawiza expose des métriques Prometheus sur `/metrics` :
 
 ```bash
-# Verifier les metriques
+# Vérifier les métriques
 curl http://localhost:8000/metrics
 ```
 
-Integrez avec votre stack de monitoring (Grafana, Datadog, etc.).
+Intégrez avec votre stack de monitoring (Grafana, Datadog, etc.).
 
-## Securite en production
+## Sécurité en production
 
-- [ ] Mots de passe par defaut changes
-- [ ] HTTPS configure (Caddy/nginx + certificat)
-- [ ] Firewall active (UFW recommande)
-- [ ] Rate limiting configure
-- [ ] CORS restreint a vos domaines
-- [ ] Sauvegardes automatisees
-- [ ] Mises a jour regulieres
+- [ ] Mots de passe par défaut changés
+- [ ] HTTPS configuré (Caddy/nginx + certificat)
+- [ ] Firewall activé (UFW recommandé)
+- [ ] Rate limiting configuré
+- [ ] CORS restreint à vos domaines
+- [ ] Sauvegardes automatisées
+- [ ] Mises à jour régulières
