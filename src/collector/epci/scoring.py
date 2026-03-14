@@ -92,8 +92,10 @@ async def get_epci_scores(
     factors = {
         "emploi": ["offres_emploi", "demandeurs_emploi_abc", "tension_emploi"],
         "entreprises": [
-            "creation_entreprise", "immatriculation_entreprise",
-            "liquidation_judiciaire", "redressement_judiciaire",
+            "creation_entreprise",
+            "immatriculation_entreprise",
+            "liquidation_judiciaire",
+            "redressement_judiciaire",
         ],
         "immobilier": ["transactions_immobilieres", "prix_m2_median", "prix_m2_moyen"],
         "construction": ["logements_autorises", "logements_commences"],
@@ -126,16 +128,18 @@ async def get_epci_scores(
         else:
             composite = 50
 
-        scored_epcis.append({
-            "code_epci": code_epci,
-            "nom": name,
-            "population": pop,
-            "departments": depts,
-            "composite_score": round(float(composite), 2),
-            "factor_scores": factor_scores,
-            "signal_count": epci_signal_counts.get(code_epci, 0),
-            "source_count": epci_source_counts.get(code_epci, 0),
-        })
+        scored_epcis.append(
+            {
+                "code_epci": code_epci,
+                "nom": name,
+                "population": pop,
+                "departments": depts,
+                "composite_score": round(float(composite), 2),
+                "factor_scores": factor_scores,
+                "signal_count": epci_signal_counts.get(code_epci, 0),
+                "source_count": epci_source_counts.get(code_epci, 0),
+            }
+        )
 
     # Sort by composite score descending
     scored_epcis.sort(key=lambda x: x["composite_score"], reverse=True)
@@ -168,9 +172,15 @@ async def get_epci_signals(
 
     return [
         {
-            "id": r[0], "source": r[1], "date": r[2].isoformat() if r[2] else None,
-            "commune": r[3], "dept": r[4], "metric": r[5],
-            "value": float(r[6]) if r[6] else None, "type": r[7], "confidence": float(r[8]) if r[8] else None,
+            "id": r[0],
+            "source": r[1],
+            "date": r[2].isoformat() if r[2] else None,
+            "commune": r[3],
+            "dept": r[4],
+            "metric": r[5],
+            "value": float(r[6]) if r[6] else None,
+            "type": r[7],
+            "confidence": float(r[8]) if r[8] else None,
         }
         for r in rows
     ]

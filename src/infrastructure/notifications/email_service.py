@@ -46,7 +46,9 @@ class EmailService:
         self._enabled = bool(self.config.smtp_host and self.config.smtp_host != "localhost")
 
         if self._enabled:
-            logger.info(f"Email service initialized: {self.config.smtp_host}:{self.config.smtp_port}")
+            logger.info(
+                f"Email service initialized: {self.config.smtp_host}:{self.config.smtp_port}"
+            )
         else:
             logger.debug("Email service disabled (no SMTP host configured)")
 
@@ -141,9 +143,7 @@ class EmailService:
                 server.sendmail(self.config.from_email, recipients, message)
         else:
             with smtplib.SMTP_SSL(
-                self.config.smtp_host,
-                self.config.smtp_port,
-                context=context
+                self.config.smtp_host, self.config.smtp_port, context=context
             ) as server:
                 if self.config.smtp_user and self.config.smtp_password:
                     server.login(self.config.smtp_user, self.config.smtp_password)
@@ -177,7 +177,7 @@ class EmailService:
 Votre analyse TAJINE "{analysis_name}" est terminée.
 
 Résumé:
-{response_preview[:500]}{'...' if len(response_preview) > 500 else ''}
+{response_preview[:500]}{"..." if len(response_preview) > 500 else ""}
 
 ID de l'analyse: {analysis_id}
 """
@@ -212,12 +212,12 @@ ID de l'analyse: {analysis_id}
 
             <div class="preview">
                 <strong>Résumé:</strong><br>
-                {response_preview[:500]}{'...' if len(response_preview) > 500 else ''}
+                {response_preview[:500]}{"..." if len(response_preview) > 500 else ""}
             </div>
 
             <p><small>ID: {analysis_id}</small></p>
 
-            {'<p><a href="' + dashboard_url + '/dashboard/analytics" class="btn">Voir les détails</a></p>' if dashboard_url else ''}
+            {'<p><a href="' + dashboard_url + '/dashboard/analytics" class="btn">Voir les détails</a></p>' if dashboard_url else ""}
 
             <div class="footer">
                 Tawiza - Intelligence Territoriale

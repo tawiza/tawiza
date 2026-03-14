@@ -26,6 +26,7 @@ from loguru import logger
 @dataclass
 class LeboncoinAd:
     """Une annonce Leboncoin."""
+
     title: str
     price: float | None
     location: str
@@ -205,15 +206,17 @@ class LeboncoinResearchCrawler:
 
         ads = []
         for item in data.get("ads", [])[:limit]:
-            ads.append(LeboncoinAd(
-                title=item.get("subject", ""),
-                price=item.get("price", [None])[0] if item.get("price") else None,
-                location=item.get("location", {}).get("city", ""),
-                category=item.get("category_name", ""),
-                date_posted=item.get("first_publication_date"),
-                url=item.get("url", ""),
-                description_preview=item.get("body", "")[:200] if item.get("body") else None,
-            ))
+            ads.append(
+                LeboncoinAd(
+                    title=item.get("subject", ""),
+                    price=item.get("price", [None])[0] if item.get("price") else None,
+                    location=item.get("location", {}).get("city", ""),
+                    category=item.get("category_name", ""),
+                    date_posted=item.get("first_publication_date"),
+                    url=item.get("url", ""),
+                    description_preview=item.get("body", "")[:200] if item.get("body") else None,
+                )
+            )
 
         return ads
 
@@ -241,17 +244,20 @@ class LeboncoinResearchCrawler:
         json_match = re.search(r'"ads":\s*(\[.*?\])\s*,\s*"ads_alu"', html, re.DOTALL)
         if json_match:
             import json
+
             try:
                 ads_data = json.loads(json_match.group(1))
                 for item in ads_data[:limit]:
-                    ads.append(LeboncoinAd(
-                        title=item.get("subject", ""),
-                        price=item.get("price", [None])[0] if item.get("price") else None,
-                        location=item.get("location", {}).get("city", ""),
-                        category=item.get("category_name", ""),
-                        date_posted=item.get("first_publication_date"),
-                        url=f"https://www.leboncoin.fr{item.get('url', '')}",
-                    ))
+                    ads.append(
+                        LeboncoinAd(
+                            title=item.get("subject", ""),
+                            price=item.get("price", [None])[0] if item.get("price") else None,
+                            location=item.get("location", {}).get("city", ""),
+                            category=item.get("category_name", ""),
+                            date_posted=item.get("first_publication_date"),
+                            url=f"https://www.leboncoin.fr{item.get('url', '')}",
+                        )
+                    )
             except json.JSONDecodeError:
                 pass
 

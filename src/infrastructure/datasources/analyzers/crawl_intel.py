@@ -254,21 +254,27 @@ Quels changements significatifs detectes-tu ? Reponds en JSON:
         if snap_old.content_hash == snap_new.content_hash:
             return None
 
-        json_old = json.dumps({
-            "activity_status": snap_old.activity_status,
-            "employee_mentions": snap_old.employee_mentions,
-            "products_services": snap_old.products_services,
-            "job_openings": snap_old.job_openings,
-            "sentiment_score": snap_old.sentiment_score,
-        }, ensure_ascii=False)
+        json_old = json.dumps(
+            {
+                "activity_status": snap_old.activity_status,
+                "employee_mentions": snap_old.employee_mentions,
+                "products_services": snap_old.products_services,
+                "job_openings": snap_old.job_openings,
+                "sentiment_score": snap_old.sentiment_score,
+            },
+            ensure_ascii=False,
+        )
 
-        json_new = json.dumps({
-            "activity_status": snap_new.activity_status,
-            "employee_mentions": snap_new.employee_mentions,
-            "products_services": snap_new.products_services,
-            "job_openings": snap_new.job_openings,
-            "sentiment_score": snap_new.sentiment_score,
-        }, ensure_ascii=False)
+        json_new = json.dumps(
+            {
+                "activity_status": snap_new.activity_status,
+                "employee_mentions": snap_new.employee_mentions,
+                "products_services": snap_new.products_services,
+                "job_openings": snap_new.job_openings,
+                "sentiment_score": snap_new.sentiment_score,
+            },
+            ensure_ascii=False,
+        )
 
         prompt = self.DIFF_TEMPLATE.format(
             nom=nom,
@@ -296,9 +302,7 @@ Quels changements significatifs detectes-tu ? Reponds en JSON:
             logger.error(f"[crawl_intel] Diff analysis failed: {e}")
             return None
 
-    def detect_patterns(
-        self, snapshots: list[WebSnapshot]
-    ) -> list[dict[str, Any]]:
+    def detect_patterns(self, snapshots: list[WebSnapshot]) -> list[dict[str, Any]]:
         """Detect patterns in a time series of snapshots.
 
         Args:
@@ -318,12 +322,14 @@ Quels changements significatifs detectes-tu ? Reponds en JSON:
         if len(snapshots) >= 6:
             last_hashes = [s.content_hash for s in snapshots[-6:]]
             if len(set(last_hashes)) == 1 and last_hashes[0]:
-                detected.append({
-                    **PATTERNS["stale_site"],
-                    "siret": siret,
-                    "detected_at": snapshots[-1].crawl_date,
-                    "details": f"Contenu identique sur {len(last_hashes)} mois",
-                })
+                detected.append(
+                    {
+                        **PATTERNS["stale_site"],
+                        "siret": siret,
+                        "detected_at": snapshots[-1].crawl_date,
+                        "details": f"Contenu identique sur {len(last_hashes)} mois",
+                    }
+                )
 
         # --- Pattern: activity_decline ---
         # Sentiment decreases for 3 consecutive months
@@ -332,12 +338,14 @@ Quels changements significatifs detectes-tu ? Reponds en JSON:
             sentiments = [s.sentiment_score for s in recent]
             if all(sentiments[i] > sentiments[i + 1] for i in range(len(sentiments) - 1)):
                 if sentiments[0] - sentiments[-1] > 0.3:
-                    detected.append({
-                        **PATTERNS["activity_decline"],
-                        "siret": siret,
-                        "detected_at": snapshots[-1].crawl_date,
-                        "details": f"Sentiment: {sentiments[0]:.2f} -> {sentiments[-1]:.2f}",
-                    })
+                    detected.append(
+                        {
+                            **PATTERNS["activity_decline"],
+                            "siret": siret,
+                            "detected_at": snapshots[-1].crawl_date,
+                            "details": f"Sentiment: {sentiments[0]:.2f} -> {sentiments[-1]:.2f}",
+                        }
+                    )
 
         # --- Pattern: hiring_surge ---
         # Job openings jump from 0 to 5+
@@ -345,31 +353,31 @@ Quels changements significatifs detectes-tu ? Reponds en JSON:
             prev = snapshots[-2]
             curr = snapshots[-1]
             if prev.job_openings == 0 and curr.job_openings >= 5:
-                detected.append({
-                    **PATTERNS["hiring_surge"],
-                    "siret": siret,
-                    "detected_at": curr.crawl_date,
-                    "details": f"Offres: {prev.job_openings} -> {curr.job_openings}",
-                })
+                detected.append(
+                    {
+                        **PATTERNS["hiring_surge"],
+                        "siret": siret,
+                        "detected_at": curr.crawl_date,
+                        "details": f"Offres: {prev.job_openings} -> {curr.job_openings}",
+                    }
+                )
 
         # --- Pattern: growth_signal ---
         # Employee mentions increase >20%
         if len(snapshots) >= 2:
             prev = snapshots[-2]
             curr = snapshots[-1]
-            if (
-                prev.employee_mentions
-                and curr.employee_mentions
-                and prev.employee_mentions > 0
-            ):
+            if prev.employee_mentions and curr.employee_mentions and prev.employee_mentions > 0:
                 growth = (curr.employee_mentions - prev.employee_mentions) / prev.employee_mentions
                 if growth > 0.2:
-                    detected.append({
-                        **PATTERNS["growth_signal"],
-                        "siret": siret,
-                        "detected_at": curr.crawl_date,
-                        "details": f"Employes: {prev.employee_mentions} -> {curr.employee_mentions} (+{growth:.0%})",
-                    })
+                    detected.append(
+                        {
+                            **PATTERNS["growth_signal"],
+                            "siret": siret,
+                            "detected_at": curr.crawl_date,
+                            "details": f"Employes: {prev.employee_mentions} -> {curr.employee_mentions} (+{growth:.0%})",
+                        }
+                    )
 
         # --- Pattern: pivot_detected ---
         # Products/services change by >50%
@@ -380,12 +388,14 @@ Quels changements significatifs detectes-tu ? Reponds en JSON:
                 overlap = len(prev_prods & curr_prods)
                 total = len(prev_prods | curr_prods)
                 if total > 0 and (overlap / total) < 0.5:
-                    detected.append({
-                        **PATTERNS["pivot_detected"],
-                        "siret": siret,
-                        "detected_at": snapshots[-1].crawl_date,
-                        "details": f"Produits: {len(prev_prods)} -> {len(curr_prods)}, overlap {overlap}/{total}",
-                    })
+                    detected.append(
+                        {
+                            **PATTERNS["pivot_detected"],
+                            "siret": siret,
+                            "detected_at": snapshots[-1].crawl_date,
+                            "details": f"Produits: {len(prev_prods)} -> {len(curr_prods)}, overlap {overlap}/{total}",
+                        }
+                    )
 
         return detected
 

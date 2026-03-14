@@ -51,14 +51,16 @@ def _get_gpu_info() -> dict:
                 # Parse: 03:00.0 VGA compatible controller [0300]: AMD... [1002:744c]
                 match = re.match(r"(\S+)\s+(.+?)\s+\[(\w+)\]:\s+(.+)\s+\[(\w+):(\w+)\]", line)
                 if match:
-                    info["gpus"].append({
-                        "pci_addr": match.group(1),
-                        "type": match.group(2),
-                        "class": match.group(3),
-                        "name": match.group(4),
-                        "vendor_id": match.group(5),
-                        "device_id": match.group(6),
-                    })
+                    info["gpus"].append(
+                        {
+                            "pci_addr": match.group(1),
+                            "type": match.group(2),
+                            "class": match.group(3),
+                            "name": match.group(4),
+                            "vendor_id": match.group(5),
+                            "device_id": match.group(6),
+                        }
+                    )
 
     return info
 
@@ -169,10 +171,12 @@ def _get_iommu_groups() -> dict:
                 pci_addr = device.name
                 ok, out, _ = _run_cmd(["lspci", "-nns", pci_addr])
                 if ok:
-                    devices.append({
-                        "pci_addr": pci_addr,
-                        "info": out.strip(),
-                    })
+                    devices.append(
+                        {
+                            "pci_addr": pci_addr,
+                            "info": out.strip(),
+                        }
+                    )
 
         if devices:
             groups[group_id] = devices
@@ -257,12 +261,22 @@ def register(app: typer.Typer) -> None:
             progress = ProgressBar(width=20)
 
             console.print("  [bold]Utilization:[/]")
-            console.print(f"    GPU:  {progress.render(stats['gpu_use'] / 100)} {stats['gpu_use']}%")
-            console.print(f"    VRAM: {progress.render(stats['memory_use'] / 100)} {stats['memory_used']}MB / {stats['memory_total']}MB")
+            console.print(
+                f"    GPU:  {progress.render(stats['gpu_use'] / 100)} {stats['gpu_use']}%"
+            )
+            console.print(
+                f"    VRAM: {progress.render(stats['memory_use'] / 100)} {stats['memory_used']}MB / {stats['memory_total']}MB"
+            )
             console.print()
 
             console.print("  [bold]Thermals:[/]")
-            temp_color = "green" if stats["temperature"] < 70 else "yellow" if stats["temperature"] < 85 else "red"
+            temp_color = (
+                "green"
+                if stats["temperature"] < 70
+                else "yellow"
+                if stats["temperature"] < 85
+                else "red"
+            )
             console.print(f"    Temp:  [{temp_color}]{stats['temperature']}°C[/]")
             console.print(f"    Power: {stats['power']}W")
             console.print(f"    Fan:   {stats['fan']}%")
@@ -299,20 +313,21 @@ def register(app: typer.Typer) -> None:
         info = _get_gpu_info()
         if info["passthrough"]:
             msg = MessageBox()
-            console.print(msg.warning(
-                "GPU in passthrough mode",
-                "Run benchmark inside the VM with the GPU"
-            ))
+            console.print(
+                msg.warning("GPU in passthrough mode", "Run benchmark inside the VM with the GPU")
+            )
             console.print(footer(40))
             return
 
         stats = _get_rocm_stats()
         if not stats["available"]:
             msg = MessageBox()
-            console.print(msg.error(
-                "ROCm not available",
-                ["Ensure AMD GPU driver is loaded", "Check with: rocm-smi"]
-            ))
+            console.print(
+                msg.error(
+                    "ROCm not available",
+                    ["Ensure AMD GPU driver is loaded", "Check with: rocm-smi"],
+                )
+            )
             console.print(footer(40))
             return
 
@@ -458,7 +473,11 @@ else:
         groups = _get_iommu_groups()
 
         for gid, devices in sorted(groups.items()):
-            gpu_devices = [d for d in devices if "VGA" in d["info"] or "3D" in d["info"] or "Audio" in d["info"]]
+            gpu_devices = [
+                d
+                for d in devices
+                if "VGA" in d["info"] or "3D" in d["info"] or "Audio" in d["info"]
+            ]
             if gpu_devices:
                 console.print(f"    [cyan]Group {gid}:[/]")
                 for dev in gpu_devices:
@@ -484,10 +503,9 @@ else:
 
         if not gpu:
             msg = MessageBox()
-            console.print(msg.error(
-                f"GPU not found: {pci_addr}",
-                ["Check with: tawiza pro gpu-info"]
-            ))
+            console.print(
+                msg.error(f"GPU not found: {pci_addr}", ["Check with: tawiza pro gpu-info"])
+            )
             console.print(footer(40))
             return
 
@@ -498,6 +516,7 @@ else:
 
         if not force:
             from rich.prompt import Confirm
+
             if not Confirm.ask("  Enable passthrough for this GPU?"):
                 console.print("  [dim]Cancelled.[/]")
                 console.print(footer(40))
@@ -539,23 +558,18 @@ softdep amdgpu pre: vfio-pci
 
             if ok:
                 msg = MessageBox()
-                console.print(msg.success(
-                    "Passthrough enabled!",
-                    "Reboot to apply changes"
-                ))
+                console.print(msg.success("Passthrough enabled!", "Reboot to apply changes"))
             else:
                 msg = MessageBox()
-                console.print(msg.warning(
-                    "Config saved, initramfs update failed",
-                    "Run manually: update-initramfs -u"
-                ))
+                console.print(
+                    msg.warning(
+                        "Config saved, initramfs update failed", "Run manually: update-initramfs -u"
+                    )
+                )
 
         except PermissionError:
             msg = MessageBox()
-            console.print(msg.error(
-                "Permission denied",
-                ["Run with sudo or as root"]
-            ))
+            console.print(msg.error("Permission denied", ["Run with sudo or as root"]))
         except Exception as e:
             msg = MessageBox()
             console.print(msg.error(str(e)))
@@ -582,6 +596,7 @@ softdep amdgpu pre: vfio-pci
 
         if not force:
             from rich.prompt import Confirm
+
             if not Confirm.ask("  Disable GPU passthrough?"):
                 console.print("  [dim]Cancelled.[/]")
                 console.print(footer(40))
@@ -599,23 +614,19 @@ softdep amdgpu pre: vfio-pci
 
             if ok:
                 msg = MessageBox()
-                console.print(msg.success(
-                    "Passthrough disabled!",
-                    "Reboot to use GPU on host"
-                ))
+                console.print(msg.success("Passthrough disabled!", "Reboot to use GPU on host"))
             else:
                 msg = MessageBox()
-                console.print(msg.warning(
-                    "Config removed, initramfs update failed",
-                    "Run manually: update-initramfs -u"
-                ))
+                console.print(
+                    msg.warning(
+                        "Config removed, initramfs update failed",
+                        "Run manually: update-initramfs -u",
+                    )
+                )
 
         except PermissionError:
             msg = MessageBox()
-            console.print(msg.error(
-                "Permission denied",
-                ["Run with sudo or as root"]
-            ))
+            console.print(msg.error("Permission denied", ["Run with sudo or as root"]))
         except Exception as e:
             msg = MessageBox()
             console.print(msg.error(str(e)))
@@ -653,11 +664,13 @@ softdep amdgpu pre: vfio-pci
                                     name = l.split(":")[1].strip()
                                     break
 
-                            vms_with_gpu.append({
-                                "vmid": vmid,
-                                "name": name,
-                                "hostpci": line,
-                            })
+                            vms_with_gpu.append(
+                                {
+                                    "vmid": vmid,
+                                    "name": name,
+                                    "hostpci": line,
+                                }
+                            )
                 except Exception:
                     pass
 
@@ -671,7 +684,9 @@ softdep amdgpu pre: vfio-pci
 
             for vm in vms_with_gpu:
                 # Parse hostpci line
-                pci_info = vm["hostpci"].split(":")[1].strip() if ":" in vm["hostpci"] else vm["hostpci"]
+                pci_info = (
+                    vm["hostpci"].split(":")[1].strip() if ":" in vm["hostpci"] else vm["hostpci"]
+                )
                 table.add_row(vm["vmid"], vm["name"], pci_info[:30])
 
             console.print(table)

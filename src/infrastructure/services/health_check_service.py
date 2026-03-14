@@ -5,6 +5,7 @@ disk, and external services.
 
 Follows Single Responsibility Principle: Only handles health checking logic.
 """
+
 import asyncio
 from dataclasses import dataclass
 from typing import Any
@@ -31,6 +32,7 @@ from src.core.system_state import get_system_state_manager
 @dataclass
 class HealthCheckResult:
     """Result of a single health check."""
+
     name: str
     passed: bool
     value: Any
@@ -67,11 +69,7 @@ class HealthCheckService:
         score = self.calculate_health_score(checks)
 
         # Extract issues and recommendations
-        issues = [
-            check["message"]
-            for check in checks
-            if not check["passed"]
-        ]
+        issues = [check["message"] for check in checks if not check["passed"]]
 
         recommendations = self._generate_recommendations(checks)
 
@@ -81,7 +79,7 @@ class HealthCheckService:
             "checks": checks,
             "issues": issues,
             "recommendations": recommendations,
-            "timestamp": psutil.boot_time()
+            "timestamp": psutil.boot_time(),
         }
 
     async def check_cpu_health(self) -> dict[str, Any]:
@@ -114,8 +112,8 @@ class HealthCheckService:
             "message": message,
             "details": {
                 "cpu_count": psutil.cpu_count(),
-                "cpu_freq": psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None
-            }
+                "cpu_freq": psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None,
+            },
         }
 
     async def check_memory_health(self) -> dict[str, Any]:
@@ -146,10 +144,10 @@ class HealthCheckService:
             "severity": severity,
             "message": message,
             "details": {
-                "total_gb": memory.total / (1024 ** 3),
-                "available_gb": memory.available / (1024 ** 3),
-                "used_gb": memory.used / (1024 ** 3)
-            }
+                "total_gb": memory.total / (1024**3),
+                "available_gb": memory.available / (1024**3),
+                "used_gb": memory.used / (1024**3),
+            },
         }
 
     async def check_disk_health(self) -> dict[str, Any]:
@@ -158,7 +156,7 @@ class HealthCheckService:
         Returns:
             Disk health check result
         """
-        disk = psutil.disk_usage('/')
+        disk = psutil.disk_usage("/")
 
         passed = disk.percent < DISK_WARNING_THRESHOLD
         severity = "info"
@@ -180,10 +178,10 @@ class HealthCheckService:
             "severity": severity,
             "message": message,
             "details": {
-                "total_gb": disk.total / (1024 ** 3),
-                "free_gb": disk.free / (1024 ** 3),
-                "used_gb": disk.used / (1024 ** 3)
-            }
+                "total_gb": disk.total / (1024**3),
+                "free_gb": disk.free / (1024**3),
+                "used_gb": disk.used / (1024**3),
+            },
         }
 
     async def check_services_health(self) -> list[dict[str, Any]]:
@@ -212,15 +210,10 @@ class HealthCheckService:
         """Check if Docker is running."""
         try:
             proc = await asyncio.create_subprocess_exec(
-                "docker", "info",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                "docker", "info", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
             )
 
-            await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
-            )
+            await asyncio.wait_for(proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT)
 
             passed = proc.returncode == 0
 
@@ -230,7 +223,7 @@ class HealthCheckService:
                 "value": "running" if passed else "not running",
                 "threshold": "running",
                 "severity": "warning" if not passed else "info",
-                "message": "Docker is running" if passed else "Docker not available"
+                "message": "Docker is running" if passed else "Docker not available",
             }
 
         except Exception as e:
@@ -240,22 +233,20 @@ class HealthCheckService:
                 "value": "error",
                 "threshold": "running",
                 "severity": "warning",
-                "message": f"Docker check failed: {e}"
+                "message": f"Docker check failed: {e}",
             }
 
     async def _check_gpu(self) -> dict[str, Any]:
         """Check if GPU is available."""
         try:
             proc = await asyncio.create_subprocess_exec(
-                "rocm-smi", "--showid",
+                "rocm-smi",
+                "--showid",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
-            await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
-            )
+            await asyncio.wait_for(proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT)
 
             passed = proc.returncode == 0
 
@@ -265,7 +256,7 @@ class HealthCheckService:
                 "value": "available" if passed else "not available",
                 "threshold": "available",
                 "severity": "info",  # GPU is optional
-                "message": "GPU is available" if passed else "GPU not available"
+                "message": "GPU is available" if passed else "GPU not available",
             }
 
         except Exception as e:
@@ -275,7 +266,7 @@ class HealthCheckService:
                 "value": "error",
                 "threshold": "available",
                 "severity": "info",
-                "message": f"GPU check skipped: {e}"
+                "message": f"GPU check skipped: {e}",
             }
 
     def _check_system_state(self) -> dict[str, Any]:
@@ -289,13 +280,10 @@ class HealthCheckService:
             "value": "initialized" if initialized else "not initialized",
             "threshold": "initialized",
             "severity": "critical" if not initialized else "info",
-            "message": "System is initialized" if initialized else "System not initialized"
+            "message": "System is initialized" if initialized else "System not initialized",
         }
 
-    def calculate_health_score(
-        self,
-        check_results: list[dict[str, Any]]
-    ) -> int:
+    def calculate_health_score(self, check_results: list[dict[str, Any]]) -> int:
         """Calculate overall health score from check results.
 
         Args:
@@ -337,10 +325,7 @@ class HealthCheckService:
         else:
             return "Critical"
 
-    def _generate_recommendations(
-        self,
-        checks: list[dict[str, Any]]
-    ) -> list[str]:
+    def _generate_recommendations(self, checks: list[dict[str, Any]]) -> list[str]:
         """Generate recommendations based on check results.
 
         Args:
@@ -357,29 +342,17 @@ class HealthCheckService:
                 severity = check["severity"]
 
                 if name == "cpu" and severity == "critical":
-                    recommendations.append(
-                        "Reduce CPU load or scale horizontally"
-                    )
+                    recommendations.append("Reduce CPU load or scale horizontally")
                 elif name == "memory" and severity == "critical":
-                    recommendations.append(
-                        "Free memory or increase available RAM"
-                    )
+                    recommendations.append("Free memory or increase available RAM")
                 elif name == "disk" and severity == "critical":
-                    recommendations.append(
-                        "Free disk space or add storage capacity"
-                    )
+                    recommendations.append("Free disk space or add storage capacity")
                 elif name == "docker" and severity == "warning":
-                    recommendations.append(
-                        "Install Docker for full functionality"
-                    )
+                    recommendations.append("Install Docker for full functionality")
                 elif name == "system_state" and severity == "critical":
-                    recommendations.append(
-                        "Initialize system with 'tawiza system init'"
-                    )
+                    recommendations.append("Initialize system with 'tawiza system init'")
 
         if not recommendations:
-            recommendations.append(
-                "System is healthy - no actions required"
-            )
+            recommendations.append("System is healthy - no actions required")
 
         return recommendations

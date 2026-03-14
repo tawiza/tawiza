@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class BrowserActionType(Enum):
     """Types of browser actions."""
+
     NAVIGATE = "navigate"
     CLICK = "click"
     TYPE = "type"
@@ -34,6 +35,7 @@ class BrowserActionType(Enum):
 @dataclass
 class BrowserAction:
     """A browser action to execute."""
+
     action_type: BrowserActionType
     selector: str | None = None
     value: str | None = None
@@ -44,6 +46,7 @@ class BrowserAction:
 @dataclass
 class ActionResult:
     """Result of a browser action."""
+
     success: bool
     action_type: BrowserActionType
     screenshot_b64: str | None = None
@@ -91,8 +94,8 @@ class CaptchaSolver:
                     "method": "userrecaptcha",
                     "googlekey": site_key,
                     "pageurl": page_url,
-                    "json": 1
-                }
+                    "json": 1,
+                },
             )
             result = submit_resp.json()
             if result.get("status") != 1:
@@ -106,12 +109,7 @@ class CaptchaSolver:
                 await asyncio.sleep(2)
                 check_resp = await client.get(
                     "https://2captcha.com/res.php",
-                    params={
-                        "key": self.api_key,
-                        "action": "get",
-                        "id": captcha_id,
-                        "json": 1
-                    }
+                    params={"key": self.api_key, "action": "get", "id": captcha_id, "json": 1},
                 )
                 result = check_resp.json()
                 if result.get("status") == 1:
@@ -135,9 +133,9 @@ class CaptchaSolver:
                     "task": {
                         "type": "RecaptchaV2TaskProxyless",
                         "websiteURL": page_url,
-                        "websiteKey": site_key
-                    }
-                }
+                        "websiteKey": site_key,
+                    },
+                },
             )
             result = create_resp.json()
             if result.get("errorId") != 0:
@@ -151,10 +149,7 @@ class CaptchaSolver:
                 await asyncio.sleep(2)
                 check_resp = await client.post(
                     "https://api.anti-captcha.com/getTaskResult",
-                    json={
-                        "clientKey": self.api_key,
-                        "taskId": task_id
-                    }
+                    json={"clientKey": self.api_key, "taskId": task_id},
                 )
                 result = check_resp.json()
                 if result.get("status") == "ready":
@@ -181,7 +176,7 @@ class UnifiedBrowserAgent:
         headless: bool = True,
         screenshot_callback: Callable[[str, str], None] | None = None,
         captcha_api_key: str | None = None,
-        captcha_service: str = "2captcha"
+        captcha_service: str = "2captcha",
     ):
         """
         Initialize browser agent.
@@ -206,7 +201,9 @@ class UnifiedBrowserAgent:
         try:
             from playwright.async_api import async_playwright
         except ImportError:
-            raise ImportError("playwright not installed. Run: pip install playwright && playwright install chromium")
+            raise ImportError(
+                "playwright not installed. Run: pip install playwright && playwright install chromium"
+            )
 
         # For WebSocket screenshot streaming, headless mode is preferred
         # Only use headful mode if DISPLAY is explicitly available and valid
@@ -215,14 +212,15 @@ class UnifiedBrowserAgent:
             if display:
                 # Check if X server is available
                 import subprocess
+
                 try:
                     result = subprocess.run(
-                        ["xdpyinfo", "-display", display],
-                        capture_output=True,
-                        timeout=2
+                        ["xdpyinfo", "-display", display], capture_output=True, timeout=2
                     )
                     if result.returncode != 0:
-                        logger.warning(f"DISPLAY={display} not available, falling back to headless mode")
+                        logger.warning(
+                            f"DISPLAY={display} not available, falling back to headless mode"
+                        )
                         self.headless = True
                     else:
                         logger.info(f"Using DISPLAY={display} for visible browser")
@@ -230,7 +228,9 @@ class UnifiedBrowserAgent:
                     logger.warning("X server check failed, falling back to headless mode")
                     self.headless = True
             else:
-                logger.info("No DISPLAY available, using headless mode with WebSocket screenshot streaming")
+                logger.info(
+                    "No DISPLAY available, using headless mode with WebSocket screenshot streaming"
+                )
                 self.headless = True
 
         self._playwright = await async_playwright().start()
@@ -240,12 +240,12 @@ class UnifiedBrowserAgent:
                 "--disable-blink-features=AutomationControlled",
                 "--disable-dev-shm-usage",
                 "--no-sandbox",
-                "--disable-gpu" if self.headless else "--enable-gpu"
-            ]
+                "--disable-gpu" if self.headless else "--enable-gpu",
+            ],
         )
         self._context = await self._browser.new_context(
             viewport={"width": 1280, "height": 720},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         )
         self._page = await self._context.new_page()
 
@@ -298,7 +298,7 @@ class UnifiedBrowserAgent:
             return ActionResult(
                 success=False,
                 action_type=action.action_type,
-                error="Browser not started. Call start() first."
+                error="Browser not started. Call start() first.",
             )
 
         start_time = datetime.now()
@@ -327,13 +327,17 @@ class UnifiedBrowserAgent:
 
             # Notify callback even on error
             if self.screenshot_callback and screenshot_b64:
-                self.screenshot_callback(action.action_type.value, screenshot_b64, getattr(self._page, 'url', None))
+                self.screenshot_callback(
+                    action.action_type.value, screenshot_b64, getattr(self._page, "url", None)
+                )
 
     async def _execute_action_internal(self, action: BrowserAction) -> ActionResult:
         """Internal action execution without screenshot handling."""
 
         if action.action_type == BrowserActionType.NAVIGATE:
-            await self._page.goto(action.value, wait_until="domcontentloaded", timeout=action.timeout)
+            await self._page.goto(
+                action.value, wait_until="domcontentloaded", timeout=action.timeout
+            )
             return ActionResult(success=True, action_type=action.action_type)
 
         elif action.action_type == BrowserActionType.CLICK:
@@ -368,11 +372,15 @@ class UnifiedBrowserAgent:
                 for el in elements:
                     text = await el.text_content()
                     data.append(text.strip() if text else "")
-                return ActionResult(success=True, action_type=action.action_type, extracted_data=data)
+                return ActionResult(
+                    success=True, action_type=action.action_type, extracted_data=data
+                )
             else:
                 # Extract full page text
                 text = await self._page.inner_text("body")
-                return ActionResult(success=True, action_type=action.action_type, extracted_data=text)
+                return ActionResult(
+                    success=True, action_type=action.action_type, extracted_data=text
+                )
 
         elif action.action_type == BrowserActionType.SOLVE_CAPTCHA:
             solved = await self._solve_captcha()
@@ -382,7 +390,7 @@ class UnifiedBrowserAgent:
             return ActionResult(
                 success=False,
                 action_type=action.action_type,
-                error=f"Unknown action type: {action.action_type}"
+                error=f"Unknown action type: {action.action_type}",
             )
 
     async def _take_screenshot(self) -> str | None:
@@ -399,7 +407,7 @@ class UnifiedBrowserAgent:
         # Check for reCAPTCHA
         recaptcha = await self._page.query_selector('iframe[src*="recaptcha"]')
         if not recaptcha:
-            recaptcha = await self._page.query_selector('.g-recaptcha')
+            recaptcha = await self._page.query_selector(".g-recaptcha")
 
         if not recaptcha:
             logger.info("No CAPTCHA detected on page")
@@ -427,7 +435,8 @@ class UnifiedBrowserAgent:
 
         # Inject solution using .value (safe, not innerHTML)
         # g-recaptcha-response is a textarea, so we use .value
-        await self._page.evaluate("""
+        await self._page.evaluate(
+            """
             (solution) => {
                 const responseField = document.getElementById('g-recaptcha-response');
                 if (responseField) {
@@ -446,16 +455,14 @@ class UnifiedBrowserAgent:
                     }
                 }
             }
-        """, solution)
+        """,
+            solution,
+        )
 
         logger.info("CAPTCHA solved and injected")
         return True
 
-    async def execute_task(
-        self,
-        task: str,
-        actions: list[BrowserAction]
-    ) -> list[ActionResult]:
+    async def execute_task(self, task: str, actions: list[BrowserAction]) -> list[ActionResult]:
         """
         Execute a sequence of browser actions.
 
@@ -470,7 +477,7 @@ class UnifiedBrowserAgent:
         results = []
 
         for i, action in enumerate(actions):
-            logger.info(f"Executing action {i+1}/{len(actions)}: {action.action_type.value}")
+            logger.info(f"Executing action {i + 1}/{len(actions)}: {action.action_type.value}")
             result = await self.execute_action(action)
             results.append(result)
 
@@ -480,44 +487,39 @@ class UnifiedBrowserAgent:
                 if action.action_type in [BrowserActionType.NAVIGATE]:
                     break
 
-        logger.info(f"Task completed: {sum(r.success for r in results)}/{len(results)} actions succeeded")
+        logger.info(
+            f"Task completed: {sum(r.success for r in results)}/{len(results)} actions succeeded"
+        )
         return results
 
     # Convenience methods
     async def navigate(self, url: str) -> ActionResult:
         """Navigate to URL."""
-        return await self.execute_action(BrowserAction(
-            action_type=BrowserActionType.NAVIGATE,
-            value=url
-        ))
+        return await self.execute_action(
+            BrowserAction(action_type=BrowserActionType.NAVIGATE, value=url)
+        )
 
     async def click(self, selector: str) -> ActionResult:
         """Click an element."""
-        return await self.execute_action(BrowserAction(
-            action_type=BrowserActionType.CLICK,
-            selector=selector
-        ))
+        return await self.execute_action(
+            BrowserAction(action_type=BrowserActionType.CLICK, selector=selector)
+        )
 
     async def type_text(self, selector: str, text: str) -> ActionResult:
         """Type text into an element."""
-        return await self.execute_action(BrowserAction(
-            action_type=BrowserActionType.TYPE,
-            selector=selector,
-            value=text
-        ))
+        return await self.execute_action(
+            BrowserAction(action_type=BrowserActionType.TYPE, selector=selector, value=text)
+        )
 
     async def extract(self, selector: str | None = None) -> ActionResult:
         """Extract text from page or specific elements."""
-        return await self.execute_action(BrowserAction(
-            action_type=BrowserActionType.EXTRACT,
-            selector=selector
-        ))
+        return await self.execute_action(
+            BrowserAction(action_type=BrowserActionType.EXTRACT, selector=selector)
+        )
 
     async def screenshot(self) -> ActionResult:
         """Take a screenshot."""
-        return await self.execute_action(BrowserAction(
-            action_type=BrowserActionType.SCREENSHOT
-        ))
+        return await self.execute_action(BrowserAction(action_type=BrowserActionType.SCREENSHOT))
 
     @property
     def current_url(self) -> str | None:
@@ -536,5 +538,5 @@ __all__ = [
     "BrowserAction",
     "BrowserActionType",
     "ActionResult",
-    "CaptchaSolver"
+    "CaptchaSolver",
 ]

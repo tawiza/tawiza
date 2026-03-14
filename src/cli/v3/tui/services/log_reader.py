@@ -14,6 +14,7 @@ from loguru import logger
 
 class LogLevel(Enum):
     """Log severity levels."""
+
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -24,6 +25,7 @@ class LogLevel(Enum):
 @dataclass
 class LogEntry:
     """A parsed log entry."""
+
     timestamp: datetime
     level: LogLevel
     source: str
@@ -52,17 +54,11 @@ class LogReader:
             r"(.+?) \|"
         ),
         # Proxmox alerts: [Tue Dec  9 09:00:01 AM CET 2025] ALERT: message
-        "proxmox": re.compile(
-            r"\[([^\]]+)\] (ALERT|WARNING|ERROR|INFO): (.+)"
-        ),
+        "proxmox": re.compile(r"\[([^\]]+)\] (ALERT|WARNING|ERROR|INFO): (.+)"),
         # Simple format: [LEVEL] message
-        "simple": re.compile(
-            r"\[(ALERT|WARNING|ERROR|INFO|DEBUG)\] (.+)"
-        ),
+        "simple": re.compile(r"\[(ALERT|WARNING|ERROR|INFO|DEBUG)\] (.+)"),
         # Syslog format: Dec 11 18:00:01 hostname process[pid]: message
-        "syslog": re.compile(
-            r"(\w+ \d+ \d+:\d+:\d+) (\S+) ([^:]+): (.+)"
-        ),
+        "syslog": re.compile(r"(\w+ \d+ \d+:\d+:\d+) (\S+) ([^:]+): (.+)"),
     }
 
     def __init__(self):
@@ -120,7 +116,7 @@ class LogReader:
                 level=self._parse_level(level),
                 source=self._extract_source(module),
                 message=message.strip(),
-                raw_line=line
+                raw_line=line,
             )
 
         # Try Proxmox format
@@ -129,8 +125,7 @@ class LogReader:
             timestamp_str, level, message = match.groups()
             try:
                 timestamp = datetime.strptime(
-                    timestamp_str.replace("  ", " "),
-                    "%a %b %d %I:%M:%S %p %Z %Y"
+                    timestamp_str.replace("  ", " "), "%a %b %d %I:%M:%S %p %Z %Y"
                 )
             except ValueError:
                 timestamp = datetime.now()
@@ -139,7 +134,7 @@ class LogReader:
                 level=self._parse_level(level),
                 source="proxmox",
                 message=message.strip(),
-                raw_line=line
+                raw_line=line,
             )
 
         # Try simple format
@@ -151,7 +146,7 @@ class LogReader:
                 level=self._parse_level(level),
                 source="system",
                 message=message.strip(),
-                raw_line=line
+                raw_line=line,
             )
 
         # Try syslog format
@@ -168,7 +163,7 @@ class LogReader:
                 level=LogLevel.INFO,
                 source=process.split("[")[0][:10],
                 message=message.strip(),
-                raw_line=line
+                raw_line=line,
             )
 
         # Fallback: unparsed line as info
@@ -177,7 +172,7 @@ class LogReader:
             level=LogLevel.INFO,
             source="system",
             message=line[:200],
-            raw_line=line
+            raw_line=line,
         )
 
     async def read_initial_logs(self, max_lines: int = 50) -> list[LogEntry]:
@@ -207,9 +202,12 @@ class LogReader:
         """Read last N lines from a file using asyncio subprocess."""
         try:
             proc = await asyncio.create_subprocess_exec(
-                "tail", "-n", str(n_lines), str(path),
+                "tail",
+                "-n",
+                str(n_lines),
+                str(path),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, _ = await proc.communicate()
             return stdout.decode("utf-8", errors="replace").splitlines()

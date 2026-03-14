@@ -15,14 +15,30 @@ CDX_API = "https://index.commoncrawl.org"
 
 # Latest crawl indices (updated periodically)
 DEFAULT_CRAWL_IDS = [
-    "CC-MAIN-2026-09", "CC-MAIN-2026-05", "CC-MAIN-2025-51",
-    "CC-MAIN-2025-47", "CC-MAIN-2025-43", "CC-MAIN-2025-39",
-    "CC-MAIN-2025-35", "CC-MAIN-2025-31", "CC-MAIN-2025-26",
-    "CC-MAIN-2025-22", "CC-MAIN-2025-18", "CC-MAIN-2025-14",
-    "CC-MAIN-2025-10", "CC-MAIN-2025-05", "CC-MAIN-2024-51",
-    "CC-MAIN-2024-46", "CC-MAIN-2024-42", "CC-MAIN-2024-38",
-    "CC-MAIN-2024-33", "CC-MAIN-2024-30", "CC-MAIN-2024-26",
-    "CC-MAIN-2024-22", "CC-MAIN-2024-18", "CC-MAIN-2024-10",
+    "CC-MAIN-2026-09",
+    "CC-MAIN-2026-05",
+    "CC-MAIN-2025-51",
+    "CC-MAIN-2025-47",
+    "CC-MAIN-2025-43",
+    "CC-MAIN-2025-39",
+    "CC-MAIN-2025-35",
+    "CC-MAIN-2025-31",
+    "CC-MAIN-2025-26",
+    "CC-MAIN-2025-22",
+    "CC-MAIN-2025-18",
+    "CC-MAIN-2025-14",
+    "CC-MAIN-2025-10",
+    "CC-MAIN-2025-05",
+    "CC-MAIN-2024-51",
+    "CC-MAIN-2024-46",
+    "CC-MAIN-2024-42",
+    "CC-MAIN-2024-38",
+    "CC-MAIN-2024-33",
+    "CC-MAIN-2024-30",
+    "CC-MAIN-2024-26",
+    "CC-MAIN-2024-22",
+    "CC-MAIN-2024-18",
+    "CC-MAIN-2024-10",
 ]
 
 
@@ -212,8 +228,7 @@ class CommonCrawlAdapter(BaseAdapter):
 
             if response.status_code not in (200, 206):
                 logger.warning(
-                    f"[commoncrawl] WARC fetch failed: {response.status_code} "
-                    f"for {record.url}"
+                    f"[commoncrawl] WARC fetch failed: {response.status_code} for {record.url}"
                 )
                 return None
 
@@ -221,6 +236,7 @@ class CommonCrawlAdapter(BaseAdapter):
             raw = response.content
             try:
                 import gzip
+
                 raw = gzip.decompress(raw)
             except Exception:
                 pass  # May not be compressed
@@ -251,9 +267,7 @@ class CommonCrawlAdapter(BaseAdapter):
             logger.error(f"[commoncrawl] Content extraction failed for {record.url}: {e}")
             return None
 
-    async def get_timeline(
-        self, url: str, months: int = 12
-    ) -> list[WebPageContent]:
+    async def get_timeline(self, url: str, months: int = 12) -> list[WebPageContent]:
         """Get monthly snapshots of a URL as a timeline.
 
         Args:
@@ -298,9 +312,7 @@ class CommonCrawlAdapter(BaseAdapter):
 
     # --- Private methods ---
 
-    async def _query_cdx(
-        self, crawl_id: str, url: str, limit: int
-    ) -> list[dict[str, Any]]:
+    async def _query_cdx(self, crawl_id: str, url: str, limit: int) -> list[dict[str, Any]]:
         """Query a single CDX index for a URL with retry on 503."""
         import asyncio as _asyncio
         import json
@@ -325,9 +337,7 @@ class CommonCrawlAdapter(BaseAdapter):
                     await _asyncio.sleep(3 * (attempt + 1))
                     continue
                 if response.status_code != 200:
-                    logger.debug(
-                        f"[commoncrawl] CDX {crawl_id} returned {response.status_code}"
-                    )
+                    logger.debug(f"[commoncrawl] CDX {crawl_id} returned {response.status_code}")
                     return []
 
                 # Parse JSON lines response (one JSON object per line, no header)
@@ -339,17 +349,19 @@ class CommonCrawlAdapter(BaseAdapter):
                 for line in lines:
                     try:
                         item = json.loads(line)
-                        records.append({
-                            "url": item.get("url", url),
-                            "timestamp": item.get("timestamp", ""),
-                            "status": item.get("status", "200"),
-                            "mime": item.get("mime", "text/html"),
-                            "filename": item.get("filename", ""),
-                            "offset": int(item.get("offset", 0)),
-                            "length": int(item.get("length", 0)),
-                            "crawl_id": crawl_id,
-                            "source": "commoncrawl",
-                        })
+                        records.append(
+                            {
+                                "url": item.get("url", url),
+                                "timestamp": item.get("timestamp", ""),
+                                "status": item.get("status", "200"),
+                                "mime": item.get("mime", "text/html"),
+                                "filename": item.get("filename", ""),
+                                "offset": int(item.get("offset", 0)),
+                                "length": int(item.get("length", 0)),
+                                "crawl_id": crawl_id,
+                                "source": "commoncrawl",
+                            }
+                        )
                     except (json.JSONDecodeError, ValueError):
                         continue
 
@@ -372,15 +384,13 @@ class CommonCrawlAdapter(BaseAdapter):
         url = url.strip().lower()
         for prefix in ("https://", "http://", "www."):
             if url.startswith(prefix):
-                url = url[len(prefix):]
+                url = url[len(prefix) :]
         # CDX works best with domain/* wildcard
         if "/" not in url:
             url = url + "/*"
         return url
 
-    def _crawl_in_range(
-        self, crawl_id: str, from_date: str | None, to_date: str | None
-    ) -> bool:
+    def _crawl_in_range(self, crawl_id: str, from_date: str | None, to_date: str | None) -> bool:
         """Check if a crawl ID falls within the date range."""
         # Extract year-week from crawl ID (e.g., CC-MAIN-2025-22)
         parts = crawl_id.split("-")
@@ -405,9 +415,7 @@ class CommonCrawlAdapter(BaseAdapter):
         except (ValueError, IndexError):
             return True
 
-    def _deduplicate_by_month(
-        self, records: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def _deduplicate_by_month(self, records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Keep only one record per month (the most recent)."""
         by_month: dict[str, dict[str, Any]] = {}
         for rec in records:
@@ -440,6 +448,7 @@ class CommonCrawlAdapter(BaseAdapter):
         """Convert HTML to clean text. Returns (text, title)."""
         try:
             import trafilatura
+
             text = trafilatura.extract(
                 html,
                 include_comments=False,
@@ -458,6 +467,7 @@ class CommonCrawlAdapter(BaseAdapter):
         except ImportError:
             # Fallback without trafilatura
             import re
+
             # Remove scripts and styles
             text = re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL | re.IGNORECASE)
             text = re.sub(r"<style[^>]*>.*?</style>", "", text, flags=re.DOTALL | re.IGNORECASE)

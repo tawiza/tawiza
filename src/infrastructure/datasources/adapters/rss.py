@@ -113,7 +113,8 @@ class RssAdapter(BaseAdapter):
                 # Filter by keywords
                 if keywords:
                     entries = [
-                        e for e in entries
+                        e
+                        for e in entries
                         if keywords in e.get("title", "").lower()
                         or keywords in e.get("summary", "").lower()
                     ]
@@ -121,8 +122,7 @@ class RssAdapter(BaseAdapter):
                 # Filter by date
                 if since:
                     entries = [
-                        e for e in entries
-                        if e.get("published_dt") and e["published_dt"] > since
+                        e for e in entries if e.get("published_dt") and e["published_dt"] > since
                     ]
 
                 all_results.extend(entries[:limit])
@@ -221,10 +221,7 @@ class RssAdapter(BaseAdapter):
                 logger.warning(f"Feed parse error for {name}: {feed.bozo_exception}")
                 return []
 
-            return [
-                self._transform_entry(entry, name, url)
-                for entry in feed.entries[:limit]
-            ]
+            return [self._transform_entry(entry, name, url) for entry in feed.entries[:limit]]
 
         except httpx.HTTPError as e:
             logger.error(f"HTTP error fetching {name}: {e}")
@@ -274,6 +271,7 @@ class RssAdapter(BaseAdapter):
         # Clean HTML from summary (basic)
         if summary:
             import re
+
             summary = re.sub(r"<[^>]+>", "", summary)
             summary = summary[:500]  # Truncate
 
@@ -326,9 +324,12 @@ class RssAdapter(BaseAdapter):
             Matching entries
         """
         from datetime import timedelta
+
         since = datetime.utcnow() - timedelta(days=days)
-        return await self.search({
-            "keywords": keywords,
-            "since": since,
-            "limit": limit,
-        })
+        return await self.search(
+            {
+                "keywords": keywords,
+                "since": since,
+                "limit": limit,
+            }
+        )

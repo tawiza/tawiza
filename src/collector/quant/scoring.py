@@ -30,7 +30,7 @@ class TerritorialScorer:
             "factor_dynamisme_immo",
             "factor_construction",
             "factor_declin_ratio",
-            "factor_presse_sentiment"
+            "factor_presse_sentiment",
         ]
 
     def compute_z_scores(self) -> dict[str, dict[str, float | None]]:
@@ -56,7 +56,9 @@ class TerritorialScorer:
                     dept_values[dept] = value
 
             if len(values) < 2:
-                logger.warning(f"Not enough data for z-score calculation of {factor_name}: {len(values)} values")
+                logger.warning(
+                    f"Not enough data for z-score calculation of {factor_name}: {len(values)} values"
+                )
                 # Set all z-scores to None for this factor
                 for dept in self.factors_data:
                     if dept not in z_scores:
@@ -71,7 +73,9 @@ class TerritorialScorer:
             if factor_std == 0:
                 factor_std = 1.0  # Avoid division by zero
 
-            logger.debug(f"Factor {factor_name}: mean={factor_mean:.3f}, std={factor_std:.3f}, n={len(values)}")
+            logger.debug(
+                f"Factor {factor_name}: mean={factor_mean:.3f}, std={factor_std:.3f}, n={len(values)}"
+            )
 
             # Calculate z-scores for each department
             for dept in self.factors_data:
@@ -116,13 +120,13 @@ class TerritorialScorer:
                     individual_scores[factor_name] = {
                         "z_score": z_score,
                         "adjusted_score": adjusted_score,
-                        "raw_value": self.factors_data[dept].get(factor_name)
+                        "raw_value": self.factors_data[dept].get(factor_name),
                     }
                 else:
                     individual_scores[factor_name] = {
                         "z_score": None,
                         "adjusted_score": None,
-                        "raw_value": None
+                        "raw_value": None,
                     }
 
             # Calculate composite score (equal weighting)
@@ -146,7 +150,7 @@ class TerritorialScorer:
                 "factor_count": len(valid_scores),
                 "total_factors": len(self.factor_names),
                 "individual_scores": individual_scores,
-                "confidence": len(valid_scores) / len(self.factor_names)
+                "confidence": len(valid_scores) / len(self.factor_names),
             }
 
         return composite_scores
@@ -238,14 +242,16 @@ async def get_department_rankings(database_url: str) -> list[dict[str, any]]:
     ranked = []
     for dept, data in scores.items():
         if data["composite_score"] is not None:
-            ranked.append({
-                "department": dept,
-                "composite_score": data["composite_score"],
-                "health_category": data["health_category"],
-                "factor_count": data["factor_count"],
-                "confidence": data["confidence"],
-                "individual_scores": data["individual_scores"]
-            })
+            ranked.append(
+                {
+                    "department": dept,
+                    "composite_score": data["composite_score"],
+                    "health_category": data["health_category"],
+                    "factor_count": data["factor_count"],
+                    "confidence": data["confidence"],
+                    "individual_scores": data["individual_scores"],
+                }
+            )
 
     # Sort by composite score (descending)
     ranked.sort(key=lambda x: x["composite_score"], reverse=True)
@@ -266,9 +272,11 @@ if __name__ == "__main__":
     scores = asyncio.run(compute_territorial_scores(database_url))
 
     # Show top 10 departments
-    ranked = [(dept, data["composite_score"], data["health_category"])
-              for dept, data in scores.items()
-              if data["composite_score"] is not None]
+    ranked = [
+        (dept, data["composite_score"], data["health_category"])
+        for dept, data in scores.items()
+        if data["composite_score"] is not None
+    ]
     ranked.sort(key=lambda x: x[1], reverse=True)
 
     print("Top 10 departments by territorial health score:")
@@ -278,7 +286,7 @@ if __name__ == "__main__":
 
     print("\nBottom 5 departments:")
     print("-" * 50)
-    for i, (dept, score, category) in enumerate(ranked[-5:], len(ranked)-4):
+    for i, (dept, score, category) in enumerate(ranked[-5:], len(ranked) - 4):
         print(f"{i:2d}. {dept}: {score:.1f} ({category})")
 
     print(f"\nTotal departments with scores: {len(ranked)}")

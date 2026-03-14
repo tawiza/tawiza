@@ -28,6 +28,7 @@ from loguru import logger
 @dataclass
 class SourceDataAvailability:
     """Disponibilité des données par source."""
+
     sirene_creations: bool = False
     bodacc_liquidations: bool = False
     france_travail_offers: bool = False
@@ -38,20 +39,23 @@ class SourceDataAvailability:
     @property
     def confidence_score(self) -> float:
         """Score de confiance basé sur le nombre de sources disponibles."""
-        available_sources = sum([
-            self.sirene_creations,
-            self.bodacc_liquidations,
-            self.france_travail_offers,
-            self.dvf_transactions,
-            self.sitadel_permits,
-            self.insee_population
-        ])
+        available_sources = sum(
+            [
+                self.sirene_creations,
+                self.bodacc_liquidations,
+                self.france_travail_offers,
+                self.dvf_transactions,
+                self.sitadel_permits,
+                self.insee_population,
+            ]
+        )
         return available_sources / 6.0
 
 
 @dataclass
 class TerritorialFactors:
     """Calculated territorial alpha factors with enhanced data quality tracking."""
+
     code_dept: str
     nom: str
     calculated_at: datetime
@@ -87,11 +91,11 @@ class PostgreSQLDataCollector:
 
     def __init__(self):
         self.conn_params = {
-            'host': 'localhost',
-            'port': 5433,
-            'database': os.getenv("SIGNALS_DB_NAME", "tawiza_signals"),
-            'user': os.getenv("DATABASE_USER", "tawiza"),
-            'password': os.getenv("DATABASE_PASSWORD", "")
+            "host": "localhost",
+            "port": 5433,
+            "database": os.getenv("SIGNALS_DB_NAME", "tawiza_signals"),
+            "user": os.getenv("DATABASE_USER", "tawiza"),
+            "password": os.getenv("DATABASE_PASSWORD", ""),
         }
 
     async def collect_department_data(self) -> dict[str, dict]:
@@ -128,38 +132,38 @@ class PostgreSQLDataCollector:
 
                 if code_dept not in dept_data:
                     dept_data[code_dept] = {
-                        'creations_sirene': 0,
-                        'liquidations_bodacc': 0,
-                        'offres_france_travail': 0,
-                        'transactions_dvf': 0,
-                        'prix_m2_dvf': 0.0,
-                        'logements_sitadel': 0,
-                        'data_availability': SourceDataAvailability()
+                        "creations_sirene": 0,
+                        "liquidations_bodacc": 0,
+                        "offres_france_travail": 0,
+                        "transactions_dvf": 0,
+                        "prix_m2_dvf": 0.0,
+                        "logements_sitadel": 0,
+                        "data_availability": SourceDataAvailability(),
                     }
 
                 # Map signals to territorial metrics
-                if source == 'sirene' and 'creation' in metric_name.lower():
-                    dept_data[code_dept]['creations_sirene'] = count
-                    dept_data[code_dept]['data_availability'].sirene_creations = True
+                if source == "sirene" and "creation" in metric_name.lower():
+                    dept_data[code_dept]["creations_sirene"] = count
+                    dept_data[code_dept]["data_availability"].sirene_creations = True
 
-                elif source == 'bodacc' and 'liquidation' in metric_name.lower():
-                    dept_data[code_dept]['liquidations_bodacc'] = count
-                    dept_data[code_dept]['data_availability'].bodacc_liquidations = True
+                elif source == "bodacc" and "liquidation" in metric_name.lower():
+                    dept_data[code_dept]["liquidations_bodacc"] = count
+                    dept_data[code_dept]["data_availability"].bodacc_liquidations = True
 
-                elif source == 'france_travail' and 'offre' in metric_name.lower():
-                    dept_data[code_dept]['offres_france_travail'] = count
-                    dept_data[code_dept]['data_availability'].france_travail_offers = True
+                elif source == "france_travail" and "offre" in metric_name.lower():
+                    dept_data[code_dept]["offres_france_travail"] = count
+                    dept_data[code_dept]["data_availability"].france_travail_offers = True
 
-                elif source == 'dvf':
-                    if 'transaction' in metric_name.lower():
-                        dept_data[code_dept]['transactions_dvf'] = count
-                        dept_data[code_dept]['data_availability'].dvf_transactions = True
-                    elif 'prix' in metric_name.lower():
-                        dept_data[code_dept]['prix_m2_dvf'] = avg_val or 0.0
+                elif source == "dvf":
+                    if "transaction" in metric_name.lower():
+                        dept_data[code_dept]["transactions_dvf"] = count
+                        dept_data[code_dept]["data_availability"].dvf_transactions = True
+                    elif "prix" in metric_name.lower():
+                        dept_data[code_dept]["prix_m2_dvf"] = avg_val or 0.0
 
-                elif source == 'sitadel' and 'logement' in metric_name.lower():
-                    dept_data[code_dept]['logements_sitadel'] = count
-                    dept_data[code_dept]['data_availability'].sitadel_permits = True
+                elif source == "sitadel" and "logement" in metric_name.lower():
+                    dept_data[code_dept]["logements_sitadel"] = count
+                    dept_data[code_dept]["data_availability"].sitadel_permits = True
 
             logger.info(f"Collected data for {len(dept_data)} departments from PostgreSQL")
             return dept_data
@@ -242,7 +246,9 @@ class TerritorialFactorsCalculatorV2:
             if code_dept and dept_code != code_dept:
                 continue
 
-            factors = await self._calculate_dept_factors_v2(dept_code, data, dept_names.get(dept_code, f"Département {dept_code}"))
+            factors = await self._calculate_dept_factors_v2(
+                dept_code, data, dept_names.get(dept_code, f"Département {dept_code}")
+            )
             if factors:
                 factors_list.append(factors)
 
@@ -258,14 +264,18 @@ class TerritorialFactorsCalculatorV2:
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            cursor.execute("SELECT DISTINCT territory_code, territory_name FROM territorial_metrics_history")
+            cursor.execute(
+                "SELECT DISTINCT territory_code, territory_name FROM territorial_metrics_history"
+            )
             results = cursor.fetchall()
             conn.close()
             return dict(results)
         except:
             return {}
 
-    async def _calculate_from_sqlite(self, code_dept: str | None = None) -> list[TerritorialFactors]:
+    async def _calculate_from_sqlite(
+        self, code_dept: str | None = None
+    ) -> list[TerritorialFactors]:
         """Fallback calculation from SQLite data."""
         logger.info("Calculating factors from SQLite data")
 
@@ -300,7 +310,9 @@ class TerritorialFactorsCalculatorV2:
 
                 # Skip departments without business data
                 if (avg_creations or 0) == 0 and (avg_liquidations or 0) == 0:
-                    logger.warning(f"Skipping {dept_code} - {nom}: no business creation/liquidation data")
+                    logger.warning(
+                        f"Skipping {dept_code} - {nom}: no business creation/liquidation data"
+                    )
                     continue
 
                 # Create data availability info
@@ -314,12 +326,13 @@ class TerritorialFactorsCalculatorV2:
                 data_avail.insee_population = population is not None
 
                 factors = await self._calculate_dept_factors_legacy(
-                    dept_code, nom,
+                    dept_code,
+                    nom,
                     int(avg_creations or 0),
                     int(avg_liquidations or 0),
                     int(avg_job_offers or 0),
                     population,
-                    data_avail
+                    data_avail,
                 )
 
                 if factors:
@@ -335,7 +348,9 @@ class TerritorialFactorsCalculatorV2:
             logger.error(f"Failed to calculate from SQLite: {e}")
             return []
 
-    async def _calculate_dept_factors_v2(self, code_dept: str, data: dict, nom: str) -> TerritorialFactors | None:
+    async def _calculate_dept_factors_v2(
+        self, code_dept: str, data: dict, nom: str
+    ) -> TerritorialFactors | None:
         """Calculate factors for a department using PostgreSQL data."""
         try:
             # Get population
@@ -343,16 +358,16 @@ class TerritorialFactorsCalculatorV2:
             if not population:
                 population = 600000  # Default
 
-            data_avail = data['data_availability']
+            data_avail = data["data_availability"]
             data_avail.insee_population = True  # We have population data
 
             # Extract metrics
-            creations = data['creations_sirene']
-            liquidations = data['liquidations_bodacc']
-            job_offers = data['offres_france_travail']
-            transactions = data['transactions_dvf']
-            prix_m2 = data['prix_m2_dvf']
-            logements = data['logements_sitadel']
+            creations = data["creations_sirene"]
+            liquidations = data["liquidations_bodacc"]
+            job_offers = data["offres_france_travail"]
+            transactions = data["transactions_dvf"]
+            prix_m2 = data["prix_m2_dvf"]
+            logements = data["logements_sitadel"]
 
             # Calculate factors with NaN for missing data
             factor_tension_emploi = np.nan
@@ -394,14 +409,23 @@ class TerritorialFactorsCalculatorV2:
                 liquidations=liquidations,
                 prix_m2_moyen=prix_m2,
                 transactions_immo=transactions,
-                logements_autorises=logements
+                logements_autorises=logements,
             )
 
         except Exception as e:
             logger.error(f"Failed to calculate factors for {code_dept}: {e}")
             return None
 
-    async def _calculate_dept_factors_legacy(self, code_dept: str, nom: str, creations: int, liquidations: int, job_offers: int, population: int, data_avail: SourceDataAvailability) -> TerritorialFactors | None:
+    async def _calculate_dept_factors_legacy(
+        self,
+        code_dept: str,
+        nom: str,
+        creations: int,
+        liquidations: int,
+        job_offers: int,
+        population: int,
+        data_avail: SourceDataAvailability,
+    ) -> TerritorialFactors | None:
         """Calculate factors using legacy SQLite data."""
         try:
             # Calculate factors (only the ones we have data for)
@@ -440,7 +464,7 @@ class TerritorialFactorsCalculatorV2:
                 liquidations=liquidations,
                 prix_m2_moyen=0.0,
                 transactions_immo=0,
-                logements_autorises=0
+                logements_autorises=0,
             )
 
         except Exception as e:
@@ -469,7 +493,9 @@ class TerritorialFactorsCalculatorV2:
 
         return winsorized
 
-    def _calculate_composite_scores_v2(self, factors_list: list[TerritorialFactors]) -> list[TerritorialFactors]:
+    def _calculate_composite_scores_v2(
+        self, factors_list: list[TerritorialFactors]
+    ) -> list[TerritorialFactors]:
         """Calculate composite scores using percentile ranking and winsorization."""
         if not factors_list:
             return factors_list
@@ -482,7 +508,7 @@ class TerritorialFactorsCalculatorV2:
             "dynamisme_immo": 0.20,
             "sante_entreprises": 0.35,  # Most important
             "construction": 0.10,
-            "declin_ratio": -0.20  # Negative weight
+            "declin_ratio": -0.20,  # Negative weight
         }
 
         # Extract factors and winsorize extreme values
@@ -637,7 +663,8 @@ class TerritorialFactorsRepositoryV2:
             cursor = conn.cursor()
 
             for factors in factors_list:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT OR REPLACE INTO territorial_factors_v2 (
                         code_dept, nom, calculated_at,
                         factor_tension_emploi, factor_dynamisme_immo, factor_sante_entreprises,
@@ -649,33 +676,57 @@ class TerritorialFactorsRepositoryV2:
                         creations, liquidations, prix_m2_moyen,
                         transactions_immo, logements_autorises
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    factors.code_dept,
-                    factors.nom,
-                    factors.calculated_at.isoformat(),
-                    factors.factor_tension_emploi if not np.isnan(factors.factor_tension_emploi) else None,
-                    factors.factor_dynamisme_immo if not np.isnan(factors.factor_dynamisme_immo) else None,
-                    factors.factor_sante_entreprises if not np.isnan(factors.factor_sante_entreprises) else None,
-                    factors.factor_construction if not np.isnan(factors.factor_construction) else None,
-                    factors.factor_declin_ratio if not np.isnan(factors.factor_declin_ratio) else None,
-                    factors.score_composite,
-                    factors.rang_national,
-                    factors.confidence_score,
-                    factors.data_availability.sirene_creations if factors.data_availability else False,
-                    factors.data_availability.bodacc_liquidations if factors.data_availability else False,
-                    factors.data_availability.france_travail_offers if factors.data_availability else False,
-                    factors.data_availability.dvf_transactions if factors.data_availability else False,
-                    factors.data_availability.sitadel_permits if factors.data_availability else False,
-                    factors.data_availability.insee_population if factors.data_availability else False,
-                    factors.population,
-                    factors.nb_entreprises_actives,
-                    factors.offres_emploi,
-                    factors.creations,
-                    factors.liquidations,
-                    factors.prix_m2_moyen,
-                    factors.transactions_immo,
-                    factors.logements_autorises
-                ))
+                """,
+                    (
+                        factors.code_dept,
+                        factors.nom,
+                        factors.calculated_at.isoformat(),
+                        factors.factor_tension_emploi
+                        if not np.isnan(factors.factor_tension_emploi)
+                        else None,
+                        factors.factor_dynamisme_immo
+                        if not np.isnan(factors.factor_dynamisme_immo)
+                        else None,
+                        factors.factor_sante_entreprises
+                        if not np.isnan(factors.factor_sante_entreprises)
+                        else None,
+                        factors.factor_construction
+                        if not np.isnan(factors.factor_construction)
+                        else None,
+                        factors.factor_declin_ratio
+                        if not np.isnan(factors.factor_declin_ratio)
+                        else None,
+                        factors.score_composite,
+                        factors.rang_national,
+                        factors.confidence_score,
+                        factors.data_availability.sirene_creations
+                        if factors.data_availability
+                        else False,
+                        factors.data_availability.bodacc_liquidations
+                        if factors.data_availability
+                        else False,
+                        factors.data_availability.france_travail_offers
+                        if factors.data_availability
+                        else False,
+                        factors.data_availability.dvf_transactions
+                        if factors.data_availability
+                        else False,
+                        factors.data_availability.sitadel_permits
+                        if factors.data_availability
+                        else False,
+                        factors.data_availability.insee_population
+                        if factors.data_availability
+                        else False,
+                        factors.population,
+                        factors.nb_entreprises_actives,
+                        factors.offres_emploi,
+                        factors.creations,
+                        factors.liquidations,
+                        factors.prix_m2_moyen,
+                        factors.transactions_immo,
+                        factors.logements_autorises,
+                    ),
+                )
 
             conn.commit()
             conn.close()
@@ -690,7 +741,9 @@ async def main_v2():
     """Enhanced CLI entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Calculate enhanced territorial alpha factors (V2)")
+    parser = argparse.ArgumentParser(
+        description="Calculate enhanced territorial alpha factors (V2)"
+    )
     parser.add_argument("--dept", help="Department code to process (default: all)")
     parser.add_argument("--show-ranking", action="store_true", help="Show national ranking")
     parser.add_argument("--data-quality", action="store_true", help="Show data quality report")
@@ -723,7 +776,9 @@ async def main_v2():
     if args.data_quality:
         print("\n📊 DATA QUALITY REPORT:")
         print("-" * 80)
-        print(f"{'Dept':<4} {'Name':<20} {'Conf.':<5} {'SIRENE':<7} {'BODACC':<7} {'FT':<3} {'DVF':<3} {'Sitadel':<7}")
+        print(
+            f"{'Dept':<4} {'Name':<20} {'Conf.':<5} {'SIRENE':<7} {'BODACC':<7} {'FT':<3} {'DVF':<3} {'Sitadel':<7}"
+        )
         print("-" * 80)
 
         for f in factors_list:
@@ -741,12 +796,20 @@ async def main_v2():
     if args.show_ranking:
         print("\n🏆 ENHANCED NATIONAL RANKING:")
         print("-" * 90)
-        print(f"{'Rank':<4} {'Dept':<4} {'Name':<20} {'Score':<6} {'Conf.':<5} {'Santé':<8} {'Déclin':<8}")
+        print(
+            f"{'Rank':<4} {'Dept':<4} {'Name':<20} {'Score':<6} {'Conf.':<5} {'Santé':<8} {'Déclin':<8}"
+        )
         print("-" * 90)
 
         for f in factors_list[:20]:  # Top 20
-            sante_str = f"{f.factor_sante_entreprises:.1f}" if not np.isnan(f.factor_sante_entreprises) else "N/A"
-            declin_str = f"{f.factor_declin_ratio:.1f}" if not np.isnan(f.factor_declin_ratio) else "N/A"
+            sante_str = (
+                f"{f.factor_sante_entreprises:.1f}"
+                if not np.isnan(f.factor_sante_entreprises)
+                else "N/A"
+            )
+            declin_str = (
+                f"{f.factor_declin_ratio:.1f}" if not np.isnan(f.factor_declin_ratio) else "N/A"
+            )
 
             print(
                 f"{f.rang_national:<4} "
@@ -763,10 +826,18 @@ async def main_v2():
         confidences = [f.confidence_score for f in factors_list]
 
         print("\n📊 ENHANCED STATISTICS:")
-        print(f"   Score distribution: min={min(scores):.1f}, max={max(scores):.1f}, median={np.median(scores):.1f}")
-        print(f"   Confidence distribution: min={min(confidences):.2f}, max={max(confidences):.2f}, avg={np.mean(confidences):.2f}")
-        print(f"   Departments with full data (confidence=1.0): {len([c for c in confidences if c >= 1.0])}")
-        print(f"   Departments with partial data (confidence<0.5): {len([c for c in confidences if c < 0.5])}")
+        print(
+            f"   Score distribution: min={min(scores):.1f}, max={max(scores):.1f}, median={np.median(scores):.1f}"
+        )
+        print(
+            f"   Confidence distribution: min={min(confidences):.2f}, max={max(confidences):.2f}, avg={np.mean(confidences):.2f}"
+        )
+        print(
+            f"   Departments with full data (confidence=1.0): {len([c for c in confidences if c >= 1.0])}"
+        )
+        print(
+            f"   Departments with partial data (confidence<0.5): {len([c for c in confidences if c < 0.5])}"
+        )
 
 
 if __name__ == "__main__":

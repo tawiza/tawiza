@@ -18,6 +18,7 @@ from src.infrastructure.agents.autonomous.task_planner import ActionType, Planne
 @dataclass
 class StepResult:
     """Result of executing a single step."""
+
     step_id: str
     status: str  # completed, failed, skipped
     result_data: dict[str, Any] | None = None
@@ -180,7 +181,7 @@ class StepExecutor:
             target = step.data.get("target", "data") if step.data else "data"
             limit = step.data.get("limit", 5) if step.data else 5
             return {
-                "items": [f"Sample {target} item {i+1}" for i in range(limit)],
+                "items": [f"Sample {target} item {i + 1}" for i in range(limit)],
                 "count": limit,
                 "selector_used": step.selector,
             }
@@ -327,7 +328,11 @@ class StepExecutor:
             return False
 
         # For simple actions, trust the result
-        simple_actions = {ActionType.NAVIGATE.value, ActionType.SCREENSHOT.value, ActionType.WAIT.value}
+        simple_actions = {
+            ActionType.NAVIGATE.value,
+            ActionType.SCREENSHOT.value,
+            ActionType.WAIT.value,
+        }
         if step.action.lower() in simple_actions:
             return True
 

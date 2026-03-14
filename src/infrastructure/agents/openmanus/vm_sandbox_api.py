@@ -22,6 +22,7 @@ from src.infrastructure.agents.openmanus.vm_sandbox_adapter import VMSandboxAdap
 # Modèles Pydantic
 class VMConfig(BaseModel):
     """Configuration VM."""
+
     provider: str = Field(default="docker", description="Fournisseur VM")
     memory: str = Field(default="2g", description="Mémoire VM")
     cpus: int = Field(default=2, description="Nombre de CPUs")
@@ -32,6 +33,7 @@ class VMConfig(BaseModel):
 
 class AutomationTask(BaseModel):
     """Tâche d'automation."""
+
     url: str = Field(..., description="URL cible")
     action: str = Field(..., description="Action à effectuer")
     selectors: dict[str, str] | None = Field(default=None, description="Sélecteurs CSS")
@@ -41,6 +43,7 @@ class AutomationTask(BaseModel):
 
 class TaskRequest(BaseModel):
     """Requête d'exécution de tâche."""
+
     vm_config: VMConfig = Field(..., description="Configuration VM")
     automation_task: AutomationTask = Field(..., description="Tâche automation")
     cleanup_vm: bool = Field(default=True, description="Nettoyer VM après exécution")
@@ -49,6 +52,7 @@ class TaskRequest(BaseModel):
 
 class TaskResponse(BaseModel):
     """Réponse d'exécution de tâche."""
+
     task_id: str
     vm_id: str
     status: str
@@ -60,6 +64,7 @@ class TaskResponse(BaseModel):
 
 class VMStatus(BaseModel):
     """Statut VM."""
+
     vm_id: str
     task_id: str
     status: str
@@ -82,7 +87,7 @@ class VMSandboxAPI:
         self.app = FastAPI(
             title="VM Sandbox API",
             description="API pour gérer les machines virtuelles sandbox et l'exécution de tâches",
-            version="1.0.0"
+            version="1.0.0",
         )
 
         # Configuration CORS
@@ -107,6 +112,7 @@ class VMSandboxAPI:
             try:
                 # Vérifier Docker
                 import docker
+
                 client = docker.from_env()
                 client.ping()
 
@@ -118,7 +124,7 @@ class VMSandboxAPI:
                     "timestamp": datetime.now().isoformat(),
                     "active_vms": vm_count,
                     "max_vms": self.adapter.max_vms,
-                    "provider": self.adapter.vm_provider
+                    "provider": self.adapter.vm_provider,
                 }
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
@@ -157,7 +163,7 @@ class VMSandboxAPI:
                     "vm_id": vm_id,
                     "task_id": task_id,
                     "status": "created",
-                    "created_at": datetime.now().isoformat()
+                    "created_at": datetime.now().isoformat(),
                 }
 
             except Exception as e:
@@ -184,7 +190,7 @@ class VMSandboxAPI:
                 return {
                     "vm_id": vm_id,
                     "status": "destruction_scheduled",
-                    "message": "Destruction de la VM planifiée"
+                    "message": "Destruction de la VM planifiée",
                 }
 
             except Exception as e:
@@ -200,7 +206,7 @@ class VMSandboxAPI:
                     "vm_config": request.vm_config.dict(),
                     "automation_task": request.automation_task.dict(),
                     "cleanup_vm": request.cleanup_vm,
-                    "timeout": request.timeout
+                    "timeout": request.timeout,
                 }
 
                 # Planifier l'exécution en arrière-plan
@@ -213,7 +219,7 @@ class VMSandboxAPI:
                     result=task_result.get("result"),
                     error=task_result.get("error"),
                     created_at=datetime.fromisoformat(task_result["created_at"]),
-                    execution_time=task_result.get("execution_time")
+                    execution_time=task_result.get("execution_time"),
                 )
 
             except Exception as e:
@@ -237,7 +243,7 @@ class VMSandboxAPI:
                     "error": task_info.get("error"),
                     "created_at": task_info.get("created_at"),
                     "logs": task_info.get("logs", []),
-                    "screenshots": task_info.get("screenshots", [])
+                    "screenshots": task_info.get("screenshots", []),
                 }
 
             except Exception as e:
@@ -254,7 +260,7 @@ class VMSandboxAPI:
                     "vm_id": vm_id,
                     "status": "success",
                     "result": result,
-                    "executed_at": datetime.now().isoformat()
+                    "executed_at": datetime.now().isoformat(),
                 }
 
             except Exception as e:
@@ -271,7 +277,7 @@ class VMSandboxAPI:
                 return {
                     "vm_id": vm_id,
                     "screenshots": screenshots,
-                    "captured_at": datetime.now().isoformat()
+                    "captured_at": datetime.now().isoformat(),
                 }
 
             except Exception as e:
@@ -289,14 +295,14 @@ class VMSandboxAPI:
                     raise HTTPException(status_code=404, detail="Screenshot non trouvé")
 
                 return FileResponse(
-                    screenshot_path,
-                    media_type="image/png",
-                    filename=f"{vm_id}_{screenshot_id}.png"
+                    screenshot_path, media_type="image/png", filename=f"{vm_id}_{screenshot_id}.png"
                 )
 
             except Exception as e:
                 logger.error(f"Erreur téléchargement screenshot {screenshot_id}: {e}")
-                raise HTTPException(status_code=500, detail=f"Erreur téléchargement screenshot: {e}")
+                raise HTTPException(
+                    status_code=500, detail=f"Erreur téléchargement screenshot: {e}"
+                )
 
         @self.app.post("/cleanup")
         async def cleanup_vms(background_tasks: BackgroundTasks):
@@ -307,7 +313,7 @@ class VMSandboxAPI:
 
                 return {
                     "status": "cleanup_scheduled",
-                    "message": "Nettoyage des VMs expirées planifié"
+                    "message": "Nettoyage des VMs expirées planifié",
                 }
 
             except Exception as e:
@@ -322,10 +328,16 @@ class VMSandboxAPI:
                     "active_vms": len(self.adapter.active_vms),
                     "max_vms": self.adapter.max_vms,
                     "provider": self.adapter.vm_provider,
-                    "uptime": (datetime.now() - datetime.fromtimestamp(
-                        self.adapter._start_time if hasattr(self.adapter, '_start_time') else
-                        datetime.now().timestamp()
-                    )).total_seconds() if hasattr(self.adapter, '_start_time') else 0
+                    "uptime": (
+                        datetime.now()
+                        - datetime.fromtimestamp(
+                            self.adapter._start_time
+                            if hasattr(self.adapter, "_start_time")
+                            else datetime.now().timestamp()
+                        )
+                    ).total_seconds()
+                    if hasattr(self.adapter, "_start_time")
+                    else 0,
                 }
 
                 # Ajouter des métriques détaillées
@@ -351,7 +363,7 @@ class VMSandboxAPI:
                 "vm_timeout": self.adapter.vm_timeout,
                 "vm_image_path": str(self.adapter.vm_image_path),
                 "vm_storage_path": str(self.adapter.vm_storage_path),
-                "headless": self.adapter.headless
+                "headless": self.adapter.headless,
             }
 
     async def start(self, host: str = "0.0.0.0", port: int = 8085) -> None:
@@ -381,7 +393,7 @@ class VMSandboxAPI:
         """Arrête l'API."""
         logger.info("Arrêt VM Sandbox API")
 
-        if hasattr(self, 'server_task'):
+        if hasattr(self, "server_task"):
             self.server_task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self.server_task

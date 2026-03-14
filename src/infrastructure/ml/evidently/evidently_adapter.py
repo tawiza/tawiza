@@ -32,9 +32,7 @@ try:
 except ImportError:
     EVIDENTLY_AVAILABLE = False
     ColumnMapping = type("ColumnMapping", (), {})  # Dummy type stub when not installed
-    logger.warning(
-        "Evidently not installed. Install with: pip install evidently"
-    )
+    logger.warning("Evidently not installed. Install with: pip install evidently")
 
 
 class EvidentlyAdapter(IDataDriftDetector):
@@ -62,10 +60,7 @@ class EvidentlyAdapter(IDataDriftDetector):
                 If more than this fraction of features drift, dataset is drifted
         """
         if not EVIDENTLY_AVAILABLE:
-            raise ImportError(
-                "Evidently is not installed. "
-                "Install with: pip install evidently"
-            )
+            raise ImportError("Evidently is not installed. Install with: pip install evidently")
 
         self._column_mapping = self._create_column_mapping(column_mapping)
         self.drift_share_threshold = drift_share_threshold
@@ -74,9 +69,7 @@ class EvidentlyAdapter(IDataDriftDetector):
             f"EvidentlyAdapter initialized with drift_share_threshold={drift_share_threshold}"
         )
 
-    def _create_column_mapping(
-        self, mapping: dict[str, Any] | None
-    ) -> ColumnMapping | None:
+    def _create_column_mapping(self, mapping: dict[str, Any] | None) -> ColumnMapping | None:
         """Create Evidently ColumnMapping from dict."""
         if mapping is None:
             return None
@@ -125,16 +118,15 @@ class EvidentlyAdapter(IDataDriftDetector):
         reference_df = self._load_data(reference_data_path)
         current_df = self._load_data(current_data_path)
 
-        logger.debug(
-            f"Loaded reference: {len(reference_df)} rows, "
-            f"current: {len(current_df)} rows"
-        )
+        logger.debug(f"Loaded reference: {len(reference_df)} rows, current: {len(current_df)} rows")
 
         # Create drift report
-        report = Report(metrics=[
-            DatasetDriftMetric(),
-            DataDriftTable(),
-        ])
+        report = Report(
+            metrics=[
+                DatasetDriftMetric(),
+                DataDriftTable(),
+            ]
+        )
 
         report.run(
             reference_data=reference_df,
@@ -156,23 +148,18 @@ class EvidentlyAdapter(IDataDriftDetector):
             if "DatasetDriftMetric" in metric_id:
                 dataset_drift = metric.get("result", {})
             elif "DataDriftTable" in metric_id:
-                drift_by_columns = metric.get("result", {}).get(
-                    "drift_by_columns", {}
-                )
+                drift_by_columns = metric.get("result", {}).get("drift_by_columns", {})
                 for col_name, col_data in drift_by_columns.items():
                     feature_drift[col_name] = {
                         "drift_detected": col_data.get("drift_detected", False),
                         "drift_score": col_data.get("drift_score", 0.0),
                         "stattest_name": col_data.get("stattest_name", ""),
-                        "stattest_threshold": col_data.get(
-                            "stattest_threshold", 0.0
-                        ),
+                        "stattest_threshold": col_data.get("stattest_threshold", 0.0),
                     }
 
         # Determine drifted features
         drifted_features = [
-            name for name, data in feature_drift.items()
-            if data.get("drift_detected", False)
+            name for name, data in feature_drift.items() if data.get("drift_detected", False)
         ]
 
         drift_share = dataset_drift.get("share_of_drifted_columns", 0.0)
@@ -181,14 +168,11 @@ class EvidentlyAdapter(IDataDriftDetector):
         response = {
             "is_drifted": is_drifted,
             "drift_share": drift_share,
-            "number_of_drifted_columns": dataset_drift.get(
-                "number_of_drifted_columns", 0
-            ),
+            "number_of_drifted_columns": dataset_drift.get("number_of_drifted_columns", 0),
             "number_of_columns": dataset_drift.get("number_of_columns", 0),
             "drifted_features": drifted_features,
             "feature_drift_scores": {
-                name: data.get("drift_score", 0.0)
-                for name, data in feature_drift.items()
+                name: data.get("drift_score", 0.0) for name, data in feature_drift.items()
             },
             "feature_details": feature_drift,
             "threshold": threshold,
@@ -229,8 +213,7 @@ class EvidentlyAdapter(IDataDriftDetector):
             Path to the generated report
         """
         logger.info(
-            f"Generating drift report: reference={reference_data_path}, "
-            f"current={current_data_path}"
+            f"Generating drift report: reference={reference_data_path}, current={current_data_path}"
         )
 
         # Load datasets
@@ -238,10 +221,12 @@ class EvidentlyAdapter(IDataDriftDetector):
         current_df = self._load_data(current_data_path)
 
         # Create comprehensive report
-        report = Report(metrics=[
-            DataDriftPreset(),
-            DataQualityPreset(),
-        ])
+        report = Report(
+            metrics=[
+                DataDriftPreset(),
+                DataQualityPreset(),
+            ]
+        )
 
         report.run(
             reference_data=reference_df,
@@ -286,9 +271,11 @@ class EvidentlyAdapter(IDataDriftDetector):
         current_df = self._load_data(current_data_path)
 
         # Create test suite
-        test_suite = TestSuite(tests=[
-            DataDriftTestPreset(),
-        ])
+        test_suite = TestSuite(
+            tests=[
+                DataDriftTestPreset(),
+            ]
+        )
 
         test_suite.run(
             reference_data=reference_df,
@@ -313,13 +300,15 @@ class EvidentlyAdapter(IDataDriftDetector):
             else:
                 failed_count += 1
 
-            test_results.append({
-                "name": test_name,
-                "status": test_status,
-                "passed": is_passed,
-                "description": test.get("description", ""),
-                "parameters": test.get("parameters", {}),
-            })
+            test_results.append(
+                {
+                    "name": test_name,
+                    "status": test_status,
+                    "passed": is_passed,
+                    "description": test.get("description", ""),
+                    "parameters": test.get("parameters", {}),
+                }
+            )
 
         all_passed = failed_count == 0
 
@@ -330,16 +319,13 @@ class EvidentlyAdapter(IDataDriftDetector):
                 "total_tests": len(tests),
                 "passed": passed_count,
                 "failed": failed_count,
-                "pass_rate": (
-                    passed_count / len(tests) * 100 if tests else 0
-                ),
+                "pass_rate": (passed_count / len(tests) * 100 if tests else 0),
             },
             "timestamp": datetime.utcnow().isoformat(),
         }
 
         logger.info(
-            f"Drift tests complete: passed={all_passed}, "
-            f"{passed_count}/{len(tests)} tests passed"
+            f"Drift tests complete: passed={all_passed}, {passed_count}/{len(tests)} tests passed"
         )
 
         return response
@@ -366,17 +352,15 @@ class EvidentlyAdapter(IDataDriftDetector):
         current_df = self._load_data(current_data_path)
 
         if feature_name not in reference_df.columns:
-            raise ValueError(
-                f"Feature '{feature_name}' not found in reference data"
-            )
+            raise ValueError(f"Feature '{feature_name}' not found in reference data")
         if feature_name not in current_df.columns:
-            raise ValueError(
-                f"Feature '{feature_name}' not found in current data"
-            )
+            raise ValueError(f"Feature '{feature_name}' not found in current data")
 
-        report = Report(metrics=[
-            ColumnDriftMetric(column_name=feature_name),
-        ])
+        report = Report(
+            metrics=[
+                ColumnDriftMetric(column_name=feature_name),
+            ]
+        )
 
         report.run(
             reference_data=reference_df,
@@ -401,12 +385,8 @@ class EvidentlyAdapter(IDataDriftDetector):
             "drift_score": metric_result.get("drift_score", 0.0),
             "stattest_name": metric_result.get("stattest_name", ""),
             "stattest_threshold": metric_result.get("stattest_threshold", 0.0),
-            "current_distribution": metric_result.get(
-                "current_distribution", {}
-            ),
-            "reference_distribution": metric_result.get(
-                "reference_distribution", {}
-            ),
+            "current_distribution": metric_result.get("current_distribution", {}),
+            "reference_distribution": metric_result.get("reference_distribution", {}),
             "timestamp": datetime.utcnow().isoformat(),
         }
 
@@ -441,8 +421,7 @@ class EvidentlyAdapter(IDataDriftDetector):
             return pd.read_json(path, lines=True)
         else:
             raise ValueError(
-                f"Unsupported file format: {suffix}. "
-                f"Supported: .csv, .parquet, .json, .jsonl"
+                f"Unsupported file format: {suffix}. Supported: .csv, .parquet, .json, .jsonl"
             )
 
     async def health_check(self) -> bool:

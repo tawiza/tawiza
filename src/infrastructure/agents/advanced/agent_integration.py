@@ -32,6 +32,7 @@ from .multi_agent_system import MultiAgentSystem
 @dataclass
 class SystemStatus:
     """Statut du système d'agents"""
+
     is_initialized: bool
     active_agents: list[str]
     memory_usage: float
@@ -39,9 +40,11 @@ class SystemStatus:
     performance_score: float
     last_update: str
 
+
 @dataclass
 class AgentTask:
     """Tâche à exécuter par un agent"""
+
     task_id: str
     task_type: str  # data_analysis, ml_training, browser_automation, code_generation
     parameters: dict[str, Any]
@@ -49,15 +52,18 @@ class AgentTask:
     timeout: float
     callback: str | None = None
 
+
 @dataclass
 class TaskResult:
     """Résultat d'une tâche"""
+
     task_id: str
     success: bool
     result: Any
     execution_time: float
     error_message: str | None = None
     timestamp: str = ""
+
 
 class AdvancedAgentIntegration:
     """Intégration avancée des agents avec le système Tawiza-V2"""
@@ -84,7 +90,7 @@ class AdvancedAgentIntegration:
             "enable_gpu_optimization": True,
             "enable_performance_monitoring": True,
             "auto_scale": True,
-            "retry_failed_tasks": 3
+            "retry_failed_tasks": 3,
         }
 
     async def initialize(self):
@@ -97,7 +103,6 @@ class AdvancedAgentIntegration:
                 TextColumn("[progress.description]{task.description}"),
                 console=console,
             ) as progress:
-
                 # Initialiser le GPU Optimizer
                 task1 = progress.add_task("🎮 Initialisation GPU Optimizer...", total=None)
                 self.gpu_optimizer = create_gpu_optimizer()
@@ -173,7 +178,7 @@ class AdvancedAgentIntegration:
                     "original_performance": result.original_performance,
                     "optimized_performance": result.optimized_performance,
                     "improvement": result.improvement_percentage,
-                    "optimizations": result.optimizations_applied
+                    "optimizations": result.optimizations_applied,
                 }
 
                 logger.info(f"✅ {model}: {result.improvement_percentage:.1f}% d'amélioration")
@@ -212,7 +217,7 @@ class AdvancedAgentIntegration:
 
         logger.info("✅ Services démarrés")
 
-    async def submit_task(self, task: 'AgentTask') -> str:
+    async def submit_task(self, task: "AgentTask") -> str:
         """Soumettre une tâche à exécuter"""
         task_id = f"task_{int(time.time() * 1000)}"
 
@@ -222,7 +227,7 @@ class AdvancedAgentIntegration:
             "task": task,
             "status": "queued",
             "submitted_at": datetime.now().isoformat(),
-            "timeout": task.timeout
+            "timeout": task.timeout,
         }
 
         await self.task_queue.put((task.priority, task_info))
@@ -294,17 +299,20 @@ class AdvancedAgentIntegration:
                             logger.info(f"🔄 Nouvelle tentative pour: {task_id}")
 
                 # Ajouter à l'historique
-                self.task_history.append({
-                    "task_id": task_id,
-                    "status": task_info["status"],
-                    "execution_time": time.time() - datetime.fromisoformat(task_info["submitted_at"]).timestamp()
-                })
+                self.task_history.append(
+                    {
+                        "task_id": task_id,
+                        "status": task_info["status"],
+                        "execution_time": time.time()
+                        - datetime.fromisoformat(task_info["submitted_at"]).timestamp(),
+                    }
+                )
 
             except Exception as e:
                 logger.error(f"❌ Erreur dans le processeur de tâches: {e}")
                 await asyncio.sleep(1)
 
-    async def _process_task(self, task: 'AgentTask') -> TaskResult:
+    async def _process_task(self, task: "AgentTask") -> TaskResult:
         """Traiter une tâche individuelle"""
         start_time = time.time()
 
@@ -315,7 +323,9 @@ class AdvancedAgentIntegration:
             if task.task_type == "data_analysis":
                 if self.data_analyst:
                     dataset_path = task.parameters.get("dataset_path")
-                    result = await self.data_analyst.analyze_dataset(dataset_path, **task.parameters)
+                    result = await self.data_analyst.analyze_dataset(
+                        dataset_path, **task.parameters
+                    )
                 else:
                     raise Exception("Data Analyst agent n'est pas initialisé")
 
@@ -334,7 +344,11 @@ class AdvancedAgentIntegration:
                     browser_task = await self.browser_automation.create_automation_task(
                         url=url,
                         objective=objective,
-                        **{k: v for k, v in task.parameters.items() if k not in ["url", "objective"]}
+                        **{
+                            k: v
+                            for k, v in task.parameters.items()
+                            if k not in ["url", "objective"]
+                        },
                     )
                     result = await self.browser_automation.execute_task(browser_task)
                 else:
@@ -344,7 +358,9 @@ class AdvancedAgentIntegration:
                 if self.code_generator:
                     description = task.parameters.get("description")
                     language = task.parameters.get("language", "python")
-                    result = await self.code_generator.generate_code(description, language, **task.parameters)
+                    result = await self.code_generator.generate_code(
+                        description, language, **task.parameters
+                    )
                 else:
                     raise Exception("Code Generator agent n'est pas initialisé")
 
@@ -358,7 +374,7 @@ class AdvancedAgentIntegration:
                 success=True,
                 result=result,
                 execution_time=execution_time,
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
         except Exception as e:
@@ -370,7 +386,7 @@ class AdvancedAgentIntegration:
                 result=None,
                 execution_time=execution_time,
                 error_message=str(e),
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
     async def _performance_monitor(self):
@@ -398,7 +414,7 @@ class AdvancedAgentIntegration:
             "timestamp": datetime.now().isoformat(),
             "active_tasks": len(self.active_tasks),
             "queue_size": self.task_queue.qsize(),
-            "task_history_size": len(self.task_history)
+            "task_history_size": len(self.task_history),
         }
 
         # Métriques GPU si disponibles
@@ -432,16 +448,16 @@ class AdvancedAgentIntegration:
             "tasks": {
                 "active": len(self.active_tasks),
                 "queued": self.task_queue.qsize(),
-                "history": len(self.task_history)
+                "history": len(self.task_history),
             },
             "performance_metrics": self.performance_metrics,
         }
 
     async def show_system_status(self):
         """Afficher le statut du système"""
-        console.print("\n" + "="*60)
+        console.print("\n" + "=" * 60)
         console.print(Align.center("[bold cyan]🚀 Tawiza-V2 Advanced Agent System[/bold cyan]"))
-        console.print("="*60 + "\n")
+        console.print("=" * 60 + "\n")
 
         # Créer le tableau de statut
         table = Table(title="Statut du Système", show_header=True, header_style="bold magenta")
@@ -470,8 +486,10 @@ class AdvancedAgentIntegration:
 
             for model, metrics in self.performance_metrics.items():
                 if model != "system":
-                    console.print(f"  🎯 {model}: {metrics.get('optimized_performance', 0):.1f} tokens/sec "
-                                f"(+{metrics.get('improvement', 0):.1f}%)")
+                    console.print(
+                        f"  🎯 {model}: {metrics.get('optimized_performance', 0):.1f} tokens/sec "
+                        f"(+{metrics.get('improvement', 0):.1f}%)"
+                    )
 
         # Tâches actives
         console.print("\n[bold cyan]📋 Tâches:[/bold cyan]")
@@ -479,7 +497,7 @@ class AdvancedAgentIntegration:
         console.print(f"  ⏰ En file: {self.task_queue.qsize()}")
         console.print(f"  📚 Historique: {len(self.task_history)}")
 
-        console.print("\n" + "="*60 + "\n")
+        console.print("\n" + "=" * 60 + "\n")
 
     async def execute_data_analysis(self, dataset_path: str, **kwargs) -> str:
         """Exécuter une analyse de données"""
@@ -488,7 +506,7 @@ class AdvancedAgentIntegration:
             task_type="data_analysis",
             parameters={"dataset_path": dataset_path, **kwargs},
             priority=kwargs.get("priority", 5),
-            timeout=kwargs.get("timeout", 300.0)
+            timeout=kwargs.get("timeout", 300.0),
         )
 
         return await self.submit_task(task)
@@ -500,7 +518,7 @@ class AdvancedAgentIntegration:
             task_type="ml_training",
             parameters={"config": config, **kwargs},
             priority=kwargs.get("priority", 7),
-            timeout=kwargs.get("timeout", 1800.0)  # 30 minutes max
+            timeout=kwargs.get("timeout", 1800.0),  # 30 minutes max
         )
 
         return await self.submit_task(task)
@@ -512,7 +530,7 @@ class AdvancedAgentIntegration:
             task_type="browser_automation",
             parameters={"url": url, "objective": objective, **kwargs},
             priority=kwargs.get("priority", 6),
-            timeout=kwargs.get("timeout", 600.0)  # 10 minutes max
+            timeout=kwargs.get("timeout", 600.0),  # 10 minutes max
         )
 
         return await self.submit_task(task)
@@ -524,7 +542,7 @@ class AdvancedAgentIntegration:
             task_type="code_generation",
             parameters={"description": description, "language": language, **kwargs},
             priority=kwargs.get("priority", 4),
-            timeout=kwargs.get("timeout", 120.0)  # 2 minutes max
+            timeout=kwargs.get("timeout", 120.0),  # 2 minutes max
         )
 
         return await self.submit_task(task)
@@ -546,12 +564,14 @@ class AdvancedAgentIntegration:
         except Exception as e:
             logger.error(f"❌ Erreur lors du nettoyage: {e}")
 
+
 # Fonctions utilitaires
 async def create_advanced_agent_integration() -> AdvancedAgentIntegration:
     """Créer et initialiser l'intégration avancée"""
     integration = AdvancedAgentIntegration()
     await integration.initialize()
     return integration
+
 
 def create_agent_task(task_type: str, parameters: dict[str, Any], **kwargs) -> AgentTask:
     """Créer une tâche d'agent"""
@@ -560,15 +580,16 @@ def create_agent_task(task_type: str, parameters: dict[str, Any], **kwargs) -> A
         task_type=task_type,
         parameters=parameters,
         priority=kwargs.get("priority", 5),
-        timeout=kwargs.get("timeout", 300.0)
+        timeout=kwargs.get("timeout", 300.0),
     )
+
 
 # Export
 __all__ = [
-    'AdvancedAgentIntegration',
-    'AgentTask',
-    'TaskResult',
-    'SystemStatus',
-    'create_advanced_agent_integration',
-    'create_agent_task'
+    "AdvancedAgentIntegration",
+    "AgentTask",
+    "TaskResult",
+    "SystemStatus",
+    "create_advanced_agent_integration",
+    "create_agent_task",
 ]

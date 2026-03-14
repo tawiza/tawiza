@@ -11,8 +11,10 @@ from pydantic import BaseModel, ConfigDict, Field
 # Enums
 # ============================================================================
 
+
 class MessageType(StrEnum):
     """Types of WebSocket messages."""
+
     # Task messages (TUI → Server)
     TASK_CREATE = "task.create"
     TASK_PAUSE = "task.pause"
@@ -66,6 +68,7 @@ class MessageType(StrEnum):
 
 class TaskStatus(StrEnum):
     """Task execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     PAUSED = "paused"
@@ -76,6 +79,7 @@ class TaskStatus(StrEnum):
 
 class AgentType(StrEnum):
     """Available agent types."""
+
     BROWSER = "browser"
     DATA = "data"
     CODER = "coder"
@@ -87,8 +91,10 @@ class AgentType(StrEnum):
 # Base Message
 # ============================================================================
 
+
 class WSMessage(BaseModel):
     """Base WebSocket message."""
+
     model_config = ConfigDict(use_enum_values=True)
 
     type: MessageType
@@ -101,8 +107,10 @@ class WSMessage(BaseModel):
 # Task Messages (TUI → Server)
 # ============================================================================
 
+
 class TaskCreateMessage(WSMessage):
     """Request to create a new task."""
+
     type: MessageType = MessageType.TASK_CREATE
     agent: AgentType
     prompt: str
@@ -112,26 +120,31 @@ class TaskCreateMessage(WSMessage):
 
 class TaskControlMessage(WSMessage):
     """Base for task control messages."""
+
     task_id: str
 
 
 class TaskPauseMessage(TaskControlMessage):
     """Request to pause a task."""
+
     type: MessageType = MessageType.TASK_PAUSE
 
 
 class TaskResumeMessage(TaskControlMessage):
     """Request to resume a task."""
+
     type: MessageType = MessageType.TASK_RESUME
 
 
 class TaskCancelMessage(TaskControlMessage):
     """Request to cancel a task."""
+
     type: MessageType = MessageType.TASK_CANCEL
 
 
 class TaskCorrectMessage(TaskControlMessage):
     """Send a correction/guidance to a running task."""
+
     type: MessageType = MessageType.TASK_CORRECT
     message: str
 
@@ -140,8 +153,10 @@ class TaskCorrectMessage(TaskControlMessage):
 # Task Messages (Server → TUI)
 # ============================================================================
 
+
 class TaskCreatedMessage(WSMessage):
     """Task was created successfully."""
+
     type: MessageType = MessageType.TASK_CREATED
     task_id: str
     agent: AgentType
@@ -151,6 +166,7 @@ class TaskCreatedMessage(WSMessage):
 
 class TaskProgressMessage(WSMessage):
     """Task progress update."""
+
     type: MessageType = MessageType.TASK_PROGRESS
     task_id: str
     step: int
@@ -161,6 +177,7 @@ class TaskProgressMessage(WSMessage):
 
 class TaskThinkingMessage(WSMessage):
     """Agent is thinking/reasoning."""
+
     type: MessageType = MessageType.TASK_THINKING
     task_id: str
     content: str
@@ -168,6 +185,7 @@ class TaskThinkingMessage(WSMessage):
 
 class TaskToolCallMessage(WSMessage):
     """Agent is calling a tool."""
+
     type: MessageType = MessageType.TASK_TOOL_CALL
     task_id: str
     tool: str
@@ -176,6 +194,7 @@ class TaskToolCallMessage(WSMessage):
 
 class TaskToolResultMessage(WSMessage):
     """Tool returned a result."""
+
     type: MessageType = MessageType.TASK_TOOL_RESULT
     task_id: str
     tool: str
@@ -185,6 +204,7 @@ class TaskToolResultMessage(WSMessage):
 
 class TaskCompletedMessage(WSMessage):
     """Task completed successfully."""
+
     type: MessageType = MessageType.TASK_COMPLETED
     task_id: str
     result: Any
@@ -193,6 +213,7 @@ class TaskCompletedMessage(WSMessage):
 
 class TaskErrorMessage(WSMessage):
     """Task encountered an error."""
+
     type: MessageType = MessageType.TASK_ERROR
     task_id: str
     error: str
@@ -201,6 +222,7 @@ class TaskErrorMessage(WSMessage):
 
 class TaskStatusChangedMessage(WSMessage):
     """Task status changed (paused/resumed/cancelled)."""
+
     task_id: str
     status: TaskStatus
     message: str | None = None
@@ -210,8 +232,10 @@ class TaskStatusChangedMessage(WSMessage):
 # TAJINE Messages (Server → TUI)
 # ============================================================================
 
+
 class TAJINEPhaseMessage(WSMessage):
     """TAJINE PPDSL cycle phase update."""
+
     task_id: str
     phase: str  # perceive, plan, delegate, synthesize, learn
     status: str  # start, complete
@@ -222,12 +246,14 @@ class TAJINEPhaseMessage(WSMessage):
 
 class TAJINEPerceiveMessage(TAJINEPhaseMessage):
     """TAJINE perceive phase update."""
+
     type: MessageType = MessageType.TAJINE_PERCEIVE
     phase: str = "perceive"
 
 
 class TAJINEPlanMessage(TAJINEPhaseMessage):
     """TAJINE plan phase update."""
+
     type: MessageType = MessageType.TAJINE_PLAN
     phase: str = "plan"
     subtasks: list[dict[str, Any]] = Field(default_factory=list)
@@ -235,6 +261,7 @@ class TAJINEPlanMessage(TAJINEPhaseMessage):
 
 class TAJINEDelegateMessage(TAJINEPhaseMessage):
     """TAJINE delegate phase update."""
+
     type: MessageType = MessageType.TAJINE_DELEGATE
     phase: str = "delegate"
     tool: str | None = None
@@ -244,6 +271,7 @@ class TAJINEDelegateMessage(TAJINEPhaseMessage):
 
 class TAJINESynthesizeMessage(TAJINEPhaseMessage):
     """TAJINE synthesize phase update."""
+
     type: MessageType = MessageType.TAJINE_SYNTHESIZE
     phase: str = "synthesize"
     level: int = 0  # Current aggregation level
@@ -251,6 +279,7 @@ class TAJINESynthesizeMessage(TAJINEPhaseMessage):
 
 class TAJINELearnMessage(TAJINEPhaseMessage):
     """TAJINE learn phase update."""
+
     type: MessageType = MessageType.TAJINE_LEARN
     phase: str = "learn"
     trust_delta: float = 0.0
@@ -258,6 +287,7 @@ class TAJINELearnMessage(TAJINEPhaseMessage):
 
 class TAJINEProgressMessage(WSMessage):
     """TAJINE general progress update."""
+
     type: MessageType = MessageType.TAJINE_PROGRESS
     task_id: str
     phase: str
@@ -268,6 +298,7 @@ class TAJINEProgressMessage(WSMessage):
 
 class TAJINEThinkingMessage(WSMessage):
     """TAJINE thinking/reasoning update."""
+
     type: MessageType = MessageType.TAJINE_THINKING
     task_id: str
     content: str
@@ -275,6 +306,7 @@ class TAJINEThinkingMessage(WSMessage):
 
 class TAJINEAnalysisCompleteMessage(WSMessage):
     """TAJINE analysis complete - broadcast to sync other tabs."""
+
     type: MessageType = MessageType.TAJINE_ANALYSIS_COMPLETE
     task_id: str
     department: str | None = None
@@ -291,6 +323,7 @@ class TAJINEAnalysisCompleteMessage(WSMessage):
 
 class TerminalOutputMessage(WSMessage):
     """Real-time terminal output from code execution."""
+
     type: MessageType = MessageType.CODE_TERMINAL
     task_id: str
     content: str
@@ -301,8 +334,10 @@ class TerminalOutputMessage(WSMessage):
 # Chat Messages
 # ============================================================================
 
+
 class ChatMessage(WSMessage):
     """Chat message from user."""
+
     type: MessageType = MessageType.CHAT_MESSAGE
     agent: AgentType = AgentType.GENERAL
     message: str
@@ -311,6 +346,7 @@ class ChatMessage(WSMessage):
 
 class ChatResponseMessage(WSMessage):
     """Complete chat response from agent."""
+
     type: MessageType = MessageType.CHAT_RESPONSE
     content: str
     agent: AgentType
@@ -319,6 +355,7 @@ class ChatResponseMessage(WSMessage):
 
 class ChatStreamMessage(WSMessage):
     """Streaming chat response chunk."""
+
     type: MessageType = MessageType.CHAT_STREAM
     content: str
     conversation_id: str
@@ -329,8 +366,10 @@ class ChatStreamMessage(WSMessage):
 # System Messages
 # ============================================================================
 
+
 class MetricsMessage(WSMessage):
     """System metrics update."""
+
     type: MessageType = MessageType.METRICS_UPDATE
     cpu_percent: float
     ram_percent: float
@@ -341,12 +380,14 @@ class MetricsMessage(WSMessage):
 
 class AgentsStatusMessage(WSMessage):
     """Status of all registered agents."""
+
     type: MessageType = MessageType.AGENTS_STATUS
     agents: dict[str, dict[str, Any]]
 
 
 class ErrorMessage(WSMessage):
     """Error message."""
+
     type: MessageType = MessageType.ERROR
     error: str
     code: str | None = None
@@ -354,11 +395,13 @@ class ErrorMessage(WSMessage):
 
 class PingMessage(WSMessage):
     """Ping for keepalive."""
+
     type: MessageType = MessageType.PING
 
 
 class PongMessage(WSMessage):
     """Pong response."""
+
     type: MessageType = MessageType.PONG
 
 
@@ -366,16 +409,19 @@ class PongMessage(WSMessage):
 # Browser Automation Messages
 # ============================================================================
 
+
 class BrowserType(StrEnum):
     """Browser type for stealth automation."""
-    NODRIVER = "nodriver"      # Chrome-based, CDP direct
-    CAMOUFOX = "camoufox"      # Firefox-based, C++ hooks
+
+    NODRIVER = "nodriver"  # Chrome-based, CDP direct
+    CAMOUFOX = "camoufox"  # Firefox-based, C++ hooks
     PLAYWRIGHT = "playwright"  # Standard Playwright
     BROWSER_USE = "browser_use"  # browser-use library
 
 
 class BrowserScreenshotMessage(WSMessage):
     """Browser screenshot update for Agent Live panel."""
+
     type: MessageType = MessageType.BROWSER_SCREENSHOT
     task_id: str
     action: str  # Action that triggered the screenshot
@@ -389,6 +435,7 @@ class BrowserScreenshotMessage(WSMessage):
 
 class BrowserActionMessage(WSMessage):
     """Browser action request/notification."""
+
     type: MessageType = MessageType.BROWSER_ACTION
     task_id: str
     action: str  # navigate, click, type, scroll, etc.
@@ -401,6 +448,7 @@ class BrowserActionMessage(WSMessage):
 
 class BrowserStatusMessage(WSMessage):
     """Browser agent status update."""
+
     type: MessageType = MessageType.BROWSER_STATUS
     task_id: str
     is_running: bool
@@ -413,6 +461,7 @@ class BrowserStatusMessage(WSMessage):
 # ============================================================================
 # Message Parsing
 # ============================================================================
+
 
 def parse_message(data: dict[str, Any]) -> WSMessage:
     """Parse a raw dict into the appropriate message type."""

@@ -1,4 +1,5 @@
 """Text chunking for document ingestion."""
+
 from dataclasses import dataclass
 
 

@@ -37,6 +37,7 @@ from .stats import CacheStats
 # Optional Redis cache (requires redis-py)
 try:
     from .redis_cache import RedisCache, close_redis_cache, get_redis_cache
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False

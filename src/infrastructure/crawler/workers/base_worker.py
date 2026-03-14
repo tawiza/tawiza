@@ -1,4 +1,5 @@
 """Base worker interface for all crawlers."""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -8,6 +9,7 @@ from typing import Any
 @dataclass
 class CrawlResult:
     """Result from a crawl operation."""
+
     source_id: str
     url: str
     success: bool

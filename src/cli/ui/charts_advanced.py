@@ -19,6 +19,7 @@ console = Console()
 
 # ===== LINE CHARTS =====
 
+
 class LineChart:
     """Graphiques en ligne (séries temporelles)"""
 
@@ -29,7 +30,7 @@ class LineChart:
         height: int = 10,
         title: str = "",
         color: str = "cyan",
-        show_values: bool = True
+        show_values: bool = True,
     ) -> str:
         """Créer un line chart ASCII"""
         if not data:
@@ -62,7 +63,12 @@ class LineChart:
                     # Determine character
                     if abs(val - threshold) < 0.05:
                         char = "●"
-                    elif threshold < val and threshold < next_val or threshold > val and threshold > next_val:
+                    elif (
+                        threshold < val
+                        and threshold < next_val
+                        or threshold > val
+                        and threshold > next_val
+                    ):
                         char = " "
                     elif val < next_val and threshold >= val and threshold <= next_val:
                         char = "/"
@@ -113,6 +119,7 @@ class LineChart:
 
 # ===== BAR CHARTS =====
 
+
 class BarChart:
     """Graphiques à barres avancés"""
 
@@ -122,7 +129,7 @@ class BarChart:
         width: int = 40,
         title: str = "",
         color: str = "cyan",
-        show_values: bool = True
+        show_values: bool = True,
     ) -> str:
         """Créer un bar chart horizontal"""
         if not data:
@@ -158,10 +165,7 @@ class BarChart:
 
     @staticmethod
     def create_vertical(
-        data: dict[str, float],
-        height: int = 10,
-        title: str = "",
-        width_per_bar: int = 5
+        data: dict[str, float], height: int = 10, title: str = "", width_per_bar: int = 5
     ) -> str:
         """Créer un bar chart vertical"""
         if not data:
@@ -201,15 +205,13 @@ class BarChart:
 
 # ===== HISTOGRAMMES =====
 
+
 class Histogram:
     """Histogrammes pour distributions"""
 
     @staticmethod
     def create(
-        data: list[float],
-        bins: int = 10,
-        width: int = 40,
-        title: str = "Distribution"
+        data: list[float], bins: int = 10, width: int = 40, title: str = "Distribution"
     ) -> str:
         """Créer un histogramme"""
         if not data:
@@ -245,6 +247,7 @@ class Histogram:
 
 # ===== HEATMAPS =====
 
+
 class Heatmap:
     """Heatmaps ASCII"""
 
@@ -253,7 +256,7 @@ class Heatmap:
         data: list[list[float]],
         row_labels: list[str] | None = None,
         col_labels: list[str] | None = None,
-        title: str = ""
+        title: str = "",
     ) -> str:
         """Créer une heatmap"""
         if not data:
@@ -304,16 +307,20 @@ class Heatmap:
             lines.append(line)
 
         # Legend
-        lines.append(f"\n[dim]Legend: {intensity_chars[0]}=Low {intensity_chars[-1]}=High | Range: {min_val:.2f}-{max_val:.2f}[/]")
+        lines.append(
+            f"\n[dim]Legend: {intensity_chars[0]}=Low {intensity_chars[-1]}=High | Range: {min_val:.2f}-{max_val:.2f}[/]"
+        )
 
         return "\n".join(lines)
 
 
 # ===== GANTT CHARTS =====
 
+
 @dataclass
 class GanttTask:
     """Tâche pour Gantt chart"""
+
     name: str
     start: datetime
     duration: timedelta
@@ -324,11 +331,7 @@ class GanttChart:
     """Gantt charts pour timeline"""
 
     @staticmethod
-    def create(
-        tasks: list[GanttTask],
-        width: int = 60,
-        title: str = "Project Timeline"
-    ) -> str:
+    def create(tasks: list[GanttTask], width: int = 60, title: str = "Project Timeline") -> str:
         """Créer un Gantt chart"""
         if not tasks:
             return "[dim]No tasks[/]"
@@ -354,7 +357,7 @@ class GanttChart:
                 "pending": "dim white",
                 "running": "yellow",
                 "completed": "green",
-                "failed": "red"
+                "failed": "red",
             }
             color = status_colors.get(task.status, "white")
 
@@ -364,12 +367,7 @@ class GanttChart:
             line += f"[{color}]{'█' * task_length}[/]"
 
             # Add status indicator
-            status_icons = {
-                "pending": "○",
-                "running": "◐",
-                "completed": "●",
-                "failed": "✗"
-            }
+            status_icons = {"pending": "○", "running": "◐", "completed": "●", "failed": "✗"}
             icon = status_icons.get(task.status, "?")
             line += f" [{color}]{icon}[/]"
 
@@ -378,12 +376,15 @@ class GanttChart:
         # Timeline markers
         timeline = " " * max_name_len + " └" + "─" * width + "┘"
         lines.append(f"[dim]{timeline}[/]")
-        lines.append(f"[dim]{min_time.strftime('%Y-%m-%d %H:%M')} → {max_time.strftime('%Y-%m-%d %H:%M')}[/]")
+        lines.append(
+            f"[dim]{min_time.strftime('%Y-%m-%d %H:%M')} → {max_time.strftime('%Y-%m-%d %H:%M')}[/]"
+        )
 
         return "\n".join(lines)
 
 
 # ===== TABLES AVANCÉES =====
+
 
 class AdvancedTable:
     """Tables avancées avec sorting et filtering"""
@@ -394,7 +395,7 @@ class AdvancedTable:
         columns: list[str],
         sort_by: str | None = None,
         reverse: bool = False,
-        title: str = ""
+        title: str = "",
     ) -> Table:
         """Créer une table sortable"""
         table = Table(title=title if title else None, box=box.ROUNDED)
@@ -419,7 +420,7 @@ class AdvancedTable:
         columns: list[str],
         page: int = 1,
         page_size: int = 10,
-        title: str = ""
+        title: str = "",
     ) -> tuple[Table, dict[str, int]]:
         """Créer une table avec pagination"""
         total_pages = (len(data) + page_size - 1) // page_size
@@ -432,7 +433,7 @@ class AdvancedTable:
 
         table = Table(
             title=f"{title} (Page {page}/{total_pages})" if title else f"Page {page}/{total_pages}",
-            box=box.ROUNDED
+            box=box.ROUNDED,
         )
 
         for col in columns:
@@ -446,23 +447,22 @@ class AdvancedTable:
             "total_pages": total_pages,
             "start_idx": start_idx,
             "end_idx": end_idx,
-            "total_rows": len(data)
+            "total_rows": len(data),
         }
 
         return table, pagination_info
 
     @staticmethod
     def create_with_totals(
-        data: list[dict[str, Any]],
-        columns: list[str],
-        numeric_columns: list[str],
-        title: str = ""
+        data: list[dict[str, Any]], columns: list[str], numeric_columns: list[str], title: str = ""
     ) -> Table:
         """Créer une table avec totaux"""
         table = Table(title=title if title else None, box=box.ROUNDED)
 
         for col in columns:
-            table.add_column(col, style="cyan", justify="right" if col in numeric_columns else "left")
+            table.add_column(
+                col, style="cyan", justify="right" if col in numeric_columns else "left"
+            )
 
         # Add data rows
         for row in data:
@@ -488,11 +488,13 @@ class AdvancedTable:
 
 if __name__ == "__main__":
     console.clear()
-    console.print(Panel(
-        "[bold cyan]Advanced Charts Demo[/]\n"
-        "[dim]Line charts, histograms, heatmaps, Gantt, tables[/]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]Advanced Charts Demo[/]\n"
+            "[dim]Line charts, histograms, heatmaps, Gantt, tables[/]",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     # 1. Line Chart
@@ -504,9 +506,15 @@ if __name__ == "__main__":
 
     # 2. Sparklines
     console.print("[bold]2. Sparklines:[/]\n")
-    console.print(f"[cyan]CPU:    [/][green]{LineChart.create_sparkline([10, 20, 15, 25, 30, 28, 35, 40, 38, 42])}[/]")
-    console.print(f"[cyan]Memory: [/][yellow]{LineChart.create_sparkline([50, 52, 55, 53, 58, 60, 62, 65, 63, 68])}[/]")
-    console.print(f"[cyan]Disk:   [/][red]{LineChart.create_sparkline([70, 72, 75, 78, 80, 83, 85, 88, 90, 92])}[/]")
+    console.print(
+        f"[cyan]CPU:    [/][green]{LineChart.create_sparkline([10, 20, 15, 25, 30, 28, 35, 40, 38, 42])}[/]"
+    )
+    console.print(
+        f"[cyan]Memory: [/][yellow]{LineChart.create_sparkline([50, 52, 55, 53, 58, 60, 62, 65, 63, 68])}[/]"
+    )
+    console.print(
+        f"[cyan]Disk:   [/][red]{LineChart.create_sparkline([70, 72, 75, 78, 80, 83, 85, 88, 90, 92])}[/]"
+    )
     console.print()
 
     # 3. Bar Charts
@@ -516,7 +524,7 @@ if __name__ == "__main__":
         "Data Analyst": 38,
         "Optimizer": 25,
         "Code Reviewer": 18,
-        "Test Gen": 12
+        "Test Gen": 12,
     }
     bar_chart = BarChart.create_horizontal(bar_data, width=30, title="Tasks by Agent")
     console.print(bar_chart)
@@ -540,7 +548,7 @@ if __name__ == "__main__":
         heatmap_data,
         row_labels=["Mon", "Tue", "Wed"],
         col_labels=["9AM", "11AM", "1PM", "3PM", "5PM"],
-        title="CPU Usage by Day/Hour"
+        title="CPU Usage by Day/Hour",
     )
     console.print(heatmap)
     console.print()
@@ -569,12 +577,9 @@ if __name__ == "__main__":
         table_data,
         columns=["Agent", "Tasks", "Success"],
         numeric_columns=["Tasks"],
-        title="Agent Performance"
+        title="Agent Performance",
     )
     console.print(adv_table)
 
     console.print()
-    console.print(Panel(
-        "[bold green]All Charts Demo Complete![/]",
-        border_style="green"
-    ))
+    console.print(Panel("[bold green]All Charts Demo Complete![/]", border_style="green"))

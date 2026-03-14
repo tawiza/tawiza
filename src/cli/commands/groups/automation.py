@@ -7,9 +7,7 @@ from src.cli.commands.live import app as live_app
 from src.cli.commands.pipelines import app as pipelines_app
 
 app = typer.Typer(
-    name="automation",
-    help="Automation - Browser, Live, Pipelines",
-    rich_markup_mode="rich"
+    name="automation", help="Automation - Browser, Live, Pipelines", rich_markup_mode="rich"
 )
 
 # Ajouter les sous-commandes

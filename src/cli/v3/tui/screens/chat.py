@@ -15,6 +15,7 @@ from textual.widgets import Input, Select, Static
 @dataclass
 class ChatMessage:
     """A chat message."""
+
     role: str  # "user" or "assistant"
     content: str
     timestamp: datetime = field(default_factory=datetime.now)
@@ -137,10 +138,7 @@ class StreamingMessage(Static):
     def finalize(self) -> ChatMessage:
         """Finalize the streaming message."""
         return ChatMessage(
-            role="assistant",
-            content=self.content,
-            timestamp=self._start_time,
-            agent=self.agent
+            role="assistant", content=self.content, timestamp=self._start_time, agent=self.agent
         )
 
 
@@ -222,7 +220,7 @@ class ChatScreen(Container):
             yield Select(
                 [(label, value) for value, label in self.AGENTS],
                 value="general",
-                id="agent-selector"
+                id="agent-selector",
             )
 
         # Chat history
@@ -231,10 +229,7 @@ class ChatScreen(Container):
         # Input area
         with Vertical(id="input-area"):
             yield Static("[bold]MESSAGE[/] - Enter to send, Ctrl+T to focus")
-            yield Input(
-                placeholder="Type your message...",
-                id="chat-input"
-            )
+            yield Input(placeholder="Type your message...", id="chat-input")
 
     def on_mount(self) -> None:
         """Initialize on mount."""
@@ -245,11 +240,13 @@ class ChatScreen(Container):
     def _add_welcome_message(self) -> None:
         """Add welcome message."""
         chat = self.query_one("#chat-area", ChatHistory)
-        chat.add_message(ChatMessage(
-            role="assistant",
-            content="Hello! I'm ready to help. Select an agent above and start chatting.",
-            agent="system"
-        ))
+        chat.add_message(
+            ChatMessage(
+                role="assistant",
+                content="Hello! I'm ready to help. Select an agent above and start chatting.",
+                agent="system",
+            )
+        )
 
     async def _try_connect_ws(self) -> None:
         """Try to connect to WebSocket server."""
@@ -315,9 +312,7 @@ class ChatScreen(Container):
 
             client = get_ws_client()
             await client.send_chat(
-                message=content,
-                agent=self.current_agent,
-                conversation_id=self._conversation_id
+                message=content, agent=self.current_agent, conversation_id=self._conversation_id
             )
 
             # Show streaming indicator
@@ -356,9 +351,9 @@ class ChatScreen(Container):
 
                 # Filter out embedding models and pick a good chat model
                 chat_models = [
-                    m["name"] for m in models
-                    if "embed" not in m["name"].lower()
-                    and "nomic" not in m["name"].lower()
+                    m["name"]
+                    for m in models
+                    if "embed" not in m["name"].lower() and "nomic" not in m["name"].lower()
                 ]
 
                 # Prefer qwen3 or llama models
@@ -384,21 +379,25 @@ class ChatScreen(Container):
             system = system_prompts.get(self.current_agent, system_prompts["general"])
 
             # Stream response from Ollama
-            async with httpx.AsyncClient(timeout=120.0) as client, client.stream(
-                "POST",
-                f"{ollama_url}/api/chat",
-                json={
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": system},
-                        {"role": "user", "content": user_message}
-                    ],
-                    "stream": True
-                }
-            ) as response:
+            async with (
+                httpx.AsyncClient(timeout=120.0) as client,
+                client.stream(
+                    "POST",
+                    f"{ollama_url}/api/chat",
+                    json={
+                        "model": model,
+                        "messages": [
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": user_message},
+                        ],
+                        "stream": True,
+                    },
+                ) as response,
+            ):
                 async for line in response.aiter_lines():
                     if line:
                         import json
+
                         try:
                             data = json.loads(line)
                             content = data.get("message", {}).get("content", "")
@@ -422,11 +421,11 @@ class ChatScreen(Container):
                 self._streaming_message.remove()
                 self._streaming_message = None
 
-            chat.add_message(ChatMessage(
-                role="assistant",
-                content=f"Error connecting to Ollama: {e}",
-                agent="system"
-            ))
+            chat.add_message(
+                ChatMessage(
+                    role="assistant", content=f"Error connecting to Ollama: {e}", agent="system"
+                )
+            )
 
     async def _on_chat_stream(self, data: dict) -> None:
         """Handle streaming chat response."""
@@ -490,11 +489,7 @@ class ChatScreen(Container):
             self._streaming_message = None
 
         chat = self.query_one("#chat-area", ChatHistory)
-        chat.add_message(ChatMessage(
-            role="assistant",
-            content=f"Error: {error}",
-            agent="system"
-        ))
+        chat.add_message(ChatMessage(role="assistant", content=f"Error: {error}", agent="system"))
         self.app.notify(f"[red]Error: {error}[/]", timeout=5)
 
     def action_focus_input(self) -> None:

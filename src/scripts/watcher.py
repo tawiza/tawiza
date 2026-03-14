@@ -28,9 +28,9 @@ DB_URL = "postgresql://tawiza:tawiza2026@localhost:5433/tawiza"
 # ─── Configuration ────────────────────────────────────────────
 
 WATCH_INTERVAL_MINUTES = 30  # Check every 30 min
-LOOKBACK_DAYS = 90           # Historical baseline window
-Z_THRESHOLD = 2.0            # Z-score threshold for alert
-MIN_DATA_POINTS = 5          # Minimum points for baseline
+LOOKBACK_DAYS = 90  # Historical baseline window
+Z_THRESHOLD = 2.0  # Z-score threshold for alert
+MIN_DATA_POINTS = 5  # Minimum points for baseline
 
 # Metrics to watch, grouped by priority
 WATCHED_METRICS = {
@@ -110,7 +110,8 @@ async def compute_baselines(conn, lookback_days: int = LOOKBACK_DAYS) -> dict:
     """Compute mean + stddev per (dept, metric) over the lookback window."""
     cutoff = date.today() - timedelta(days=lookback_days)
 
-    rows = await conn.fetch("""
+    rows = await conn.fetch(
+        """
         SELECT code_dept, metric_name,
                AVG(metric_value) as mean_val,
                STDDEV(metric_value) as std_val,
@@ -121,15 +122,19 @@ async def compute_baselines(conn, lookback_days: int = LOOKBACK_DAYS) -> dict:
           AND metric_name = ANY($2)
         GROUP BY code_dept, metric_name
         HAVING COUNT(*) >= $3
-    """, cutoff, ALL_METRICS, MIN_DATA_POINTS)
+    """,
+        cutoff,
+        ALL_METRICS,
+        MIN_DATA_POINTS,
+    )
 
     baselines = {}
     for r in rows:
-        key = (r['code_dept'], r['metric_name'])
+        key = (r["code_dept"], r["metric_name"])
         baselines[key] = {
-            'mean': float(r['mean_val']),
-            'std': float(r['std_val']) if r['std_val'] else 0.0,
-            'count': r['cnt'],
+            "mean": float(r["mean_val"]),
+            "std": float(r["std_val"]) if r["std_val"] else 0.0,
+            "count": r["cnt"],
         }
 
     return baselines
@@ -139,7 +144,8 @@ async def get_latest_values(conn, days: int = 7) -> list:
     """Get latest signal values per (dept, metric) from last N days."""
     cutoff = date.today() - timedelta(days=days)
 
-    rows = await conn.fetch("""
+    rows = await conn.fetch(
+        """
         SELECT DISTINCT ON (code_dept, metric_name)
                code_dept, metric_name, metric_value, event_date, collected_at
         FROM signals
@@ -147,7 +153,10 @@ async def get_latest_values(conn, days: int = 7) -> list:
           AND event_date >= $1
           AND metric_name = ANY($2)
         ORDER BY code_dept, metric_name, collected_at DESC
-    """, cutoff, ALL_METRICS)
+    """,
+        cutoff,
+        ALL_METRICS,
+    )
 
     return rows
 
@@ -166,26 +175,26 @@ async def detect_alerts(conn) -> list[Alert]:
     now = datetime.now()
 
     for row in latest:
-        dept = row['code_dept']
-        metric = row['metric_name']
-        value = float(row['metric_value'])
+        dept = row["code_dept"]
+        metric = row["metric_name"]
+        value = float(row["metric_value"])
         key = (dept, metric)
 
         if key not in baselines:
             continue
 
         bl = baselines[key]
-        if bl['std'] < 0.001:  # No variance = no anomaly possible
+        if bl["std"] < 0.001:  # No variance = no anomaly possible
             continue
 
-        z = (value - bl['mean']) / bl['std']
+        z = (value - bl["mean"]) / bl["std"]
 
         if abs(z) >= Z_THRESHOLD:
             direction = "up" if z > 0 else "down"
             priority = get_priority(metric)
-            pct_change = ((value - bl['mean']) / bl['mean'] * 100) if bl['mean'] != 0 else 0
+            pct_change = ((value - bl["mean"]) / bl["mean"] * 100) if bl["mean"] != 0 else 0
 
-            metric_label = metric.replace('_', ' ').title()
+            metric_label = metric.replace("_", " ").title()
             msg = (
                 f"Dept {dept}: {metric_label} "
                 f"{'en hausse' if direction == 'up' else 'en baisse'} significative "
@@ -193,21 +202,23 @@ async def detect_alerts(conn) -> list[Alert]:
                 f"Valeur: {value:.1f}, Moyenne: {bl['mean']:.1f}"
             )
 
-            alerts.append(Alert(
-                department=dept,
-                metric=metric,
-                priority=priority,
-                current_value=value,
-                baseline_mean=bl['mean'],
-                baseline_std=bl['std'],
-                z_score=round(z, 2),
-                direction=direction,
-                message=msg,
-                detected_at=now,
-            ))
+            alerts.append(
+                Alert(
+                    department=dept,
+                    metric=metric,
+                    priority=priority,
+                    current_value=value,
+                    baseline_mean=bl["mean"],
+                    baseline_std=bl["std"],
+                    z_score=round(z, 2),
+                    direction=direction,
+                    message=msg,
+                    detected_at=now,
+                )
+            )
 
     # Sort by priority then z-score
-    prio_order = {'high': 0, 'medium': 1, 'low': 2}
+    prio_order = {"high": 0, "medium": 1, "low": 2}
     alerts.sort(key=lambda a: (prio_order.get(a.priority, 3), -abs(a.z_score)))
 
     return alerts
@@ -223,22 +234,37 @@ async def store_alerts(conn, alerts: list[Alert]) -> int:
 
     for a in alerts:
         # Check for recent duplicate
-        existing = await conn.fetchval("""
+        existing = await conn.fetchval(
+            """
             SELECT id FROM watcher_alerts
             WHERE department = $1 AND metric = $2 AND detected_at > $3
             LIMIT 1
-        """, a.department, a.metric, cutoff)
+        """,
+            a.department,
+            a.metric,
+            cutoff,
+        )
 
         if existing:
             continue
 
-        await conn.execute("""
+        await conn.execute(
+            """
             INSERT INTO watcher_alerts (department, metric, priority, current_value,
                 baseline_mean, baseline_std, z_score, direction, message, detected_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        """, a.department, a.metric, a.priority, a.current_value,
-            a.baseline_mean, a.baseline_std, a.z_score, a.direction,
-            a.message, a.detected_at)
+        """,
+            a.department,
+            a.metric,
+            a.priority,
+            a.current_value,
+            a.baseline_mean,
+            a.baseline_std,
+            a.z_score,
+            a.direction,
+            a.message,
+            a.detected_at,
+        )
         stored += 1
 
     return stored
@@ -247,6 +273,7 @@ async def store_alerts(conn, alerts: list[Alert]) -> int:
 async def run_once():
     """Single watch cycle."""
     import asyncpg
+
     conn = await asyncpg.connect(DB_URL)
 
     try:
@@ -271,13 +298,15 @@ async def run_once():
 
 async def run_daemon():
     """Continuous watch loop."""
-    logger.info(f"Watcher demarrage — intervalle {WATCH_INTERVAL_MINUTES} min, seuil z={Z_THRESHOLD}")
+    logger.info(
+        f"Watcher demarrage — intervalle {WATCH_INTERVAL_MINUTES} min, seuil z={Z_THRESHOLD}"
+    )
 
     while True:
         try:
-            logger.info(f"\n{'='*50}")
+            logger.info(f"\n{'=' * 50}")
             logger.info(f"Cycle de surveillance — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-            logger.info(f"{'='*50}")
+            logger.info(f"{'=' * 50}")
 
             await run_once()
 
@@ -290,9 +319,12 @@ async def run_daemon():
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Watcher — Surveillance territoriale continue")
     parser.add_argument("--once", action="store_true", help="Run once and exit")
-    parser.add_argument("--interval", type=int, default=WATCH_INTERVAL_MINUTES, help="Interval in minutes")
+    parser.add_argument(
+        "--interval", type=int, default=WATCH_INTERVAL_MINUTES, help="Interval in minutes"
+    )
     parser.add_argument("--threshold", type=float, default=Z_THRESHOLD, help="Z-score threshold")
     args = parser.parse_args()
 

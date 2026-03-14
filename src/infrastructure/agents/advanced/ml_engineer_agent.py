@@ -25,9 +25,11 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 # Configuration du logging
 
+
 @dataclass
 class MLTrainingConfig:
     """Configuration complète pour l'entraînement ML"""
+
     task_id: str
     dataset_path: str
     target_column: str
@@ -44,9 +46,11 @@ class MLTrainingConfig:
     batch_size: int = 32
     learning_rate: float = 0.001
 
+
 @dataclass
 class TrainingResult:
     """Résultat complet d'un entraînement"""
+
     task_id: str
     model_type: str
     best_params: dict[str, Any]
@@ -61,9 +65,11 @@ class TrainingResult:
     model_path: str
     metadata: dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class HyperparameterOptimizationResult:
     """Résultat de l'optimisation hyperparamètres"""
+
     best_params: dict[str, Any]
     best_score: float
     optimization_history: list[dict[str, Any]]
@@ -71,6 +77,7 @@ class HyperparameterOptimizationResult:
     best_trial_number: int
     optimization_time: float
     convergence_plot_data: dict[str, list[float]]
+
 
 class MLEngineerAgent:
     """Agent spécialisé en ML engineering - pipeline ML automatique"""
@@ -84,7 +91,7 @@ class MLEngineerAgent:
             "model_selection",
             "performance_monitoring",
             "auto_ml_pipeline",
-            "gpu_optimization"
+            "gpu_optimization",
         ]
 
         # Configuration ML
@@ -95,25 +102,25 @@ class MLEngineerAgent:
                     "gradient_boosting",
                     "logistic_regression",
                     "svm",
-                    "neural_network"
+                    "neural_network",
                 ],
                 "regression": [
                     "random_forest",
                     "gradient_boosting",
                     "linear_regression",
-                    "neural_network"
-                ]
+                    "neural_network",
+                ],
             },
             "optimization_methods": [
                 "grid_search",
                 "random_search",
                 "bayesian",
                 "optuna",
-                "hyperband"
+                "hyperband",
             ],
             "gpu_optimization": True,
             "early_stopping": True,
-            "cross_validation": True
+            "cross_validation": True,
         }
 
         # Cache pour éviter les recalculs
@@ -172,8 +179,8 @@ class MLEngineerAgent:
                 metadata={
                     "optimization_method": config.optimization_method,
                     "gpu_acceleration": config.gpu_acceleration,
-                    "cross_validation_folds": config.cross_validation_folds
-                }
+                    "cross_validation_folds": config.cross_validation_folds,
+                },
             )
 
             logger.info(f"✅ Pipeline ML créé avec succès pour {config.task_id}")
@@ -196,38 +203,40 @@ class MLEngineerAgent:
             y = df[config.target_column]
 
             # Encoder la target si nécessaire
-            if config.problem_type == "classification" and y.dtype == 'object':
+            if config.problem_type == "classification" and y.dtype == "object":
                 label_encoder = LabelEncoder()
                 y = label_encoder.fit_transform(y)
 
             # Séparer features numériques et catégorielles
             numerical_features = X.select_dtypes(include=[np.number]).columns.tolist()
-            categorical_features = X.select_dtypes(include=['object', 'category']).columns.tolist()
+            categorical_features = X.select_dtypes(include=["object", "category"]).columns.tolist()
 
             # Créer le pipeline de preprocessing
             preprocessing_steps = []
 
             if numerical_features:
-                preprocessing_steps.append(('numerical', StandardScaler(), numerical_features))
+                preprocessing_steps.append(("numerical", StandardScaler(), numerical_features))
 
             if categorical_features:
-                preprocessing_steps.append(('categorical', 'passthrough', categorical_features))
+                preprocessing_steps.append(("categorical", "passthrough", categorical_features))
 
-            preprocessing_pipeline = Pipeline([
-                ('preprocessor', preprocessing_steps)
-            ])
+            preprocessing_pipeline = Pipeline([("preprocessor", preprocessing_steps)])
 
             # Appliquer le preprocessing
             X_processed = preprocessing_pipeline.fit_transform(X)
 
-            logger.info(f"📊 Données préparées: {X_processed.shape[0]} échantillons, {X_processed.shape[1]} features")
+            logger.info(
+                f"📊 Données préparées: {X_processed.shape[0]} échantillons, {X_processed.shape[1]} features"
+            )
             return X_processed, y.values, preprocessing_pipeline
 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la préparation des données: {str(e)}")
             raise
 
-    async def _optimize_hyperparameters(self, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig, preprocessing_pipeline: Any) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
+    async def _optimize_hyperparameters(
+        self, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig, preprocessing_pipeline: Any
+    ) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
         """Optimiser les hyperparamètres avec la méthode spécifiée"""
         logger.info(f"🔧 Optimisation hyperparamètres avec {config.optimization_method}")
 
@@ -244,7 +253,9 @@ class MLEngineerAgent:
             elif config.optimization_method == "optuna":
                 return await self._optuna_optimization(X, y, config, param_grids)
             else:
-                raise ValueError(f"Méthode d'optimisation non supportée: {config.optimization_method}")
+                raise ValueError(
+                    f"Méthode d'optimisation non supportée: {config.optimization_method}"
+                )
 
         except Exception as e:
             logger.error(f"❌ Erreur lors de l'optimisation: {str(e)}")
@@ -254,46 +265,52 @@ class MLEngineerAgent:
         """Obtenir les grilles d'hyperparamètres selon le type de modèle"""
         if model_type == "random_forest":
             return {
-                'n_estimators': [50, 100, 200],
-                'max_depth': [10, 20, None],
-                'min_samples_split': [2, 5, 10],
-                'min_samples_leaf': [1, 2, 4],
-                'max_features': ['auto', 'sqrt']
+                "n_estimators": [50, 100, 200],
+                "max_depth": [10, 20, None],
+                "min_samples_split": [2, 5, 10],
+                "min_samples_leaf": [1, 2, 4],
+                "max_features": ["auto", "sqrt"],
             }
         elif model_type == "gradient_boosting":
             return {
-                'n_estimators': [50, 100, 200],
-                'learning_rate': [0.01, 0.1, 0.2],
-                'max_depth': [3, 5, 7],
-                'min_samples_split': [2, 5, 10],
-                'subsample': [0.8, 0.9, 1.0]
+                "n_estimators": [50, 100, 200],
+                "learning_rate": [0.01, 0.1, 0.2],
+                "max_depth": [3, 5, 7],
+                "min_samples_split": [2, 5, 10],
+                "subsample": [0.8, 0.9, 1.0],
             }
         elif model_type == "logistic_regression":
             return {
-                'C': [0.1, 1.0, 10.0],
-                'penalty': ['l1', 'l2'],
-                'solver': ['liblinear', 'saga'],
-                'max_iter': [100, 200, 500]
+                "C": [0.1, 1.0, 10.0],
+                "penalty": ["l1", "l2"],
+                "solver": ["liblinear", "saga"],
+                "max_iter": [100, 200, 500],
             }
         elif model_type == "svm":
             return {
-                'C': [0.1, 1.0, 10.0],
-                'kernel': ['linear', 'rbf', 'poly'],
-                'gamma': ['scale', 'auto', 0.001, 0.01],
-                'degree': [2, 3, 4]  # Pour kernel poly
+                "C": [0.1, 1.0, 10.0],
+                "kernel": ["linear", "rbf", "poly"],
+                "gamma": ["scale", "auto", 0.001, 0.01],
+                "degree": [2, 3, 4],  # Pour kernel poly
             }
         elif model_type == "neural_network":
             return {
-                'hidden_layer_sizes': [(50,), (100,), (50, 50), (100, 50)],
-                'activation': ['relu', 'tanh'],
-                'learning_rate_init': [0.001, 0.01, 0.1],
-                'max_iter': [200, 500, 1000],
-                'early_stopping': [True, False]
+                "hidden_layer_sizes": [(50,), (100,), (50, 50), (100, 50)],
+                "activation": ["relu", "tanh"],
+                "learning_rate_init": [0.001, 0.01, 0.1],
+                "max_iter": [200, 500, 1000],
+                "early_stopping": [True, False],
             }
         else:
             raise ValueError(f"Type de modèle non supporté: {model_type}")
 
-    async def _grid_search_optimization(self, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig, param_grids: dict[str, list[Any]]) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
+    async def _grid_search_optimization(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        config: MLTrainingConfig,
+        param_grids: dict[str, list[Any]],
+    ) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
         """Optimisation par grille complète"""
         logger.info("🔧 Optimisation par grille complète...")
 
@@ -306,9 +323,9 @@ class MLEngineerAgent:
                 base_model,
                 param_grid=param_grids,
                 cv=config.cross_validation_folds,
-                scoring='accuracy' if config.problem_type == "classification" else 'r2',
+                scoring="accuracy" if config.problem_type == "classification" else "r2",
                 n_jobs=-1,
-                verbose=1
+                verbose=1,
             )
 
             # Exécuter la recherche
@@ -320,13 +337,21 @@ class MLEngineerAgent:
 
             # Historique d'optimisation
             optimization_history = []
-            for i, (params, score) in enumerate(zip(grid_search.cv_results_['params'], grid_search.cv_results_['mean_test_score'], strict=False)):
-                optimization_history.append({
-                    "trial_number": i + 1,
-                    "params": params,
-                    "score": score,
-                    "timestamp": time.time()
-                })
+            for i, (params, score) in enumerate(
+                zip(
+                    grid_search.cv_results_["params"],
+                    grid_search.cv_results_["mean_test_score"],
+                    strict=False,
+                )
+            ):
+                optimization_history.append(
+                    {
+                        "trial_number": i + 1,
+                        "params": params,
+                        "score": score,
+                        "timestamp": time.time(),
+                    }
+                )
 
             optimization_result = HyperparameterOptimizationResult(
                 best_params=best_params,
@@ -335,18 +360,28 @@ class MLEngineerAgent:
                 total_trials=len(optimization_history),
                 best_trial_number=grid_search.best_index_ + 1,
                 optimization_time=0,  # Sera calculé plus tard
-                convergence_plot_data={"trials": list(range(1, len(optimization_history) + 1)),
-                                     "scores": [h["score"] for h in optimization_history]}
+                convergence_plot_data={
+                    "trials": list(range(1, len(optimization_history) + 1)),
+                    "scores": [h["score"] for h in optimization_history],
+                },
             )
 
-            logger.info(f"✅ Grid Search complété: {len(optimization_history)} combinaisons testées")
+            logger.info(
+                f"✅ Grid Search complété: {len(optimization_history)} combinaisons testées"
+            )
             return best_params, optimization_result
 
         except Exception as e:
             logger.error(f"❌ Erreur Grid Search: {str(e)}")
             raise
 
-    async def _random_search_optimization(self, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig, param_grids: dict[str, list[Any]]) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
+    async def _random_search_optimization(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        config: MLTrainingConfig,
+        param_grids: dict[str, list[Any]],
+    ) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
         """Optimisation par recherche aléatoire"""
         logger.info("🔧 Optimisation par recherche aléatoire...")
 
@@ -358,10 +393,10 @@ class MLEngineerAgent:
                 param_distributions=param_grids,
                 n_iter=config.max_trials,
                 cv=config.cross_validation_folds,
-                scoring='accuracy' if config.problem_type == "classification" else 'r2',
+                scoring="accuracy" if config.problem_type == "classification" else "r2",
                 n_jobs=-1,
                 verbose=1,
-                random_state=config.random_state
+                random_state=config.random_state,
             )
 
             random_search.fit(X, y)
@@ -371,13 +406,21 @@ class MLEngineerAgent:
             best_score = random_search.best_score_
 
             optimization_history = []
-            for i, (params, score) in enumerate(zip(random_search.cv_results_['params'], random_search.cv_results_['mean_test_score'], strict=False)):
-                optimization_history.append({
-                    "trial_number": i + 1,
-                    "params": params,
-                    "score": score,
-                    "timestamp": time.time()
-                })
+            for i, (params, score) in enumerate(
+                zip(
+                    random_search.cv_results_["params"],
+                    random_search.cv_results_["mean_test_score"],
+                    strict=False,
+                )
+            ):
+                optimization_history.append(
+                    {
+                        "trial_number": i + 1,
+                        "params": params,
+                        "score": score,
+                        "timestamp": time.time(),
+                    }
+                )
 
             optimization_result = HyperparameterOptimizationResult(
                 best_params=best_params,
@@ -386,8 +429,10 @@ class MLEngineerAgent:
                 total_trials=len(optimization_history),
                 best_trial_number=random_search.best_index_ + 1,
                 optimization_time=0,
-                convergence_plot_data={"trials": list(range(1, len(optimization_history) + 1)),
-                                     "scores": [h["score"] for h in optimization_history]}
+                convergence_plot_data={
+                    "trials": list(range(1, len(optimization_history) + 1)),
+                    "scores": [h["score"] for h in optimization_history],
+                },
             )
 
             logger.info(f"✅ Random Search complété: {len(optimization_history)} essais")
@@ -397,7 +442,13 @@ class MLEngineerAgent:
             logger.error(f"❌ Erreur Random Search: {str(e)}")
             raise
 
-    async def _bayesian_optimization(self, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig, param_grids: dict[str, list[Any]]) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
+    async def _bayesian_optimization(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        config: MLTrainingConfig,
+        param_grids: dict[str, list[Any]],
+    ) -> tuple[dict[str, Any], HyperparameterOptimizationResult]:
         """Optimisation bayésienne avec Optuna"""
         logger.info("🔧 Optimisation bayésienne avec Optuna...")
 
@@ -406,7 +457,7 @@ class MLEngineerAgent:
 
             optimization_history = []
             best_params = None
-            best_score = -float('inf')
+            best_score = -float("inf")
 
             def objective(trial):
                 # Suggérer des hyperparamètres
@@ -415,9 +466,13 @@ class MLEngineerAgent:
                     if all(isinstance(v, (int, float)) for v in param_values):
                         # Paramètres numériques continus
                         if len(param_values) == 2:
-                            params[param_name] = trial.suggest_float(param_name, param_values[0], param_values[1])
+                            params[param_name] = trial.suggest_float(
+                                param_name, param_values[0], param_values[1]
+                            )
                         else:
-                            params[param_name] = trial.suggest_float(param_name, min(param_values), max(param_values))
+                            params[param_name] = trial.suggest_float(
+                                param_name, min(param_values), max(param_values)
+                            )
                     else:
                         # Paramètres catégoriels
                         params[param_name] = trial.suggest_categorical(param_name, param_values)
@@ -426,25 +481,31 @@ class MLEngineerAgent:
                 model = self._create_model_with_params(config.model_type, params)
 
                 # Cross-validation
-                scores = cross_val_score(model, X, y, cv=config.cross_validation_folds,
-                                       scoring='accuracy' if config.problem_type == "classification" else 'r2')
+                scores = cross_val_score(
+                    model,
+                    X,
+                    y,
+                    cv=config.cross_validation_folds,
+                    scoring="accuracy" if config.problem_type == "classification" else "r2",
+                )
 
                 score = scores.mean()
 
                 # Enregistrer dans l'historie
-                optimization_history.append({
-                    "trial_number": trial.number + 1,
-                    "params": params,
-                    "score": score,
-                    "timestamp": time.time()
-                })
+                optimization_history.append(
+                    {
+                        "trial_number": trial.number + 1,
+                        "params": params,
+                        "score": score,
+                        "timestamp": time.time(),
+                    }
+                )
 
                 return score
 
             # Créer l'étude Optuna
             study = optuna.create_study(
-                direction='maximize',
-                sampler=optuna.samplers.TPESampler(seed=config.random_state)
+                direction="maximize", sampler=optuna.samplers.TPESampler(seed=config.random_state)
             )
 
             # Lancer l'optimisation
@@ -461,8 +522,10 @@ class MLEngineerAgent:
                 total_trials=len(optimization_history),
                 best_trial_number=study.best_trial.number + 1,
                 optimization_time=0,
-                convergence_plot_data={"trials": [h["trial_number"] for h in optimization_history],
-                                     "scores": [h["score"] for h in optimization_history]}
+                convergence_plot_data={
+                    "trials": [h["trial_number"] for h in optimization_history],
+                    "scores": [h["score"] for h in optimization_history],
+                },
             )
 
             logger.info(f"✅ Bayesian Optimization complétée: {len(optimization_history)} trials")
@@ -472,7 +535,14 @@ class MLEngineerAgent:
             logger.error(f"❌ Erreur Bayesian Optimization: {str(e)}")
             raise
 
-    async def _train_final_model(self, X: np.ndarray, y: np.ndarray, best_params: dict[str, Any], config: MLTrainingConfig, preprocessing_pipeline: Any) -> tuple[Any, dict[str, Any]]:
+    async def _train_final_model(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        best_params: dict[str, Any],
+        config: MLTrainingConfig,
+        preprocessing_pipeline: Any,
+    ) -> tuple[Any, dict[str, Any]]:
         """Entraînement final avec les meilleurs paramètres"""
         logger.info("🏋️ Entraînement final avec meilleurs paramètres...")
 
@@ -483,10 +553,12 @@ class MLEngineerAgent:
             # Cross-validation pour obtenir des scores robustes
             logger.info("📊 Cross-validation en cours...")
             cv_scores = cross_val_score(
-                final_model, X, y,
+                final_model,
+                X,
+                y,
                 cv=config.cross_validation_folds,
-                scoring='accuracy' if config.problem_type == "classification" else 'r2',
-                n_jobs=-1
+                scoring="accuracy" if config.problem_type == "classification" else "r2",
+                n_jobs=-1,
             )
 
             # Entraînement final sur toutes les données
@@ -500,10 +572,12 @@ class MLEngineerAgent:
                 "cv_scores": cv_scores.tolist(),
                 "cv_mean": float(cv_scores.mean()),
                 "cv_std": float(cv_scores.std()),
-                "convergence_history": convergence_history
+                "convergence_history": convergence_history,
             }
 
-            logger.info(f"✅ Entraînement final complété - CV Score: {cv_scores.mean():.4f} (±{cv_scores.std():.4f})")
+            logger.info(
+                f"✅ Entraînement final complété - CV Score: {cv_scores.mean():.4f} (±{cv_scores.std():.4f})"
+            )
             return final_model, training_metrics
 
         except Exception as e:
@@ -514,18 +588,23 @@ class MLEngineerAgent:
         """Créer un modèle de base"""
         if model_type == "random_forest":
             from sklearn.ensemble import RandomForestClassifier
+
             return RandomForestClassifier(random_state=42)
         elif model_type == "gradient_boosting":
             from sklearn.ensemble import GradientBoostingClassifier
+
             return GradientBoostingClassifier(random_state=42)
         elif model_type == "logistic_regression":
             from sklearn.linear_model import LogisticRegression
+
             return LogisticRegression(random_state=42, max_iter=1000)
         elif model_type == "svm":
             from sklearn.svm import SVC
+
             return SVC(random_state=42)
         elif model_type == "neural_network":
             from sklearn.neural_network import MLPClassifier
+
             return MLPClassifier(random_state=42, max_iter=1000)
         else:
             raise ValueError(f"Type de modèle non supporté: {model_type}")
@@ -543,7 +622,9 @@ class MLEngineerAgent:
 
         return base_model
 
-    async def _evaluate_model(self, model: Any, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig) -> dict[str, float]:
+    async def _evaluate_model(
+        self, model: Any, X: np.ndarray, y: np.ndarray, config: MLTrainingConfig
+    ) -> dict[str, float]:
         """Évaluer complètement le modèle"""
         logger.info("📈 Évaluation complète du modèle...")
 
@@ -555,16 +636,17 @@ class MLEngineerAgent:
             if config.problem_type == "classification":
                 scores = {
                     "accuracy": float(accuracy_score(y, y_pred)),
-                    "precision": float(precision_score(y, y_pred, average='weighted')),
-                    "recall": float(recall_score(y, y_pred, average='weighted')),
-                    "f1_score": float(f1_score(y, y_pred, average='weighted'))
+                    "precision": float(precision_score(y, y_pred, average="weighted")),
+                    "recall": float(recall_score(y, y_pred, average="weighted")),
+                    "f1_score": float(f1_score(y, y_pred, average="weighted")),
                 }
             else:  # regression
                 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
                 scores = {
                     "mse": float(mean_squared_error(y, y_pred)),
                     "mae": float(mean_absolute_error(y, y_pred)),
-                    "r2_score": float(r2_score(y, y_pred))
+                    "r2_score": float(r2_score(y, y_pred)),
                 }
 
             logger.info(f"📊 Scores d'évaluation: {scores}")
@@ -586,12 +668,15 @@ class MLEngineerAgent:
             Path("/tmp/tawiza_models").mkdir(parents=True, exist_ok=True)
 
             # Sauvegarder le modèle et le preprocessing
-            joblib.dump({
-                'model': model,
-                'preprocessing': None,  # Sera ajouté si nécessaire
-                'config': config,
-                'timestamp': time.time()
-            }, model_path)
+            joblib.dump(
+                {
+                    "model": model,
+                    "preprocessing": None,  # Sera ajouté si nécessaire
+                    "config": config,
+                    "timestamp": time.time(),
+                },
+                model_path,
+            )
 
             logger.info(f"✅ Modèle sauvegardé: {model_path}")
             return model_path
@@ -604,6 +689,7 @@ class MLEngineerAgent:
         """Calculer la taille du modèle en MB"""
         try:
             import os
+
             size_bytes = os.path.getsize(model_path)
             size_mb = size_bytes / (1024 * 1024)
             return size_mb
@@ -638,23 +724,24 @@ class MLEngineerAgent:
             "temperature_celsius": 0.0,
             "power_usage_watts": 0.0,
             "gpu_type": "unknown",
-            "available": False
+            "available": False,
         }
 
     async def _get_nvidia_metrics(self) -> dict[str, float] | None:
         """Get NVIDIA GPU metrics via nvidia-smi."""
         import subprocess
+
         try:
             # Query nvidia-smi for GPU metrics
             result = subprocess.run(
                 [
                     "nvidia-smi",
                     "--query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu,power.draw,name",
-                    "--format=csv,noheader,nounits"
+                    "--format=csv,noheader,nounits",
                 ],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
 
             if result.returncode != 0:
@@ -673,7 +760,7 @@ class MLEngineerAgent:
                     "power_usage_watts": float(parts[4]) if parts[4] not in ("[N/A]", "") else 0.0,
                     "gpu_name": parts[5],
                     "gpu_type": "nvidia",
-                    "available": True
+                    "available": True,
                 }
         except FileNotFoundError:
             pass  # nvidia-smi not found
@@ -687,13 +774,14 @@ class MLEngineerAgent:
     async def _get_amd_metrics(self) -> dict[str, float] | None:
         """Get AMD GPU metrics via rocm-smi."""
         import subprocess
+
         try:
             # Check if rocm-smi is available
             result = subprocess.run(
                 ["rocm-smi", "--showuse", "--showmemuse", "--showtemp", "--showpower"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
 
             if result.returncode != 0:
@@ -709,7 +797,7 @@ class MLEngineerAgent:
                 "temperature_celsius": 0.0,
                 "power_usage_watts": 0.0,
                 "gpu_type": "amd",
-                "available": True
+                "available": True,
             }
 
             # Parse GPU utilization
@@ -717,6 +805,7 @@ class MLEngineerAgent:
                 if "GPU use" in line or "GPU%" in line:
                     # Extract percentage
                     import re
+
                     match = re.search(r"(\d+(?:\.\d+)?)\s*%", line)
                     if match:
                         metrics["gpu_utilization"] = float(match.group(1))
@@ -739,15 +828,15 @@ class MLEngineerAgent:
             # Get total memory separately
             try:
                 mem_result = subprocess.run(
-                    ["rocm-smi", "--showmeminfo", "vram"],
-                    capture_output=True,
-                    text=True,
-                    timeout=5
+                    ["rocm-smi", "--showmeminfo", "vram"], capture_output=True, text=True, timeout=5
                 )
                 if mem_result.returncode == 0:
                     import re
+
                     # Look for total memory
-                    match = re.search(r"Total.*?(\d+)\s*(?:MB|MiB|bytes)", mem_result.stdout, re.IGNORECASE)
+                    match = re.search(
+                        r"Total.*?(\d+)\s*(?:MB|MiB|bytes)", mem_result.stdout, re.IGNORECASE
+                    )
                     if match:
                         total = int(match.group(1))
                         # Convert bytes to MB if needed
@@ -780,8 +869,9 @@ class MLEngineerAgent:
             "Auto-ML avec recommandations intelligentes",
             "Évaluation complète avec métriques multiples",
             "Sauvegarde et versioning des modèles",
-            "Support multi-GPU et distributed training"
+            "Support multi-GPU et distributed training",
         ]
+
 
 # Classe pour intégration avec le système multi-agents
 class MLEngineerAgentIntegration:
@@ -819,7 +909,7 @@ class MLEngineerAgentIntegration:
                 model_type=model_type,
                 optimization_method=optimization_method,
                 max_trials=task_data.get("max_trials", 50),
-                gpu_acceleration=task_data.get("gpu_acceleration", True)
+                gpu_acceleration=task_data.get("gpu_acceleration", True),
             )
 
             # Exécuter le pipeline
@@ -836,13 +926,12 @@ class MLEngineerAgentIntegration:
                     "key_metrics": {
                         "cv_mean": result.cv_scores[0] if result.cv_scores else 0,
                         "model_size_mb": result.model_size_mb,
-                        "gpu_usage": result.gpu_usage
-                    }
+                        "gpu_usage": result.gpu_usage,
+                    },
                 },
-                "summary": f"Pipeline ML créé avec succès pour {result.task_id}"
+                "summary": f"Pipeline ML créé avec succès pour {result.task_id}",
             }
 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la création du pipeline ML: {str(e)}")
             return {"error": str(e), "success": False}
-

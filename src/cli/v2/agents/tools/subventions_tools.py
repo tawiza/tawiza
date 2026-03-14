@@ -71,13 +71,15 @@ def register_subventions_tools(registry: ToolRegistry) -> None:
 
                 subventions = []
                 for sub in data.get("subventions", []):
-                    subventions.append({
-                        "dispositif": sub.get("dispositif"),
-                        "montant": sub.get("montant"),
-                        "annee": sub.get("annee"),
-                        "service_instructeur": sub.get("service_instructeur"),
-                        "status": sub.get("statut"),
-                    })
+                    subventions.append(
+                        {
+                            "dispositif": sub.get("dispositif"),
+                            "montant": sub.get("montant"),
+                            "annee": sub.get("annee"),
+                            "service_instructeur": sub.get("service_instructeur"),
+                            "status": sub.get("statut"),
+                        }
+                    )
 
                 return {
                     "success": True,
@@ -147,16 +149,18 @@ def register_subventions_tools(registry: ToolRegistry) -> None:
 
                 aids = []
                 for aid in data.get("results", data.get("items", []))[:limit]:
-                    aids.append({
-                        "name": aid.get("name"),
-                        "description": (aid.get("description") or "")[:200],
-                        "financers": aid.get("financers", []),
-                        "aid_types": aid.get("aid_types", []),
-                        "targeted_audiences": aid.get("targeted_audiences", []),
-                        "recurrence": aid.get("recurrence"),
-                        "application_url": aid.get("application_url"),
-                        "is_call_for_project": aid.get("is_call_for_project", False),
-                    })
+                    aids.append(
+                        {
+                            "name": aid.get("name"),
+                            "description": (aid.get("description") or "")[:200],
+                            "financers": aid.get("financers", []),
+                            "aid_types": aid.get("aid_types", []),
+                            "targeted_audiences": aid.get("targeted_audiences", []),
+                            "recurrence": aid.get("recurrence"),
+                            "application_url": aid.get("application_url"),
+                            "is_call_for_project": aid.get("is_call_for_project", False),
+                        }
+                    )
 
                 return {
                     "success": True,
@@ -278,9 +282,13 @@ def register_subventions_tools(registry: ToolRegistry) -> None:
                 "organizations_with_subsidies": organizations_with_subsidies,
                 "total_subsidies": total_count,
                 "total_amount": total_amount,
-                "average_per_organization": round(total_amount / organizations_with_subsidies, 2) if organizations_with_subsidies else 0,
+                "average_per_organization": round(total_amount / organizations_with_subsidies, 2)
+                if organizations_with_subsidies
+                else 0,
                 "by_year": dict(sorted(by_year.items(), reverse=True)[:5]),
-                "top_dispositifs": dict(sorted(by_dispositif.items(), key=lambda x: x[1], reverse=True)[:10]),
+                "top_dispositifs": dict(
+                    sorted(by_dispositif.items(), key=lambda x: x[1], reverse=True)[:10]
+                ),
             }
 
         except Exception as e:

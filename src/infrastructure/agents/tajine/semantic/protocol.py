@@ -3,6 +3,7 @@
 Defines the abstract interface that both PGVector and Qdrant adapters implement,
 enabling fallback between vector stores.
 """
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -20,6 +21,7 @@ class SemanticResult:
         metadata: Additional metadata (territory, source, etc.)
         source_store: Which vector store provided this result
     """
+
     id: str
     content: str
     score: float

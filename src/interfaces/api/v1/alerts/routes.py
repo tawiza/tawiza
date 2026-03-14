@@ -17,6 +17,7 @@ router = APIRouter(prefix="/alerts", tags=["alerts"])
 
 class AlertResponse(BaseModel):
     """Alert response model."""
+
     id: str
     type: str
     severity: str
@@ -30,12 +31,14 @@ class AlertResponse(BaseModel):
 
 class AlertsListResponse(BaseModel):
     """List of alerts."""
+
     alerts: list[AlertResponse]
     total: int
 
 
 class AlertStatsResponse(BaseModel):
     """Alert statistics."""
+
     total: int
     new: int
     by_type: dict[str, int]

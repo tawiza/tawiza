@@ -316,7 +316,11 @@ async def analyze_query(request: TAJINEAnalyzeRequest):
             return await _fast_stream_response(request, agent)
 
         # AGENTIC MODE: ReAct agent for strategic/prospective/theoretical levels
-        if request.stream and request.cognitive_level in ("strategic", "prospective", "theoretical"):
+        if request.stream and request.cognitive_level in (
+            "strategic",
+            "prospective",
+            "theoretical",
+        ):
             return await _react_stream_response(request)
 
         if request.stream:

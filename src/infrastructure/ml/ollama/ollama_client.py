@@ -54,7 +54,7 @@ class OllamaClient:
         timeout: float = 120.0,
         enable_cache: bool = True,
         cache_ttl: int = 300,  # 5 minutes
-        http2: bool = True
+        http2: bool = True,
     ):
         """
         Initialize Ollama client with connection pooling.
@@ -75,16 +75,12 @@ class OllamaClient:
         self._limits = httpx.Limits(
             max_connections=pool_maxsize,
             max_keepalive_connections=pool_connections,
-            keepalive_expiry=30.0
+            keepalive_expiry=30.0,
         )
 
         # Timeout configuration
         self._timeout = httpx.Timeout(
-            timeout=timeout,
-            connect=10.0,
-            read=timeout,
-            write=30.0,
-            pool=5.0
+            timeout=timeout, connect=10.0, read=timeout, write=30.0, pool=5.0
         )
 
         # Cache configuration
@@ -101,7 +97,7 @@ class OllamaClient:
             "cache_misses": 0,
             "errors": 0,
             "bytes_sent": 0,
-            "bytes_received": 0
+            "bytes_received": 0,
         }
 
         logger.info(
@@ -130,7 +126,7 @@ class OllamaClient:
                 headers={
                     "User-Agent": "Tawiza-v2/0.2.0",
                     "Accept": "application/json",
-                }
+                },
             )
             logger.debug("HTTP client initialized with connection pooling")
 
@@ -153,10 +149,7 @@ class OllamaClient:
 
     @with_retry(RETRY_NETWORK)
     async def get(
-        self,
-        url: str,
-        params: dict[str, Any] | None = None,
-        use_cache: bool = True
+        self, url: str, params: dict[str, Any] | None = None, use_cache: bool = True
     ) -> dict[str, Any]:
         """
         Perform GET request with caching.
@@ -204,18 +197,20 @@ class OllamaClient:
             logger.error(f"GET {url} failed: {e}")
             raise
 
-    @with_retry(RetryConfig(
-        max_attempts=3,
-        base_delay=2.0,
-        max_delay=30.0,
-        exceptions=(httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError)
-    ))
+    @with_retry(
+        RetryConfig(
+            max_attempts=3,
+            base_delay=2.0,
+            max_delay=30.0,
+            exceptions=(httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError),
+        )
+    )
     async def post(
         self,
         url: str,
         json: dict[str, Any] | None = None,
         data: bytes | None = None,
-        timeout: float | None = None
+        timeout: float | None = None,
     ) -> dict[str, Any]:
         """
         Perform POST request.
@@ -242,10 +237,7 @@ class OllamaClient:
 
             # Perform request
             response = await self._client.post(
-                url,
-                json=json,
-                content=data,
-                timeout=timeout if timeout else self._timeout
+                url, json=json, content=data, timeout=timeout if timeout else self._timeout
             )
             response.raise_for_status()
 
@@ -263,10 +255,7 @@ class OllamaClient:
             raise
 
     async def stream_post(
-        self,
-        url: str,
-        json: dict[str, Any] | None = None,
-        timeout: float | None = None
+        self, url: str, json: dict[str, Any] | None = None, timeout: float | None = None
     ) -> AsyncIterator[dict[str, Any]]:
         """
         Perform streaming POST request.
@@ -294,7 +283,7 @@ class OllamaClient:
                 "POST",
                 url,
                 json=json,
-                timeout=timeout if timeout else None  # No timeout for streaming
+                timeout=timeout if timeout else None,  # No timeout for streaming
             ) as response:
                 response.raise_for_status()
 
@@ -309,11 +298,7 @@ class OllamaClient:
             logger.error(f"POST stream {url} failed: {e}")
             raise
 
-    async def delete(
-        self,
-        url: str,
-        json: dict[str, Any] | None = None
-    ) -> bool:
+    async def delete(self, url: str, json: dict[str, Any] | None = None) -> bool:
         """
         Perform DELETE request.
 
@@ -355,15 +340,15 @@ class OllamaClient:
         cache_hit_rate = 0.0
         if self._stats["cache_hits"] + self._stats["cache_misses"] > 0:
             cache_hit_rate = (
-                self._stats["cache_hits"] /
-                (self._stats["cache_hits"] + self._stats["cache_misses"])
+                self._stats["cache_hits"]
+                / (self._stats["cache_hits"] + self._stats["cache_misses"])
             ) * 100
 
         return {
             **self._stats,
             "cache_hit_rate": f"{cache_hit_rate:.1f}%",
             "cache_size": len(self._cache),
-            "active": self._client is not None
+            "active": self._client is not None,
         }
 
     async def close(self):
@@ -378,8 +363,8 @@ class OllamaClient:
                 f"Requests: {stats['requests']}, "
                 f"Errors: {stats['errors']}, "
                 f"Cache hit rate: {stats['cache_hit_rate']}, "
-                f"Sent: {stats['bytes_sent']/1024:.1f}KB, "
-                f"Received: {stats['bytes_received']/1024:.1f}KB"
+                f"Sent: {stats['bytes_sent'] / 1024:.1f}KB, "
+                f"Received: {stats['bytes_received'] / 1024:.1f}KB"
             )
 
 
@@ -396,12 +381,7 @@ class OllamaClientPool:
             response = await client.post("/api/generate", json={...})
     """
 
-    def __init__(
-        self,
-        base_url: str,
-        pool_size: int = 5,
-        **client_kwargs
-    ):
+    def __init__(self, base_url: str, pool_size: int = 5, **client_kwargs):
         """
         Initialize client pool.
 
@@ -479,5 +459,5 @@ class OllamaClientPool:
             "pool_size": self.pool_size,
             "available": len(self._available),
             "in_use": len(self._clients) - len(self._available),
-            "client_stats": [client.get_stats() for client in self._clients]
+            "client_stats": [client.get_stats() for client in self._clients],
         }

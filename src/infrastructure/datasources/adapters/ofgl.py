@@ -112,11 +112,13 @@ class OFGLAdapter(BaseAdapter):
         Returns:
             Financial data or None
         """
-        results = await self.search({
-            "type": "communes",
-            "code_insee": id,
-            "limit": 1,
-        })
+        results = await self.search(
+            {
+                "type": "communes",
+                "code_insee": id,
+                "limit": 1,
+            }
+        )
         return results[0] if results else None
 
     async def get_commune_finances(

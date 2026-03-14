@@ -72,7 +72,9 @@ class SireneCollector(BaseCollector):
                 logger.info("[sirene] OAuth2 token obtained from auth.insee.net")
                 return token
             else:
-                logger.warning(f"[sirene] OAuth2 failed ({response.status_code if response else 'no response'}), falling back to free API")
+                logger.warning(
+                    f"[sirene] OAuth2 failed ({response.status_code if response else 'no response'}), falling back to free API"
+                )
                 return None
         except Exception as e:
             logger.warning(f"[sirene] OAuth2 error: {e}, falling back to free API")
@@ -106,9 +108,7 @@ class SireneCollector(BaseCollector):
         signals.extend(await self._collect_closures(code_dept, since))
         return signals
 
-    async def _collect_free_api(
-        self, code_dept: str | None, since: date
-    ) -> list[CollectedSignal]:
+    async def _collect_free_api(self, code_dept: str | None, since: date) -> list[CollectedSignal]:
         """Collect from free recherche-entreprises API (no auth needed).
 
         Limited: can search by NAF code + department but no date filtering.
@@ -167,9 +167,7 @@ class SireneCollector(BaseCollector):
         logger.info(f"[sirene-free] {code_dept}: {len(signals)} signals collected")
         return signals
 
-    async def _collect_creations(
-        self, code_dept: str | None, since: date
-    ) -> list[CollectedSignal]:
+    async def _collect_creations(self, code_dept: str | None, since: date) -> list[CollectedSignal]:
         """Collect new enterprise creations."""
         # Build SIRENE query filter
         q_parts = [f"dateCreationEtablissement:[{since.isoformat()} TO *]"]
@@ -180,7 +178,7 @@ class SireneCollector(BaseCollector):
             "q": " AND ".join(q_parts),
             "nombre": 1000,
             "champs": "siren,siret,dateCreationEtablissement,activitePrincipaleEtablissement,"
-                      "codeCommuneEtablissement,denominationUniteLegale,trancheEffectifsEtablissement",
+            "codeCommuneEtablissement,denominationUniteLegale,trancheEffectifsEtablissement",
         }
 
         response = await self._request_with_retry("GET", f"{self.BASE_URL}/siret", params=params)
@@ -216,9 +214,7 @@ class SireneCollector(BaseCollector):
             )
         return signals
 
-    async def _collect_closures(
-        self, code_dept: str | None, since: date
-    ) -> list[CollectedSignal]:
+    async def _collect_closures(self, code_dept: str | None, since: date) -> list[CollectedSignal]:
         """Collect enterprise closures (radiations)."""
         q_parts = [
             f"dateFin:[{since.isoformat()} TO *]",
@@ -231,7 +227,7 @@ class SireneCollector(BaseCollector):
             "q": " AND ".join(q_parts),
             "nombre": 1000,
             "champs": "siren,siret,dateFin,activitePrincipaleEtablissement,"
-                      "codeCommuneEtablissement,denominationUniteLegale",
+            "codeCommuneEtablissement,denominationUniteLegale",
         }
 
         response = await self._request_with_retry("GET", f"{self.BASE_URL}/siret", params=params)

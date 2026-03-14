@@ -26,7 +26,7 @@ class DashboardGenerator:
         analyse: AnalyseReseau,
         fichier_carte: str,
         fichier_graphe: str,
-        nom_fichier: str = "dashboard.html"
+        nom_fichier: str = "dashboard.html",
     ) -> str:
         """Génère un dashboard HTML complet et interactif"""
 
@@ -197,7 +197,7 @@ class DashboardGenerator:
                         <i class="bi bi-geo-alt"></i> {projet_nom}
                     </h1>
                     <p class="mb-0">
-                        <i class="bi bi-calendar"></i> Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}
+                        <i class="bi bi-calendar"></i> Généré le {datetime.now().strftime("%d/%m/%Y à %H:%M")}
                     </p>
                 </div>
                 <div class="col-md-4 text-end no-print">
@@ -229,7 +229,7 @@ class DashboardGenerator:
                     <div class="metric-value">{len(relations)}</div>
                     <div class="metric-label">Relations</div>
                     <div class="progress mt-2" style="height: 5px;">
-                        <div class="progress-bar progress-bar-animated bg-success" style="width: {min(len(relations)/len(acteurs)*100, 100):.0f}%;"></div>
+                        <div class="progress-bar progress-bar-animated bg-success" style="width: {min(len(relations) / len(acteurs) * 100, 100):.0f}%;"></div>
                     </div>
                 </div>
             </div>
@@ -239,7 +239,7 @@ class DashboardGenerator:
                     <div class="metric-value">{len(analyse.communautes)}</div>
                     <div class="metric-label">Communautés</div>
                     <div class="progress mt-2" style="height: 5px;">
-                        <div class="progress-bar progress-bar-animated bg-warning" style="width: {len(analyse.communautes)*20}%;"></div>
+                        <div class="progress-bar progress-bar-animated bg-warning" style="width: {len(analyse.communautes) * 20}%;"></div>
                     </div>
                 </div>
             </div>
@@ -249,7 +249,7 @@ class DashboardGenerator:
                     <div class="metric-value">{analyse.densite:.2f}</div>
                     <div class="metric-label">Densité</div>
                     <div class="progress mt-2" style="height: 5px;">
-                        <div class="progress-bar progress-bar-animated bg-info" style="width: {analyse.densite*100}%;"></div>
+                        <div class="progress-bar progress-bar-animated bg-info" style="width: {analyse.densite * 100}%;"></div>
                     </div>
                 </div>
             </div>
@@ -518,16 +518,13 @@ class DashboardGenerator:
 
         # Sauvegarder
         chemin = self.output_dir / nom_fichier
-        with open(chemin, 'w', encoding='utf-8') as f:
+        with open(chemin, "w", encoding="utf-8") as f:
             f.write(html)
 
         return str(chemin)
 
     def _calculer_statistiques(
-        self,
-        acteurs: list[Acteur],
-        relations: list[Relation],
-        analyse: AnalyseReseau
+        self, acteurs: list[Acteur], relations: list[Relation], analyse: AnalyseReseau
     ) -> dict[str, Any]:
         """Calcule des statistiques pour les graphiques"""
 
@@ -548,32 +545,36 @@ class DashboardGenerator:
             "par_type_relation": par_type_relation,
             "densite": analyse.densite,
             "clustering": analyse.coefficient_clustering_moyen,
-            "modularite": analyse.modularite
+            "modularite": analyse.modularite,
         }
 
     def _acteurs_to_json(self, acteurs: list[Acteur]) -> str:
         """Convertit les acteurs en JSON pour JavaScript"""
         acteurs_data = []
         for acteur in acteurs:
-            acteurs_data.append({
-                "id": acteur.id,
-                "nom": acteur.nom,
-                "type": acteur.type.value,
-                "ville": acteur.adresse.ville if acteur.adresse else "",
-                "secteurs": acteur.secteurs[:3],
-                "influence": acteur.metriques.score_influence,
-                "centralite": acteur.metriques.degre
-            })
+            acteurs_data.append(
+                {
+                    "id": acteur.id,
+                    "nom": acteur.nom,
+                    "type": acteur.type.value,
+                    "ville": acteur.adresse.ville if acteur.adresse else "",
+                    "secteurs": acteur.secteurs[:3],
+                    "influence": acteur.metriques.score_influence,
+                    "centralite": acteur.metriques.degre,
+                }
+            )
         return json.dumps(acteurs_data)
 
     def _relations_to_json(self, relations: list[Relation]) -> str:
         """Convertit les relations en JSON pour JavaScript"""
         relations_data = []
         for relation in relations:
-            relations_data.append({
-                "source": relation.source_id,
-                "target": relation.cible_id,
-                "type": relation.type.value,
-                "force": relation.force
-            })
+            relations_data.append(
+                {
+                    "source": relation.source_id,
+                    "target": relation.cible_id,
+                    "type": relation.type.value,
+                    "force": relation.force,
+                }
+            )
         return json.dumps(relations_data)

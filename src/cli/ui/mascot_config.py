@@ -1,4 +1,5 @@
 """Configuration système pour la mascotte Tawiza."""
+
 from enum import Enum, StrEnum
 from pathlib import Path
 
@@ -13,8 +14,10 @@ class MascotStyle(StrEnum):
     NEON = "neon"
     RETRO = "retro"
 
+
 class MascotConfig(BaseModel):
     """Configuration de la mascotte."""
+
     style: MascotStyle = MascotStyle.KAWAII
     name: str = "Neko"
     color: str = "magenta"
@@ -40,6 +43,6 @@ class MascotConfig(BaseModel):
         path.parent.mkdir(parents=True, exist_ok=True)
         # Convert enum to string for YAML serialization
         data = self.model_dump()
-        data['style'] = self.style.value
+        data["style"] = self.style.value
         with open(path, "w") as f:
             yaml.dump(data, f, default_flow_style=False)

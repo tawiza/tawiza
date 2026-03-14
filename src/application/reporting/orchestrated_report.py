@@ -61,9 +61,7 @@ class OrchestratedReportGenerator:
 
         # Calculate metrics
         total_results = orch_result.total_results
-        successful_sources = sum(
-            1 for sr in orch_result.source_results if sr.results
-        )
+        successful_sources = sum(1 for sr in orch_result.source_results if sr.results)
         total_sources = len(orch_result.source_results)
         confidence = debate_result.final_confidence
 
@@ -99,7 +97,9 @@ class OrchestratedReportGenerator:
         debate_timeline = ""
         for _i, msg in enumerate(debate_result.messages, 1):
             icon = {"researcher": "🔍", "critic": "🎯", "verifier": "✅"}.get(msg.role, "•")
-            agent_color = {"researcher": "#3B82F6", "critic": "#F59E0B", "verifier": "#10B981"}.get(msg.role, "#6B7280")
+            agent_color = {"researcher": "#3B82F6", "critic": "#F59E0B", "verifier": "#10B981"}.get(
+                msg.role, "#6B7280"
+            )
 
             debate_timeline += f"""
             <div class="timeline-item">
@@ -128,9 +128,7 @@ class OrchestratedReportGenerator:
 
         # Build results preview
         results_preview = ""
-        all_results = [
-            item for sr in orch_result.source_results for item in sr.results
-        ][:10]
+        all_results = [item for sr in orch_result.source_results for item in sr.results][:10]
 
         for item in all_results:
             source = item.get("source", "unknown")
@@ -140,7 +138,7 @@ class OrchestratedReportGenerator:
             results_preview += f"""
             <div class="result-card">
                 <div class="result-source">{source}</div>
-                <div class="result-title">{title[:60]}{'...' if len(str(title)) > 60 else ''}</div>
+                <div class="result-title">{title[:60]}{"..." if len(str(title)) > 60 else ""}</div>
                 <div class="result-date">{date}</div>
             </div>
             """
@@ -437,7 +435,7 @@ class OrchestratedReportGenerator:
             <h1>📊 Rapport d'Analyse Multi-Source</h1>
             <div class="meta">
                 Requête: <strong>{self.config.query}</strong> |
-                Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')} |
+                Généré le {datetime.now().strftime("%d/%m/%Y à %H:%M")} |
                 Durée totale: {orch_result.total_duration_ms:.0f}ms
             </div>
         </div>
@@ -577,9 +575,7 @@ class OrchestratedReportGenerator:
                 "total": orch_result.total_results,
                 "correlated_entities": len(orch_result.correlated_entities),
                 "by_source": {
-                    sr.source: sr.results
-                    for sr in orch_result.source_results
-                    if sr.results
+                    sr.source: sr.results for sr in orch_result.source_results if sr.results
                 },
             },
         }
@@ -590,7 +586,6 @@ class OrchestratedReportGenerator:
         )
         logger.info(f"Generated JSON export: {export_path}")
         return str(export_path)
-
 
     def generate_markdown_report(
         self,
@@ -629,7 +624,9 @@ class OrchestratedReportGenerator:
             status = "✅" if sr.results else "❌"
             count = len(sr.results) if sr.results else 0
             error = sr.error[:30] if sr.error else "-"
-            source_table += f"| {sr.source} | {count} | {sr.duration_ms:.0f}ms | {status} {error} |\n"
+            source_table += (
+                f"| {sr.source} | {count} | {sr.duration_ms:.0f}ms | {status} {error} |\n"
+            )
 
         # Build debate section
         debate_section = ""
@@ -664,7 +661,7 @@ class OrchestratedReportGenerator:
         md = f"""# 📊 Rapport d'Analyse Multi-Source
 
 **Requête:** {self.config.query}
-**Date:** {datetime.now().strftime('%d/%m/%Y à %H:%M')}
+**Date:** {datetime.now().strftime("%d/%m/%Y à %H:%M")}
 **Durée totale:** {orch_result.total_duration_ms:.0f}ms
 
 ---

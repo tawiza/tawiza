@@ -18,6 +18,7 @@ from src.cli.v3.tui.services.session_recorder import get_session_recorder
 @dataclass
 class SessionRecord:
     """A historical agent session."""
+
     session_id: str
     agent: str
     task: str
@@ -76,15 +77,15 @@ class SessionDetail(Static):
 
 [bold]ID:[/] {s.session_id}
 [bold]Agent:[/] {s.agent}
-[bold]Task:[/] {s.task[:80]}{'...' if len(s.task) > 80 else ''}
+[bold]Task:[/] {s.task[:80]}{"..." if len(s.task) > 80 else ""}
 [bold]Status:[/] [{status_color}]{s.status.upper()}[/]
-[bold]Started:[/] {s.started_at.strftime('%Y-%m-%d %H:%M:%S')}
+[bold]Started:[/] {s.started_at.strftime("%Y-%m-%d %H:%M:%S")}
 [bold]Duration:[/] {duration}
 [bold]Iterations:[/] {s.iterations}
 [bold]Tokens:[/] {s.tokens_used:,}
 
 [bold]Result Summary:[/]
-{s.result_summary or '[dim]No summary available[/]'}"""
+{s.result_summary or "[dim]No summary available[/]"}"""
 
 
 class HistoryScreen(Container):
@@ -156,10 +157,7 @@ class HistoryScreen(Container):
         # Header
         with Horizontal(id="history-header"):
             yield Static("[bold cyan]HISTORY[/] - Past agent sessions")
-            yield Input(
-                placeholder="Search sessions...",
-                id="search-input"
-            )
+            yield Input(placeholder="Search sessions...", id="search-input")
             yield Static("", id="filter-stats")
 
         # Content: list + detail
@@ -180,9 +178,7 @@ class HistoryScreen(Container):
         """Setup the data table columns."""
         table = self.query_one("#sessions-table", DataTable)
         table.cursor_type = "row"
-        table.add_columns(
-            "ID", "Agent", "Task", "Status", "Date", "Duration"
-        )
+        table.add_columns("ID", "Agent", "Task", "Status", "Date", "Duration")
 
     def _load_real_sessions(self) -> None:
         """Load sessions from the replay engine storage."""
@@ -194,7 +190,9 @@ class HistoryScreen(Container):
 
             for data in sessions_data:
                 # Convert from replay engine format to SessionRecord
-                started_at = datetime.fromisoformat(data.get("started_at", datetime.now().isoformat()))
+                started_at = datetime.fromisoformat(
+                    data.get("started_at", datetime.now().isoformat())
+                )
                 completed_at = None
                 if data.get("completed_at"):
                     completed_at = datetime.fromisoformat(data["completed_at"])
@@ -203,18 +201,20 @@ class HistoryScreen(Container):
                 if completed_at:
                     duration = (completed_at - started_at).total_seconds()
 
-                self._sessions.append(SessionRecord(
-                    session_id=data.get("session_id", "unknown"),
-                    agent=data.get("agent_name", "general"),
-                    task=data.get("task_description", "No description"),
-                    status=data.get("final_status", "unknown"),
-                    started_at=started_at,
-                    completed_at=completed_at,
-                    duration_seconds=duration,
-                    tokens_used=data.get("tokens_used", 0),
-                    iterations=len(data.get("actions", [])),
-                    result_summary=self._extract_summary(data)
-                ))
+                self._sessions.append(
+                    SessionRecord(
+                        session_id=data.get("session_id", "unknown"),
+                        agent=data.get("agent_name", "general"),
+                        task=data.get("task_description", "No description"),
+                        status=data.get("final_status", "unknown"),
+                        started_at=started_at,
+                        completed_at=completed_at,
+                        duration_seconds=duration,
+                        tokens_used=data.get("tokens_used", 0),
+                        iterations=len(data.get("actions", [])),
+                        result_summary=self._extract_summary(data),
+                    )
+                )
 
             if not self._sessions:
                 self.app.notify("No saved sessions found", timeout=2)
@@ -253,7 +253,11 @@ class HistoryScreen(Container):
                 "cancelled": "[yellow]",
             }.get(session.status, "")
 
-            duration = f"{session.duration_seconds / 60:.1f}m" if session.duration_seconds > 60 else f"{session.duration_seconds:.0f}s"
+            duration = (
+                f"{session.duration_seconds / 60:.1f}m"
+                if session.duration_seconds > 60
+                else f"{session.duration_seconds:.0f}s"
+            )
 
             table.add_row(
                 session.session_id,
@@ -262,14 +266,16 @@ class HistoryScreen(Container):
                 f"{status_style}{session.status}[/]",
                 session.started_at.strftime("%m/%d %H:%M"),
                 duration,
-                key=session.session_id
+                key=session.session_id,
             )
 
         # Update stats
         stats = self.query_one("#filter-stats", Static)
         completed = sum(1 for s in self._filtered_sessions if s.status == "completed")
         failed = sum(1 for s in self._filtered_sessions if s.status == "failed")
-        stats.update(f"[green]{completed}[/] ok | [red]{failed}[/] err | {len(self._filtered_sessions)} total")
+        stats.update(
+            f"[green]{completed}[/] ok | [red]{failed}[/] err | {len(self._filtered_sessions)} total"
+        )
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle row selection."""
@@ -294,7 +300,8 @@ class HistoryScreen(Container):
             self._filtered_sessions = self._sessions.copy()
         else:
             self._filtered_sessions = [
-                s for s in self._sessions
+                s
+                for s in self._sessions
                 if self.search_query in s.session_id.lower()
                 or self.search_query in s.agent.lower()
                 or self.search_query in s.task.lower()
@@ -321,7 +328,9 @@ class HistoryScreen(Container):
             except Exception as e:
                 logger.warning(f"Could not delete from storage: {e}")
 
-            self._sessions = [s for s in self._sessions if s.session_id != self.selected_session.session_id]
+            self._sessions = [
+                s for s in self._sessions if s.session_id != self.selected_session.session_id
+            ]
             self._filter_sessions()
             self.selected_session = None
             detail = self.query_one("#detail-view", SessionDetail)
@@ -337,22 +346,25 @@ class HistoryScreen(Container):
 
         try:
             from src.cli.constants import PROJECT_ROOT
+
             export_path = PROJECT_ROOT / "logs" / "sessions_export.json"
 
             export_data = []
             for s in self._filtered_sessions:
-                export_data.append({
-                    "session_id": s.session_id,
-                    "agent": s.agent,
-                    "task": s.task,
-                    "status": s.status,
-                    "started_at": s.started_at.isoformat(),
-                    "completed_at": s.completed_at.isoformat() if s.completed_at else None,
-                    "duration_seconds": s.duration_seconds,
-                    "tokens_used": s.tokens_used,
-                    "iterations": s.iterations,
-                    "result_summary": s.result_summary,
-                })
+                export_data.append(
+                    {
+                        "session_id": s.session_id,
+                        "agent": s.agent,
+                        "task": s.task,
+                        "status": s.status,
+                        "started_at": s.started_at.isoformat(),
+                        "completed_at": s.completed_at.isoformat() if s.completed_at else None,
+                        "duration_seconds": s.duration_seconds,
+                        "tokens_used": s.tokens_used,
+                        "iterations": s.iterations,
+                        "result_summary": s.result_summary,
+                    }
+                )
 
             with open(export_path, "w") as f:
                 json.dump(export_data, f, indent=2)

@@ -1,6 +1,5 @@
 """Command Input widget with history and autocomplete."""
 
-
 import contextlib
 
 from textual.containers import Vertical
@@ -44,6 +43,7 @@ class CommandInput(Vertical):
 
     class CommandSubmitted(Message):
         """Message emitted when a command is submitted."""
+
         def __init__(self, command: str):
             super().__init__()
             self.command = command
@@ -52,7 +52,7 @@ class CommandInput(Vertical):
         self,
         placeholder: str = "Enter a command or task description...",
         label: str = "💬 COMMAND INPUT",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._placeholder = placeholder
@@ -67,7 +67,7 @@ class CommandInput(Vertical):
         yield Input(placeholder=self._placeholder, id="cmd-input-field")
         yield Static(
             "[dim][Enter] Send  [Tab] Autocomplete  [↑↓] History  [Ctrl+C] Cancel[/]",
-            classes="hints"
+            classes="hints",
         )
 
     def on_input_submitted(self, event: Input.Submitted) -> None:

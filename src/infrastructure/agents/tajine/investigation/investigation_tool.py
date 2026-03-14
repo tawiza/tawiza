@@ -79,8 +79,7 @@ class InvestigateEnterpriseTool:
         # 2. Compute Bayesian risk assessment
         assessment = self._reasoner.compute(signals)
         logger.info(
-            f"Risk assessment: {assessment.risk_level.value} "
-            f"(posterior={assessment.posterior:.2%})"
+            f"Risk assessment: {assessment.risk_level.value} (posterior={assessment.posterior:.2%})"
         )
 
         # 3. Generate investigation report

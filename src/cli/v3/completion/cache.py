@@ -19,10 +19,10 @@ class CompletionCache:
 
     # Default TTLs per category
     DEFAULT_TTLS = {
-        "models": 60,       # 1 minute
-        "tasks": 5,         # 5 seconds
-        "services": 30,     # 30 seconds
-        "history": 300,     # 5 minutes
+        "models": 60,  # 1 minute
+        "tasks": 5,  # 5 seconds
+        "services": 30,  # 30 seconds
+        "history": 300,  # 5 minutes
     }
 
     def __init__(self):

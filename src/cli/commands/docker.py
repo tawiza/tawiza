@@ -17,10 +17,7 @@ from rich.table import Table
 from src.cli.ui.theme import SUNSET_THEME
 
 app = typer.Typer(
-    name="docker",
-    help="Docker container management",
-    add_completion=False,
-    rich_markup_mode="rich"
+    name="docker", help="Docker container management", add_completion=False, rich_markup_mode="rich"
 )
 
 console = Console()
@@ -29,12 +26,7 @@ console = Console()
 def _run_docker_cmd(cmd: list[str], capture: bool = True) -> subprocess.CompletedProcess:
     """Run a docker command."""
     full_cmd = ["docker"] + cmd
-    return subprocess.run(
-        full_cmd,
-        capture_output=capture,
-        text=True,
-        timeout=60
-    )
+    return subprocess.run(full_cmd, capture_output=capture, text=True, timeout=60)
 
 
 def _docker_available() -> bool:
@@ -48,11 +40,12 @@ def _docker_available() -> bool:
 
 # ===== Container Commands =====
 
+
 @app.command("ps")
 def list_containers(
     all: bool = typer.Option(False, "--all", "-a", help="Show all containers"),
     filter_name: str | None = typer.Option(None, "--filter", "-f", help="Filter by name"),
-    json_output: bool = typer.Option(False, "--json", "-j", help="Output as JSON")
+    json_output: bool = typer.Option(False, "--json", "-j", help="Output as JSON"),
 ):
     """
     List Docker containers
@@ -91,7 +84,7 @@ def list_containers(
                     "name": parts[1],
                     "image": parts[2],
                     "status": parts[3],
-                    "ports": parts[4] if len(parts) > 4 else ""
+                    "ports": parts[4] if len(parts) > 4 else "",
                 }
                 if filter_name is None or filter_name.lower() in container["name"].lower():
                     containers.append(container)
@@ -105,9 +98,7 @@ def list_containers(
         return
 
     table = Table(
-        title="Docker Containers",
-        border_style=SUNSET_THEME.accent_color,
-        show_header=True
+        title="Docker Containers", border_style=SUNSET_THEME.accent_color, show_header=True
     )
     table.add_column("ID", style="cyan", width=12)
     table.add_column("Name", style="green")
@@ -122,7 +113,7 @@ def list_containers(
             c["name"],
             c["image"][:30],
             f"[{status_style}]{c['status'][:20]}[/{status_style}]",
-            c["ports"][:30] if c["ports"] else "-"
+            c["ports"][:30] if c["ports"] else "-",
         )
 
     console.print()
@@ -137,7 +128,7 @@ def run_container(
     port: str | None = typer.Option(None, "--port", "-p", help="Port mapping (e.g., 8080:80)"),
     env: list[str] | None = typer.Option(None, "--env", "-e", help="Environment variables"),
     volume: str | None = typer.Option(None, "--volume", "-v", help="Volume mount"),
-    gpu: bool = typer.Option(False, "--gpu", help="Enable GPU access (ROCm)")
+    gpu: bool = typer.Option(False, "--gpu", help="Enable GPU access (ROCm)"),
 ):
     """
     Run a Docker container
@@ -176,21 +167,21 @@ def run_container(
 
     if gpu:
         # AMD ROCm GPU support
-        cmd.extend([
-            "--device=/dev/kfd",
-            "--device=/dev/dri",
-            "--group-add=video",
-            "--security-opt=seccomp=unconfined"
-        ])
+        cmd.extend(
+            [
+                "--device=/dev/kfd",
+                "--device=/dev/dri",
+                "--group-add=video",
+                "--security-opt=seccomp=unconfined",
+            ]
+        )
 
     cmd.append(image)
 
     console.print(f"[dim]Running: docker {' '.join(cmd)}[/dim]")
 
     with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
     ) as progress:
         progress.add_task("Starting container...", total=None)
         result = _run_docker_cmd(cmd)
@@ -207,7 +198,7 @@ def run_container(
 @app.command("stop")
 def stop_container(
     container: str = typer.Argument(..., help="Container ID or name"),
-    force: bool = typer.Option(False, "--force", "-f", help="Force stop")
+    force: bool = typer.Option(False, "--force", "-f", help="Force stop"),
 ):
     """
     Stop a running container
@@ -236,7 +227,7 @@ def stop_container(
 @app.command("rm")
 def remove_container(
     container: str = typer.Argument(..., help="Container ID or name"),
-    force: bool = typer.Option(False, "--force", "-f", help="Force remove")
+    force: bool = typer.Option(False, "--force", "-f", help="Force remove"),
 ):
     """
     Remove a container
@@ -266,7 +257,7 @@ def remove_container(
 def container_logs(
     container: str = typer.Argument(..., help="Container ID or name"),
     follow: bool = typer.Option(False, "--follow", "-f", help="Follow log output"),
-    tail: int = typer.Option(50, "--tail", "-n", help="Number of lines to show")
+    tail: int = typer.Option(50, "--tail", "-n", help="Number of lines to show"),
 ):
     """
     View container logs
@@ -303,7 +294,7 @@ def container_logs(
 @app.command("exec")
 def exec_container(
     container: str = typer.Argument(..., help="Container ID or name"),
-    command: str = typer.Argument("bash", help="Command to execute")
+    command: str = typer.Argument("bash", help="Command to execute"),
 ):
     """
     Execute command in container
@@ -320,20 +311,16 @@ def exec_container(
 
     # Interactive exec
     try:
-        subprocess.run(
-            ["docker", "exec", "-it", container] + command.split(),
-            timeout=None
-        )
+        subprocess.run(["docker", "exec", "-it", container] + command.split(), timeout=None)
     except KeyboardInterrupt:
         console.print("\n[yellow]Execution interrupted[/yellow]")
 
 
 # ===== Image Commands =====
 
+
 @app.command("images")
-def list_images(
-    json_output: bool = typer.Option(False, "--json", "-j", help="Output as JSON")
-):
+def list_images(json_output: bool = typer.Option(False, "--json", "-j", help="Output as JSON")):
     """
     List Docker images
 
@@ -344,10 +331,9 @@ def list_images(
         console.print("[red]Docker not available or not running[/red]")
         return
 
-    result = _run_docker_cmd([
-        "images",
-        "--format", "{{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}"
-    ])
+    result = _run_docker_cmd(
+        ["images", "--format", "{{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}"]
+    )
 
     if result.returncode != 0:
         console.print(f"[red]Error: {result.stderr}[/red]")
@@ -358,23 +344,21 @@ def list_images(
         if line:
             parts = line.split("\t")
             if len(parts) >= 4:
-                images.append({
-                    "repository": parts[0],
-                    "tag": parts[1],
-                    "id": parts[2][:12],
-                    "size": parts[3],
-                    "created": parts[4] if len(parts) > 4 else ""
-                })
+                images.append(
+                    {
+                        "repository": parts[0],
+                        "tag": parts[1],
+                        "id": parts[2][:12],
+                        "size": parts[3],
+                        "created": parts[4] if len(parts) > 4 else "",
+                    }
+                )
 
     if json_output:
         console.print(json.dumps(images, indent=2))
         return
 
-    table = Table(
-        title="Docker Images",
-        border_style=SUNSET_THEME.accent_color,
-        show_header=True
-    )
+    table = Table(title="Docker Images", border_style=SUNSET_THEME.accent_color, show_header=True)
     table.add_column("Repository", style="cyan")
     table.add_column("Tag", style="green")
     table.add_column("ID", style="dim")
@@ -382,22 +366,14 @@ def list_images(
     table.add_column("Created")
 
     for img in images:
-        table.add_row(
-            img["repository"][:30],
-            img["tag"],
-            img["id"],
-            img["size"],
-            img["created"]
-        )
+        table.add_row(img["repository"][:30], img["tag"], img["id"], img["size"], img["created"])
 
     console.print()
     console.print(table)
 
 
 @app.command("pull")
-def pull_image(
-    image: str = typer.Argument(..., help="Image to pull")
-):
+def pull_image(image: str = typer.Argument(..., help="Image to pull")):
     """
     Pull a Docker image
 
@@ -422,10 +398,13 @@ def pull_image(
 
 # ===== Stats and Info =====
 
+
 @app.command("stats")
 def container_stats(
-    container: str | None = typer.Argument(None, help="Container ID or name (all if not specified)"),
-    no_stream: bool = typer.Option(False, "--no-stream", help="Disable streaming stats")
+    container: str | None = typer.Argument(
+        None, help="Container ID or name (all if not specified)"
+    ),
+    no_stream: bool = typer.Option(False, "--no-stream", help="Disable streaming stats"),
 ):
     """
     Show container resource usage
@@ -474,10 +453,9 @@ def docker_info():
         info = json.loads(result.stdout)
 
         console.print()
-        console.print(Panel(
-            "[bold cyan]Docker Info[/bold cyan]",
-            border_style=SUNSET_THEME.accent_color
-        ))
+        console.print(
+            Panel("[bold cyan]Docker Info[/bold cyan]", border_style=SUNSET_THEME.accent_color)
+        )
 
         table = Table(show_header=False, box=box.SIMPLE)
         table.add_column("Key", style="cyan")
@@ -510,10 +488,11 @@ def docker_info():
 
 # ===== Cleanup =====
 
+
 @app.command("prune")
 def docker_prune(
     all: bool = typer.Option(False, "--all", "-a", help="Remove all unused resources"),
-    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation")
+    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation"),
 ):
     """
     Remove unused Docker resources
@@ -528,17 +507,16 @@ def docker_prune(
 
     if not force:
         from rich.prompt import Confirm
+
         if not Confirm.ask("Remove unused Docker resources?"):
             console.print("[yellow]Cancelled[/yellow]")
             return
 
     cmds = [["container", "prune", "-f"]]
     if all:
-        cmds.extend([
-            ["image", "prune", "-a", "-f"],
-            ["volume", "prune", "-f"],
-            ["network", "prune", "-f"]
-        ])
+        cmds.extend(
+            [["image", "prune", "-a", "-f"], ["volume", "prune", "-f"], ["network", "prune", "-f"]]
+        )
 
     for cmd in cmds:
         console.print(f"[dim]Running: docker {' '.join(cmd)}[/dim]")

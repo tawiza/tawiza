@@ -53,8 +53,7 @@ class AgentRegistry:
         """
         if agent.name in self._agents:
             raise ValueError(
-                f"Agent '{agent.name}' already registered. "
-                "Use unregister() first to replace."
+                f"Agent '{agent.name}' already registered. Use unregister() first to replace."
             )
         self._agents[agent.name] = agent
         logger.info(f"Registered agent: {agent.name} (type: {agent.agent_type})")
@@ -93,10 +92,7 @@ class AgentRegistry:
         Returns:
             List of matching agents.
         """
-        return [
-            agent for agent in self._agents.values()
-            if agent.agent_type == agent_type
-        ]
+        return [agent for agent in self._agents.values() if agent.agent_type == agent_type]
 
     def list_names(self) -> list[str]:
         """List all registered agent names.

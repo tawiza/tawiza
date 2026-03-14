@@ -246,7 +246,7 @@ async def deploy_model(
             model_id=request.model_id,
             deployment_status="deploying",
             traffic_percentage=request.traffic_percentage,
-            endpoint_url=result.endpoint if hasattr(result, 'endpoint') else None,
+            endpoint_url=result.endpoint if hasattr(result, "endpoint") else None,
         )
 
     except EntityNotFoundError as e:
@@ -442,7 +442,7 @@ async def get_model_metrics(
             "model_id": str(model_id),
             "time_range_hours": time_range_hours,
             "metrics": metrics if metrics else {},
-            "status": model.status.value if hasattr(model.status, 'value') else str(model.status),
+            "status": model.status.value if hasattr(model.status, "value") else str(model.status),
         }
 
     except EntityNotFoundError as e:

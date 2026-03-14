@@ -1,4 +1,5 @@
 """Source Bandit - UCB-based source selection."""
+
 from __future__ import annotations
 
 import math
@@ -13,6 +14,7 @@ class SourceBandit:
     Uses UCB1 (Upper Confidence Bound) algorithm to balance
     exploration of new sources vs exploitation of known good ones.
     """
+
     sources: list[str]
     exploration_factor: float = 2.0
 
@@ -54,12 +56,12 @@ class SourceBandit:
     def get_ucb_score(self, arm_index: int) -> float:
         """Compute UCB score for an arm."""
         if self.arm_counts[arm_index] == 0:
-            return float('inf')  # Always explore unvisited arms
+            return float("inf")  # Always explore unvisited arms
 
         mean_reward = self.arm_rewards[arm_index] / self.arm_counts[arm_index]
 
         if self.total_pulls == 0:
-            exploration_bonus = float('inf')
+            exploration_bonus = float("inf")
         else:
             exploration_bonus = self.exploration_factor * math.sqrt(
                 math.log(self.total_pulls) / self.arm_counts[arm_index]

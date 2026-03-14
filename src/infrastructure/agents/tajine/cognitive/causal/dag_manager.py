@@ -73,15 +73,18 @@ class DAGManager:
                 r.updated_at = datetime()
             RETURN r
             """
-            await self._client.execute_write(query, {
-                "cause": link.cause,
-                "effect": link.effect,
-                "context": context,
-                "correlation": link.correlation,
-                "lag_months": link.lag_months,
-                "confidence": link.confidence,
-                "evidence": link.evidence
-            })
+            await self._client.execute_write(
+                query,
+                {
+                    "cause": link.cause,
+                    "effect": link.effect,
+                    "context": context,
+                    "correlation": link.correlation,
+                    "lag_months": link.lag_months,
+                    "confidence": link.confidence,
+                    "evidence": link.evidence,
+                },
+            )
             logger.debug(f"Stored causal link: {link.cause} -> {link.effect}")
             return True
         except Exception as e:
@@ -95,10 +98,7 @@ class DAGManager:
         return True
 
     async def get_causes(
-        self,
-        effect: str,
-        context: str = "default",
-        min_confidence: float = 0.5
+        self, effect: str, context: str = "default", min_confidence: float = 0.5
     ) -> list[CausalLink]:
         """Get causes of an effect.
 
@@ -123,11 +123,9 @@ class DAGManager:
             ORDER BY r.confidence DESC
             LIMIT 10
             """
-            results = await self._client.execute(query, {
-                "effect": effect,
-                "context": context,
-                "min_confidence": min_confidence
-            })
+            results = await self._client.execute(
+                query, {"effect": effect, "context": context, "min_confidence": min_confidence}
+            )
             return [
                 CausalLink(
                     cause=r["cause"],
@@ -135,7 +133,7 @@ class DAGManager:
                     correlation=r["correlation"],
                     lag_months=r["lag_months"],
                     confidence=r["confidence"],
-                    evidence=r.get("evidence", "")
+                    evidence=r.get("evidence", ""),
                 )
                 for r in results
             ]
@@ -143,22 +141,14 @@ class DAGManager:
             logger.warning(f"Neo4j query failed: {e}")
             return self._get_causes_from_memory(effect, min_confidence)
 
-    def _get_causes_from_memory(
-        self,
-        effect: str,
-        min_confidence: float
-    ) -> list[CausalLink]:
+    def _get_causes_from_memory(self, effect: str, min_confidence: float) -> list[CausalLink]:
         """Get causes from in-memory DAG."""
         links = self._memory_dag.get(effect, [])
         filtered = [l for l in links if l.confidence >= min_confidence]
         return sorted(filtered, key=lambda x: x.confidence, reverse=True)[:10]
 
     async def get_causal_chain(
-        self,
-        root: str,
-        target: str,
-        context: str = "default",
-        max_depth: int = 3
+        self, root: str, target: str, context: str = "default", max_depth: int = 3
     ) -> CausalChain | None:
         """Find causal chain from root to target.
 
@@ -194,12 +184,9 @@ class DAGManager:
             ORDER BY chain_conf DESC
             LIMIT 1
             """
-            results = await self._client.execute(query, {
-                "root": root,
-                "target": target,
-                "context": context,
-                "max_depth": max_depth
-            })
+            results = await self._client.execute(
+                query, {"root": root, "target": target, "context": context, "max_depth": max_depth}
+            )
 
             if not results:
                 return None
@@ -212,27 +199,19 @@ class DAGManager:
                     correlation=l.get("correlation", 0),
                     lag_months=l.get("lag_months", 0),
                     confidence=l.get("confidence", 0),
-                    evidence=l.get("evidence", "")
+                    evidence=l.get("evidence", ""),
                 )
                 for l in r["chain_links"]
             ]
 
             return CausalChain(
-                root_cause=root,
-                final_effect=target,
-                links=links,
-                total_confidence=r["chain_conf"]
+                root_cause=root, final_effect=target, links=links, total_confidence=r["chain_conf"]
             )
         except Exception as e:
             logger.warning(f"Neo4j chain query failed: {e}")
             return self._get_chain_from_memory(root, target, max_depth)
 
-    def _get_chain_from_memory(
-        self,
-        root: str,
-        target: str,
-        max_depth: int
-    ) -> CausalChain | None:
+    def _get_chain_from_memory(self, root: str, target: str, max_depth: int) -> CausalChain | None:
         """Find chain in memory using BFS."""
         # Simple BFS to find path
         visited = set()
@@ -245,11 +224,7 @@ class DAGManager:
             visited.add(current)
 
             if current == target and path:
-                return CausalChain(
-                    root_cause=root,
-                    final_effect=target,
-                    links=path
-                )
+                return CausalChain(root_cause=root, final_effect=target, links=path)
 
             if len(path) >= max_depth:
                 continue

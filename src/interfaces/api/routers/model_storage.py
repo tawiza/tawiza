@@ -244,9 +244,7 @@ async def download_version(model_name: str, version: str) -> dict[str, Any]:
 
     try:
         version_obj = AutoIncrementVersion.from_string(version)
-        modelfile_content, metadata = await storage_service.retrieve_model(
-            model_name, version_obj
-        )
+        modelfile_content, metadata = await storage_service.retrieve_model(model_name, version_obj)
 
         return {
             "model_name": model_name,
@@ -430,9 +428,7 @@ async def compare_versions(
         ver_a = AutoIncrementVersion.from_string(version_a)
         ver_b = AutoIncrementVersion.from_string(version_b)
 
-        comparison = await versioning_service.compare_versions(
-            model_name, ver_a, ver_b
-        )
+        comparison = await versioning_service.compare_versions(model_name, ver_a, ver_b)
 
         return VersionComparison(
             model_name=model_name,
@@ -510,9 +506,7 @@ async def promote_version(
 
     try:
         version_obj = AutoIncrementVersion.from_string(version)
-        await versioning_service.promote_version(
-            model_name, version_obj, request.environment
-        )
+        await versioning_service.promote_version(model_name, version_obj, request.environment)
 
         return {
             "status": "success",

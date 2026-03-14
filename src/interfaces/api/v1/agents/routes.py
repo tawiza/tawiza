@@ -37,10 +37,7 @@ def get_agent(agent_type: AgentType):
 
 
 @router.post("/tasks", response_model=AgentTaskResponse, status_code=202)
-async def create_task(
-    task: AgentTaskCreate,
-    background_tasks: BackgroundTasks
-):
+async def create_task(task: AgentTaskCreate, background_tasks: BackgroundTasks):
     """Create and execute agent task.
 
     This endpoint creates a task and executes it in the background.
@@ -69,17 +66,14 @@ async def create_task(
             "action": task.action.value,
             "selectors": task.selectors,
             "data": task.data,
-            "options": task.options
+            "options": task.options,
         }
 
         # Create task (this generates task_id)
         task_id = agent._create_task(task_config)
 
         # Execute in background
-        background_tasks.add_task(
-            agent.execute_task,
-            task_config
-        )
+        background_tasks.add_task(agent.execute_task, task_config)
 
         # Get initial status
         status = await agent.get_task_status(task_id)
@@ -91,7 +85,7 @@ async def create_task(
             progress=status["progress"],
             current_step=status["current_step"],
             created_at=status["created_at"],
-            updated_at=status["updated_at"]
+            updated_at=status["updated_at"],
         )
 
     except Exception as e:
@@ -100,10 +94,7 @@ async def create_task(
 
 
 @router.get("/tasks/{task_id}", response_model=AgentTaskResponse)
-async def get_task_status(
-    task_id: str,
-    agent_type: AgentType = Query(default=AgentType.OPENMANUS)
-):
+async def get_task_status(task_id: str, agent_type: AgentType = Query(default=AgentType.OPENMANUS)):
     """Get task status.
 
     Returns current status and progress of a task.
@@ -119,7 +110,7 @@ async def get_task_status(
             progress=status["progress"],
             current_step=status["current_step"],
             created_at=status["created_at"],
-            updated_at=status["updated_at"]
+            updated_at=status["updated_at"],
         )
 
     except Exception as e:
@@ -128,10 +119,7 @@ async def get_task_status(
 
 
 @router.get("/tasks/{task_id}/result", response_model=AgentTaskResult)
-async def get_task_result(
-    task_id: str,
-    agent_type: AgentType = Query(default=AgentType.OPENMANUS)
-):
+async def get_task_result(task_id: str, agent_type: AgentType = Query(default=AgentType.OPENMANUS)):
     """Get task result.
 
     Returns complete result including extracted data and screenshots.
@@ -149,10 +137,7 @@ async def get_task_result(
 
 
 @router.delete("/tasks/{task_id}")
-async def cancel_task(
-    task_id: str,
-    agent_type: AgentType = Query(default=AgentType.OPENMANUS)
-):
+async def cancel_task(task_id: str, agent_type: AgentType = Query(default=AgentType.OPENMANUS)):
     """Cancel running task."""
     try:
         agent = get_agent(agent_type)
@@ -161,7 +146,7 @@ async def cancel_task(
         return {
             "task_id": task_id,
             "cancelled": success,
-            "message": f"Task {task_id} cancelled successfully"
+            "message": f"Task {task_id} cancelled successfully",
         }
 
     except Exception as e:
@@ -174,16 +159,12 @@ async def list_tasks(
     agent_type: AgentType = Query(default=AgentType.OPENMANUS),
     status: TaskStatus | None = Query(default=None),
     limit: int = Query(default=100, le=1000),
-    offset: int = Query(default=0, ge=0)
+    offset: int = Query(default=0, ge=0),
 ):
     """List agent tasks with pagination."""
     try:
         agent = get_agent(agent_type)
-        tasks = await agent.list_tasks(
-            status=status,
-            limit=limit,
-            offset=offset
-        )
+        tasks = await agent.list_tasks(status=status, limit=limit, offset=offset)
 
         task_responses = [
             AgentTaskResponse(
@@ -193,16 +174,13 @@ async def list_tasks(
                 progress=t["progress"],
                 current_step=None,
                 created_at=t["created_at"],
-                updated_at=t["updated_at"]
+                updated_at=t["updated_at"],
             )
             for t in tasks
         ]
 
         return AgentTaskList(
-            tasks=task_responses,
-            total=len(task_responses),
-            limit=limit,
-            offset=offset
+            tasks=task_responses, total=len(task_responses), limit=limit, offset=offset
         )
 
     except Exception as e:
@@ -212,8 +190,7 @@ async def list_tasks(
 
 @router.get("/tasks/{task_id}/stream")
 async def stream_task_progress(
-    task_id: str,
-    agent_type: AgentType = Query(default=AgentType.OPENMANUS)
+    task_id: str, agent_type: AgentType = Query(default=AgentType.OPENMANUS)
 ):
     """Stream task progress via Server-Sent Events.
 
@@ -235,12 +212,10 @@ async def stream_task_progress(
             """Generate SSE events."""
             async for progress in agent.stream_progress(task_id):
                 import json
+
                 yield f"data: {json.dumps(progress)}\n\n"
 
-        return StreamingResponse(
-            event_stream(),
-            media_type="text/event-stream"
-        )
+        return StreamingResponse(event_stream(), media_type="text/event-stream")
 
     except Exception as e:
         logger.error(f"Failed to stream progress: {e}")
@@ -257,7 +232,7 @@ async def health_check():
             "skyvern": "available",
             "manus": "available",
             "s3": "available",
-        }
+        },
     }
 
 
@@ -272,19 +247,23 @@ from pydantic import BaseModel, Field
 # Tool Registry singleton
 _tool_registry = None
 
+
 def get_tool_registry():
     """Get or create tool registry."""
     global _tool_registry
     if _tool_registry is None:
         from src.infrastructure.tools import create_unified_registry
+
         _tool_registry = create_unified_registry()
     return _tool_registry
 
 
 # --- Pydantic models for new endpoints ---
 
+
 class ManusTaskRequest(BaseModel):
     """Request for ManusAgent execution."""
+
     prompt: str = Field(..., description="Task description")
     context: dict[str, Any] | None = Field(default=None)
     model: str = Field(default="qwen3-coder:30b")
@@ -293,6 +272,7 @@ class ManusTaskRequest(BaseModel):
 
 class S3TaskRequest(BaseModel):
     """Request for S3Agent (browser/desktop) execution."""
+
     prompt: str = Field(..., description="Task description")
     mode: str | None = Field(default=None, description="Force: browser or desktop")
     context: dict[str, Any] | None = Field(default=None)
@@ -301,12 +281,14 @@ class S3TaskRequest(BaseModel):
 
 class ToolCallRequest(BaseModel):
     """Request to call a tool directly."""
+
     tool_name: str
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
 class ToolInfo(BaseModel):
     """Tool information."""
+
     name: str
     description: str
     category: str
@@ -314,6 +296,7 @@ class ToolInfo(BaseModel):
 
 
 # --- Tool Registry endpoints ---
+
 
 @router.get("/tools", response_model=list[ToolInfo])
 async def list_tools(category: str | None = None):
@@ -325,12 +308,14 @@ async def list_tools(category: str | None = None):
     for name in tool_names:
         tool = registry._tools.get(name)
         if tool:
-            tools.append(ToolInfo(
-                name=tool.name,
-                description=tool.description,
-                category=registry._categories.get(name, "default"),
-                parameters_schema=tool.parameters_schema,
-            ))
+            tools.append(
+                ToolInfo(
+                    name=tool.name,
+                    description=tool.description,
+                    category=registry._categories.get(name, "default"),
+                    parameters_schema=tool.parameters_schema,
+                )
+            )
     return tools
 
 
@@ -366,6 +351,7 @@ async def execute_tool(tool_name: str, request: ToolCallRequest):
 
 # --- ManusAgent endpoints ---
 
+
 @router.post("/manus/execute")
 async def execute_manus_task(request: ManusTaskRequest, background_tasks: BackgroundTasks):
     """Execute task using ManusAgent (think-execute reasoning loop)."""
@@ -377,11 +363,13 @@ async def execute_manus_task(request: ManusTaskRequest, background_tasks: Backgr
             ollama_host=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         )
 
-        result = await agent.execute_task({
-            "prompt": request.prompt,
-            "context": request.context,
-            "max_iterations": request.max_iterations,
-        })
+        result = await agent.execute_task(
+            {
+                "prompt": request.prompt,
+                "context": request.context,
+                "max_iterations": request.max_iterations,
+            }
+        )
 
         return {
             "task_id": result.get("task_id", "manus-task"),
@@ -397,6 +385,7 @@ async def execute_manus_task(request: ManusTaskRequest, background_tasks: Backgr
 
 
 # --- S3Agent endpoints ---
+
 
 @router.post("/s3/execute")
 async def execute_s3_task(request: S3TaskRequest):
@@ -434,7 +423,9 @@ async def s3_screenshot():
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
-        client = DesktopClient(host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900")))
+        client = DesktopClient(
+            host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900"))
+        )
         await client.connect()
         result = await client.screenshot()
 
@@ -451,7 +442,9 @@ async def s3_click(x: int, y: int):
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
-        client = DesktopClient(host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900")))
+        client = DesktopClient(
+            host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900"))
+        )
         await client.connect()
         return await client.click(x, y)
 
@@ -466,7 +459,9 @@ async def s3_type_text(text: str):
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
-        client = DesktopClient(host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900")))
+        client = DesktopClient(
+            host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900"))
+        )
         await client.connect()
         return await client.type_text(text)
 
@@ -481,7 +476,9 @@ async def s3_launch_app(command: str):
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
-        client = DesktopClient(host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900")))
+        client = DesktopClient(
+            host=os.getenv("VNC_HOST", "localhost"), port=int(os.getenv("VNC_PORT", "5900"))
+        )
         await client.connect()
         return await client.launch_application(command)
 

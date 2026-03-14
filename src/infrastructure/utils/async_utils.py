@@ -109,9 +109,7 @@ class ResourceLimiter:
                     )
                 except TimeoutError:
                     self._timeouts += 1
-                    logger.warning(
-                        f"ResourceLimiter '{self._name}' timeout after {self._timeout}s"
-                    )
+                    logger.warning(f"ResourceLimiter '{self._name}' timeout after {self._timeout}s")
                     raise
             else:
                 await self._semaphore.acquire()
@@ -154,11 +152,7 @@ class ResourceLimiter:
 
     def get_stats(self) -> dict[str, Any]:
         """Get limiter statistics."""
-        avg_wait = (
-            self._wait_time_total / self._acquired
-            if self._acquired > 0
-            else 0.0
-        )
+        avg_wait = self._wait_time_total / self._acquired if self._acquired > 0 else 0.0
 
         return {
             "name": self._name,
@@ -360,8 +354,7 @@ class ConcurrentExecutor[T, R]:
         # Process in batches if configured
         if self._batch_size:
             batches = [
-                items[i:i + self._batch_size]
-                for i in range(0, len(items), self._batch_size)
+                items[i : i + self._batch_size] for i in range(0, len(items), self._batch_size)
             ]
         else:
             batches = [items]

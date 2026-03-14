@@ -14,6 +14,7 @@ router = APIRouter()
 
 class DatasetResponse(BaseModel):
     """Dataset response model."""
+
     id: str
     name: str
     description: str | None = None
@@ -27,6 +28,7 @@ class DatasetResponse(BaseModel):
 
 class DatasetsListResponse(BaseModel):
     """Datasets list response."""
+
     datasets: list[DatasetResponse]
     total: int
     page: int
@@ -36,17 +38,14 @@ class DatasetsListResponse(BaseModel):
 @router.get("/health")
 async def health_check():
     """Datasets service health check."""
-    return {
-        "status": "healthy",
-        "service": "datasets"
-    }
+    return {"status": "healthy", "service": "datasets"}
 
 
 @router.get("", response_model=DatasetsListResponse)
 @router.get("/", response_model=DatasetsListResponse)
 async def list_datasets(
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(10, ge=1, le=100, description="Items per page")
+    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
 ):
     """List all datasets.
 
@@ -107,10 +106,7 @@ async def list_datasets(
             )
 
         return DatasetsListResponse(
-            datasets=datasets,
-            total=total_count,
-            page=page,
-            page_size=page_size
+            datasets=datasets, total=total_count, page=page, page_size=page_size
         )
 
     except InfrastructureError as e:
@@ -135,10 +131,7 @@ async def get_dataset(dataset_id: str):
         try:
             dataset_uuid = UUID(dataset_id)
         except ValueError:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid dataset ID format: {dataset_id}"
-            )
+            raise HTTPException(status_code=400, detail=f"Invalid dataset ID format: {dataset_id}")
 
         # Get dataset from repository
         container = get_container()
@@ -162,10 +155,7 @@ async def get_dataset(dataset_id: str):
             status=dataset.status.value,
         )
     except EntityNotFoundError:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Dataset {dataset_id} not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Dataset {dataset_id} not found")
     except HTTPException:
         raise
     except Exception as e:

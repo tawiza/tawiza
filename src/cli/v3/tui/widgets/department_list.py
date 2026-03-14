@@ -18,6 +18,7 @@ from textual.widgets import DataTable, Static
 @dataclass
 class DepartmentData:
     """Data for a single department."""
+
     code: str
     name: str
     growth_rate: float
@@ -88,6 +89,7 @@ class DepartmentList(Static):
 
     class DepartmentSelected(Message):
         """Message when a department is selected."""
+
         def __init__(self, data: DepartmentData):
             super().__init__()
             self.data = data
@@ -105,9 +107,7 @@ class DepartmentList(Static):
     def on_mount(self) -> None:
         """Initialize table columns."""
         if self._table:
-            self._table.add_columns(
-                "Code", "Département", "Croissance", "Entreprises", "Secteur"
-            )
+            self._table.add_columns("Code", "Département", "Croissance", "Entreprises", "Secteur")
 
     def update_department(self, data: DepartmentData) -> None:
         """Update a single department."""
@@ -134,11 +134,7 @@ class DepartmentList(Static):
         self._table.clear()
 
         # Sort by growth rate (descending)
-        sorted_depts = sorted(
-            self._departments.values(),
-            key=lambda d: d.growth_rate,
-            reverse=True
-        )
+        sorted_depts = sorted(self._departments.values(), key=lambda d: d.growth_rate, reverse=True)
 
         for dept in sorted_depts:
             # Format growth with color

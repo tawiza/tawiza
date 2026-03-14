@@ -39,7 +39,7 @@ class VMSandboxAdapter(BaseAgent):
         headless: bool = True,
         max_vms: int = 5,
         vm_timeout: int = 3600,
-        llm_client: Any | None = None
+        llm_client: Any | None = None,
     ) -> None:
         """Initialise l'adaptateur VM Sandbox.
 
@@ -70,10 +70,7 @@ class VMSandboxAdapter(BaseAgent):
         self.active_vms: dict[str, dict[str, Any]] = {}
         self.vm_counter = 0
 
-        logger.info(
-            f"VM Sandbox adapter initialisé "
-            f"(provider={vm_provider}, max_vms={max_vms})"
-        )
+        logger.info(f"VM Sandbox adapter initialisé (provider={vm_provider}, max_vms={max_vms})")
 
     async def create_vm(self, task_id: str, config: dict[str, Any]) -> str:
         """Crée une nouvelle machine virtuelle pour une tâche.
@@ -110,7 +107,7 @@ class VMSandboxAdapter(BaseAgent):
                 "created_at": datetime.now(),
                 "status": "running",
                 "info": vm_info,
-                "config": config
+                "config": config,
             }
 
             logger.info(f"VM {vm_id} créée avec succès")
@@ -139,15 +136,10 @@ class VMSandboxAdapter(BaseAgent):
         disk_path = self.vm_storage_path / f"{vm_id}.qcow2"
 
         # Commande pour créer le disque
-        create_disk_cmd = [
-            "qemu-img", "create", "-f", "qcow2",
-            str(disk_path), disk_size
-        ]
+        create_disk_cmd = ["qemu-img", "create", "-f", "qcow2", str(disk_path), disk_size]
 
         process = await asyncio.create_subprocess_exec(
-            *create_disk_cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            *create_disk_cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
 
         stdout, stderr = await process.communicate()
@@ -159,13 +151,19 @@ class VMSandboxAdapter(BaseAgent):
         qemu_cmd = [
             "qemu-system-x86_64",
             "-enable-kvm",
-            "-m", memory,
-            "-smp", str(cpus),
-            "-drive", f"file={disk_path},format=qcow2",
-            "-netdev", "user,id=net0,hostfwd=tcp::2222-:22",
-            "-device", "virtio-net-pci,netdev=net0",
-            "-vnc", f":{self.vm_counter}",
-            "-daemonize"
+            "-m",
+            memory,
+            "-smp",
+            str(cpus),
+            "-drive",
+            f"file={disk_path},format=qcow2",
+            "-netdev",
+            "user,id=net0,hostfwd=tcp::2222-:22",
+            "-device",
+            "virtio-net-pci,netdev=net0",
+            "-vnc",
+            f":{self.vm_counter}",
+            "-daemonize",
         ]
 
         if self.headless:
@@ -173,9 +171,7 @@ class VMSandboxAdapter(BaseAgent):
 
         # Démarrer la VM
         process = await asyncio.create_subprocess_exec(
-            *qemu_cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            *qemu_cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
 
         stdout, stderr = await process.communicate()
@@ -191,7 +187,7 @@ class VMSandboxAdapter(BaseAgent):
             "cpus": cpus,
             "disk_path": str(disk_path),
             "vnc_port": self.vm_counter - 1,
-            "ssh_port": 2222
+            "ssh_port": 2222,
         }
 
     async def _create_vbox_vm(self, vm_id: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -212,12 +208,7 @@ class VMSandboxAdapter(BaseAgent):
 
         logger.warning("VirtualBox support est conceptuel et nécessite configuration")
 
-        return {
-            "type": "virtualbox",
-            "memory": memory,
-            "cpus": cpus,
-            "status": "conceptual"
-        }
+        return {"type": "virtualbox", "memory": memory, "cpus": cpus, "status": "conceptual"}
 
     async def _create_docker_vm(self, vm_id: str, config: dict[str, Any]) -> dict[str, Any]:
         """Crée un conteneur Docker comme VM légère.
@@ -247,13 +238,8 @@ class VMSandboxAdapter(BaseAgent):
                 mem_limit=memory_limit,
                 cpu_count=cpu_limit,
                 ports={"22/tcp": None, "5900/tcp": None},  # Ports dynamiques
-                volumes={
-                    str(self.vm_storage_path / vm_id): {"bind": "/workspace", "mode": "rw"}
-                },
-                environment={
-                    "DISPLAY": ":99",
-                    "VNC_PORT": "5900"
-                }
+                volumes={str(self.vm_storage_path / vm_id): {"bind": "/workspace", "mode": "rw"}},
+                environment={"DISPLAY": ":99", "VNC_PORT": "5900"},
             )
 
             # Attendre que le conteneur soit prêt
@@ -263,7 +249,7 @@ class VMSandboxAdapter(BaseAgent):
                 "type": "docker",
                 "container_id": container.id,
                 "container_name": container.name,
-                "status": "running"
+                "status": "running",
             }
 
         except Exception as e:
@@ -304,7 +290,7 @@ class VMSandboxAdapter(BaseAgent):
                 "status": "success",
                 "result": result,
                 "screenshots": screenshots,
-                "execution_time": datetime.now() - vm_info["created_at"]
+                "execution_time": datetime.now() - vm_info["created_at"],
             }
 
         except Exception as e:
@@ -325,7 +311,7 @@ class VMSandboxAdapter(BaseAgent):
                 "apt-get update",
                 "apt-get install -y python3 python3-pip wget curl",
                 "pip3 install playwright beautifulsoup4 requests",
-                "playwright install chromium"
+                "playwright install chromium",
             ]
 
             for cmd in setup_commands:
@@ -346,7 +332,9 @@ class VMSandboxAdapter(BaseAgent):
         for cmd in install_commands:
             await self._execute_in_container(vm_id, cmd)
 
-    async def _execute_openmanus_task(self, vm_id: str, task_config: dict[str, Any]) -> dict[str, Any]:
+    async def _execute_openmanus_task(
+        self, vm_id: str, task_config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Exécute une tâche OpenManus dans la VM.
 
         Args:
@@ -381,10 +369,7 @@ if __name__ == "__main__":
         await self._write_file_to_container(vm_id, script_path, task_script)
 
         # Exécuter le script
-        result = await self._execute_in_container(
-            vm_id,
-            f"cd /workspace && python3 {script_path}"
-        )
+        result = await self._execute_in_container(vm_id, f"cd /workspace && python3 {script_path}")
 
         return result
 
@@ -408,7 +393,7 @@ if __name__ == "__main__":
             capture_cmd = f"import pyautogui; pyautogui.screenshot('{screenshot_path}')"
 
             try:
-                await self._execute_in_container(vm_id, f"python3 -c \"{capture_cmd}\"")
+                await self._execute_in_container(vm_id, f'python3 -c "{capture_cmd}"')
                 screenshots.append(screenshot_path)
             except Exception as e:
                 logger.warning(f"Impossible de capturer screenshot: {e}")
@@ -461,8 +446,8 @@ if __name__ == "__main__":
             # Créer un tar avec le fichier
             tar_buffer = io.BytesIO()
 
-            with tarfile.open(fileobj=tar_buffer, mode='w') as tar:
-                file_data = content.encode('utf-8')
+            with tarfile.open(fileobj=tar_buffer, mode="w") as tar:
+                file_data = content.encode("utf-8")
                 file_info = tarfile.TarInfo(name=file_path)
                 file_info.size = len(file_data)
                 file_info.mode = 0o644
@@ -472,7 +457,7 @@ if __name__ == "__main__":
             tar_buffer.seek(0)
 
             # Copier dans le conteneur
-            container.put_archive(path='/', data=tar_buffer.read())
+            container.put_archive(path="/", data=tar_buffer.read())
 
         except Exception as e:
             raise AgentExecutionError(f"Erreur écriture fichier conteneur: {e}")
@@ -574,7 +559,7 @@ if __name__ == "__main__":
             "created_at": vm_info["created_at"].isoformat(),
             "uptime": (datetime.now() - vm_info["created_at"]).total_seconds(),
             "config": vm_info["config"],
-            "runtime_status": status
+            "runtime_status": status,
         }
 
     async def _get_docker_container_status(self, vm_id: str) -> dict[str, Any]:
@@ -597,7 +582,7 @@ if __name__ == "__main__":
                 "image": container.image.tags[0] if container.image.tags else "unknown",
                 "created": container.attrs["Created"],
                 "ports": container.ports,
-                "stats": container.stats(stream=False)
+                "stats": container.stats(stream=False),
             }
 
         except Exception as e:
@@ -636,10 +621,7 @@ if __name__ == "__main__":
 
             # Marquer comme complété
             self._update_progress(task_id, 100, "Tâche complétée")
-            self._update_task(task_id, {
-                "status": TaskStatus.COMPLETED,
-                "result": result
-            })
+            self._update_task(task_id, {"status": TaskStatus.COMPLETED, "result": result})
 
             # Nettoyer la VM si demandé
             if task_config.get("cleanup_vm", True):
@@ -649,13 +631,10 @@ if __name__ == "__main__":
 
         except Exception as e:
             logger.error(f"Tâche {task_id} échouée: {e}")
-            self._update_task(task_id, {
-                "status": TaskStatus.FAILED,
-                "error": str(e)
-            })
+            self._update_task(task_id, {"status": TaskStatus.FAILED, "error": str(e)})
 
             # Nettoyer la VM en cas d'erreur
-            if 'vm_id' in locals():
+            if "vm_id" in locals():
                 await self.destroy_vm(vm_id)
 
             raise AgentExecutionError(f"Exécution tâche échouée: {e}") from e
@@ -684,16 +663,9 @@ async def test_vm_sandbox():
     try:
         # Test création VM et exécution tâche
         task_config = {
-            "vm_config": {
-                "image": "ubuntu:22.04",
-                "memory": "1g",
-                "cpus": 1
-            },
-            "automation_task": {
-                "url": "https://example.com",
-                "action": "navigate"
-            },
-            "cleanup_vm": True
+            "vm_config": {"image": "ubuntu:22.04", "memory": "1g", "cpus": 1},
+            "automation_task": {"url": "https://example.com", "action": "navigate"},
+            "cleanup_vm": True,
         }
 
         result = await adapter.execute_task(task_config)

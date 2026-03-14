@@ -114,7 +114,8 @@ class DVFIngester:
                 if ".csv" in line.lower():
                     # Extract department code from filename
                     import re
-                    match = re.search(r'(\d{2,3})\.csv', line, re.I)
+
+                    match = re.search(r"(\d{2,3})\.csv", line, re.I)
                     if match:
                         departments.append(match.group(1))
 
@@ -124,10 +125,7 @@ class DVFIngester:
             return []
 
     async def download_department(
-        self,
-        year: int,
-        department: str,
-        force: bool = False
+        self, year: int, department: str, force: bool = False
     ) -> Path | None:
         """Télécharge le CSV d'un département.
 
@@ -162,7 +160,7 @@ class DVFIngester:
 
             # Decompress if gzipped
             content = response.content
-            if url.endswith('.gz'):
+            if url.endswith(".gz"):
                 content = gzip.decompress(content)
 
             # Save to disk
@@ -176,9 +174,7 @@ class DVFIngester:
             return None
 
     async def parse_csv(
-        self,
-        file_path: Path,
-        batch_size: int = 1000
+        self, file_path: Path, batch_size: int = 1000
     ) -> AsyncIterator[list[DVFTransaction]]:
         """Parse un CSV DVF en batches.
 
@@ -187,7 +183,7 @@ class DVFIngester:
         """
         transactions = []
 
-        with open(file_path, encoding='utf-8', errors='ignore') as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             reader = csv.DictReader(f)
 
             for row in reader:
@@ -310,7 +306,7 @@ class DVFIngester:
         logger.info(
             f"Ingested DVF {year}/{department}: "
             f"{stats['transactions']:,} transactions, "
-            f"{stats['total_value']/1e9:.2f}B€"
+            f"{stats['total_value'] / 1e9:.2f}B€"
         )
 
         return stats
@@ -358,7 +354,7 @@ class DVFIngester:
 
             logger.info(
                 f"Year {year} complete: {year_stats['transactions']:,} tx, "
-                f"{year_stats['value']/1e9:.2f}B€"
+                f"{year_stats['value'] / 1e9:.2f}B€"
             )
 
         return global_stats
@@ -425,8 +421,10 @@ class DVFIngester:
             if type_stats["count"] > 0:
                 avg_price = type_stats["value"] / type_stats["count"]
                 indicator = (
-                    IndicatorType.DVF_PRICE_M2_APT if "Appartement" in type_key
-                    else IndicatorType.DVF_PRICE_M2_HOUSE if "Maison" in type_key
+                    IndicatorType.DVF_PRICE_M2_APT
+                    if "Appartement" in type_key
+                    else IndicatorType.DVF_PRICE_M2_HOUSE
+                    if "Maison" in type_key
                     else None
                 )
                 if indicator:
@@ -455,7 +453,7 @@ async def test_dvf_ingestion():
         stats = await ingester.ingest_department(2024, "69")
         print("\nDVF 2024/69 Stats:")
         print(f"  Transactions: {stats['transactions']:,}")
-        print(f"  Total value: {stats['total_value']/1e9:.2f}B€")
+        print(f"  Total value: {stats['total_value'] / 1e9:.2f}B€")
         print(f"  By type: {stats['by_type']}")
 
 

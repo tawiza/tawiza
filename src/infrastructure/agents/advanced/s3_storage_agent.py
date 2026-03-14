@@ -19,6 +19,7 @@ try:
     from minio import Minio
     from minio.commonconfig import Tags
     from minio.error import S3Error
+
     MINIO_AVAILABLE = True
 except ImportError:
     MINIO_AVAILABLE = False
@@ -28,6 +29,7 @@ except ImportError:
 @dataclass
 class S3Object:
     """Représentation d'un objet S3"""
+
     bucket: str
     key: str
     size: int
@@ -41,6 +43,7 @@ class S3Object:
 @dataclass
 class BucketInfo:
     """Informations sur un bucket S3"""
+
     name: str
     creation_date: datetime
     object_count: int = 0
@@ -51,6 +54,7 @@ class BucketInfo:
 @dataclass
 class UploadResult:
     """Résultat d'un upload"""
+
     success: bool
     bucket: str
     key: str
@@ -64,6 +68,7 @@ class UploadResult:
 @dataclass
 class StorageAnalytics:
     """Analytics de stockage"""
+
     total_buckets: int
     total_objects: int
     total_size_bytes: int
@@ -85,7 +90,7 @@ class S3StorageAgent:
         access_key: str = None,
         secret_key: str = None,
         secure: bool = False,
-        region: str = "us-east-1"
+        region: str = "us-east-1",
     ):
         """Initialiser l'agent S3
 
@@ -105,7 +110,7 @@ class S3StorageAgent:
             "file_sync",
             "storage_analytics",
             "lifecycle_management",
-            "presigned_urls"
+            "presigned_urls",
         ]
 
         # Configuration depuis variables d'environnement si non fournie
@@ -134,7 +139,7 @@ class S3StorageAgent:
                 self.endpoint,
                 access_key=self.access_key,
                 secret_key=self.secret_key,
-                secure=self.secure
+                secure=self.secure,
             )
             # Test de connexion
             list(self.client.list_buckets())
@@ -163,10 +168,7 @@ class S3StorageAgent:
             buckets = self.client.list_buckets()
             result = []
             for bucket in buckets:
-                info = BucketInfo(
-                    name=bucket.name,
-                    creation_date=bucket.creation_date
-                )
+                info = BucketInfo(name=bucket.name, creation_date=bucket.creation_date)
                 result.append(info)
             logger.info(f"Found {len(result)} buckets")
             return result
@@ -221,15 +223,12 @@ class S3StorageAgent:
         object_name: str,
         file_path: str,
         content_type: str = None,
-        metadata: dict[str, str] = None
+        metadata: dict[str, str] = None,
     ) -> UploadResult:
         """Uploader un fichier vers S3"""
         if not await self.ensure_connected():
             return UploadResult(
-                success=False,
-                bucket=bucket_name,
-                key=object_name,
-                error="Not connected to S3"
+                success=False, bucket=bucket_name, key=object_name, error="Not connected to S3"
             )
 
         try:
@@ -243,17 +242,15 @@ class S3StorageAgent:
 
             # Upload
             result = self.client.fput_object(
-                bucket_name,
-                object_name,
-                file_path,
-                content_type=content_type,
-                metadata=metadata
+                bucket_name, object_name, file_path, content_type=content_type, metadata=metadata
             )
 
             file_size = Path(file_path).stat().st_size
             url = f"http://{self.endpoint}/{bucket_name}/{object_name}"
 
-            logger.info(f"📤 Uploaded {object_name} to {bucket_name} ({self._human_size(file_size)})")
+            logger.info(
+                f"📤 Uploaded {object_name} to {bucket_name} ({self._human_size(file_size)})"
+            )
 
             return UploadResult(
                 success=True,
@@ -262,16 +259,11 @@ class S3StorageAgent:
                 etag=result.etag,
                 version_id=result.version_id,
                 size=file_size,
-                url=url
+                url=url,
             )
         except Exception as e:
             logger.error(f"Error uploading {file_path}: {e}")
-            return UploadResult(
-                success=False,
-                bucket=bucket_name,
-                key=object_name,
-                error=str(e)
-            )
+            return UploadResult(success=False, bucket=bucket_name, key=object_name, error=str(e))
 
     async def upload_bytes(
         self,
@@ -279,15 +271,12 @@ class S3StorageAgent:
         object_name: str,
         data: bytes,
         content_type: str = "application/octet-stream",
-        metadata: dict[str, str] = None
+        metadata: dict[str, str] = None,
     ) -> UploadResult:
         """Uploader des bytes directement vers S3"""
         if not await self.ensure_connected():
             return UploadResult(
-                success=False,
-                bucket=bucket_name,
-                key=object_name,
-                error="Not connected to S3"
+                success=False, bucket=bucket_name, key=object_name, error="Not connected to S3"
             )
 
         try:
@@ -300,7 +289,7 @@ class S3StorageAgent:
                 data_stream,
                 length=len(data),
                 content_type=content_type,
-                metadata=metadata
+                metadata=metadata,
             )
 
             logger.info(f"📤 Uploaded {object_name} ({self._human_size(len(data))})")
@@ -312,22 +301,14 @@ class S3StorageAgent:
                 etag=result.etag,
                 version_id=result.version_id,
                 size=len(data),
-                url=f"http://{self.endpoint}/{bucket_name}/{object_name}"
+                url=f"http://{self.endpoint}/{bucket_name}/{object_name}",
             )
         except Exception as e:
             logger.error(f"Error uploading bytes: {e}")
-            return UploadResult(
-                success=False,
-                bucket=bucket_name,
-                key=object_name,
-                error=str(e)
-            )
+            return UploadResult(success=False, bucket=bucket_name, key=object_name, error=str(e))
 
     async def download_file(
-        self,
-        bucket_name: str,
-        object_name: str,
-        destination_path: str
+        self, bucket_name: str, object_name: str, destination_path: str
     ) -> bool:
         """Télécharger un fichier depuis S3"""
         if not await self.ensure_connected():
@@ -341,11 +322,7 @@ class S3StorageAgent:
             logger.error(f"Error downloading {object_name}: {e}")
             return False
 
-    async def download_bytes(
-        self,
-        bucket_name: str,
-        object_name: str
-    ) -> bytes | None:
+    async def download_bytes(self, bucket_name: str, object_name: str) -> bytes | None:
         """Télécharger un fichier en bytes"""
         if not await self.ensure_connected():
             return None
@@ -393,22 +370,14 @@ class S3StorageAgent:
     # ==================== LISTING & SEARCH ====================
 
     async def list_objects(
-        self,
-        bucket_name: str,
-        prefix: str = "",
-        recursive: bool = True,
-        max_keys: int = 1000
+        self, bucket_name: str, prefix: str = "", recursive: bool = True, max_keys: int = 1000
     ) -> list[S3Object]:
         """Lister les objets d'un bucket"""
         if not await self.ensure_connected():
             return []
 
         try:
-            objects = self.client.list_objects(
-                bucket_name,
-                prefix=prefix,
-                recursive=recursive
-            )
+            objects = self.client.list_objects(bucket_name, prefix=prefix, recursive=recursive)
 
             result = []
             for obj in objects:
@@ -421,7 +390,7 @@ class S3StorageAgent:
                     size=obj.size or 0,
                     last_modified=obj.last_modified,
                     etag=obj.etag or "",
-                    content_type=obj.content_type or "application/octet-stream"
+                    content_type=obj.content_type or "application/octet-stream",
                 )
                 result.append(s3_obj)
 
@@ -432,10 +401,7 @@ class S3StorageAgent:
             return []
 
     async def search_objects(
-        self,
-        bucket_name: str,
-        pattern: str,
-        content_type: str = None
+        self, bucket_name: str, pattern: str, content_type: str = None
     ) -> list[S3Object]:
         """Rechercher des objets par pattern dans le nom"""
         import fnmatch
@@ -454,10 +420,7 @@ class S3StorageAgent:
     # ==================== PRESIGNED URLs ====================
 
     async def get_presigned_url(
-        self,
-        bucket_name: str,
-        object_name: str,
-        expires: int = 3600
+        self, bucket_name: str, object_name: str, expires: int = 3600
     ) -> str | None:
         """Générer une URL présignée pour téléchargement"""
         if not await self.ensure_connected():
@@ -465,9 +428,7 @@ class S3StorageAgent:
 
         try:
             url = self.client.presigned_get_object(
-                bucket_name,
-                object_name,
-                expires=timedelta(seconds=expires)
+                bucket_name, object_name, expires=timedelta(seconds=expires)
             )
             logger.info(f"🔗 Generated presigned URL for {object_name}")
             return url
@@ -476,10 +437,7 @@ class S3StorageAgent:
             return None
 
     async def get_upload_url(
-        self,
-        bucket_name: str,
-        object_name: str,
-        expires: int = 3600
+        self, bucket_name: str, object_name: str, expires: int = 3600
     ) -> str | None:
         """Générer une URL présignée pour upload"""
         if not await self.ensure_connected():
@@ -488,9 +446,7 @@ class S3StorageAgent:
         try:
             await self.create_bucket(bucket_name)
             url = self.client.presigned_put_object(
-                bucket_name,
-                object_name,
-                expires=timedelta(seconds=expires)
+                bucket_name, object_name, expires=timedelta(seconds=expires)
             )
             logger.info(f"🔗 Generated presigned upload URL for {object_name}")
             return url
@@ -501,11 +457,7 @@ class S3StorageAgent:
     # ==================== SYNC OPERATIONS ====================
 
     async def sync_directory(
-        self,
-        local_dir: str,
-        bucket_name: str,
-        prefix: str = "",
-        delete: bool = False
+        self, local_dir: str, bucket_name: str, prefix: str = "", delete: bool = False
     ) -> dict[str, Any]:
         """Synchroniser un répertoire local avec S3"""
         if not await self.ensure_connected():
@@ -517,12 +469,7 @@ class S3StorageAgent:
 
         await self.create_bucket(bucket_name)
 
-        stats = {
-            "uploaded": 0,
-            "skipped": 0,
-            "deleted": 0,
-            "errors": []
-        }
+        stats = {"uploaded": 0, "skipped": 0, "deleted": 0, "errors": []}
 
         # Collecter les fichiers locaux
         local_files = {}
@@ -565,7 +512,9 @@ class S3StorageAgent:
                     if await self.delete_object(bucket_name, remote_key):
                         stats["deleted"] += 1
 
-        logger.info(f"📁 Sync complete: {stats['uploaded']} uploaded, {stats['skipped']} skipped, {stats['deleted']} deleted")
+        logger.info(
+            f"📁 Sync complete: {stats['uploaded']} uploaded, {stats['skipped']} skipped, {stats['deleted']} deleted"
+        )
         return {"success": True, **stats}
 
     # ==================== ANALYTICS ====================
@@ -619,7 +568,7 @@ class S3StorageAgent:
             largest_objects=largest,
             oldest_objects=oldest,
             recent_objects=recent,
-            generated_at=datetime.utcnow().isoformat()
+            generated_at=datetime.utcnow().isoformat(),
         )
 
     # ==================== UTILITY METHODS ====================
@@ -645,11 +594,7 @@ class S3StorageAgent:
         connected = await self.ensure_connected()
 
         if not connected:
-            return {
-                "status": "unhealthy",
-                "connected": False,
-                "endpoint": self.endpoint
-            }
+            return {"status": "unhealthy", "connected": False, "endpoint": self.endpoint}
 
         try:
             buckets = list(self.client.list_buckets())
@@ -657,14 +602,14 @@ class S3StorageAgent:
                 "status": "healthy",
                 "connected": True,
                 "endpoint": self.endpoint,
-                "bucket_count": len(buckets)
+                "bucket_count": len(buckets),
             }
         except Exception as e:
             return {
                 "status": "unhealthy",
                 "connected": False,
                 "endpoint": self.endpoint,
-                "error": str(e)
+                "error": str(e),
             }
 
     async def close(self):
@@ -676,6 +621,7 @@ class S3StorageAgent:
 
 # Singleton instance
 _s3_agent: S3StorageAgent | None = None
+
 
 def get_s3_agent() -> S3StorageAgent:
     """Obtenir l'instance singleton de l'agent S3"""

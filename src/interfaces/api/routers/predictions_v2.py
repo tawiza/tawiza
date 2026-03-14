@@ -134,8 +134,7 @@ async def predict(
             ollama_service.register_model(str(model.id), ollama_model)
 
         logger.info(
-            f"Making prediction with Ollama model: {ollama_model} "
-            f"(prediction_id: {prediction_id})"
+            f"Making prediction with Ollama model: {ollama_model} (prediction_id: {prediction_id})"
         )
 
         # 3. Generate prediction using Ollama

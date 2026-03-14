@@ -181,20 +181,19 @@ def register_dashboard_resources(mcp: FastMCP) -> None:
             else:
                 time_ago = "?"
 
-            latest.append({
-                "id": alert["id"],
-                "source": alert["source"],
-                "type": alert["type"],
-                "title": alert["title"][:80],
-                "time": time_ago,
-            })
+            latest.append(
+                {
+                    "id": alert["id"],
+                    "source": alert["source"],
+                    "type": alert["type"],
+                    "title": alert["title"][:80],
+                    "time": time_ago,
+                }
+            )
 
         result = {
             "unread_count": alert_counts["total_unread"],
-            "by_source": {
-                src: info["unread"]
-                for src, info in alert_counts["by_source"].items()
-            },
+            "by_source": {src: info["unread"] for src, info in alert_counts["by_source"].items()},
             "latest": latest,
         }
 
@@ -233,14 +232,16 @@ def register_dashboard_resources(mcp: FastMCP) -> None:
             else:
                 time_str = "unknown"
 
-            analyses.append({
-                "id": analysis["id"],
-                "query": analysis["query"][:60],
-                "results_count": analysis["results_count"],
-                "confidence": analysis.get("confidence"),
-                "sources": analysis.get("sources_used", []),
-                "time": time_str,
-            })
+            analyses.append(
+                {
+                    "id": analysis["id"],
+                    "query": analysis["query"][:60],
+                    "results_count": analysis["results_count"],
+                    "confidence": analysis.get("confidence"),
+                    "sources": analysis.get("sources_used", []),
+                    "time": time_str,
+                }
+            )
 
         # Get total count
         count_stats = db.get_analyses_count(days=30)
@@ -263,6 +264,7 @@ def register_dashboard_resources(mcp: FastMCP) -> None:
 
         # Get stats using sync method
         from ...dashboard.stats import StatsCalculator
+
         calc = StatsCalculator(db)
         stats = calc.get_full_stats(days=7)
 

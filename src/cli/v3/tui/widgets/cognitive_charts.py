@@ -18,6 +18,7 @@ from textual_plotext import PlotextPlot
 @dataclass
 class CognitiveLevelResult:
     """Result from a cognitive level."""
+
     name: str
     confidence: float
     processing_time: float = 0.0
@@ -129,8 +130,10 @@ class CognitiveLevelsWidget(Static):
                     findings = [s.get("description", str(s)) for s in signals[:3]]
                 elif level_key == "causal":
                     causes = level_data.get("causes", [])
-                    findings = [f"{c.get('factor', 'unknown')}: {c.get('contribution', 0):.0%}"
-                               for c in causes[:3]]
+                    findings = [
+                        f"{c.get('factor', 'unknown')}: {c.get('contribution', 0):.0%}"
+                        for c in causes[:3]
+                    ]
                 elif level_key == "scenario":
                     findings = [
                         f"Optimiste: {level_data.get('optimistic', {}).get('growth_rate', 0):.1%}",
@@ -148,7 +151,7 @@ class CognitiveLevelsWidget(Static):
                     name=self.LEVEL_NAMES.get(level_key, level_key),
                     confidence=confidence,
                     method=method,
-                    key_findings=findings
+                    key_findings=findings,
                 )
 
         self._active_level = None
@@ -183,7 +186,7 @@ class MonteCarloChart(PlotextPlot):
         bins: list[float],
         counts: list[int],
         percentiles: dict[int, float] | None = None,
-        mean: float = 0.0
+        mean: float = 0.0,
     ) -> None:
         """Update the distribution data."""
         self._bins = bins
@@ -262,7 +265,7 @@ class TimeSeriesChart(PlotextPlot):
         months: list[int],
         mean_path: list[float],
         lower_bound: list[float] | None = None,
-        upper_bound: list[float] | None = None
+        upper_bound: list[float] | None = None,
     ) -> None:
         """Update the time series projection."""
         self._months = months
@@ -290,16 +293,17 @@ class TimeSeriesChart(PlotextPlot):
         if self._months and self._mean_path:
             # Plot bounds as fill area (using two lines)
             if self._upper_bound:
-                plt.plot(self._months, self._upper_bound, color="green",
-                        marker="braille", label="P90")
+                plt.plot(
+                    self._months, self._upper_bound, color="green", marker="braille", label="P90"
+                )
 
             if self._lower_bound:
-                plt.plot(self._months, self._lower_bound, color="red",
-                        marker="braille", label="P10")
+                plt.plot(
+                    self._months, self._lower_bound, color="red", marker="braille", label="P10"
+                )
 
             # Plot mean path
-            plt.plot(self._months, self._mean_path, color="cyan",
-                    marker="braille", label="Mean")
+            plt.plot(self._months, self._mean_path, color="cyan", marker="braille", label="Mean")
 
             plt.title(self._title)
             plt.xlabel("Mois")
@@ -343,7 +347,7 @@ class RegionalHeatmap(PlotextPlot):
             "OCC": "Occitanie",
             "PAC": "PACA",
             "COR": "Corse",
-        }
+        },
     }
 
     def __init__(self, title: str = "Carte Régionale", **kwargs):
@@ -386,11 +390,16 @@ class RegionalHeatmap(PlotextPlot):
     def _territory_to_code(self, territory: str) -> str | None:
         """Map territory name to region code."""
         mappings = {
-            "paris": "IDF", "ile-de-france": "IDF",
-            "lyon": "ARA", "marseille": "PAC",
-            "toulouse": "OCC", "bordeaux": "NAQ",
-            "lille": "HDF", "nantes": "PDL",
-            "strasbourg": "GES", "rennes": "BRE",
+            "paris": "IDF",
+            "ile-de-france": "IDF",
+            "lyon": "ARA",
+            "marseille": "PAC",
+            "toulouse": "OCC",
+            "bordeaux": "NAQ",
+            "lille": "HDF",
+            "nantes": "PDL",
+            "strasbourg": "GES",
+            "rennes": "BRE",
         }
         for key, code in mappings.items():
             if key in territory.lower():
@@ -487,11 +496,7 @@ class ConfidenceGauge(Static):
         empty = 10 - filled
         bar = "█" * filled + "░" * empty
 
-        return (
-            f"[bold]{self._label}[/]\n"
-            f"[{color}]{bar}[/]\n"
-            f"[{color}]{icon} {pct}%[/]"
-        )
+        return f"[bold]{self._label}[/]\n[{color}]{bar}[/]\n[{color}]{icon} {pct}%[/]"
 
     def update_confidence(self, value: float) -> None:
         """Update the confidence value."""

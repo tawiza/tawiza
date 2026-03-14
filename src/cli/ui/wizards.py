@@ -19,9 +19,11 @@ console = Console()
 
 # ===== WIZARD BASE CLASS =====
 
+
 @dataclass
 class WizardStep:
     """Étape d'un wizard"""
+
     name: str
     title: str
     description: str
@@ -43,20 +45,22 @@ class Wizard:
         console.clear()
         progress = f"Step {self.current_step + 1}/{len(self.steps)}"
 
-        console.print(Panel(
-            f"[bold cyan]{self.title}[/]\n"
-            f"[dim]{progress}[/]",
-            border_style="cyan",
-            box=box.DOUBLE
-        ))
+        console.print(
+            Panel(
+                f"[bold cyan]{self.title}[/]\n[dim]{progress}[/]",
+                border_style="cyan",
+                box=box.DOUBLE,
+            )
+        )
         console.print()
 
-        console.print(Panel(
-            f"[bold]{step.title}[/]\n"
-            f"[dim]{step.description}[/]",
-            border_style="cyan",
-            box=box.ROUNDED
-        ))
+        console.print(
+            Panel(
+                f"[bold]{step.title}[/]\n[dim]{step.description}[/]",
+                border_style="cyan",
+                box=box.ROUNDED,
+            )
+        )
         console.print()
 
     def run_step(self, step: WizardStep) -> dict[str, Any]:
@@ -68,9 +72,7 @@ class Wizard:
         for field in step.fields:
             if field.field_type == "text":
                 value = InteractivePrompt.text(
-                    field.question,
-                    default=str(field.default or ""),
-                    validate=field.validate
+                    field.question, default=str(field.default or ""), validate=field.validate
                 )
 
             elif field.field_type == "integer":
@@ -78,7 +80,7 @@ class Wizard:
                     field.question,
                     default=field.default,
                     min_value=field.min_value,
-                    max_value=field.max_value
+                    max_value=field.max_value,
                 )
 
             elif field.field_type == "number":
@@ -86,28 +88,21 @@ class Wizard:
                     field.question,
                     default=field.default,
                     min_value=field.min_value,
-                    max_value=field.max_value
+                    max_value=field.max_value,
                 )
 
             elif field.field_type == "select":
                 value = InteractiveMenu.select(
-                    field.question,
-                    choices=field.choices or [],
-                    default=field.default
+                    field.question, choices=field.choices or [], default=field.default
                 )
 
             elif field.field_type == "multi_select":
                 value = InteractiveMenu.multi_select(
-                    field.question,
-                    choices=field.choices or [],
-                    default=field.default
+                    field.question, choices=field.choices or [], default=field.default
                 )
 
             elif field.field_type == "confirm":
-                value = InteractivePrompt.confirm(
-                    field.question,
-                    default=field.default or False
-                )
+                value = InteractivePrompt.confirm(field.question, default=field.default or False)
 
             step_results[field.name] = value
 
@@ -116,12 +111,13 @@ class Wizard:
     def show_summary(self):
         """Afficher le résumé de configuration"""
         console.clear()
-        console.print(Panel(
-            f"[bold cyan]{self.title}[/]\n"
-            f"[bold green]Configuration Summary[/]",
-            border_style="green",
-            box=box.DOUBLE
-        ))
+        console.print(
+            Panel(
+                f"[bold cyan]{self.title}[/]\n[bold green]Configuration Summary[/]",
+                border_style="green",
+                box=box.DOUBLE,
+            )
+        )
         console.print()
 
         table = Table(title="Configuration", box=box.ROUNDED)
@@ -163,6 +159,7 @@ class Wizard:
 
 # ===== WIZARD PRÉDÉFINIS =====
 
+
 def setup_wizard() -> dict[str, Any]:
     """Wizard de configuration initiale du système"""
     steps = [
@@ -177,18 +174,17 @@ def setup_wizard() -> dict[str, Any]:
                     field_type="text",
                     default="Tawiza-V2",
                     validate=ValidationRule(
-                        validator=lambda x: len(x) > 0,
-                        error_message="Project name cannot be empty"
-                    )
+                        validator=lambda x: len(x) > 0, error_message="Project name cannot be empty"
+                    ),
                 ),
                 FormField(
                     name="theme",
                     question="Select theme:",
                     field_type="select",
                     choices=["🌅 Sunset", "🌊 Ocean", "🌲 Forest", "⚡ Neon", "🌙 Midnight"],
-                    default="🌅 Sunset"
+                    default="🌅 Sunset",
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="performance",
@@ -201,7 +197,7 @@ def setup_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=4,
                     min_value=1,
-                    max_value=16
+                    max_value=16,
                 ),
                 FormField(
                     name="cache_size",
@@ -209,15 +205,15 @@ def setup_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=1000,
                     min_value=100,
-                    max_value=10000
+                    max_value=10000,
                 ),
                 FormField(
                     name="enable_gpu",
                     question="Enable GPU optimization?",
                     field_type="confirm",
-                    default=True
+                    default=True,
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="features",
@@ -228,16 +224,10 @@ def setup_wizard() -> dict[str, Any]:
                     name="features",
                     question="Select features to enable:",
                     field_type="multi_select",
-                    choices=[
-                        "Smart Cache",
-                        "Auto-retry",
-                        "Monitoring",
-                        "Logging",
-                        "Benchmarking"
-                    ],
-                    default=["Smart Cache", "Monitoring"]
+                    choices=["Smart Cache", "Auto-retry", "Monitoring", "Logging", "Benchmarking"],
+                    default=["Smart Cache", "Monitoring"],
                 ),
-            ]
+            ],
         ),
     ]
 
@@ -262,10 +252,10 @@ def agent_configuration_wizard() -> dict[str, Any]:
                         "📊 Data Analyst",
                         "🔍 Code Reviewer",
                         "⚡ Optimizer",
-                        "📝 Documentation Writer"
-                    ]
+                        "📝 Documentation Writer",
+                    ],
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="agent_config",
@@ -277,7 +267,7 @@ def agent_configuration_wizard() -> dict[str, Any]:
                     question="Default priority:",
                     field_type="select",
                     choices=["Low", "Normal", "High", "Critical"],
-                    default="Normal"
+                    default="Normal",
                 ),
                 FormField(
                     name="max_retries",
@@ -285,7 +275,7 @@ def agent_configuration_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=3,
                     min_value=0,
-                    max_value=10
+                    max_value=10,
                 ),
                 FormField(
                     name="timeout",
@@ -293,15 +283,15 @@ def agent_configuration_wizard() -> dict[str, Any]:
                     field_type="number",
                     default=300.0,
                     min_value=10.0,
-                    max_value=3600.0
+                    max_value=3600.0,
                 ),
                 FormField(
                     name="enable_cache",
                     question="Enable caching for this agent?",
                     field_type="confirm",
-                    default=True
+                    default=True,
                 ),
-            ]
+            ],
         ),
     ]
 
@@ -325,10 +315,10 @@ def model_selection_wizard() -> dict[str, Any]:
                         "Large Language Model (LLM)",
                         "Computer Vision",
                         "Speech Recognition",
-                        "Multimodal"
-                    ]
+                        "Multimodal",
+                    ],
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="model_selection",
@@ -339,21 +329,16 @@ def model_selection_wizard() -> dict[str, Any]:
                     name="model_name",
                     question="Select model:",
                     field_type="select",
-                    choices=[
-                        "Qwen-Coder-7B",
-                        "Llama-3.1-8B",
-                        "Mistral-7B",
-                        "Gemma-7B"
-                    ]
+                    choices=["Qwen-Coder-7B", "Llama-3.1-8B", "Mistral-7B", "Gemma-7B"],
                 ),
                 FormField(
                     name="quantization",
                     question="Quantization:",
                     field_type="select",
                     choices=["None (FP16)", "8-bit", "4-bit"],
-                    default="None (FP16)"
+                    default="None (FP16)",
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="deployment",
@@ -366,7 +351,7 @@ def model_selection_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=8,
                     min_value=1,
-                    max_value=128
+                    max_value=128,
                 ),
                 FormField(
                     name="max_length",
@@ -374,15 +359,15 @@ def model_selection_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=2048,
                     min_value=128,
-                    max_value=8192
+                    max_value=8192,
                 ),
                 FormField(
                     name="use_flash_attention",
                     question="Use Flash Attention?",
                     field_type="confirm",
-                    default=True
+                    default=True,
                 ),
-            ]
+            ],
         ),
     ]
 
@@ -407,10 +392,10 @@ def performance_tuning_wizard() -> dict[str, Any]:
                         "Latency",
                         "Memory Usage",
                         "GPU Utilization",
-                        "Cache Hit Rate"
-                    ]
+                        "Cache Hit Rate",
+                    ],
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="settings",
@@ -423,7 +408,7 @@ def performance_tuning_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=4,
                     min_value=1,
-                    max_value=32
+                    max_value=32,
                 ),
                 FormField(
                     name="queue_size",
@@ -431,16 +416,16 @@ def performance_tuning_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=1000,
                     min_value=100,
-                    max_value=10000
+                    max_value=10000,
                 ),
                 FormField(
                     name="cache_strategy",
                     question="Cache strategy:",
                     field_type="select",
                     choices=["LRU", "LFU", "FIFO", "Smart"],
-                    default="Smart"
+                    default="Smart",
                 ),
-            ]
+            ],
         ),
         WizardStep(
             name="monitoring",
@@ -451,7 +436,7 @@ def performance_tuning_wizard() -> dict[str, Any]:
                     name="enable_monitoring",
                     question="Enable real-time monitoring?",
                     field_type="confirm",
-                    default=True
+                    default=True,
                 ),
                 FormField(
                     name="alert_threshold",
@@ -459,16 +444,16 @@ def performance_tuning_wizard() -> dict[str, Any]:
                     field_type="integer",
                     default=90,
                     min_value=50,
-                    max_value=100
+                    max_value=100,
                 ),
                 FormField(
                     name="log_level",
                     question="Log level:",
                     field_type="select",
                     choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-                    default="INFO"
+                    default="INFO",
                 ),
-            ]
+            ],
         ),
     ]
 
@@ -480,12 +465,13 @@ def performance_tuning_wizard() -> dict[str, Any]:
 
 if __name__ == "__main__":
     console.clear()
-    console.print(Panel(
-        "[bold cyan]Wizards Demo[/]\n"
-        "[dim]Multi-step configuration wizards[/]",
-        border_style="cyan",
-        box=box.DOUBLE
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]Wizards Demo[/]\n[dim]Multi-step configuration wizards[/]",
+            border_style="cyan",
+            box=box.DOUBLE,
+        )
+    )
     console.print()
 
     # Choose wizard
@@ -496,8 +482,8 @@ if __name__ == "__main__":
             "🤖 Agent Configuration",
             "🎯 Model Selection",
             "⚡ Performance Tuning",
-            "❌ Exit"
-        ]
+            "❌ Exit",
+        ],
     )
 
     if wizard_choice == "❌ Exit":

@@ -1,6 +1,5 @@
 """Centralized keybindings configuration for Tawiza TUI."""
 
-
 from textual.binding import Binding
 
 # =============================================================================
@@ -13,7 +12,6 @@ APP_BINDINGS: list[Binding] = [
     Binding("escape", "back", "Back", show=False),
     Binding("?", "show_help", "Help", show=True),
     Binding("h", "show_help", "Help", show=False),
-
     # Screen switching
     Binding("d", "switch_screen('dashboard')", "Dashboard", show=True),
     Binding("1", "switch_screen('dashboard')", "Dashboard", show=False),
@@ -25,12 +23,10 @@ APP_BINDINGS: list[Binding] = [
     Binding("4", "switch_screen('services')", "Services", show=False),
     Binding("l", "switch_screen('logs')", "Logs", show=True),
     Binding("5", "switch_screen('logs')", "Logs", show=False),
-
     # Actions
     Binding("r", "refresh", "Refresh", show=True),
     Binding("f5", "refresh", "Refresh", show=False),
     Binding("g", "toggle_gpu_details", "GPU Details", show=False),
-
     # Navigation within screens
     Binding("tab", "focus_next", "Next", show=False),
     Binding("shift+tab", "focus_previous", "Previous", show=False),

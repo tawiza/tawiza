@@ -125,7 +125,9 @@ class BODACCIngester:
 
                     try:
                         date_str = fields.get("dateparution", "")
-                        date_parution = datetime.strptime(date_str, "%Y-%m-%d") if date_str else datetime.now()
+                        date_parution = (
+                            datetime.strptime(date_str, "%Y-%m-%d") if date_str else datetime.now()
+                        )
 
                         ann = BODACCAnnouncement(
                             id=record.get("recordid", ""),
@@ -134,7 +136,9 @@ class BODACCIngester:
                             famille=fields.get("familleavis", ""),
                             departement=fields.get("departement_nom_officiel", department),
                             siren=fields.get("numeroidentification", ""),
-                            nom_entreprise=fields.get("nomcommercial", fields.get("raisonsociale", "")),
+                            nom_entreprise=fields.get(
+                                "nomcommercial", fields.get("raisonsociale", "")
+                            ),
                             ville=fields.get("ville", ""),
                         )
                         announcements.append(ann)
@@ -165,9 +169,7 @@ class BODACCIngester:
         Returns:
             Dict {YYYY-MM: {type: count}}
         """
-        announcements = await self.fetch_by_department(
-            department, start_date, end_date
-        )
+        announcements = await self.fetch_by_department(department, start_date, end_date)
 
         monthly: dict[str, dict[str, int]] = {}
 
@@ -209,7 +211,9 @@ async def test_bodacc():
 
         print("\nBODACC Rhône (69) 2023-2024:")
         for period, counts in sorted(monthly.items()):
-            print(f"  {period}: {counts['total']} total, {counts['procedures']} proc, {counts['liquidations']} LJ")
+            print(
+                f"  {period}: {counts['total']} total, {counts['procedures']} proc, {counts['liquidations']} LJ"
+            )
 
 
 if __name__ == "__main__":

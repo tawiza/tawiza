@@ -25,6 +25,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("cache clear", 40))
 
         from src.cli.v2.utils.config import get_cache_dir
+
         cache_dir = get_cache_dir()
 
         if not cache_dir.exists() or not any(cache_dir.iterdir()):
@@ -62,6 +63,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("cache info", 40))
 
         from src.cli.v2.utils.config import get_cache_dir
+
         cache_dir = get_cache_dir()
 
         if not cache_dir.exists():
@@ -83,9 +85,7 @@ def register(app: typer.Typer) -> None:
         if file_count > 0:
             console.print("  [bold]Largest files:[/]")
             sorted_files = sorted(
-                [f for f in files if f.is_file()],
-                key=lambda f: f.stat().st_size,
-                reverse=True
+                [f for f in files if f.is_file()], key=lambda f: f.stat().st_size, reverse=True
             )[:5]
 
             for f in sorted_files:
@@ -101,6 +101,7 @@ def register(app: typer.Typer) -> None:
 
         try:
             from src.core.constants import APP_VERSION
+
             current_version = APP_VERSION
         except ImportError:
             current_version = "2.0.0"
@@ -111,6 +112,7 @@ def register(app: typer.Typer) -> None:
         with create_spinner("Checking for updates...", "dots"):
             # Simulate update check
             import time
+
             time.sleep(1)
 
             # In a real implementation, this would check PyPI or GitHub
@@ -121,10 +123,9 @@ def register(app: typer.Typer) -> None:
             console.print(msg.success("You're up to date!"))
         else:
             msg = MessageBox()
-            console.print(msg.info(
-                f"Update available: {latest_version}",
-                "Run: pip install --upgrade tawiza"
-            ))
+            console.print(
+                msg.info(f"Update available: {latest_version}", "Run: pip install --upgrade tawiza")
+            )
 
         console.print(footer(40))
 
@@ -138,6 +139,7 @@ def register(app: typer.Typer) -> None:
 
         # Check Python version
         import sys
+
         py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
         py_ok = sys.version_info >= (3, 11)
         checks.append(("Python", py_version, "ok" if py_ok else "warn"))
@@ -145,32 +147,35 @@ def register(app: typer.Typer) -> None:
         # Check Ollama
         try:
             import subprocess
+
             result = subprocess.run(
-                ["curl", "-s", "http://localhost:11434/api/tags"],
-                capture_output=True, timeout=5
+                ["curl", "-s", "http://localhost:11434/api/tags"], capture_output=True, timeout=5
             )
             ollama_ok = result.returncode == 0
-            checks.append(("Ollama", "running" if ollama_ok else "not running", "ok" if ollama_ok else "warn"))
+            checks.append(
+                ("Ollama", "running" if ollama_ok else "not running", "ok" if ollama_ok else "warn")
+            )
         except Exception:
             checks.append(("Ollama", "unavailable", "err"))
 
         # Check GPU
         try:
             import subprocess
-            result = subprocess.run(
-                ["rocm-smi", "--showid"],
-                capture_output=True, timeout=5
-            )
+
+            result = subprocess.run(["rocm-smi", "--showid"], capture_output=True, timeout=5)
             gpu_ok = result.returncode == 0
-            checks.append(("GPU (ROCm)", "detected" if gpu_ok else "not detected", "ok" if gpu_ok else "warn"))
+            checks.append(
+                ("GPU (ROCm)", "detected" if gpu_ok else "not detected", "ok" if gpu_ok else "warn")
+            )
         except Exception:
             checks.append(("GPU (ROCm)", "unavailable", "warn"))
 
         # Check disk space
         try:
             import shutil
+
             total, used, free = shutil.disk_usage("/")
-            free_gb = free / (1024 ** 3)
+            free_gb = free / (1024**3)
             disk_ok = free_gb > 10
             checks.append(("Disk space", f"{free_gb:.1f} GB free", "ok" if disk_ok else "warn"))
         except Exception:
@@ -179,17 +184,21 @@ def register(app: typer.Typer) -> None:
         # Check memory
         try:
             import psutil
+
             mem = psutil.virtual_memory()
-            mem_ok = mem.available > 4 * (1024 ** 3)  # 4GB
-            mem_gb = mem.available / (1024 ** 3)
+            mem_ok = mem.available > 4 * (1024**3)  # 4GB
+            mem_gb = mem.available / (1024**3)
             checks.append(("Memory", f"{mem_gb:.1f} GB available", "ok" if mem_ok else "warn"))
         except ImportError:
             checks.append(("Memory", "psutil not installed", "warn"))
 
         # Check config
         from src.cli.v2.utils.config import CONFIG_FILE
+
         config_ok = CONFIG_FILE.exists()
-        checks.append(("Config", "found" if config_ok else "not found", "ok" if config_ok else "warn"))
+        checks.append(
+            ("Config", "found" if config_ok else "not found", "ok" if config_ok else "warn")
+        )
 
         # Display results
         bar = StatusBar()
@@ -226,17 +235,21 @@ def register(app: typer.Typer) -> None:
         console.print("  [bold]Tawiza version:[/] ", end="")
         try:
             from src.core.constants import APP_VERSION
+
             console.print(APP_VERSION)
         except ImportError:
             console.print("2.0.0")
 
-        console.print(f"  [bold]Python:[/] {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        console.print(
+            f"  [bold]Python:[/] {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+        )
         console.print(f"  [bold]Platform:[/] {platform.system()} {platform.release()}")
         console.print(f"  [bold]Architecture:[/] {platform.machine()}")
 
         # Show paths
         console.print()
         from src.cli.v2.utils.config import CONFIG_DIR
+
         console.print(f"  [bold]Config dir:[/] {CONFIG_DIR}")
         console.print(f"  [bold]Working dir:[/] {Path.cwd()}")
 

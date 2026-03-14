@@ -43,9 +43,7 @@ class DGFiPCollector(BaseCollector):
 
         for metric_key, dataset_id in DATASETS.items():
             try:
-                new_signals = await self._fetch_dataset(
-                    dataset_id, metric_key, code_dept
-                )
+                new_signals = await self._fetch_dataset(dataset_id, metric_key, code_dept)
                 signals.extend(new_signals)
             except Exception as e:
                 logger.warning(f"[dgfip] Failed to fetch {metric_key}: {e}")
@@ -61,10 +59,7 @@ class DGFiPCollector(BaseCollector):
             "limit": 100,
         }
         if code_dept:
-            params["where"] = (
-                f"code_departement='{code_dept}' OR "
-                f"dep='{code_dept}'"
-            )
+            params["where"] = f"code_departement='{code_dept}' OR dep='{code_dept}'"
 
         url = f"{DGFIP_BASE}/{dataset_id}/records"
         response = await self._request_with_retry("GET", url, params=params)
@@ -76,11 +71,7 @@ class DGFiPCollector(BaseCollector):
         signals: list[CollectedSignal] = []
 
         for record in records:
-            dept = (
-                record.get("code_departement")
-                or record.get("dep")
-                or record.get("departement")
-            )
+            dept = record.get("code_departement") or record.get("dep") or record.get("departement")
             if not dept:
                 continue
             dept = str(dept).zfill(2) if len(str(dept)) < 2 else str(dept)

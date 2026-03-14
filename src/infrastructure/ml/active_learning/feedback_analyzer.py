@@ -40,19 +40,17 @@ class FeedbackAnalyzer:
                 continue
 
             # Check for different labels
-            labels = {
-                fb.get("correct_label")
-                for fb in group
-                if fb.get("correct_label")
-            }
+            labels = {fb.get("correct_label") for fb in group if fb.get("correct_label")}
 
             if len(labels) > 1:
-                conflicts.append({
-                    "input": input_text,
-                    "count": len(group),
-                    "labels": list(labels),
-                    "feedbacks": group,
-                })
+                conflicts.append(
+                    {
+                        "input": input_text,
+                        "count": len(group),
+                        "labels": list(labels),
+                        "feedbacks": group,
+                    }
+                )
 
         logger.info(f"Detected {len(conflicts)} conflicting feedback groups")
 
@@ -80,9 +78,7 @@ class FeedbackAnalyzer:
 
         # Find common words in error comments
         error_comments = [
-            fb.get("comments", "")
-            for fb in feedbacks
-            if fb.get("feedback_type") == "correction"
+            fb.get("comments", "") for fb in feedbacks if fb.get("feedback_type") == "correction"
         ]
 
         common_words = self._extract_common_words(error_comments)

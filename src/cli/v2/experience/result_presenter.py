@@ -8,17 +8,19 @@ from typing import Any
 
 class ResultAction(Enum):
     """Available actions for results."""
-    VIEW = "view"       # View full result
-    SAVE = "save"       # Save to file
-    COPY = "copy"       # Copy to clipboard
-    OPEN = "open"       # Open in editor
-    EXPORT = "export"   # Export to format
-    CHAIN = "chain"     # Send to next task
+
+    VIEW = "view"  # View full result
+    SAVE = "save"  # Save to file
+    COPY = "copy"  # Copy to clipboard
+    OPEN = "open"  # Open in editor
+    EXPORT = "export"  # Export to format
+    CHAIN = "chain"  # Send to next task
 
 
 @dataclass
 class DisplayResult:
     """Formatted result for display."""
+
     content: str
     is_inline: bool
     preview: str | None = None
@@ -53,12 +55,12 @@ class ResultPresenter:
         preview = None
         if not is_inline:
             lines = content_str.split("\n")
-            preview_lines = lines[:self.PREVIEW_LINES]
+            preview_lines = lines[: self.PREVIEW_LINES]
             preview = "\n".join(preview_lines)
 
             # Truncate if preview is still too long (for single long lines)
             if len(preview) > self.INLINE_THRESHOLD:
-                preview = preview[:self.INLINE_THRESHOLD] + "..."
+                preview = preview[: self.INLINE_THRESHOLD] + "..."
 
             if len(lines) > self.PREVIEW_LINES:
                 remaining = len(lines) - self.PREVIEW_LINES
@@ -115,6 +117,7 @@ class ResultPresenter:
         if content.strip().startswith("{") or content.strip().startswith("["):
             try:
                 import json
+
                 json.loads(content)
                 return "json"
             except (json.JSONDecodeError, ValueError):

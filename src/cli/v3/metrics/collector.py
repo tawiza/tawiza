@@ -73,7 +73,9 @@ class MetricsCollector:
                             val = card_data["GPU memory use (%)"]
                             metrics["memory_percent"] = float(str(val).rstrip("%"))
                         if "Temperature (Sensor edge) (C)" in card_data:
-                            metrics["temperature"] = float(card_data["Temperature (Sensor edge) (C)"])
+                            metrics["temperature"] = float(
+                                card_data["Temperature (Sensor edge) (C)"]
+                            )
                         break
 
         except (subprocess.TimeoutExpired, FileNotFoundError, json.JSONDecodeError):

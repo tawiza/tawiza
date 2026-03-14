@@ -41,7 +41,7 @@ class TrainingDashboard:
         current_epoch: int = 0,
         total_epochs: int = 10,
         current_lr: float = 0.001,
-        status: str = "running"
+        status: str = "running",
     ) -> Layout:
         """
         Create complete training dashboard layout.
@@ -65,9 +65,7 @@ class TrainingDashboard:
 
         # Main layout split
         layout.split_column(
-            Layout(name="header", size=3),
-            Layout(name="body"),
-            Layout(name="footer", size=3)
+            Layout(name="header", size=3), Layout(name="body"), Layout(name="footer", size=3)
         )
 
         # Header
@@ -81,17 +79,11 @@ class TrainingDashboard:
         layout["header"].update(Panel(header_text, border_style="cyan"))
 
         # Body split into charts
-        layout["body"].split_row(
-            Layout(name="loss"),
-            Layout(name="accuracy")
-        )
+        layout["body"].split_row(Layout(name="loss"), Layout(name="accuracy"))
 
         # Loss chart
         loss_chart = self.metrics_chart.plot_loss_curve(
-            epochs,
-            train_loss,
-            val_loss,
-            title="Loss Curve"
+            epochs, train_loss, val_loss, title="Loss Curve"
         )
         layout["body"]["loss"].update(
             RichChartWrapper.wrap_chart(loss_chart, "Training Loss", "red")
@@ -100,10 +92,7 @@ class TrainingDashboard:
         # Accuracy chart (if available)
         if train_acc:
             acc_chart = self.metrics_chart.plot_accuracy_curve(
-                epochs,
-                train_acc,
-                val_acc,
-                title="Accuracy Curve"
+                epochs, train_acc, val_acc, title="Accuracy Curve"
             )
             layout["body"]["accuracy"].update(
                 RichChartWrapper.wrap_chart(acc_chart, "Training Accuracy", "green")
@@ -126,20 +115,13 @@ class TrainingDashboard:
 
         # Footer with progress
         progress_text = self.progress_chart.create_progress_bar_text(
-            current_epoch,
-            total_epochs,
-            width=60,
-            label="Epoch Progress"
+            current_epoch, total_epochs, width=60, label="Epoch Progress"
         )
         layout["footer"].update(Panel(progress_text, border_style="yellow"))
 
         return layout
 
-    def display_live(
-        self,
-        update_func,
-        refresh_rate: float = 2.0
-    ):
+    def display_live(self, update_func, refresh_rate: float = 2.0):
         """
         Display dashboard with live updates.
 
@@ -147,7 +129,7 @@ class TrainingDashboard:
             update_func: Function that returns updated layout
             refresh_rate: Update frequency in seconds
         """
-        with Live(update_func(), refresh_per_second=1/refresh_rate, console=console) as live:
+        with Live(update_func(), refresh_per_second=1 / refresh_rate, console=console) as live:
             while True:
                 time.sleep(refresh_rate)
                 live.update(update_func())
@@ -168,7 +150,7 @@ class SystemDashboard:
         ram_usage_gb: float,
         ram_total_gb: float,
         gpu_temp: float | None = None,
-        services_status: dict[str, bool] | None = None
+        services_status: dict[str, bool] | None = None,
     ) -> Layout:
         """
         Create system monitoring dashboard.
@@ -189,9 +171,7 @@ class SystemDashboard:
 
         # Main split
         layout.split_column(
-            Layout(name="header", size=5),
-            Layout(name="charts"),
-            Layout(name="services", size=8)
+            Layout(name="header", size=5), Layout(name="charts"), Layout(name="services", size=8)
         )
 
         # Header with current stats
@@ -205,43 +185,32 @@ class SystemDashboard:
             icon(Icons.GPU, "GPU Usage"),
             f"{gpu_usage[-1]:.1f}%" if gpu_usage else "N/A",
             icon(Icons.MEMORY, "RAM Usage"),
-            f"{ram_usage_gb:.1f}/{ram_total_gb:.1f} GB"
+            f"{ram_usage_gb:.1f}/{ram_total_gb:.1f} GB",
         )
         stats_table.add_row(
             icon(Icons.SYSTEM, "CPU Usage"),
             f"{cpu_usage[-1]:.1f}%" if cpu_usage else "N/A",
             icon(Icons.FIRE, "GPU Temp"),
-            f"{gpu_temp:.1f}°C" if gpu_temp else "N/A"
+            f"{gpu_temp:.1f}°C" if gpu_temp else "N/A",
         )
 
         layout["header"].update(Panel(stats_table, title="System Status", border_style="cyan"))
 
         # Charts split
-        layout["charts"].split_row(
-            Layout(name="gpu"),
-            Layout(name="cpu")
-        )
+        layout["charts"].split_row(Layout(name="gpu"), Layout(name="cpu"))
 
         # GPU chart
         timestamps = [str(i) for i in range(len(gpu_usage))]
         gpu_chart = self.system_chart.plot_gpu_usage(
-            timestamps,
-            gpu_usage,
-            title="GPU Utilization (Last 60s)"
+            timestamps, gpu_usage, title="GPU Utilization (Last 60s)"
         )
-        layout["charts"]["gpu"].update(
-            RichChartWrapper.wrap_chart(gpu_chart, "GPU", "yellow")
-        )
+        layout["charts"]["gpu"].update(RichChartWrapper.wrap_chart(gpu_chart, "GPU", "yellow"))
 
         # CPU chart
         cpu_chart = self.system_chart.plot_cpu_usage(
-            timestamps,
-            cpu_usage,
-            title="CPU Usage (Last 60s)"
+            timestamps, cpu_usage, title="CPU Usage (Last 60s)"
         )
-        layout["charts"]["cpu"].update(
-            RichChartWrapper.wrap_chart(cpu_chart, "CPU", "blue")
-        )
+        layout["charts"]["cpu"].update(RichChartWrapper.wrap_chart(cpu_chart, "CPU", "blue"))
 
         # Services status
         if services_status:
@@ -255,13 +224,10 @@ class SystemDashboard:
                 status_style = "green" if is_running else "red"
 
                 services_table.add_row(
-                    service,
-                    Text(f"{icon(status_icon, status_text)}", style=status_style)
+                    service, Text(f"{icon(status_icon, status_text)}", style=status_style)
                 )
 
-            layout["services"].update(
-                Panel(services_table, title="Services", border_style="cyan")
-            )
+            layout["services"].update(Panel(services_table, title="Services", border_style="cyan"))
         else:
             layout["services"].update(Panel("No service data", border_style="dim"))
 
@@ -281,7 +247,7 @@ class ModelComparisonDashboard:
         performance_metrics: dict[str, list[float]],
         training_times: list[float],
         model_sizes: list[float],
-        metadata: dict[str, list[str]] | None = None
+        metadata: dict[str, list[str]] | None = None,
     ) -> Layout:
         """
         Create model comparison dashboard.
@@ -299,40 +265,29 @@ class ModelComparisonDashboard:
         layout = Layout()
 
         layout.split_column(
-            Layout(name="header", size=3),
-            Layout(name="performance"),
-            Layout(name="resources")
+            Layout(name="header", size=3), Layout(name="performance"), Layout(name="resources")
         )
 
         # Header
         header = ColorGradient.create_gradient(
-            f"Comparing {len(model_names)} Models",
-            "#FF6B6B",
-            "#4ECDC4"
+            f"Comparing {len(model_names)} Models", "#FF6B6B", "#4ECDC4"
         )
         layout["header"].update(Panel(header, border_style="cyan"))
 
         # Performance metrics chart
         perf_chart = self.comparison_chart.plot_performance_comparison(
-            model_names,
-            performance_metrics,
-            title="Performance Metrics"
+            model_names, performance_metrics, title="Performance Metrics"
         )
         layout["performance"].update(
             RichChartWrapper.wrap_chart(perf_chart, "Performance", "green")
         )
 
         # Resource usage
-        layout["resources"].split_row(
-            Layout(name="time"),
-            Layout(name="size")
-        )
+        layout["resources"].split_row(Layout(name="time"), Layout(name="size"))
 
         # Training time
         time_chart = self.comparison_chart.plot_training_time_comparison(
-            model_names,
-            training_times,
-            title="Training Time"
+            model_names, training_times, title="Training Time"
         )
         layout["resources"]["time"].update(
             RichChartWrapper.wrap_chart(time_chart, "Training Time", "yellow")
@@ -340,9 +295,7 @@ class ModelComparisonDashboard:
 
         # Model size
         size_chart = self.comparison_chart.plot_model_size_comparison(
-            model_names,
-            model_sizes,
-            title="Model Size"
+            model_names, model_sizes, title="Model Size"
         )
         layout["resources"]["size"].update(
             RichChartWrapper.wrap_chart(size_chart, "Model Size", "blue")
@@ -364,7 +317,7 @@ class DatasetDashboard:
         class_distribution: dict[str, int],
         split_sizes: dict[str, int],
         total_samples: int,
-        features: list[str] | None = None
+        features: list[str] | None = None,
     ) -> Layout:
         """
         Create dataset analysis dashboard.
@@ -381,10 +334,7 @@ class DatasetDashboard:
         """
         layout = Layout()
 
-        layout.split_column(
-            Layout(name="header", size=5),
-            Layout(name="charts")
-        )
+        layout.split_column(Layout(name="header", size=5), Layout(name="charts"))
 
         # Header with dataset info
         info_table = Table(show_header=False, box=None)
@@ -397,21 +347,16 @@ class DatasetDashboard:
         if features:
             info_table.add_row("Features", str(len(features)))
 
-        layout["header"].update(
-            Panel(info_table, title="Dataset Info", border_style="cyan")
-        )
+        layout["header"].update(Panel(info_table, title="Dataset Info", border_style="cyan"))
 
         # Charts
-        layout["charts"].split_row(
-            Layout(name="classes"),
-            Layout(name="splits")
-        )
+        layout["charts"].split_row(Layout(name="classes"), Layout(name="splits"))
 
         # Class distribution
         class_chart = self.dataset_chart.plot_class_distribution(
             list(class_distribution.keys()),
             list(class_distribution.values()),
-            title="Class Distribution"
+            title="Class Distribution",
         )
         layout["charts"]["classes"].update(
             RichChartWrapper.wrap_chart(class_chart, "Classes", "blue")
@@ -419,9 +364,7 @@ class DatasetDashboard:
 
         # Data split
         split_chart = self.dataset_chart.plot_data_split(
-            list(split_sizes.keys()),
-            list(split_sizes.values()),
-            title="Data Split"
+            list(split_sizes.keys()), list(split_sizes.values()), title="Data Split"
         )
         layout["charts"]["splits"].update(
             RichChartWrapper.wrap_chart(split_chart, "Splits", "green")
@@ -435,9 +378,7 @@ class CompactDashboard:
 
     @staticmethod
     def create_metrics_panel(
-        title: str,
-        metrics: dict[str, any],
-        border_style: str = "cyan"
+        title: str, metrics: dict[str, any], border_style: str = "cyan"
     ) -> Panel:
         """
         Create compact metrics panel.
@@ -468,10 +409,7 @@ class CompactDashboard:
         return Panel(table, title=title, border_style=border_style)
 
     @staticmethod
-    def create_status_grid(
-        items: dict[str, tuple[str, str]],
-        title: str = "Status"
-    ) -> Panel:
+    def create_status_grid(items: dict[str, tuple[str, str]], title: str = "Status") -> Panel:
         """
         Create compact status grid.
 

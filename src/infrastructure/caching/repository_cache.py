@@ -54,7 +54,7 @@ def get_repository_cache() -> MultiLevelCache:
 
     if _repository_cache is None:
         _repository_cache = create_multi_level_cache(
-            l1_capacity=500,   # Hot queries
+            l1_capacity=500,  # Hot queries
             l2_capacity=2000,  # Warm queries
             enable_redis=False,  # Enable if needed
         )
@@ -86,8 +86,8 @@ async def init_repository_cache(
     _repository_cache = MultiLevelCache(
         l1_capacity=l1_capacity,
         l2_capacity=l2_capacity,
-        l1_ttl=300,   # 5 min for hot data
-        l2_ttl=900,   # 15 min for warm data
+        l1_ttl=300,  # 5 min for hot data
+        l2_ttl=900,  # 15 min for warm data
         l3_ttl=3600,  # 1 hour for Redis
         enable_l3=enable_redis,
         redis_url=redis_url,
@@ -145,9 +145,9 @@ class CacheKeyBuilder:
         elif isinstance(value, (dict, list)):
             # Hash complex structures
             self._parts.append(
-                hashlib.sha256(
-                    json.dumps(value, sort_keys=True, default=str).encode()
-                ).hexdigest()[:16]
+                hashlib.sha256(json.dumps(value, sort_keys=True, default=str).encode()).hexdigest()[
+                    :16
+                ]
             )
         elif value is None:
             self._parts.append("null")

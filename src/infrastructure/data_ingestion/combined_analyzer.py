@@ -14,7 +14,6 @@ from typing import Any
 
 import numpy as np
 from loguru import logger
-from src.infrastructure.persistence.models.territorial_timeseries import IndicatorType
 
 from src.application.services.correlation_engine import (
     AnomalyResult,
@@ -24,6 +23,7 @@ from src.application.services.correlation_engine import (
 )
 from src.infrastructure.data_ingestion.bodacc_ingester import BODACCIngester
 from src.infrastructure.data_ingestion.dvf_ingester import DVFIngester
+from src.infrastructure.persistence.models.territorial_timeseries import IndicatorType
 
 
 @dataclass
@@ -203,17 +203,15 @@ class CombinedAnalyzer:
         dates = [datetime.strptime(p, "%Y-%m") for p in all_periods]
 
         # DVF Transactions
-        values = np.array([
-            dvf_monthly.get(p, {}).get("transactions", 0)
-            for p in all_periods
-        ], dtype=float)
+        values = np.array(
+            [dvf_monthly.get(p, {}).get("transactions", 0) for p in all_periods], dtype=float
+        )
         self._all_series[(IndicatorType.DVF_TRANSACTIONS, department)] = (values, dates)
 
         # DVF Volume
-        values = np.array([
-            dvf_monthly.get(p, {}).get("volume", 0)
-            for p in all_periods
-        ], dtype=float)
+        values = np.array(
+            [dvf_monthly.get(p, {}).get("volume", 0) for p in all_periods], dtype=float
+        )
         self._all_series[(IndicatorType.DVF_VOLUME, department)] = (values, dates)
 
         # Prix m² Appartement
@@ -224,20 +222,21 @@ class CombinedAnalyzer:
                 apt_prices.append(d["apt_m2_sum"] / d["apt_surface"])
             else:
                 apt_prices.append(0)
-        self._all_series[(IndicatorType.DVF_PRICE_M2_APT, department)] = (np.array(apt_prices), dates)
+        self._all_series[(IndicatorType.DVF_PRICE_M2_APT, department)] = (
+            np.array(apt_prices),
+            dates,
+        )
 
         # BODACC Procédures
-        values = np.array([
-            bodacc_monthly.get(p, {}).get("procedures", 0)
-            for p in all_periods
-        ], dtype=float)
+        values = np.array(
+            [bodacc_monthly.get(p, {}).get("procedures", 0) for p in all_periods], dtype=float
+        )
         self._all_series[(IndicatorType.BODACC_PROCEDURES, department)] = (values, dates)
 
         # BODACC Liquidations
-        values = np.array([
-            bodacc_monthly.get(p, {}).get("liquidations", 0)
-            for p in all_periods
-        ], dtype=float)
+        values = np.array(
+            [bodacc_monthly.get(p, {}).get("liquidations", 0) for p in all_periods], dtype=float
+        )
         self._all_series[(IndicatorType.BODACC_LIQUIDATIONS, department)] = (values, dates)
 
     def analyze(self) -> dict[str, Any]:
@@ -276,66 +275,78 @@ class CombinedAnalyzer:
 
         # Insight 1: DVF → BODACC correlations (immobilier prédit procédures)
         for corr in correlations:
-            if (corr.source_indicator in [IndicatorType.DVF_TRANSACTIONS, IndicatorType.DVF_VOLUME] and
-                corr.target_indicator in [IndicatorType.BODACC_PROCEDURES, IndicatorType.BODACC_LIQUIDATIONS]):
-
+            if corr.source_indicator in [
+                IndicatorType.DVF_TRANSACTIONS,
+                IndicatorType.DVF_VOLUME,
+            ] and corr.target_indicator in [
+                IndicatorType.BODACC_PROCEDURES,
+                IndicatorType.BODACC_LIQUIDATIONS,
+            ]:
                 if corr.lag_months >= 6 and abs(corr.correlation) > 0.4:
                     direction = "baisse" if corr.correlation > 0 else "hausse"
-                    insights.append(CombinedInsight(
-                        type="predictive",
-                        severity=abs(corr.correlation),
-                        message=(
-                            f"SIGNAL PRÉDICTIF: Une {direction} des transactions immobilières "
-                            f"prédit les procédures collectives avec {corr.lag_months} mois d'avance "
-                            f"(r={corr.correlation:.2f}, p={corr.p_value:.3f})"
-                        ),
-                        sources=["DVF", "BODACC"],
-                        territory=corr.territory_code or "national",
-                        lag_months=corr.lag_months,
-                        confidence=corr.confidence,
-                    ))
+                    insights.append(
+                        CombinedInsight(
+                            type="predictive",
+                            severity=abs(corr.correlation),
+                            message=(
+                                f"SIGNAL PRÉDICTIF: Une {direction} des transactions immobilières "
+                                f"prédit les procédures collectives avec {corr.lag_months} mois d'avance "
+                                f"(r={corr.correlation:.2f}, p={corr.p_value:.3f})"
+                            ),
+                            sources=["DVF", "BODACC"],
+                            territory=corr.territory_code or "national",
+                            lag_months=corr.lag_months,
+                            confidence=corr.confidence,
+                        )
+                    )
 
         # Insight 2: Anomalies DVF récentes
         recent_dvf_anomalies = [
-            a for a in anomalies
+            a
+            for a in anomalies
             if a.indicator in [IndicatorType.DVF_TRANSACTIONS, IndicatorType.DVF_VOLUME]
             and a.severity > 0.5
         ]
 
         if recent_dvf_anomalies:
             latest = max(recent_dvf_anomalies, key=lambda a: a.period)
-            insights.append(CombinedInsight(
-                type="anomaly",
-                severity=latest.severity,
-                message=(
-                    f"ANOMALIE DÉTECTÉE: {latest.anomaly_type} sur {latest.indicator.value} "
-                    f"({latest.deviation_sigma:.1f}σ) - Surveiller les procédures dans 6-18 mois"
-                ),
-                sources=["DVF"],
-                territory=latest.territory_code,
-                confidence=0.7,
-            ))
+            insights.append(
+                CombinedInsight(
+                    type="anomaly",
+                    severity=latest.severity,
+                    message=(
+                        f"ANOMALIE DÉTECTÉE: {latest.anomaly_type} sur {latest.indicator.value} "
+                        f"({latest.deviation_sigma:.1f}σ) - Surveiller les procédures dans 6-18 mois"
+                    ),
+                    sources=["DVF"],
+                    territory=latest.territory_code,
+                    confidence=0.7,
+                )
+            )
 
         # Insight 3: Hausse procédures
         proc_anomalies = [
-            a for a in anomalies
+            a
+            for a in anomalies
             if a.indicator in [IndicatorType.BODACC_PROCEDURES, IndicatorType.BODACC_LIQUIDATIONS]
             and a.anomaly_type == "spike"
         ]
 
         if proc_anomalies:
             total_spike = sum(a.severity for a in proc_anomalies)
-            insights.append(CombinedInsight(
-                type="alert",
-                severity=min(1.0, total_spike),
-                message=(
-                    f"ALERTE: {len(proc_anomalies)} pics de procédures collectives détectés - "
-                    f"Vérifier l'état du marché immobilier 6-12 mois avant"
-                ),
-                sources=["BODACC"],
-                territory=proc_anomalies[0].territory_code,
-                confidence=0.8,
-            ))
+            insights.append(
+                CombinedInsight(
+                    type="alert",
+                    severity=min(1.0, total_spike),
+                    message=(
+                        f"ALERTE: {len(proc_anomalies)} pics de procédures collectives détectés - "
+                        f"Vérifier l'état du marché immobilier 6-12 mois avant"
+                    ),
+                    sources=["BODACC"],
+                    territory=proc_anomalies[0].territory_code,
+                    confidence=0.8,
+                )
+            )
 
         # Trier par sévérité
         insights.sort(key=lambda x: x.severity, reverse=True)
@@ -371,12 +382,12 @@ if __name__ == "__main__":
     print(f"  BODACC: {results['load_stats']['bodacc']['total_procedures']:,} procédures")
 
     print(f"\nCorrélations trouvées: {len(results['correlations'])}")
-    for c in results['correlations'][:5]:
+    for c in results["correlations"][:5]:
         print(f"  {c['source']} → {c['target']}: r={c['correlation']:.2f}, lag={c['lag_months']}m")
 
     print(f"\nAnomalies: {len(results['anomalies'])}")
 
     print("\n🎯 INSIGHTS:")
-    for i in results['insights'][:5]:
+    for i in results["insights"][:5]:
         print(f"\n  [{i['type'].upper()}] (sévérité: {i['severity']:.0%})")
         print(f"  {i['message']}")

@@ -221,9 +221,7 @@ class ChainOfThought:
             )
 
         # Format previous steps
-        previous = "\n".join(
-            f"Étape {s.step_id}: {s.thought}" for s in self.steps[-3:]
-        )
+        previous = "\n".join(f"Étape {s.step_id}: {s.thought}" for s in self.steps[-3:])
 
         prompt = COT_STEP_PROMPT.format(
             context=context,
@@ -392,9 +390,7 @@ class ChainOfThought:
                 logger.warning(f"Conclusion generation failed: {e}")
 
         # Fallback: use last conclusion step
-        conclusion_steps = [
-            s for s in self.steps if s.thought_type == ThoughtType.CONCLUSION
-        ]
+        conclusion_steps = [s for s in self.steps if s.thought_type == ThoughtType.CONCLUSION]
 
         if conclusion_steps:
             last = conclusion_steps[-1]
@@ -435,6 +431,7 @@ class ChainOfThought:
                 try:
                     # Extract number from line
                     import re
+
                     nums = re.findall(r"0\.\d+|\d+%", line)
                     if nums:
                         val = nums[0]
@@ -482,13 +479,9 @@ class ChainOfThought:
             "step_count": len(self.steps),
             "steps": [s.to_dict() for s in self.steps],
             "avg_confidence": (
-                sum(s.confidence for s in self.steps) / len(self.steps)
-                if self.steps
-                else 0.0
+                sum(s.confidence for s in self.steps) / len(self.steps) if self.steps else 0.0
             ),
-            "has_conclusion": any(
-                s.thought_type == ThoughtType.CONCLUSION for s in self.steps
-            ),
+            "has_conclusion": any(s.thought_type == ThoughtType.CONCLUSION for s in self.steps),
         }
 
 

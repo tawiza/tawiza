@@ -37,17 +37,23 @@ class ExtracteurEntites:
         """Initialise spaCy et le géocodeur"""
         try:
             import spacy
+
             self._nlp = spacy.load(self.config.modele_spacy)
             logger.info(f"Modèle spaCy chargé: {self.config.modele_spacy}")
         except OSError:
-            logger.warning(f"Modèle {self.config.modele_spacy} non trouvé, tentative de téléchargement...")
+            logger.warning(
+                f"Modèle {self.config.modele_spacy} non trouvé, tentative de téléchargement..."
+            )
             import subprocess
+
             subprocess.run(["python", "-m", "spacy", "download", self.config.modele_spacy])
             import spacy
+
             self._nlp = spacy.load(self.config.modele_spacy)
 
         try:
             from geopy.geocoders import Nominatim
+
             self._geocoder = Nominatim(user_agent="ecocartographe")
             logger.info("Géocodeur Nominatim initialisé")
         except ImportError:
@@ -76,7 +82,7 @@ class ExtracteurEntites:
                 nom=nom_normalise,
                 type=self._determiner_type_acteur(ent.label_, nom_normalise),
                 source=source,
-                metadata={"label_spacy": ent.label_}
+                metadata={"label_spacy": ent.label_},
             )
 
             # Extraire les mots-clés du contexte
@@ -87,7 +93,9 @@ class ExtracteurEntites:
         logger.info(f"Extrait {len(acteurs)} acteurs depuis le texte")
         return acteurs
 
-    async def extraire_depuis_csv(self, chemin: str, mapping: dict[str, str] = None) -> list[Acteur]:
+    async def extraire_depuis_csv(
+        self, chemin: str, mapping: dict[str, str] = None
+    ) -> list[Acteur]:
         """Extrait les acteurs depuis un fichier CSV"""
         import pandas as pd
 
@@ -128,7 +136,7 @@ class ExtracteurEntites:
 
     async def extraire_depuis_json(self, chemin: str) -> list[Acteur]:
         """Extrait les acteurs depuis un fichier JSON"""
-        with open(chemin, encoding='utf-8') as f:
+        with open(chemin, encoding="utf-8") as f:
             data = json.load(f)
 
         acteurs = []
@@ -139,7 +147,7 @@ class ExtracteurEntites:
                     acteurs.append(acteur)
         elif isinstance(data, dict):
             # Peut être un dict avec une clé contenant la liste
-            for key in ['acteurs', 'actors', 'data', 'items', 'organisations']:
+            for key in ["acteurs", "actors", "data", "items", "organisations"]:
                 if key in data and isinstance(data[key], list):
                     for item in data[key]:
                         acteur = self._dict_vers_acteur(item)
@@ -158,23 +166,27 @@ class ExtracteurEntites:
         nom_lower = nom.lower()
 
         # Patterns de détection
-        if any(kw in nom_lower for kw in ['université', 'university', 'univ', 'ufr', 'iut']):
+        if any(kw in nom_lower for kw in ["université", "university", "univ", "ufr", "iut"]):
             return ActeurType.UNIVERSITE
-        elif any(kw in nom_lower for kw in ['laboratoire', 'lab', 'cnrs', 'inria', 'cea', 'inserm']):
+        elif any(
+            kw in nom_lower for kw in ["laboratoire", "lab", "cnrs", "inria", "cea", "inserm"]
+        ):
             return ActeurType.LABORATOIRE
-        elif any(kw in nom_lower for kw in ['cluster', 'pôle', 'pole', 'competitivite']):
+        elif any(kw in nom_lower for kw in ["cluster", "pôle", "pole", "competitivite"]):
             return ActeurType.POLE_COMPETITIVITE
-        elif any(kw in nom_lower for kw in ['incubateur', 'incubator', 'pépinière']):
+        elif any(kw in nom_lower for kw in ["incubateur", "incubator", "pépinière"]):
             return ActeurType.INCUBATEUR
-        elif any(kw in nom_lower for kw in ['startup', 'start-up']):
+        elif any(kw in nom_lower for kw in ["startup", "start-up"]):
             return ActeurType.STARTUP
-        elif any(kw in nom_lower for kw in ['accelerateur', 'accelerator']):
+        elif any(kw in nom_lower for kw in ["accelerateur", "accelerator"]):
             return ActeurType.ACCELERATEUR
-        elif any(kw in nom_lower for kw in ['region', 'département', 'mairie', 'métropole', 'communauté']):
+        elif any(
+            kw in nom_lower for kw in ["region", "département", "mairie", "métropole", "communauté"]
+        ):
             return ActeurType.COLLECTIVITE
-        elif any(kw in nom_lower for kw in ['banque', 'bpi', 'investissement', 'capital', 'fund']):
+        elif any(kw in nom_lower for kw in ["banque", "bpi", "investissement", "capital", "fund"]):
             return ActeurType.FINANCEUR
-        elif any(kw in nom_lower for kw in ['association', 'asso', 'federation']):
+        elif any(kw in nom_lower for kw in ["association", "asso", "federation"]):
             return ActeurType.ASSOCIATION
         elif label == "ORG":
             return ActeurType.ENTREPRISE
@@ -188,7 +200,14 @@ class ExtracteurEntites:
         end = min(len(doc), entite.end + fenetre)
 
         for token in doc[start:end]:
-            if token.pos_ in ['NOUN', 'PROPN'] and token.text.lower() not in ['le', 'la', 'les', 'un', 'une', 'des']:
+            if token.pos_ in ["NOUN", "PROPN"] and token.text.lower() not in [
+                "le",
+                "la",
+                "les",
+                "un",
+                "une",
+                "des",
+            ]:
                 if len(token.text) > 2 and token.text not in mots_cles:
                     mots_cles.append(token.text.lower())
 
@@ -200,138 +219,141 @@ class ExtracteurEntites:
         colonnes_lower = {c.lower(): c for c in colonnes}
 
         # Mapping nom
-        for key in ['nom', 'name', 'organisation', 'organization', 'raison_sociale', 'societe']:
+        for key in ["nom", "name", "organisation", "organization", "raison_sociale", "societe"]:
             if key in colonnes_lower:
-                mapping['nom'] = colonnes_lower[key]
+                mapping["nom"] = colonnes_lower[key]
                 break
 
         # Mapping type
-        for key in ['type', 'categorie', 'category', 'type_acteur']:
+        for key in ["type", "categorie", "category", "type_acteur"]:
             if key in colonnes_lower:
-                mapping['type'] = colonnes_lower[key]
+                mapping["type"] = colonnes_lower[key]
                 break
 
         # Mapping adresse
-        for key in ['adresse', 'address', 'rue']:
+        for key in ["adresse", "address", "rue"]:
             if key in colonnes_lower:
-                mapping['adresse'] = colonnes_lower[key]
+                mapping["adresse"] = colonnes_lower[key]
                 break
 
         # Mapping ville
-        for key in ['ville', 'city', 'commune']:
+        for key in ["ville", "city", "commune"]:
             if key in colonnes_lower:
-                mapping['ville'] = colonnes_lower[key]
+                mapping["ville"] = colonnes_lower[key]
                 break
 
         # Mapping code postal
-        for key in ['code_postal', 'cp', 'postal_code', 'zipcode']:
+        for key in ["code_postal", "cp", "postal_code", "zipcode"]:
             if key in colonnes_lower:
-                mapping['code_postal'] = colonnes_lower[key]
+                mapping["code_postal"] = colonnes_lower[key]
                 break
 
         # Mapping description
-        for key in ['description', 'desc', 'activite', 'activity']:
+        for key in ["description", "desc", "activite", "activity"]:
             if key in colonnes_lower:
-                mapping['description'] = colonnes_lower[key]
+                mapping["description"] = colonnes_lower[key]
                 break
 
         # Mapping site web
-        for key in ['site_web', 'website', 'url', 'site']:
+        for key in ["site_web", "website", "url", "site"]:
             if key in colonnes_lower:
-                mapping['site_web'] = colonnes_lower[key]
+                mapping["site_web"] = colonnes_lower[key]
                 break
 
         # Mapping secteurs
-        for key in ['secteur', 'secteurs', 'sector', 'sectors', 'domaine']:
+        for key in ["secteur", "secteurs", "sector", "sectors", "domaine"]:
             if key in colonnes_lower:
-                mapping['secteurs'] = colonnes_lower[key]
+                mapping["secteurs"] = colonnes_lower[key]
                 break
 
         return mapping
 
     def _row_vers_acteur(self, row, mapping: dict[str, str]) -> Acteur | None:
         """Convertit une ligne de DataFrame en Acteur"""
-        nom = row.get(mapping.get('nom', ''), '')
-        if not nom or str(nom) == 'nan':
+        nom = row.get(mapping.get("nom", ""), "")
+        if not nom or str(nom) == "nan":
             return None
 
         acteur = Acteur(nom=str(nom).strip())
 
         # Type
-        type_str = row.get(mapping.get('type', ''), '')
-        if type_str and str(type_str) != 'nan':
+        type_str = row.get(mapping.get("type", ""), "")
+        if type_str and str(type_str) != "nan":
             acteur.type = self._str_vers_type_acteur(str(type_str))
 
         # Description
-        desc = row.get(mapping.get('description', ''), '')
-        if desc and str(desc) != 'nan':
+        desc = row.get(mapping.get("description", ""), "")
+        if desc and str(desc) != "nan":
             acteur.description = str(desc)
 
         # Site web
-        site = row.get(mapping.get('site_web', ''), '')
-        if site and str(site) != 'nan':
+        site = row.get(mapping.get("site_web", ""), "")
+        if site and str(site) != "nan":
             acteur.site_web = str(site)
 
         # Adresse
         adresse = Adresse()
-        rue = row.get(mapping.get('adresse', ''), '')
-        if rue and str(rue) != 'nan':
+        rue = row.get(mapping.get("adresse", ""), "")
+        if rue and str(rue) != "nan":
             adresse.rue = str(rue)
 
-        ville = row.get(mapping.get('ville', ''), '')
-        if ville and str(ville) != 'nan':
+        ville = row.get(mapping.get("ville", ""), "")
+        if ville and str(ville) != "nan":
             adresse.ville = str(ville)
 
-        cp = row.get(mapping.get('code_postal', ''), '')
-        if cp and str(cp) != 'nan':
+        cp = row.get(mapping.get("code_postal", ""), "")
+        if cp and str(cp) != "nan":
             adresse.code_postal = str(cp)
 
         if adresse.rue or adresse.ville:
             acteur.adresse = adresse
 
         # Secteurs
-        secteurs = row.get(mapping.get('secteurs', ''), '')
-        if secteurs and str(secteurs) != 'nan':
-            acteur.secteurs = [s.strip() for s in str(secteurs).split(',')]
+        secteurs = row.get(mapping.get("secteurs", ""), "")
+        if secteurs and str(secteurs) != "nan":
+            acteur.secteurs = [s.strip() for s in str(secteurs).split(",")]
 
         return acteur
 
     def _dict_vers_acteur(self, data: dict[str, Any]) -> Acteur | None:
         """Convertit un dictionnaire en Acteur"""
-        nom = data.get('nom') or data.get('name') or data.get('organisation')
+        nom = data.get("nom") or data.get("name") or data.get("organisation")
         if not nom:
             return None
 
         acteur = Acteur(nom=str(nom).strip())
 
-        if 'type' in data:
-            acteur.type = self._str_vers_type_acteur(data['type'])
+        if "type" in data:
+            acteur.type = self._str_vers_type_acteur(data["type"])
 
-        acteur.description = data.get('description')
-        acteur.site_web = data.get('site_web') or data.get('website')
+        acteur.description = data.get("description")
+        acteur.site_web = data.get("site_web") or data.get("website")
 
-        if 'secteurs' in data:
-            acteur.secteurs = data['secteurs'] if isinstance(data['secteurs'], list) else [data['secteurs']]
+        if "secteurs" in data:
+            acteur.secteurs = (
+                data["secteurs"] if isinstance(data["secteurs"], list) else [data["secteurs"]]
+            )
 
-        if 'mots_cles' in data:
-            acteur.mots_cles = data['mots_cles'] if isinstance(data['mots_cles'], list) else [data['mots_cles']]
+        if "mots_cles" in data:
+            acteur.mots_cles = (
+                data["mots_cles"] if isinstance(data["mots_cles"], list) else [data["mots_cles"]]
+            )
 
         # Adresse
-        if any(k in data for k in ['adresse', 'ville', 'code_postal', 'rue']):
+        if any(k in data for k in ["adresse", "ville", "code_postal", "rue"]):
             acteur.adresse = Adresse(
-                rue=data.get('rue') or data.get('adresse'),
-                ville=data.get('ville'),
-                code_postal=data.get('code_postal'),
-                region=data.get('region')
+                rue=data.get("rue") or data.get("adresse"),
+                ville=data.get("ville"),
+                code_postal=data.get("code_postal"),
+                region=data.get("region"),
             )
 
         # Coordonnées
-        if 'latitude' in data and 'longitude' in data:
+        if "latitude" in data and "longitude" in data:
             if not acteur.adresse:
                 acteur.adresse = Adresse()
             acteur.adresse.coordonnees = Coordonnees(
-                latitude=float(data['latitude']),
-                longitude=float(data['longitude'])
+                latitude=float(data["latitude"]), longitude=float(data["longitude"])
             )
 
         return acteur
@@ -360,8 +382,7 @@ class ExtracteurEntites:
                 location = self._geocoder.geocode(adresse_str.strip(), timeout=10)
                 if location:
                     acteur.adresse.coordonnees = Coordonnees(
-                        latitude=location.latitude,
-                        longitude=location.longitude
+                        latitude=location.latitude, longitude=location.longitude
                     )
                 await asyncio.sleep(delay)  # Rate limiting
             except Exception as e:
@@ -379,12 +400,15 @@ class AnalyseurRelations:
         """Initialise le client Ollama pour l'analyse sémantique"""
         try:
             import httpx
+
             self._ollama_client = httpx.AsyncClient(base_url="http://localhost:11434", timeout=60.0)
             logger.info("Client Ollama initialisé")
         except ImportError:
             logger.warning("httpx non installé, analyse LLM désactivée")
 
-    async def detecter_relations(self, acteurs: list[Acteur], textes: list[str] = None) -> list[Relation]:
+    async def detecter_relations(
+        self, acteurs: list[Acteur], textes: list[str] = None
+    ) -> list[Relation]:
         """Détecte toutes les relations entre acteurs"""
         relations = []
 
@@ -410,18 +434,22 @@ class AnalyseurRelations:
         acteurs_geo = [a for a in acteurs if a.adresse and a.adresse.coordonnees]
 
         for i, a1 in enumerate(acteurs_geo):
-            for a2 in acteurs_geo[i+1:]:
+            for a2 in acteurs_geo[i + 1 :]:
                 distance = a1.adresse.coordonnees.distance_to(a2.adresse.coordonnees)
                 if distance <= self.config.seuil_proximite_km:
                     force = 1.0 - (distance / self.config.seuil_proximite_km)
-                    relations.append(Relation(
-                        source_id=a1.id,
-                        cible_id=a2.id,
-                        type=RelationType.PROXIMITE_GEOGRAPHIQUE,
-                        force=force,
-                        description=f"Distance: {distance:.1f} km",
-                        evidence=[f"Proximité géographique < {self.config.seuil_proximite_km} km"]
-                    ))
+                    relations.append(
+                        Relation(
+                            source_id=a1.id,
+                            cible_id=a2.id,
+                            type=RelationType.PROXIMITE_GEOGRAPHIQUE,
+                            force=force,
+                            description=f"Distance: {distance:.1f} km",
+                            evidence=[
+                                f"Proximité géographique < {self.config.seuil_proximite_km} km"
+                            ],
+                        )
+                    )
 
         return relations
 
@@ -430,27 +458,30 @@ class AnalyseurRelations:
         relations = []
 
         for i, a1 in enumerate(acteurs):
-            for a2 in acteurs[i+1:]:
+            for a2 in acteurs[i + 1 :]:
                 similarite = self._calculer_similarite_jaccard(
-                    set(a1.mots_cles + a1.secteurs),
-                    set(a2.mots_cles + a2.secteurs)
+                    set(a1.mots_cles + a1.secteurs), set(a2.mots_cles + a2.secteurs)
                 )
                 if similarite >= self.config.seuil_similarite_thematique:
-                    relations.append(Relation(
-                        source_id=a1.id,
-                        cible_id=a2.id,
-                        type=RelationType.PROXIMITE_THEMATIQUE,
-                        force=similarite,
-                        description=f"Similarité: {similarite:.2f}",
-                        evidence=[
-                            f"Mots-clés communs: {set(a1.mots_cles) & set(a2.mots_cles)}",
-                            f"Secteurs communs: {set(a1.secteurs) & set(a2.secteurs)}"
-                        ]
-                    ))
+                    relations.append(
+                        Relation(
+                            source_id=a1.id,
+                            cible_id=a2.id,
+                            type=RelationType.PROXIMITE_THEMATIQUE,
+                            force=similarite,
+                            description=f"Similarité: {similarite:.2f}",
+                            evidence=[
+                                f"Mots-clés communs: {set(a1.mots_cles) & set(a2.mots_cles)}",
+                                f"Secteurs communs: {set(a1.secteurs) & set(a2.secteurs)}",
+                            ],
+                        )
+                    )
 
         return relations
 
-    async def _relations_cooccurrence(self, acteurs: list[Acteur], textes: list[str]) -> list[Relation]:
+    async def _relations_cooccurrence(
+        self, acteurs: list[Acteur], textes: list[str]
+    ) -> list[Relation]:
         """Détecte les relations par co-occurrence dans les textes"""
         relations = []
         cooccurrences: dict[tuple[str, str], int] = {}
@@ -460,7 +491,7 @@ class AnalyseurRelations:
             acteurs_presents = [a for a in acteurs if a.nom.lower() in texte_lower]
 
             for i, a1 in enumerate(acteurs_presents):
-                for a2 in acteurs_presents[i+1:]:
+                for a2 in acteurs_presents[i + 1 :]:
                     key = tuple(sorted([a1.id, a2.id]))
                     cooccurrences[key] = cooccurrences.get(key, 0) + 1
 
@@ -468,14 +499,16 @@ class AnalyseurRelations:
         max_coocc = max(cooccurrences.values()) if cooccurrences else 1
         for (id1, id2), count in cooccurrences.items():
             if count >= 2:  # Au moins 2 co-occurrences
-                relations.append(Relation(
-                    source_id=id1,
-                    cible_id=id2,
-                    type=RelationType.COLLABORATION,
-                    force=count / max_coocc,
-                    description=f"Co-occurrences: {count}",
-                    evidence=[f"Apparaissent ensemble dans {count} documents"]
-                ))
+                relations.append(
+                    Relation(
+                        source_id=id1,
+                        cible_id=id2,
+                        type=RelationType.COLLABORATION,
+                        force=count / max_coocc,
+                        description=f"Co-occurrences: {count}",
+                        evidence=[f"Apparaissent ensemble dans {count} documents"],
+                    )
+                )
 
         return relations
 
@@ -514,23 +547,19 @@ class AnalyseurReseau:
         # Ajouter les noeuds
         for acteur in acteurs:
             self._graph.add_node(
-                acteur.id,
-                nom=acteur.nom,
-                type=acteur.type.value,
-                label=acteur.nom[:20]
+                acteur.id, nom=acteur.nom, type=acteur.type.value, label=acteur.nom[:20]
             )
 
         # Ajouter les arêtes
         for rel in relations:
             if rel.source_id in self._graph and rel.cible_id in self._graph:
                 self._graph.add_edge(
-                    rel.source_id,
-                    rel.cible_id,
-                    weight=rel.force,
-                    type=rel.type.value
+                    rel.source_id, rel.cible_id, weight=rel.force, type=rel.type.value
                 )
 
-        logger.info(f"Graphe construit: {self._graph.number_of_nodes()} noeuds, {self._graph.number_of_edges()} arêtes")
+        logger.info(
+            f"Graphe construit: {self._graph.number_of_nodes()} noeuds, {self._graph.number_of_edges()} arêtes"
+        )
 
     def analyser(self, acteurs: list[Acteur]) -> AnalyseReseau:
         """Effectue l'analyse complète du réseau"""
@@ -543,7 +572,7 @@ class AnalyseurReseau:
         analyse = AnalyseReseau(
             nb_noeuds=self._graph.number_of_nodes(),
             nb_aretes=self._graph.number_of_edges(),
-            densite=nx.density(self._graph)
+            densite=nx.density(self._graph),
         )
 
         # Composantes connexes
@@ -590,7 +619,10 @@ class AnalyseurReseau:
             try:
                 analyse.modularite = community.modularity(
                     self._graph,
-                    [{aid for aid in comm.acteurs_ids if aid in self._graph} for comm in analyse.communautes]
+                    [
+                        {aid for aid in comm.acteurs_ids if aid in self._graph}
+                        for comm in analyse.communautes
+                    ],
                 )
             except Exception as e:
                 logger.debug(f"Could not calculate modularity: {e}")
@@ -627,7 +659,7 @@ class AnalyseurReseau:
                     centralite_intermediation=betweenness.get(node_id, 0),
                     centralite_proximite=closeness.get(node_id, 0),
                     centralite_vecteur_propre=eigenvector.get(node_id, 0),
-                    coefficient_clustering=clustering.get(node_id, 0)
+                    coefficient_clustering=clustering.get(node_id, 0),
                 )
 
     def _detecter_communautes(self, acteurs: list[Acteur]) -> list[Communaute]:
@@ -649,10 +681,7 @@ class AnalyseurReseau:
         result = []
 
         for i, comm_nodes in enumerate(communities):
-            comm = Communaute(
-                nom=f"Communauté {i+1}",
-                acteurs_ids=list(comm_nodes)
-            )
+            comm = Communaute(nom=f"Communauté {i + 1}", acteurs_ids=list(comm_nodes))
 
             # Extraire thématiques
             thematiques: dict[str, int] = {}
@@ -661,7 +690,9 @@ class AnalyseurReseau:
                     for kw in acteurs_dict[aid].mots_cles + acteurs_dict[aid].secteurs:
                         thematiques[kw] = thematiques.get(kw, 0) + 1
 
-            comm.thematiques = [k for k, _ in sorted(thematiques.items(), key=lambda x: x[1], reverse=True)[:5]]
+            comm.thematiques = [
+                k for k, _ in sorted(thematiques.items(), key=lambda x: x[1], reverse=True)[:5]
+            ]
 
             # Calculer centroïde géographique
             coords = []
@@ -683,6 +714,7 @@ class AnalyseurReseau:
     def exporter_gexf(self, chemin: str) -> None:
         """Exporte le graphe au format GEXF (pour Gephi)"""
         import networkx as nx
+
         if self._graph:
             nx.write_gexf(self._graph, chemin)
             logger.info(f"Graphe exporté: {chemin}")
@@ -693,14 +725,11 @@ class AnalyseurReseau:
             return {"nodes": [], "links": []}
 
         return {
-            "nodes": [
-                {"id": n, **self._graph.nodes[n]}
-                for n in self._graph.nodes()
-            ],
+            "nodes": [{"id": n, **self._graph.nodes[n]} for n in self._graph.nodes()],
             "links": [
                 {"source": u, "target": v, **self._graph.edges[u, v]}
                 for u, v in self._graph.edges()
-            ]
+            ],
         }
 
 
@@ -712,10 +741,7 @@ class GenerateurVisualisations:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     async def generer_carte(
-        self,
-        acteurs: list[Acteur],
-        relations: list[Relation],
-        nom_fichier: str = "carte.html"
+        self, acteurs: list[Acteur], relations: list[Relation], nom_fichier: str = "carte.html"
     ) -> str:
         """Génère une carte interactive avec Folium"""
         import folium
@@ -729,29 +755,29 @@ class GenerateurVisualisations:
         else:
             center = [
                 sum(c.latitude for c in coords) / len(coords),
-                sum(c.longitude for c in coords) / len(coords)
+                sum(c.longitude for c in coords) / len(coords),
             ]
             zoom = 8
 
-        carte = folium.Map(location=center, zoom_start=zoom, tiles='cartodbpositron')
+        carte = folium.Map(location=center, zoom_start=zoom, tiles="cartodbpositron")
 
         # Cluster de marqueurs
         cluster = MarkerCluster()
 
         # Couleurs par type
         couleurs = {
-            ActeurType.ENTREPRISE: 'blue',
-            ActeurType.STARTUP: 'green',
-            ActeurType.LABORATOIRE: 'red',
-            ActeurType.UNIVERSITE: 'purple',
-            ActeurType.CLUSTER: 'orange',
-            ActeurType.POLE_COMPETITIVITE: 'darkred',
-            ActeurType.INCUBATEUR: 'cadetblue',
-            ActeurType.ACCELERATEUR: 'lightgreen',
-            ActeurType.FINANCEUR: 'black',
-            ActeurType.COLLECTIVITE: 'lightblue',
-            ActeurType.ASSOCIATION: 'pink',
-            ActeurType.AUTRE: 'gray'
+            ActeurType.ENTREPRISE: "blue",
+            ActeurType.STARTUP: "green",
+            ActeurType.LABORATOIRE: "red",
+            ActeurType.UNIVERSITE: "purple",
+            ActeurType.CLUSTER: "orange",
+            ActeurType.POLE_COMPETITIVITE: "darkred",
+            ActeurType.INCUBATEUR: "cadetblue",
+            ActeurType.ACCELERATEUR: "lightgreen",
+            ActeurType.FINANCEUR: "black",
+            ActeurType.COLLECTIVITE: "lightblue",
+            ActeurType.ASSOCIATION: "pink",
+            ActeurType.AUTRE: "gray",
         }
 
         # Ajouter les acteurs
@@ -760,15 +786,15 @@ class GenerateurVisualisations:
             popup_html = f"""
             <b>{acteur.nom}</b><br>
             Type: {acteur.type.value}<br>
-            {acteur.description or ''}<br>
-            Secteurs: {', '.join(acteur.secteurs[:3])}<br>
+            {acteur.description or ""}<br>
+            Secteurs: {", ".join(acteur.secteurs[:3])}<br>
             Score d'influence: {acteur.metriques.score_influence:.2f}
             """
             folium.Marker(
                 location=acteur.adresse.coordonnees.to_tuple(),
                 popup=popup_html,
                 tooltip=acteur.nom,
-                icon=folium.Icon(color=couleurs.get(acteur.type, 'gray'), icon='info-sign')
+                icon=folium.Icon(color=couleurs.get(acteur.type, "gray"), icon="info-sign"),
             ).add_to(cluster)
 
         cluster.add_to(carte)
@@ -781,12 +807,12 @@ class GenerateurVisualisations:
                 folium.PolyLine(
                     locations=[
                         a1.adresse.coordonnees.to_tuple(),
-                        a2.adresse.coordonnees.to_tuple()
+                        a2.adresse.coordonnees.to_tuple(),
                     ],
-                    color='gray',
+                    color="gray",
                     weight=rel.force * 3,
                     opacity=0.5,
-                    popup=f"{rel.type.value}: {a1.nom} - {a2.nom}"
+                    popup=f"{rel.type.value}: {a1.nom} - {a2.nom}",
                 ).add_to(carte)
 
         # Légende
@@ -807,20 +833,13 @@ class GenerateurVisualisations:
         return str(chemin)
 
     async def generer_graphe(
-        self,
-        acteurs: list[Acteur],
-        relations: list[Relation],
-        nom_fichier: str = "graphe.html"
+        self, acteurs: list[Acteur], relations: list[Relation], nom_fichier: str = "graphe.html"
     ) -> str:
         """Génère un graphe interactif avec PyVis"""
         from pyvis.network import Network
 
         net = Network(
-            height="800px",
-            width="100%",
-            bgcolor="#ffffff",
-            font_color="black",
-            directed=False
+            height="800px", width="100%", bgcolor="#ffffff", font_color="black", directed=False
         )
 
         # Configuration physique
@@ -848,18 +867,18 @@ class GenerateurVisualisations:
 
         # Couleurs par type
         couleurs = {
-            ActeurType.ENTREPRISE: '#3498db',
-            ActeurType.STARTUP: '#2ecc71',
-            ActeurType.LABORATOIRE: '#e74c3c',
-            ActeurType.UNIVERSITE: '#9b59b6',
-            ActeurType.CLUSTER: '#f39c12',
-            ActeurType.POLE_COMPETITIVITE: '#c0392b',
-            ActeurType.INCUBATEUR: '#1abc9c',
-            ActeurType.ACCELERATEUR: '#27ae60',
-            ActeurType.FINANCEUR: '#2c3e50',
-            ActeurType.COLLECTIVITE: '#3498db',
-            ActeurType.ASSOCIATION: '#e91e63',
-            ActeurType.AUTRE: '#95a5a6'
+            ActeurType.ENTREPRISE: "#3498db",
+            ActeurType.STARTUP: "#2ecc71",
+            ActeurType.LABORATOIRE: "#e74c3c",
+            ActeurType.UNIVERSITE: "#9b59b6",
+            ActeurType.CLUSTER: "#f39c12",
+            ActeurType.POLE_COMPETITIVITE: "#c0392b",
+            ActeurType.INCUBATEUR: "#1abc9c",
+            ActeurType.ACCELERATEUR: "#27ae60",
+            ActeurType.FINANCEUR: "#2c3e50",
+            ActeurType.COLLECTIVITE: "#3498db",
+            ActeurType.ASSOCIATION: "#e91e63",
+            ActeurType.AUTRE: "#95a5a6",
         }
 
         # Ajouter les noeuds
@@ -870,9 +889,9 @@ class GenerateurVisualisations:
                 acteur.id,
                 label=acteur.nom[:25],
                 title=f"{acteur.nom}\nType: {acteur.type.value}\nInfluence: {acteur.metriques.score_influence:.2f}",
-                color=couleurs.get(acteur.type, '#95a5a6'),
+                color=couleurs.get(acteur.type, "#95a5a6"),
                 size=taille,
-                font={'size': 10}
+                font={"size": 10},
             )
 
         # Ajouter les arêtes
@@ -882,7 +901,7 @@ class GenerateurVisualisations:
                     rel.source_id,
                     rel.cible_id,
                     value=rel.force * 5,
-                    title=f"{rel.type.value}\nForce: {rel.force:.2f}"
+                    title=f"{rel.type.value}\nForce: {rel.force:.2f}",
                 )
 
         # Sauvegarder
@@ -898,13 +917,13 @@ class GenerateurVisualisations:
         acteurs: list[Acteur],
         relations: list[Relation],
         analyse: AnalyseReseau,
-        nom_fichier: str = "rapport.md"
+        nom_fichier: str = "rapport.md",
     ) -> str:
         """Génère un rapport Markdown"""
 
         rapport = f"""# Rapport de Cartographie: {projet_nom}
 
-*Généré le {datetime.now().strftime('%Y-%m-%d %H:%M')}*
+*Généré le {datetime.now().strftime("%Y-%m-%d %H:%M")}*
 
 ## Résumé
 
@@ -929,7 +948,7 @@ class GenerateurVisualisations:
             par_type[a.type] = par_type.get(a.type, 0) + 1
 
         for t, count in sorted(par_type.items(), key=lambda x: x[1], reverse=True):
-            rapport += f"- **{t.value}**: {count} ({count*100/len(acteurs):.1f}%)\n"
+            rapport += f"- **{t.value}**: {count} ({count * 100 / len(acteurs):.1f}%)\n"
 
         rapport += "\n## Acteurs les Plus Influents\n\n"
         rapport += "| Rang | Acteur | Type | Score d'influence |\n"
@@ -964,7 +983,7 @@ class GenerateurVisualisations:
         rapport += "\n---\n*Rapport généré par EcoCartographe*\n"
 
         chemin = self.output_dir / nom_fichier
-        with open(chemin, 'w', encoding='utf-8') as f:
+        with open(chemin, "w", encoding="utf-8") as f:
             f.write(rapport)
 
         logger.info(f"Rapport généré: {chemin}")

@@ -1,4 +1,5 @@
 """HTTPX-based worker for lightweight crawling."""
+
 import hashlib
 from urllib.parse import urlparse
 
@@ -26,10 +27,7 @@ class HTTPXWorker(BaseWorker):
     """
 
     def __init__(
-        self,
-        rate_limiter: RateLimiter | None = None,
-        timeout: int = 30,
-        max_retries: int = 3
+        self, rate_limiter: RateLimiter | None = None, timeout: int = 30, max_retries: int = 3
     ):
         self.rate_limiter = rate_limiter
         self.timeout = timeout
@@ -49,7 +47,7 @@ class HTTPXWorker(BaseWorker):
             self._client = httpx.AsyncClient(
                 timeout=httpx.Timeout(self.timeout),
                 follow_redirects=True,
-                limits=httpx.Limits(max_connections=100)
+                limits=httpx.Limits(max_connections=100),
             )
         return self._client
 
@@ -72,7 +70,7 @@ class HTTPXWorker(BaseWorker):
                     source_id=source_id,
                     url=url,
                     success=False,
-                    error=f"Domain {domain} is temporarily blocked"
+                    error=f"Domain {domain} is temporarily blocked",
                 )
             await self.rate_limiter.acquire(domain)
 
@@ -90,7 +88,7 @@ class HTTPXWorker(BaseWorker):
 
                 if response.status_code in (429, 503):
                     if self.rate_limiter:
-                        block_time = 300 * (2 ** attempt)
+                        block_time = 300 * (2**attempt)
                         self.rate_limiter.block_domain(domain, block_time)
 
                     if attempt < self.max_retries - 1:
@@ -101,7 +99,7 @@ class HTTPXWorker(BaseWorker):
                         url=url,
                         success=False,
                         status_code=response.status_code,
-                        error=f"Rate limited: {response.status_code}"
+                        error=f"Rate limited: {response.status_code}",
                     )
 
                 if response.status_code >= 400:
@@ -110,7 +108,7 @@ class HTTPXWorker(BaseWorker):
                         url=url,
                         success=False,
                         status_code=response.status_code,
-                        error=f"HTTP {response.status_code}"
+                        error=f"HTTP {response.status_code}",
                     )
 
                 content = response.text
@@ -120,7 +118,7 @@ class HTTPXWorker(BaseWorker):
                     success=True,
                     content=content,
                     content_hash=self._compute_hash(content),
-                    status_code=response.status_code
+                    status_code=response.status_code,
                 )
 
             except httpx.TimeoutException as e:
@@ -130,24 +128,16 @@ class HTTPXWorker(BaseWorker):
                         source_id=source_id,
                         url=url,
                         success=False,
-                        error=f"Timeout after {self.max_retries} attempts"
+                        error=f"Timeout after {self.max_retries} attempts",
                     )
 
             except httpx.RequestError as e:
                 logger.warning(f"Request error crawling {url}: {e}")
                 if attempt == self.max_retries - 1:
-                    return CrawlResult(
-                        source_id=source_id,
-                        url=url,
-                        success=False,
-                        error=str(e)
-                    )
+                    return CrawlResult(source_id=source_id, url=url, success=False, error=str(e))
 
         return CrawlResult(
-            source_id=source_id,
-            url=url,
-            success=False,
-            error="Max retries exceeded"
+            source_id=source_id, url=url, success=False, error="Max retries exceeded"
         )
 
     async def close(self) -> None:

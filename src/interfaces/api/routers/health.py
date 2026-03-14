@@ -335,11 +335,13 @@ async def full_health_check(response: Response):
     dependencies = []
     for check in checks:
         if isinstance(check, Exception):
-            dependencies.append(DependencyHealth(
-                name="unknown",
-                status="down",
-                message=str(check),
-            ))
+            dependencies.append(
+                DependencyHealth(
+                    name="unknown",
+                    status="down",
+                    message=str(check),
+                )
+            )
         else:
             dependencies.append(check)
 
@@ -599,11 +601,13 @@ async def data_sources_health(response: Response):
     sources = []
     for check in checks:
         if isinstance(check, Exception):
-            sources.append(DependencyHealth(
-                name="unknown",
-                status="down",
-                message=str(check)[:100],
-            ))
+            sources.append(
+                DependencyHealth(
+                    name="unknown",
+                    status="down",
+                    message=str(check)[:100],
+                )
+            )
         else:
             sources.append(check)
 

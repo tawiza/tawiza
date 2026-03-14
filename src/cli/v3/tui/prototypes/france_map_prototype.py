@@ -74,8 +74,7 @@ class FranceMapWidget(Static):
         geojson_path = GEO_CACHE / "departements.geojson"
         if not geojson_path.exists():
             self.query_one("#loading-placeholder").update(
-                "[red]GeoJSON not found![/]\n"
-                f"Expected at: {geojson_path}"
+                f"[red]GeoJSON not found![/]\nExpected at: {geojson_path}"
             )
             return
 
@@ -83,10 +82,7 @@ class FranceMapWidget(Static):
 
         # Generate mock data if none provided
         if not self._data:
-            self._data = {
-                row["code"]: random.uniform(-0.3, 0.4)
-                for _, row in self._gdf.iterrows()
-            }
+            self._data = {row["code"]: random.uniform(-0.3, 0.4) for _, row in self._gdf.iterrows()}
 
         # Generate PNG
         self._generate_map_png()
@@ -197,9 +193,8 @@ class MetricsPanel(Static):
         yield Label("[bold]📊 MÉTRIQUES[/]")
         yield Static("─" * 28)
         yield Static(
-            "[dim]Cliquez sur un département[/]\n"
-            "[dim]pour voir les détails...[/]",
-            id="metrics-content"
+            "[dim]Cliquez sur un département[/]\n[dim]pour voir les détails...[/]",
+            id="metrics-content",
         )
 
     def show_metrics(self, dept_code: str, growth: float) -> None:
@@ -210,9 +205,9 @@ class MetricsPanel(Static):
         content = self.query_one("#metrics-content")
         content.update(
             f"[bold]Département {dept_code}[/]\n\n"
-            f"Croissance: [{color}]{sign}{growth*100:.1f}%[/]\n"
+            f"Croissance: [{color}]{sign}{growth * 100:.1f}%[/]\n"
             f"Entreprises: [cyan]{random.randint(500, 5000):,}[/]\n"
-            f"Confiance: [yellow]{random.uniform(0.7, 0.95)*100:.0f}%[/]"
+            f"Confiance: [yellow]{random.uniform(0.7, 0.95) * 100:.0f}%[/]"
         )
 
 
@@ -305,8 +300,7 @@ class FranceMapPrototypeApp(App):
         france_map = self.query_one("#france-map", FranceMapWidget)
         if france_map._gdf is not None:
             new_data = {
-                row["code"]: random.uniform(-0.3, 0.4)
-                for _, row in france_map._gdf.iterrows()
+                row["code"]: random.uniform(-0.3, 0.4) for _, row in france_map._gdf.iterrows()
             }
             france_map.update_data(new_data)
             self.notify("Données régénérées!", timeout=2)

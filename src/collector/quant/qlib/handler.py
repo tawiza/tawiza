@@ -28,6 +28,7 @@ from .processor import Processor, ProcessorChain
 @dataclass
 class DataHandlerConfig:
     """Configuration for TerritorialDataHandler."""
+
     db_url: str
     territories: list[str] | None = None
     start_date: str | date | None = None
@@ -63,7 +64,22 @@ class TerritorialDataHandler:
         # Default territories (main French departments if none specified)
         if self.config.territories is None:
             self.config.territories = [
-                "06", "13", "31", "33", "34", "35", "44", "54", "59", "62", "67", "69", "75", "76", "93", "94"
+                "06",
+                "13",
+                "31",
+                "33",
+                "34",
+                "35",
+                "44",
+                "54",
+                "59",
+                "62",
+                "67",
+                "69",
+                "75",
+                "76",
+                "93",
+                "94",
             ]
 
         # Default time range
@@ -78,17 +94,22 @@ class TerritorialDataHandler:
             try:
                 # Try to load from existing population module
                 from ..population import get_population_data
+
                 self._population_data = await get_population_data()
             except ImportError:
-                warnings.warn("Population module not available. Population normalization will be skipped.")
+                warnings.warn(
+                    "Population module not available. Population normalization will be skipped."
+                )
                 self._population_data = {}
         return self._population_data
 
-    async def load_raw_data(self,
-                           territories: list[str] | None = None,
-                           start_date: str | date | None = None,
-                           end_date: str | date | None = None,
-                           metrics: list[str] | None = None) -> pd.DataFrame:
+    async def load_raw_data(
+        self,
+        territories: list[str] | None = None,
+        start_date: str | date | None = None,
+        end_date: str | date | None = None,
+        metrics: list[str] | None = None,
+    ) -> pd.DataFrame:
         """
         Load raw data from PostgreSQL signals table.
 
@@ -152,21 +173,21 @@ class TerritorialDataHandler:
 
         # Pivot to get metrics as columns
         # Combine source and metric_name for unique column names
-        df['metric_key'] = df['source'] + '_' + df['metric_name']
+        df["metric_key"] = df["source"] + "_" + df["metric_name"]
 
         # Create pivot table
         pivot_df = df.pivot_table(
-            index=['event_date', 'code_dept'],
-            columns='metric_key',
-            values='metric_value',
-            aggfunc='mean'  # Average if multiple values per day
+            index=["event_date", "code_dept"],
+            columns="metric_key",
+            values="metric_value",
+            aggfunc="mean",  # Average if multiple values per day
         )
 
         # Clean column names (remove prefix if consistent)
         pivot_df.columns.name = None
 
         # Forward fill within each territory to handle missing days
-        pivot_df = pivot_df.groupby(level=1).fillna(method='ffill')
+        pivot_df = pivot_df.groupby(level=1).fillna(method="ffill")
 
         # Cache the raw data
         self._raw_data = pivot_df
@@ -188,21 +209,21 @@ class TerritorialDataHandler:
 
         # Extract date and territory levels
         df_reset = df.reset_index()
-        df_reset['year_month'] = pd.to_datetime(df_reset['event_date']).dt.to_period('M')
+        df_reset["year_month"] = pd.to_datetime(df_reset["event_date"]).dt.to_period("M")
 
         # Group by month and territory, aggregate with mean
-        monthly_df = df_reset.groupby(['year_month', 'code_dept']).mean(numeric_only=True)
+        monthly_df = df_reset.groupby(["year_month", "code_dept"]).mean(numeric_only=True)
 
         # Convert period back to datetime for consistency
         monthly_df = monthly_df.reset_index()
-        monthly_df['year_month'] = monthly_df['year_month'].dt.start_time
-        monthly_df = monthly_df.set_index(['year_month', 'code_dept'])
+        monthly_df["year_month"] = monthly_df["year_month"].dt.start_time
+        monthly_df = monthly_df.set_index(["year_month", "code_dept"])
 
         return monthly_df
 
-    def generate_alpha_features(self,
-                               data: pd.DataFrame,
-                               expressions: list[str] | None = None) -> pd.DataFrame:
+    def generate_alpha_features(
+        self, data: pd.DataFrame, expressions: list[str] | None = None
+    ) -> pd.DataFrame:
         """
         Generate alpha features from raw data using expressions.
 
@@ -215,7 +236,7 @@ class TerritorialDataHandler:
         """
         if expressions is None:
             # Use compatible expressions based on available data
-            available_metrics = [col.split('_', 1)[-1] for col in data.columns]
+            available_metrics = [col.split("_", 1)[-1] for col in data.columns]
             expressions = get_compatible_expressions(available_metrics)
 
         if not expressions:
@@ -229,8 +250,8 @@ class TerritorialDataHandler:
         # Map column names to expression variables (remove source prefix)
         column_mapping = {}
         for col in data.columns:
-            if '_' in col:
-                source, metric = col.split('_', 1)
+            if "_" in col:
+                source, metric = col.split("_", 1)
                 column_mapping[metric] = col
 
         # Create evaluation DataFrame with standardized column names
@@ -253,11 +274,13 @@ class TerritorialDataHandler:
 
         return alpha_features
 
-    async def prepare_dataset(self,
-                             data_key: str = "infer",
-                             features: list[str] | None = None,
-                             alpha_expressions: list[str] | None = None,
-                             labels: pd.DataFrame | None = None) -> TerritorialDataset:
+    async def prepare_dataset(
+        self,
+        data_key: str = "infer",
+        features: list[str] | None = None,
+        alpha_expressions: list[str] | None = None,
+        labels: pd.DataFrame | None = None,
+    ) -> TerritorialDataset:
         """
         Prepare a complete dataset with features and optional labels.
 
@@ -313,6 +336,7 @@ class TerritorialDataHandler:
             else:
                 # Default inference processing
                 from .processor import create_inference_chain
+
                 population = await self._load_population_data()
                 processor = create_inference_chain(population)
                 processed_data = processor.fit_transform(combined_features)
@@ -322,6 +346,7 @@ class TerritorialDataHandler:
             else:
                 # Default learning processing
                 from .processor import create_standard_chain
+
                 population = await self._load_population_data()
                 processor = create_standard_chain(population, robust=True)
                 processed_data = processor.fit_transform(combined_features)
@@ -330,12 +355,18 @@ class TerritorialDataHandler:
 
         # Create dataset
         metadata = {
-            'data_key': data_key,
-            'territories': self.config.territories,
-            'date_range': (self.config.start_date, self.config.end_date),
-            'raw_features': list(feature_data.columns) if not feature_data.empty else [],
-            'alpha_expressions': alpha_expressions or [],
-            'processing': str(type(self.config.infer_processors if data_key == "infer" else self.config.learn_processors))
+            "data_key": data_key,
+            "territories": self.config.territories,
+            "date_range": (self.config.start_date, self.config.end_date),
+            "raw_features": list(feature_data.columns) if not feature_data.empty else [],
+            "alpha_expressions": alpha_expressions or [],
+            "processing": str(
+                type(
+                    self.config.infer_processors
+                    if data_key == "infer"
+                    else self.config.learn_processors
+                )
+            ),
         }
 
         return TerritorialDataset(processed_data, labels, metadata)
@@ -353,11 +384,13 @@ class TerritorialDataHandler:
         dataset = await self.prepare_dataset(data_key="infer")
         return dataset.get_latest_data(n_periods)
 
-    def create_labels(self,
-                     target_metric: str,
-                     prediction_horizon: int = 6,
-                     threshold_method: str = "quantile",
-                     threshold_value: float = 0.8) -> pd.DataFrame:
+    def create_labels(
+        self,
+        target_metric: str,
+        prediction_horizon: int = 6,
+        threshold_method: str = "quantile",
+        threshold_value: float = 0.8,
+    ) -> pd.DataFrame:
         """
         Create labels for supervised learning.
 
@@ -377,7 +410,9 @@ class TerritorialDataHandler:
 
         if target_metric not in monthly_data.columns:
             available_metrics = list(monthly_data.columns)
-            raise ValueError(f"Target metric '{target_metric}' not found. Available: {available_metrics}")
+            raise ValueError(
+                f"Target metric '{target_metric}' not found. Available: {available_metrics}"
+            )
 
         target_series = monthly_data[target_metric]
 
@@ -403,18 +438,16 @@ class TerritorialDataHandler:
             raise ValueError(f"Unknown threshold method: {threshold_method}")
 
         # Create DataFrame
-        label_df = pd.DataFrame({
-            f"{target_metric}_future_{prediction_horizon}m": labels
-        })
+        label_df = pd.DataFrame({f"{target_metric}_future_{prediction_horizon}m": labels})
 
         # Remove rows with NaN (at the end due to shift)
         label_df = label_df.dropna()
 
         return label_df
 
-    async def detect_anomalies(self,
-                              method: str = "isolation_forest",
-                              contamination: float = 0.1) -> pd.DataFrame:
+    async def detect_anomalies(
+        self, method: str = "isolation_forest", contamination: float = 0.1
+    ) -> pd.DataFrame:
         """
         Detect anomalies in the latest data.
 
@@ -432,11 +465,13 @@ class TerritorialDataHandler:
 
         if method == "isolation_forest":
             from sklearn.ensemble import IsolationForest
+
             detector = IsolationForest(contamination=contamination, random_state=42)
             anomaly_labels = detector.fit_predict(X)
             anomaly_scores = detector.score_samples(X)
         elif method == "local_outlier_factor":
             from sklearn.neighbors import LocalOutlierFactor
+
             detector = LocalOutlierFactor(contamination=contamination)
             anomaly_labels = detector.fit_predict(X)
             anomaly_scores = detector.negative_outlier_factor_
@@ -444,18 +479,22 @@ class TerritorialDataHandler:
             raise ValueError(f"Unknown anomaly detection method: {method}")
 
         # Create results DataFrame
-        results = pd.DataFrame({
-            'anomaly_score': anomaly_scores,
-            'is_anomaly': (anomaly_labels == -1).astype(int),
-            'territory': latest_dataset.territories * len(latest_dataset.dates) if latest_dataset.dates else latest_dataset.territories
-        }, index=latest_dataset.features.index)
+        results = pd.DataFrame(
+            {
+                "anomaly_score": anomaly_scores,
+                "is_anomaly": (anomaly_labels == -1).astype(int),
+                "territory": latest_dataset.territories * len(latest_dataset.dates)
+                if latest_dataset.dates
+                else latest_dataset.territories,
+            },
+            index=latest_dataset.features.index,
+        )
 
         return results
 
-    def get_feature_importance(self,
-                              target_metric: str,
-                              prediction_horizon: int = 6,
-                              method: str = "random_forest") -> pd.DataFrame:
+    def get_feature_importance(
+        self, target_metric: str, prediction_horizon: int = 6, method: str = "random_forest"
+    ) -> pd.DataFrame:
         """
         Calculate feature importance for predicting a target metric.
 
@@ -472,11 +511,9 @@ class TerritorialDataHandler:
         warnings.warn("Feature importance calculation not yet implemented")
         return pd.DataFrame()
 
-    async def export_data(self,
-                         filepath: str,
-                         data_key: str = "infer",
-                         format: str = "csv",
-                         **kwargs) -> None:
+    async def export_data(
+        self, filepath: str, data_key: str = "infer", format: str = "csv", **kwargs
+    ) -> None:
         """
         Export processed data to file.
 
@@ -503,14 +540,14 @@ class TerritorialDataHandler:
             Dictionary with handler information
         """
         return {
-            'db_url': '***',  # Hide connection string
-            'territories': self.config.territories,
-            'date_range': (self.config.start_date, self.config.end_date),
-            'raw_features': self.config.raw_features,
-            'alpha_expressions': self.config.alpha_expressions,
-            'has_raw_data': self._raw_data is not None,
-            'raw_data_shape': self._raw_data.shape if self._raw_data is not None else None,
-            'population_data_available': len(self._population_data) > 0
+            "db_url": "***",  # Hide connection string
+            "territories": self.config.territories,
+            "date_range": (self.config.start_date, self.config.end_date),
+            "raw_features": self.config.raw_features,
+            "alpha_expressions": self.config.alpha_expressions,
+            "has_raw_data": self._raw_data is not None,
+            "raw_data_shape": self._raw_data.shape if self._raw_data is not None else None,
+            "population_data_available": len(self._population_data) > 0,
         }
 
     def __repr__(self) -> str:

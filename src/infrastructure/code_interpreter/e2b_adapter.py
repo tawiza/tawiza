@@ -14,12 +14,7 @@ class E2BCodeAdapter:
     Supports Python and JavaScript execution with isolated environments.
     """
 
-    def __init__(
-        self,
-        api_key: str | None = None,
-        timeout: int = 300,
-        **kwargs
-    ):
+    def __init__(self, api_key: str | None = None, timeout: int = 300, **kwargs):
         """
         Initialize E2B adapter.
 
@@ -39,7 +34,7 @@ class E2BCodeAdapter:
         language: str = "python",
         timeout: int | None = None,
         session_id: str | None = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """
         Execute code in E2B cloud sandbox.
@@ -105,7 +100,9 @@ class E2BCodeAdapter:
                     "output": "\n".join(output_lines),
                     "error": execution.error.value if execution.error else None,
                     "results": results,
-                    "execution_time": execution.execution_time_ms / 1000.0 if execution.execution_time_ms else 0,
+                    "execution_time": execution.execution_time_ms / 1000.0
+                    if execution.execution_time_ms
+                    else 0,
                     "backend": "e2b_cloud",
                     "sandbox_id": sandbox.id,
                 }
@@ -138,10 +135,7 @@ class E2BCodeAdapter:
             }
 
     async def execute_python(
-        self,
-        code: str,
-        timeout: int | None = None,
-        **kwargs
+        self, code: str, timeout: int | None = None, **kwargs
     ) -> dict[str, Any]:
         """
         Execute Python code in E2B sandbox.
@@ -157,10 +151,7 @@ class E2BCodeAdapter:
         return await self.execute_code(code, language="python", timeout=timeout, **kwargs)
 
     async def execute_javascript(
-        self,
-        code: str,
-        timeout: int | None = None,
-        **kwargs
+        self, code: str, timeout: int | None = None, **kwargs
     ) -> dict[str, Any]:
         """
         Execute JavaScript code in E2B sandbox.
@@ -176,10 +167,7 @@ class E2BCodeAdapter:
         return await self.execute_code(code, language="javascript", timeout=timeout, **kwargs)
 
     async def install_packages(
-        self,
-        packages: list[str],
-        language: str = "python",
-        **kwargs
+        self, packages: list[str], language: str = "python", **kwargs
     ) -> dict[str, Any]:
         """
         Install packages in E2B sandbox.
@@ -210,4 +198,5 @@ class E2BCodeAdapter:
             True if E2B API key is configured
         """
         import os
+
         return self.api_key is not None or os.getenv("E2B_API_KEY") is not None

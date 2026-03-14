@@ -18,12 +18,16 @@ logger = logging.getLogger(__name__)
 async def add_epci_column(engine: AsyncEngine) -> None:
     """Add code_epci column to signals table if not exists."""
     async with engine.begin() as conn:
-        await conn.execute(text("""
+        await conn.execute(
+            text("""
             ALTER TABLE signals ADD COLUMN IF NOT EXISTS code_epci VARCHAR(20);
-        """))
-        await conn.execute(text("""
+        """)
+        )
+        await conn.execute(
+            text("""
             CREATE INDEX IF NOT EXISTS idx_signals_code_epci ON signals(code_epci);
-        """))
+        """)
+        )
     logger.info("code_epci column ensured on signals table")
 
 
@@ -37,12 +41,15 @@ async def enrich_signals_with_epci(engine: AsyncEngine, batch_size: int = 5000) 
 
     async with engine.begin() as conn:
         # Get signals with commune but no EPCI
-        result = await conn.execute(text("""
+        result = await conn.execute(
+            text("""
             SELECT id, code_commune FROM signals
             WHERE code_commune IS NOT NULL
               AND (code_epci IS NULL OR code_epci = '')
             LIMIT :limit
-        """), {"limit": batch_size})
+        """),
+            {"limit": batch_size},
+        )
         rows = result.fetchall()
 
         if not rows:
@@ -59,10 +66,7 @@ async def enrich_signals_with_epci(engine: AsyncEngine, batch_size: int = 5000) 
         if updates:
             # Batch update
             for u in updates:
-                await conn.execute(
-                    text("UPDATE signals SET code_epci = :epci WHERE id = :sid"),
-                    u
-                )
+                await conn.execute(text("UPDATE signals SET code_epci = :epci WHERE id = :sid"), u)
             total_updated = len(updates)
 
     logger.info(f"Enriched {total_updated}/{len(rows)} signals with EPCI codes")

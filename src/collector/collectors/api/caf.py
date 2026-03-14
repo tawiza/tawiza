@@ -16,9 +16,9 @@ CAF_BASE = "https://data.caf.fr/api/explore/v2.1/catalog/datasets"
 
 # Real dataset IDs from data.caf.fr
 DATASETS = {
-    "rsa": "rsa_s_type_age_5_dep",          # RSA beneficiaries by dept
-    "asf": "asf_s_ben_dep",                  # ASF beneficiaries by dept
-    "aah": "aah_s_tx_inca_age_5_dep",        # AAH beneficiaries by dept
+    "rsa": "rsa_s_type_age_5_dep",  # RSA beneficiaries by dept
+    "asf": "asf_s_ben_dep",  # ASF beneficiaries by dept
+    "aah": "aah_s_tx_inca_age_5_dep",  # AAH beneficiaries by dept
     "allocations_familiales": "af_s_tx_dep",  # Family allowances by dept
 }
 
@@ -52,9 +52,7 @@ class CAFCollector(BaseCollector):
 
         for metric_key, dataset_id in DATASETS.items():
             try:
-                new_signals = await self._fetch_dataset(
-                    dataset_id, metric_key, code_dept
-                )
+                new_signals = await self._fetch_dataset(dataset_id, metric_key, code_dept)
                 signals.extend(new_signals)
             except Exception as e:
                 logger.warning(f"[caf] Failed to fetch {metric_key}: {e}")
@@ -110,9 +108,10 @@ class CAFCollector(BaseCollector):
                     signal_type="neutre",
                     confidence=0.85,
                     raw_data={
-                        k: v for k, v in record.items()
-                        if k in ("nomdep", "nomregi", count_field,
-                                 fields.get("amount", ""), "dtreffre")
+                        k: v
+                        for k, v in record.items()
+                        if k
+                        in ("nomdep", "nomregi", count_field, fields.get("amount", ""), "dtreffre")
                     },
                 )
             )

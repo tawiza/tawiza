@@ -107,9 +107,7 @@ class CompetitorAnalysis:
             "computed_at": self.computed_at.isoformat(),
             "global_score": round(self.territory_score.global_score, 1),
             "national_average": round(self.national_average, 1),
-            "delta_national": round(
-                self.territory_score.global_score - self.national_average, 1
-            ),
+            "delta_national": round(self.territory_score.global_score - self.national_average, 1),
             "rank_in_group": self.rank_in_group,
             "group_size": self.group_size,
             "comparison_group": self.comparison_group,
@@ -338,8 +336,7 @@ class CompetitorAnalyzer:
                         global_score=s.global_score,
                         delta_global=territory_score.global_score - s.global_score,
                         axes_deltas={
-                            axis.value: territory_score.axes[axis].score
-                            - s.axes[axis].score
+                            axis.value: territory_score.axes[axis].score - s.axes[axis].score
                             for axis in AttractiveAxis
                         },
                     )
@@ -357,8 +354,7 @@ class CompetitorAnalyzer:
                         global_score=s.global_score,
                         delta_global=territory_score.global_score - s.global_score,
                         axes_deltas={
-                            axis.value: territory_score.axes[axis].score
-                            - s.axes[axis].score
+                            axis.value: territory_score.axes[axis].score - s.axes[axis].score
                             for axis in AttractiveAxis
                         },
                     )
@@ -368,15 +364,11 @@ class CompetitorAnalyzer:
         similar_comparison.sort(key=lambda x: x.global_score, reverse=True)
 
         # Calculate national average (from scored territories)
-        all_scores = [territory_score.global_score] + [
-            s.global_score for s in scored.values()
-        ]
+        all_scores = [territory_score.global_score] + [s.global_score for s in scored.values()]
         national_average = sum(all_scores) / len(all_scores) if all_scores else 50.0
 
         # Identify strengths and weaknesses
-        strengths, weaknesses = self._identify_strengths_weaknesses(
-            territory_score, scored
-        )
+        strengths, weaknesses = self._identify_strengths_weaknesses(territory_score, scored)
 
         # Calculate rank
         all_in_group = [territory_score.global_score] + [
@@ -439,9 +431,7 @@ class CompetitorAnalyzer:
             # Average of comparators
             comparator_scores = [s.axes[axis].score for s in comparators.values()]
             avg_comparators = (
-                sum(comparator_scores) / len(comparator_scores)
-                if comparator_scores
-                else 50.0
+                sum(comparator_scores) / len(comparator_scores) if comparator_scores else 50.0
             )
 
             delta = territory_score - avg_comparators

@@ -12,6 +12,7 @@ from uuid import uuid4
 
 class ActeurType(StrEnum):
     """Types d'acteurs dans l'écosystème territorial"""
+
     ENTREPRISE = "entreprise"
     STARTUP = "startup"
     LABORATOIRE = "laboratoire"
@@ -28,6 +29,7 @@ class ActeurType(StrEnum):
 
 class RelationType(StrEnum):
     """Types de relations entre acteurs"""
+
     COLLABORATION = "collaboration"
     FINANCEMENT = "financement"
     INCUBATION = "incubation"
@@ -42,6 +44,7 @@ class RelationType(StrEnum):
 
 class StatutProjet(StrEnum):
     """Statut du projet de cartographie"""
+
     BROUILLON = "brouillon"
     EN_COURS = "en_cours"
     EXTRACTION = "extraction"
@@ -54,6 +57,7 @@ class StatutProjet(StrEnum):
 @dataclass
 class Coordonnees:
     """Value Object - Coordonnées géographiques"""
+
     latitude: float
     longitude: float
 
@@ -67,7 +71,7 @@ class Coordonnees:
         dlat = lat2 - lat1
         dlon = lon2 - lon1
 
-        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
         c = 2 * asin(sqrt(a))
         r = 6371  # Rayon de la Terre en km
 
@@ -80,6 +84,7 @@ class Coordonnees:
 @dataclass
 class Adresse:
     """Value Object - Adresse postale"""
+
     rue: str | None = None
     code_postal: str | None = None
     ville: str | None = None
@@ -91,6 +96,7 @@ class Adresse:
 @dataclass
 class MetriquesReseau:
     """Value Object - Métriques de centralité d'un acteur"""
+
     degre: float = 0.0
     centralite_intermediation: float = 0.0
     centralite_proximite: float = 0.0
@@ -101,16 +107,17 @@ class MetriquesReseau:
     def score_influence(self) -> float:
         """Score composite d'influence"""
         return (
-            self.degre * 0.2 +
-            self.centralite_intermediation * 0.3 +
-            self.centralite_proximite * 0.2 +
-            self.centralite_vecteur_propre * 0.3
+            self.degre * 0.2
+            + self.centralite_intermediation * 0.3
+            + self.centralite_proximite * 0.2
+            + self.centralite_vecteur_propre * 0.3
         )
 
 
 @dataclass
 class Acteur:
     """Entité - Acteur de l'écosystème d'innovation"""
+
     id: str = field(default_factory=lambda: str(uuid4()))
     nom: str = ""
     type: ActeurType = ActeurType.AUTRE
@@ -136,6 +143,7 @@ class Acteur:
 @dataclass
 class Relation:
     """Entité - Relation entre deux acteurs"""
+
     id: str = field(default_factory=lambda: str(uuid4()))
     source_id: str = ""
     cible_id: str = ""
@@ -155,6 +163,7 @@ class Relation:
 @dataclass
 class Communaute:
     """Entité - Communauté détectée par algorithme de clustering"""
+
     id: str = field(default_factory=lambda: str(uuid4()))
     nom: str | None = None
     acteurs_ids: list[str] = field(default_factory=list)
@@ -170,6 +179,7 @@ class Communaute:
 @dataclass
 class AnalyseReseau:
     """Value Object - Résultats d'analyse NetworkX"""
+
     nb_noeuds: int = 0
     nb_aretes: int = 0
     densite: float = 0.0
@@ -186,6 +196,7 @@ class AnalyseReseau:
 @dataclass
 class ConfigurationExtraction:
     """Value Object - Configuration pour l'extraction"""
+
     modele_spacy: str = "fr_core_news_lg"
     modele_ollama: str = "mistral:latest"
     seuil_proximite_km: float = 50.0
@@ -198,6 +209,7 @@ class ConfigurationExtraction:
 @dataclass
 class SourceDonnees:
     """Value Object - Source de données à ingérer"""
+
     id: str = field(default_factory=lambda: str(uuid4()))
     type: str = "csv"  # csv, excel, json, web, api
     chemin: str = ""
@@ -212,6 +224,7 @@ class SourceDonnees:
 @dataclass
 class ResultatCartographie:
     """Agrégat racine - Résultat complet d'une cartographie"""
+
     acteurs: list[Acteur] = field(default_factory=list)
     relations: list[Relation] = field(default_factory=list)
     analyse: AnalyseReseau = field(default_factory=AnalyseReseau)
@@ -232,6 +245,7 @@ class ResultatCartographie:
 @dataclass
 class ProjetCartographie:
     """Agrégat racine - Projet de cartographie d'écosystème"""
+
     id: str = field(default_factory=lambda: str(uuid4()))
     nom: str = ""
     description: str | None = None
@@ -268,7 +282,10 @@ class ProjetCartographie:
         self.progression = 100
         self.date_completion = datetime.utcnow()
         self.date_modification = datetime.utcnow()
-        self._ajouter_log("info", f"Projet terminé: {resultat.nb_acteurs} acteurs, {resultat.nb_relations} relations")
+        self._ajouter_log(
+            "info",
+            f"Projet terminé: {resultat.nb_acteurs} acteurs, {resultat.nb_relations} relations",
+        )
 
     def marquer_erreur(self, erreur: str) -> None:
         """Marque le projet en erreur"""
@@ -286,11 +303,9 @@ class ProjetCartographie:
 
     def _ajouter_log(self, niveau: str, message: str) -> None:
         """Ajoute une entrée de log"""
-        self.logs.append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "niveau": niveau,
-            "message": message
-        })
+        self.logs.append(
+            {"timestamp": datetime.utcnow().isoformat(), "niveau": niveau, "message": message}
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Sérialise le projet en dictionnaire"""
@@ -309,5 +324,5 @@ class ProjetCartographie:
             "date_creation": self.date_creation.isoformat(),
             "date_modification": self.date_modification.isoformat(),
             "date_completion": self.date_completion.isoformat() if self.date_completion else None,
-            "erreur": self.erreur
+            "erreur": self.erreur,
         }

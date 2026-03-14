@@ -177,11 +177,9 @@ class LlamaFactoryAdapter(TrainingAdapter):
             # Model
             "model_name_or_path": config.base_model,
             "model_type": config.model_type,
-
             # Dataset
             "dataset": dataset_path,
             "template": "default",
-
             # Training
             "output_dir": output_dir,
             "num_train_epochs": config.num_epochs,
@@ -190,20 +188,17 @@ class LlamaFactoryAdapter(TrainingAdapter):
             "learning_rate": config.learning_rate,
             "warmup_ratio": config.warmup_ratio,
             "max_seq_length": config.max_seq_length,
-
             # LoRA
             "finetuning_type": "lora" if config.use_lora else "full",
             "lora_rank": config.lora_rank,
             "lora_alpha": config.lora_alpha,
             "lora_dropout": config.lora_dropout,
-
             # Optimization
             "optim": config.optimizer,
             "lr_scheduler_type": config.scheduler,
             "weight_decay": config.weight_decay,
             "fp16": config.fp16,
             "bf16": config.bf16,
-
             # Logging
             "logging_steps": config.logging_steps,
             "save_steps": config.save_steps,
@@ -259,8 +254,11 @@ class LlamaFactoryAdapter(TrainingAdapter):
 
             # Run LLaMA-Factory training (safe: args passed as list)
             cmd = [
-                "python", "-m", "llamafactory.train",
-                "--config", config_file,
+                "python",
+                "-m",
+                "llamafactory.train",
+                "--config",
+                config_file,
             ]
 
             logger.info(f"Starting training run {run_id}")
@@ -319,6 +317,7 @@ class LlamaFactoryAdapter(TrainingAdapter):
                 try:
                     # Try to extract loss value
                     import re
+
                     match = re.search(r"loss[:\s]+([0-9.]+)", line.lower())
                     if match:
                         metrics["loss"] = float(match.group(1))
@@ -343,8 +342,11 @@ class LlamaFactoryAdapter(TrainingAdapter):
         """
         try:
             cmd = [
-                "python", "-m", "llamafactory.evaluate",
-                "--model_path", model_path,
+                "python",
+                "-m",
+                "llamafactory.evaluate",
+                "--model_path",
+                model_path,
             ]
 
             if eval_dataset_path:

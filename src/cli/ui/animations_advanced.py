@@ -21,6 +21,7 @@ console = Console()
 
 # ===== CUSTOM SPINNERS =====
 
+
 class CustomSpinners:
     """Collection de spinners personnalisés"""
 
@@ -38,10 +39,7 @@ class CustomSpinners:
 
     @staticmethod
     def animate_spinner(
-        spinner: list[str],
-        message: str,
-        duration: float = 3.0,
-        color: str = "cyan"
+        spinner: list[str], message: str, duration: float = 3.0, color: str = "cyan"
     ):
         """Animer un spinner avec message"""
         frames = itertools.cycle(spinner)
@@ -59,6 +57,7 @@ class CustomSpinners:
 
 
 # ===== TRANSITIONS =====
+
 
 class Transitions:
     """Effets de transition entre écrans"""
@@ -147,6 +146,7 @@ class Transitions:
 
 # ===== LOADING ANIMATIONS =====
 
+
 class LoadingAnimations:
     """Animations de chargement avancées"""
 
@@ -168,18 +168,14 @@ class LoadingAnimations:
             pass
 
     @staticmethod
-    def progress_bar_smooth(
-        message: str = "Processing",
-        total: int = 100,
-        duration: float = 5.0
-    ):
+    def progress_bar_smooth(message: str = "Processing", total: int = 100, duration: float = 5.0):
         """Progress bar avec animation smooth"""
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             BarColumn(),
             TaskProgressColumn(),
-            console=console
+            console=console,
         ) as progress:
             task = progress.add_task(message, total=total)
 
@@ -235,6 +231,7 @@ class LoadingAnimations:
 
 # ===== EFFECTS VISUELS =====
 
+
 class VisualEffects:
     """Effets visuels pour success/error/info"""
 
@@ -254,11 +251,7 @@ class VisualEffects:
             with Live(console=console, refresh_per_second=5) as live:
                 for frame in frames:
                     content = Text.assemble(frame, " ", Text(message, style="green"))
-                    panel = Panel(
-                        Align.center(content),
-                        border_style="green",
-                        box=box.DOUBLE
-                    )
+                    panel = Panel(Align.center(content), border_style="green", box=box.DOUBLE)
                     live.update(panel)
                     time.sleep(duration / len(frames))
         except KeyboardInterrupt:
@@ -280,11 +273,7 @@ class VisualEffects:
             with Live(console=console, refresh_per_second=5) as live:
                 for frame in frames:
                     content = Text.assemble(frame, " ", Text(message, style="red"))
-                    panel = Panel(
-                        Align.center(content),
-                        border_style="red",
-                        box=box.DOUBLE
-                    )
+                    panel = Panel(Align.center(content), border_style="red", box=box.DOUBLE)
                     live.update(panel)
                     time.sleep(duration / len(frames))
         except KeyboardInterrupt:
@@ -306,11 +295,7 @@ class VisualEffects:
             with Live(console=console, refresh_per_second=5) as live:
                 for frame in frames:
                     content = Text.assemble(frame, " ", Text(message, style="blue"))
-                    panel = Panel(
-                        Align.center(content),
-                        border_style="blue",
-                        box=box.ROUNDED
-                    )
+                    panel = Panel(Align.center(content), border_style="blue", box=box.ROUNDED)
                     live.update(panel)
                     time.sleep(duration / len(frames))
         except KeyboardInterrupt:
@@ -332,11 +317,7 @@ class VisualEffects:
             with Live(console=console, refresh_per_second=5) as live:
                 for frame in frames:
                     content = Text.assemble(frame, " ", Text(message, style="yellow"))
-                    panel = Panel(
-                        Align.center(content),
-                        border_style="yellow",
-                        box=box.ROUNDED
-                    )
+                    panel = Panel(Align.center(content), border_style="yellow", box=box.ROUNDED)
                     live.update(panel)
                     time.sleep(duration / len(frames))
         except KeyboardInterrupt:
@@ -344,6 +325,7 @@ class VisualEffects:
 
 
 # ===== ANIMATED PROGRESS =====
+
 
 class AnimatedProgress:
     """Progress bars avec animations personnalisées"""
@@ -361,9 +343,7 @@ class AnimatedProgress:
                 # Ajouter un effet de feu qui grandit
                 fire = fire_chars[min(i // (steps // 3), len(fire_chars) - 1)]
                 progress.update(
-                    task,
-                    advance=total / steps,
-                    description=f"[red]Heating up... {fire}"
+                    task, advance=total / steps, description=f"[red]Heating up... {fire}"
                 )
                 time.sleep(duration / steps)
 
@@ -390,14 +370,13 @@ class AnimatedProgress:
             for i in range(steps):
                 color = colors[i % len(colors)]
                 progress.update(
-                    task,
-                    advance=total / steps,
-                    description=f"[{color}]Processing... ✨"
+                    task, advance=total / steps, description=f"[{color}]Processing... ✨"
                 )
                 time.sleep(duration / steps)
 
 
 # ===== CELEBRATION EFFECTS =====
+
 
 class CelebrationEffects:
     """Effets de célébration pour les accomplissements"""
@@ -484,19 +463,17 @@ class CelebrationEffects:
                 while time.time() < end_time:
                     emoji_left = random.choice(emojis)
                     emoji_right = random.choice(emojis)
-                    color = random.choice(["bright_yellow", "bright_green", "bright_cyan", "bright_magenta"])
+                    color = random.choice(
+                        ["bright_yellow", "bright_green", "bright_cyan", "bright_magenta"]
+                    )
 
                     content = Text.assemble(
                         Text(emoji_left + " ", style=color),
                         Text(message, style=f"bold {color}"),
-                        Text(" " + emoji_right, style=color)
+                        Text(" " + emoji_right, style=color),
                     )
 
-                    panel = Panel(
-                        Align.center(content),
-                        border_style=color,
-                        box=box.DOUBLE
-                    )
+                    panel = Panel(Align.center(content), border_style=color, box=box.DOUBLE)
 
                     live.update(panel)
                     time.sleep(0.3)
@@ -508,18 +485,21 @@ class CelebrationEffects:
 
 if __name__ == "__main__":
     console.clear()
-    console.print(Panel(
-        "[bold cyan]Advanced Animations Demo - Phase 7[/]\n"
-        "[dim]Testing all animation types[/]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]Advanced Animations Demo - Phase 7[/]\n[dim]Testing all animation types[/]",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     # Demo 1: Custom Spinners
     console.print("[bold]1. Custom Spinners[/]")
     console.print()
 
-    CustomSpinners.animate_spinner(CustomSpinners.DOTS, "Loading with dots", duration=2, color="cyan")
+    CustomSpinners.animate_spinner(
+        CustomSpinners.DOTS, "Loading with dots", duration=2, color="cyan"
+    )
     console.print("[green]✓ Dots spinner complete[/]\n")
 
     CustomSpinners.animate_spinner(CustomSpinners.ROCKET, "Launching", duration=2, color="yellow")
@@ -594,7 +574,4 @@ if __name__ == "__main__":
     CelebrationEffects.confetti(duration=2)
     console.print()
 
-    console.print(Panel(
-        "[bold green]All Animations Demo Complete![/]",
-        border_style="green"
-    ))
+    console.print(Panel("[bold green]All Animations Demo Complete![/]", border_style="green"))

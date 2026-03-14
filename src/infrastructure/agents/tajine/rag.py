@@ -20,9 +20,7 @@ async def get_pool() -> asyncpg.Pool:
     """Get or create connection pool."""
     global _pool
     if _pool is None or _pool._closed:
-        db_url = os.getenv(
-            "COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza"
-        )
+        db_url = os.getenv("COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza")
         db_url = db_url.replace("postgresql+asyncpg://", "postgres://").replace(
             "postgresql://", "postgres://"
         )

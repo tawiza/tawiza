@@ -3,6 +3,7 @@
 This module centralizes all magic numbers, versions, and default values
 to improve maintainability and reduce code duplication.
 """
+
 from typing import Final
 
 # ============================================================================
@@ -36,14 +37,7 @@ HTTP_RETRY_MAX: Final[int] = 3
 # ============================================================================
 # Directory Paths
 # ============================================================================
-DIRS_TO_CREATE: Final[list[str]] = [
-    "logs",
-    "data",
-    "models",
-    "configs",
-    "debug_reports",
-    "outputs"
-]
+DIRS_TO_CREATE: Final[list[str]] = ["logs", "data", "models", "configs", "debug_reports", "outputs"]
 
 CONFIG_DIR: Final[str] = "configs"
 LOG_DIR: Final[str] = "logs"

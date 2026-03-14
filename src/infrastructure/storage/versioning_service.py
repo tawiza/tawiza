@@ -141,9 +141,7 @@ class ModelVersioningService(IModelVersioningService):
         try:
             # Check if target version exists
             if not await self.storage.version_exists(model_name, target_version):
-                raise ModelNotFoundError(
-                    f"Target version {model_name} {target_version} not found"
-                )
+                raise ModelNotFoundError(f"Target version {model_name} {target_version} not found")
 
             # Retrieve target version
             modelfile_content, target_metadata = await self.storage.retrieve_model(
@@ -152,11 +150,7 @@ class ModelVersioningService(IModelVersioningService):
 
             # Get latest version for new version number
             latest_version = await self.storage.get_latest_version(model_name)
-            new_version = (
-                latest_version.next()
-                if latest_version
-                else AutoIncrementVersion(1)
-            )
+            new_version = latest_version.next() if latest_version else AutoIncrementVersion(1)
 
             # Create new metadata based on target version
             rollback_metadata = VersionMetadata(
@@ -254,9 +248,7 @@ class ModelVersioningService(IModelVersioningService):
                         "version_a": val_a,
                         "version_b": val_b,
                         "diff": val_b - val_a,
-                        "percent_change": (
-                            ((val_b - val_a) / val_a * 100) if val_a != 0 else None
-                        ),
+                        "percent_change": (((val_b - val_a) / val_a * 100) if val_a != 0 else None),
                     }
 
             # Compare hyperparameters
@@ -332,9 +324,7 @@ class ModelVersioningService(IModelVersioningService):
             VersioningError: If operation fails
         """
         try:
-            versions = await self.storage.list_versions(
-                model_name, include_inactive=True
-            )
+            versions = await self.storage.list_versions(model_name, include_inactive=True)
 
             # Apply limit if specified
             if limit is not None and limit > 0:
@@ -407,8 +397,7 @@ class ModelVersioningService(IModelVersioningService):
             valid_envs = ["dev", "development", "staging", "production", "prod"]
             if environment.lower() not in valid_envs:
                 raise VersioningError(
-                    f"Invalid environment: {environment}. "
-                    f"Valid: {', '.join(valid_envs)}"
+                    f"Invalid environment: {environment}. Valid: {', '.join(valid_envs)}"
                 )
 
             # Add promotion tag

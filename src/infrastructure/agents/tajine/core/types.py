@@ -1,4 +1,5 @@
 """TAJINE Core Types - Shared dataclasses for the algorithm."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,22 +10,25 @@ from typing import Any
 
 class EvaluationDecision(Enum):
     """Decision after evaluating data."""
-    ACCEPT = "accept"      # Score >= 0.7
-    VERIFY = "verify"      # 0.4 <= Score < 0.7
-    REJECT = "reject"      # Score < 0.4
+
+    ACCEPT = "accept"  # Score >= 0.7
+    VERIFY = "verify"  # 0.4 <= Score < 0.7
+    REJECT = "reject"  # Score < 0.4
 
 
 class AutonomyDecision(Enum):
     """Level of autonomy for an action."""
+
     AUTONOMOUS = "autonomous"  # Act without asking
-    PROPOSE = "propose"        # Show plan, wait for quick OK
-    ASK = "ask"               # Ask for decision
-    ESCALATE = "escalate"     # Alert supervisor
+    PROPOSE = "propose"  # Show plan, wait for quick OK
+    ASK = "ask"  # Ask for decision
+    ESCALATE = "escalate"  # Alert supervisor
 
 
 @dataclass
 class HuntContext:
     """Context for a data hunt operation."""
+
     query: str
     territory: str
     mode: str = "normal"  # normal | question | combler
@@ -36,6 +40,7 @@ class HuntContext:
 @dataclass
 class RawData:
     """Raw data fetched from a source."""
+
     source: str
     content: dict[str, Any]
     url: str
@@ -46,9 +51,10 @@ class RawData:
 @dataclass
 class EvaluationResult:
     """Result of evaluating data on 3 dimensions."""
-    reliability: float      # Source credibility (0.0 - 1.0)
-    coherence: float        # KG consistency (0.0 - 1.0)
-    alpha: float            # Predictive power (0.0 - 1.0)
+
+    reliability: float  # Source credibility (0.0 - 1.0)
+    coherence: float  # KG consistency (0.0 - 1.0)
+    alpha: float  # Predictive power (0.0 - 1.0)
     composite_score: float = field(init=False)
     decision: EvaluationDecision = field(init=False)
 
@@ -60,9 +66,9 @@ class EvaluationResult:
     def __post_init__(self):
         """Compute composite score and decision."""
         self.composite_score = (
-            self.reliability ** self.W_RELIABILITY *
-            self.coherence ** self.W_COHERENCE *
-            self.alpha ** self.W_ALPHA
+            self.reliability**self.W_RELIABILITY
+            * self.coherence**self.W_COHERENCE
+            * self.alpha**self.W_ALPHA
         )
         if self.composite_score >= 0.7:
             self.decision = EvaluationDecision.ACCEPT
@@ -75,6 +81,7 @@ class EvaluationResult:
 @dataclass
 class ScoredData:
     """Data with evaluation score attached."""
+
     raw: RawData
     evaluation: EvaluationResult
     validated_at: datetime = field(default_factory=datetime.now)
@@ -83,9 +90,10 @@ class ScoredData:
 @dataclass
 class Scenario:
     """A prospective scenario."""
-    name: str               # optimiste | median | pessimiste
-    value: float            # Projected value
-    probability: float      # 0.0 - 1.0
+
+    name: str  # optimiste | median | pessimiste
+    value: float  # Projected value
+    probability: float  # 0.0 - 1.0
     description: str = ""
     confidence_interval: tuple[float, float] = field(default=(0.0, 0.0))
 
@@ -93,10 +101,11 @@ class Scenario:
 @dataclass
 class Recommendation:
     """An actionable recommendation."""
+
     title: str
     description: str
-    impact: float           # 0.0 - 1.0
-    effort: float           # 0.0 - 1.0
+    impact: float  # 0.0 - 1.0
+    effort: float  # 0.0 - 1.0
     priority: float = field(init=False)
     stakeholder: str = ""
     timeline: str = ""
@@ -109,9 +118,10 @@ class Recommendation:
 @dataclass
 class TheoryMatch:
     """A theory matching the analysis context."""
+
     theory_id: str
     theory_name: str
-    similarity: float       # 0.0 - 1.0
+    similarity: float  # 0.0 - 1.0
     explanation: str
     applicable_insights: list[str] = field(default_factory=list)
 
@@ -119,6 +129,7 @@ class TheoryMatch:
 @dataclass
 class AnalysisContext:
     """Context accumulated during cognitive analysis."""
+
     data: list[ScoredData]
     query: str
     territory: str = ""
@@ -137,8 +148,9 @@ class AnalysisContext:
 @dataclass
 class AnalysisResult:
     """Final result of cognitive analysis."""
+
     context: AnalysisContext
     summary: str
     confidence: float
-    depth_reached: int      # 1-5 cognitive levels
+    depth_reached: int  # 1-5 cognitive levels
     processing_time_ms: int

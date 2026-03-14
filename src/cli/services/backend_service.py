@@ -10,6 +10,7 @@ Fournit une couche d'abstraction pour les opérations backend avec:
 - Retry automatique avec backoff
 - Métriques et logging
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -25,7 +26,7 @@ from loguru import logger
 
 from .cache_service import CacheService, get_cache_service
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 # ==============================================================================
 # CONSTANTES
@@ -50,16 +51,19 @@ CACHE_TTL_CONFIG = 300.0  # 5 minutes
 # CIRCUIT BREAKER
 # ==============================================================================
 
+
 class CircuitState(StrEnum):
     """État du circuit breaker"""
+
     CLOSED = "closed"  # Fonctionnel
-    OPEN = "open"      # En erreur, rejette les appels
+    OPEN = "open"  # En erreur, rejette les appels
     HALF_OPEN = "half_open"  # En test de récupération
 
 
 @dataclass
 class CircuitBreaker:
     """Circuit breaker pour la résilience des services"""
+
     name: str
     failure_threshold: int = CIRCUIT_BREAKER_THRESHOLD
     reset_timeout: float = CIRCUIT_BREAKER_RESET_TIMEOUT
@@ -80,7 +84,9 @@ class CircuitBreaker:
 
         if self.failure_count >= self.failure_threshold:
             self.state = CircuitState.OPEN
-            logger.warning(f"Circuit breaker '{self.name}' opened after {self.failure_count} failures")
+            logger.warning(
+                f"Circuit breaker '{self.name}' opened after {self.failure_count} failures"
+            )
 
     def can_execute(self) -> bool:
         """Vérifier si on peut exécuter une opération"""
@@ -89,7 +95,10 @@ class CircuitBreaker:
 
         if self.state == CircuitState.OPEN:
             # Vérifier si le timeout est passé
-            if self.last_failure_time and (time.time() - self.last_failure_time) > self.reset_timeout:
+            if (
+                self.last_failure_time
+                and (time.time() - self.last_failure_time) > self.reset_timeout
+            ):
                 self.state = CircuitState.HALF_OPEN
                 logger.info(f"Circuit breaker '{self.name}' entering half-open state")
                 return True
@@ -109,9 +118,11 @@ class CircuitBreaker:
 # RESULT WRAPPER
 # ==============================================================================
 
+
 @dataclass
 class ServiceResult[T]:
     """Résultat d'une opération de service"""
+
     success: bool
     data: T | None = None
     error: str | None = None
@@ -131,6 +142,7 @@ class ServiceResult[T]:
 # ==============================================================================
 # BACKEND SERVICE
 # ==============================================================================
+
 
 class BackendService:
     """Service backend unifié avec async et caching"""
@@ -169,11 +181,7 @@ class BackendService:
         return self._circuits[name]
 
     async def _execute_with_circuit(
-        self,
-        circuit_name: str,
-        operation: Callable,
-        *args,
-        **kwargs
+        self, circuit_name: str, operation: Callable, *args, **kwargs
     ) -> Any:
         """Exécuter une opération avec circuit breaker"""
         circuit = self._get_circuit(circuit_name)
@@ -198,7 +206,7 @@ class BackendService:
         self,
         operation: Callable,
         max_retries: int = MAX_RETRIES,
-        base_delay: float = RETRY_BASE_DELAY
+        base_delay: float = RETRY_BASE_DELAY,
     ) -> Any:
         """Exécuter avec retry et exponential backoff"""
         last_error = None
@@ -209,7 +217,7 @@ class BackendService:
             except Exception as e:
                 last_error = e
                 if attempt < max_retries:
-                    delay = base_delay * (2 ** attempt)
+                    delay = base_delay * (2**attempt)
                     logger.warning(f"Retry {attempt + 1}/{max_retries} after {delay}s: {e}")
                     await asyncio.sleep(delay)
 
@@ -229,25 +237,17 @@ class BackendService:
             cached = await self._cache.get(cache_key)
             if cached is not None:
                 return ServiceResult.ok(
-                    cached,
-                    cached=True,
-                    latency_ms=(time.time() - start) * 1000
+                    cached, cached=True, latency_ms=(time.time() - start) * 1000
                 )
 
         try:
-            status = await self._execute_with_circuit(
-                "system",
-                self._fetch_system_status
-            )
+            status = await self._execute_with_circuit("system", self._fetch_system_status)
 
             # Mettre en cache
             if self._cache:
                 await self._cache.set(cache_key, status, ttl=int(CACHE_TTL_SYSTEM_STATUS))
 
-            return ServiceResult.ok(
-                status,
-                latency_ms=(time.time() - start) * 1000
-            )
+            return ServiceResult.ok(status, latency_ms=(time.time() - start) * 1000)
         except Exception as e:
             logger.error(f"Failed to get system status: {e}")
             return ServiceResult.fail(str(e), latency_ms=(time.time() - start) * 1000)
@@ -262,14 +262,14 @@ class BackendService:
                 "memory": {
                     "total": psutil.virtual_memory().total,
                     "available": psutil.virtual_memory().available,
-                    "percent": psutil.virtual_memory().percent
+                    "percent": psutil.virtual_memory().percent,
                 },
                 "disk": {
-                    "total": psutil.disk_usage('/').total,
-                    "free": psutil.disk_usage('/').free,
-                    "percent": psutil.disk_usage('/').percent
+                    "total": psutil.disk_usage("/").total,
+                    "free": psutil.disk_usage("/").free,
+                    "percent": psutil.disk_usage("/").percent,
                 },
-                "uptime": time.time() - psutil.boot_time()
+                "uptime": time.time() - psutil.boot_time(),
             }
 
         return await self._run_in_executor(_get_status)
@@ -288,28 +288,19 @@ class BackendService:
             cached = await self._cache.get(cache_key)
             if cached is not None:
                 return ServiceResult.ok(
-                    cached,
-                    cached=True,
-                    latency_ms=(time.time() - start) * 1000
+                    cached, cached=True, latency_ms=(time.time() - start) * 1000
                 )
 
         try:
-            status = await self._execute_with_circuit(
-                "gpu",
-                self._fetch_gpu_status
-            )
+            status = await self._execute_with_circuit("gpu", self._fetch_gpu_status)
 
             if self._cache:
                 await self._cache.set(cache_key, status, ttl=int(CACHE_TTL_GPU_STATUS))
 
-            return ServiceResult.ok(
-                status,
-                latency_ms=(time.time() - start) * 1000
-            )
+            return ServiceResult.ok(status, latency_ms=(time.time() - start) * 1000)
         except CircuitOpenError:
             return ServiceResult.fail(
-                "GPU service temporarily unavailable",
-                latency_ms=(time.time() - start) * 1000
+                "GPU service temporarily unavailable", latency_ms=(time.time() - start) * 1000
             )
         except Exception as e:
             logger.error(f"Failed to get GPU status: {e}")
@@ -317,25 +308,22 @@ class BackendService:
 
     async def _fetch_gpu_status(self) -> dict[str, Any]:
         """Récupérer le statut GPU"""
+
         def _get_gpu():
             import subprocess
 
             # Essayer ROCm d'abord
             try:
                 result = subprocess.run(
-                    ["rocm-smi", "--showuse"],
-                    capture_output=True,
-                    text=True,
-                    timeout=5
+                    ["rocm-smi", "--showuse"], capture_output=True, text=True, timeout=5
                 )
                 if result.returncode == 0 and "GPU" in result.stdout:
                     # Parse text output (rocm-smi doesn't always have --json)
-                    return {
-                        "type": "amd",
-                        "available": True,
-                        "raw_output": result.stdout[:500]
-                    }
-                elif "not found" in result.stderr.lower() or "not initialized" in result.stderr.lower():
+                    return {"type": "amd", "available": True, "raw_output": result.stdout[:500]}
+                elif (
+                    "not found" in result.stderr.lower()
+                    or "not initialized" in result.stderr.lower()
+                ):
                     pass  # Driver not loaded, try NVIDIA
 
             except (FileNotFoundError, subprocess.TimeoutExpired, Exception):
@@ -344,24 +332,30 @@ class BackendService:
             # Essayer NVIDIA
             try:
                 result = subprocess.run(
-                    ["nvidia-smi", "--query-gpu=name,memory.used,memory.total,utilization.gpu", "--format=csv,noheader,nounits"],
+                    [
+                        "nvidia-smi",
+                        "--query-gpu=name,memory.used,memory.total,utilization.gpu",
+                        "--format=csv,noheader,nounits",
+                    ],
                     capture_output=True,
                     text=True,
-                    timeout=5
+                    timeout=5,
                 )
                 if result.returncode == 0 and result.stdout.strip():
-                    lines = result.stdout.strip().split('\n')
+                    lines = result.stdout.strip().split("\n")
                     gpus = []
                     for line in lines:
-                        parts = [p.strip() for p in line.split(',')]
+                        parts = [p.strip() for p in line.split(",")]
                         if len(parts) >= 4:
                             try:
-                                gpus.append({
-                                    "name": parts[0],
-                                    "memory_used": int(parts[1]),
-                                    "memory_total": int(parts[2]),
-                                    "utilization": int(parts[3])
-                                })
+                                gpus.append(
+                                    {
+                                        "name": parts[0],
+                                        "memory_used": int(parts[1]),
+                                        "memory_total": int(parts[2]),
+                                        "utilization": int(parts[3]),
+                                    }
+                                )
                             except (ValueError, IndexError):
                                 continue
                     if gpus:
@@ -373,7 +367,7 @@ class BackendService:
             return {
                 "type": "none",
                 "available": False,
-                "message": "Aucun GPU détecté (ROCm/CUDA non disponible)"
+                "message": "Aucun GPU détecté (ROCm/CUDA non disponible)",
             }
 
         return await self._run_in_executor(_get_gpu)
@@ -391,9 +385,7 @@ class BackendService:
             cached = await self._cache.get(cache_key)
             if cached is not None:
                 return ServiceResult.ok(
-                    cached,
-                    cached=True,
-                    latency_ms=(time.time() - start) * 1000
+                    cached, cached=True, latency_ms=(time.time() - start) * 1000
                 )
 
         try:
@@ -402,10 +394,7 @@ class BackendService:
             if self._cache:
                 await self._cache.set(cache_key, agents, ttl=int(CACHE_TTL_AGENT_STATUS))
 
-            return ServiceResult.ok(
-                agents,
-                latency_ms=(time.time() - start) * 1000
-            )
+            return ServiceResult.ok(agents, latency_ms=(time.time() - start) * 1000)
         except Exception as e:
             logger.error(f"Failed to get agents status: {e}")
             return ServiceResult.fail(str(e), latency_ms=(time.time() - start) * 1000)
@@ -435,9 +424,7 @@ class BackendService:
             cached = await self._cache.get(cache_key)
             if cached is not None:
                 return ServiceResult.ok(
-                    cached,
-                    cached=True,
-                    latency_ms=(time.time() - start) * 1000
+                    cached, cached=True, latency_ms=(time.time() - start) * 1000
                 )
 
         try:
@@ -446,10 +433,7 @@ class BackendService:
             if self._cache:
                 await self._cache.set(cache_key, models, ttl=int(CACHE_TTL_MODEL_LIST))
 
-            return ServiceResult.ok(
-                models,
-                latency_ms=(time.time() - start) * 1000
-            )
+            return ServiceResult.ok(models, latency_ms=(time.time() - start) * 1000)
         except Exception as e:
             logger.error(f"Failed to get models: {e}")
             return ServiceResult.fail(str(e), latency_ms=(time.time() - start) * 1000)
@@ -478,13 +462,19 @@ class BackendService:
             self.get_system_status(),
             self.get_gpu_status(),
             self.get_agents_status(),
-            return_exceptions=True
+            return_exceptions=True,
         )
 
         return {
-            "system": results[0] if not isinstance(results[0], Exception) else ServiceResult.fail(str(results[0])),
-            "gpu": results[1] if not isinstance(results[1], Exception) else ServiceResult.fail(str(results[1])),
-            "agents": results[2] if not isinstance(results[2], Exception) else ServiceResult.fail(str(results[2])),
+            "system": results[0]
+            if not isinstance(results[0], Exception)
+            else ServiceResult.fail(str(results[0])),
+            "gpu": results[1]
+            if not isinstance(results[1], Exception)
+            else ServiceResult.fail(str(results[1])),
+            "agents": results[2]
+            if not isinstance(results[2], Exception)
+            else ServiceResult.fail(str(results[2])),
         }
 
     # ==========================================================================
@@ -497,7 +487,7 @@ class BackendService:
             name: {
                 "state": circuit.state.value,
                 "failure_count": circuit.failure_count,
-                "last_failure": circuit.last_failure_time
+                "last_failure": circuit.last_failure_time,
             }
             for name, circuit in self._circuits.items()
         }
@@ -514,13 +504,16 @@ class BackendService:
 # EXCEPTIONS
 # ==============================================================================
 
+
 class CircuitOpenError(Exception):
     """Circuit breaker is open"""
+
     pass
 
 
 class BackendServiceError(Exception):
     """Erreur générale du service backend"""
+
     pass
 
 

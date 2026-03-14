@@ -22,6 +22,7 @@ from src.cli.v3.tui.services.error_telemetry import (
 
 class ProcessingState(Enum):
     """State of cognitive processing."""
+
     IDLE = "idle"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -31,6 +32,7 @@ class ProcessingState(Enum):
 @dataclass
 class ProcessingEvent:
     """Event emitted during cognitive processing."""
+
     level: str
     state: ProcessingState
     confidence: float = 0.0
@@ -42,6 +44,7 @@ class ProcessingEvent:
 @dataclass
 class AnalysisRequest:
     """Request for TAJINE analysis."""
+
     query: str
     territory: str | None = None
     sector: str | None = None
@@ -51,6 +54,7 @@ class AnalysisRequest:
 @dataclass
 class AnalysisResult:
     """Complete result from TAJINE analysis."""
+
     request: AnalysisRequest
     cognitive_output: dict[str, Any]
     summary: str
@@ -94,17 +98,11 @@ class TAJINEService:
         """Get the last analysis result."""
         return self._current_result
 
-    def add_event_listener(
-        self,
-        listener: Callable[[ProcessingEvent], None]
-    ) -> None:
+    def add_event_listener(self, listener: Callable[[ProcessingEvent], None]) -> None:
         """Add a listener for processing events."""
         self._event_listeners.append(listener)
 
-    def remove_event_listener(
-        self,
-        listener: Callable[[ProcessingEvent], None]
-    ) -> None:
+    def remove_event_listener(self, listener: Callable[[ProcessingEvent], None]) -> None:
         """Remove an event listener."""
         if listener in self._event_listeners:
             self._event_listeners.remove(listener)
@@ -122,6 +120,7 @@ class TAJINEService:
         if self._engine is None:
             try:
                 from src.infrastructure.agents.tajine.cognitive import CognitiveEngine
+
                 self._engine = CognitiveEngine()
             except ImportError as e:
                 logger.error(f"Failed to import CognitiveEngine: {e}")
@@ -133,6 +132,7 @@ class TAJINEService:
         if self._agent is None:
             try:
                 from src.infrastructure.agents.tajine import TAJINEAgent
+
                 self._agent = TAJINEAgent(
                     name="tajine_tui",
                     local_model="qwen3.5:27b",
@@ -147,7 +147,7 @@ class TAJINEService:
                         state=ProcessingState.PROCESSING,
                         confidence=0.0,
                         message=callback.message or "",
-                        data=callback.data or {}
+                        data=callback.data or {},
                     )
                     self._emit_event(event)
 
@@ -158,11 +158,7 @@ class TAJINEService:
                 self._use_agent = False
         return self._agent
 
-    async def analyze(
-        self,
-        request: AnalysisRequest,
-        use_cache: bool = True
-    ) -> AnalysisResult:
+    async def analyze(self, request: AnalysisRequest, use_cache: bool = True) -> AnalysisResult:
         """Run TAJINE analysis on the request.
 
         Args:
@@ -195,11 +191,13 @@ class TAJINEService:
             # Emit start events for each level
             levels = ["discovery", "causal", "scenario", "strategy", "theoretical"]
             for level in levels:
-                self._emit_event(ProcessingEvent(
-                    level=level,
-                    state=ProcessingState.PROCESSING,
-                    message=f"Processing {level}..."
-                ))
+                self._emit_event(
+                    ProcessingEvent(
+                        level=level,
+                        state=ProcessingState.PROCESSING,
+                        message=f"Processing {level}...",
+                    )
+                )
 
                 # Process with engine
                 # Note: In real implementation, we'd hook into engine's level processing
@@ -211,14 +209,18 @@ class TAJINEService:
             # Emit completion events
             for level in levels:
                 level_data = cognitive_output.get("cognitive_levels", {}).get(level, {})
-                confidence = level_data.get("confidence", 0.5) if isinstance(level_data, dict) else 0.5
+                confidence = (
+                    level_data.get("confidence", 0.5) if isinstance(level_data, dict) else 0.5
+                )
 
-                self._emit_event(ProcessingEvent(
-                    level=level,
-                    state=ProcessingState.COMPLETED,
-                    confidence=confidence,
-                    data=level_data if isinstance(level_data, dict) else {}
-                ))
+                self._emit_event(
+                    ProcessingEvent(
+                        level=level,
+                        state=ProcessingState.COMPLETED,
+                        confidence=confidence,
+                        data=level_data if isinstance(level_data, dict) else {},
+                    )
+                )
 
             # Build result
             processing_time = (datetime.now() - start_time).total_seconds()
@@ -228,7 +230,7 @@ class TAJINEService:
                 summary=self._generate_summary(cognitive_output),
                 recommendations=self._extract_recommendations(cognitive_output),
                 confidence=cognitive_output.get("confidence", 0.5),
-                processing_time=processing_time
+                processing_time=processing_time,
             )
 
             # Cache result
@@ -242,21 +244,19 @@ class TAJINEService:
             # Handle async cancellation explicitly to prevent stuck state
             logger.warning("Analysis cancelled by user or timeout")
             self._state = ProcessingState.IDLE
-            self._emit_event(ProcessingEvent(
-                level="cancelled",
-                state=ProcessingState.IDLE,
-                message="Analysis cancelled"
-            ))
+            self._emit_event(
+                ProcessingEvent(
+                    level="cancelled", state=ProcessingState.IDLE, message="Analysis cancelled"
+                )
+            )
             raise
 
         except Exception as e:
             logger.error(f"Analysis failed: {e}")
             self._state = ProcessingState.ERROR
-            self._emit_event(ProcessingEvent(
-                level="error",
-                state=ProcessingState.ERROR,
-                message=str(e)
-            ))
+            self._emit_event(
+                ProcessingEvent(level="error", state=ProcessingState.ERROR, message=str(e))
+            )
             # Track with error telemetry
             get_error_telemetry().track_backend_error(
                 service="TAJINEService",
@@ -266,15 +266,12 @@ class TAJINEService:
                     "query": request.query,
                     "territory": request.territory,
                     "sector": request.sector,
-                }
+                },
             )
             raise
 
     async def _analyze_with_agent(
-        self,
-        request: AnalysisRequest,
-        cache_key: str,
-        start_time: datetime
+        self, request: AnalysisRequest, cache_key: str, start_time: datetime
     ) -> AnalysisResult:
         """Run analysis using TAJINEAgent with full PPDSL cycle.
 
@@ -307,18 +304,20 @@ class TAJINEService:
         cognitive_output = {
             "cognitive_levels": result.get("cognitive_levels", {}),
             "confidence": result.get("confidence", 0.5),
-            "analysis": result.get("result", {})
+            "analysis": result.get("result", {}),
         }
 
         # Emit completion events for each level
         for level, data in cognitive_output.get("cognitive_levels", {}).items():
             confidence = data.get("confidence", 0.5) if isinstance(data, dict) else 0.5
-            self._emit_event(ProcessingEvent(
-                level=level,
-                state=ProcessingState.COMPLETED,
-                confidence=confidence,
-                data=data if isinstance(data, dict) else {}
-            ))
+            self._emit_event(
+                ProcessingEvent(
+                    level=level,
+                    state=ProcessingState.COMPLETED,
+                    confidence=confidence,
+                    data=data if isinstance(data, dict) else {},
+                )
+            )
 
         # Build result
         processing_time = (datetime.now() - start_time).total_seconds()
@@ -328,7 +327,7 @@ class TAJINEService:
             summary=self._generate_summary(cognitive_output),
             recommendations=self._extract_recommendations(cognitive_output),
             confidence=cognitive_output.get("confidence", 0.5),
-            processing_time=processing_time
+            processing_time=processing_time,
         )
 
         # Cache and return
@@ -345,24 +344,25 @@ class TAJINEService:
         # Add provided data
         if request.data:
             for item in request.data:
-                results.append({
-                    "tool": item.get("tool", "data_collect"),
-                    "result": item.get("result", item)
-                })
+                results.append(
+                    {"tool": item.get("tool", "data_collect"), "result": item.get("result", item)}
+                )
 
         # Add default data if none provided
         if not results:
             # Generate mock data based on request
-            results.append({
-                "tool": "data_collect",
-                "result": {
-                    "query": request.query,
-                    "territory": request.territory or "France",
-                    "sector": request.sector or "all",
-                    "companies": 100,
-                    "growth": 0.15
+            results.append(
+                {
+                    "tool": "data_collect",
+                    "result": {
+                        "query": request.query,
+                        "territory": request.territory or "France",
+                        "sector": request.sector or "all",
+                        "companies": 100,
+                        "growth": 0.15,
+                    },
                 }
-            })
+            )
 
         return results
 
@@ -482,9 +482,18 @@ class TAJINEChatService:
         # Extract territory
         territory = None
         territories = [
-            "paris", "lyon", "marseille", "toulouse", "bordeaux",
-            "lille", "nantes", "strasbourg", "casablanca", "rabat",
-            "france", "maroc"
+            "paris",
+            "lyon",
+            "marseille",
+            "toulouse",
+            "bordeaux",
+            "lille",
+            "nantes",
+            "strasbourg",
+            "casablanca",
+            "rabat",
+            "france",
+            "maroc",
         ]
         for t in territories:
             if t in message_lower:
@@ -494,24 +503,29 @@ class TAJINEChatService:
         # Extract sector
         sector = None
         sectors = [
-            "tech", "technologie", "santé", "finance", "commerce",
-            "industrie", "service", "tourisme", "agriculture"
+            "tech",
+            "technologie",
+            "santé",
+            "finance",
+            "commerce",
+            "industrie",
+            "service",
+            "tourisme",
+            "agriculture",
         ]
         for s in sectors:
             if s in message_lower:
                 sector = s.capitalize()
                 break
 
-        return AnalysisRequest(
-            query=message,
-            territory=territory,
-            sector=sector
-        )
+        return AnalysisRequest(query=message, territory=territory, sector=sector)
 
     def _format_response(self, result: AnalysisResult) -> str:
         """Format analysis result as chat response with rich formatting."""
         # Header with confidence color
-        conf_color = "green" if result.confidence >= 0.7 else "yellow" if result.confidence >= 0.4 else "red"
+        conf_color = (
+            "green" if result.confidence >= 0.7 else "yellow" if result.confidence >= 0.4 else "red"
+        )
         lines = [
             "[bold cyan]━━━ 📊 Analyse TAJINE ━━━[/]",
             f"[{conf_color}]Confiance: {result.confidence:.0%}[/]",
@@ -524,8 +538,11 @@ class TAJINEChatService:
             lines.append("[bold]🧠 Niveaux Cognitifs:[/]")
 
             level_icons = {
-                "discovery": "🔍", "causal": "🔗", "scenario": "📊",
-                "strategy": "🎯", "theoretical": "🧬"
+                "discovery": "🔍",
+                "causal": "🔗",
+                "scenario": "📊",
+                "strategy": "🎯",
+                "theoretical": "🧬",
             }
             for level_key in ["discovery", "causal", "scenario", "strategy", "theoretical"]:
                 level_data = levels.get(level_key, {})
@@ -533,7 +550,9 @@ class TAJINEChatService:
                     conf = level_data.get("confidence", 0)
                     icon = level_icons.get(level_key, "○")
                     bar = "█" * int(conf * 10) + "░" * (10 - int(conf * 10))
-                    lines.append(f"  {icon} {level_key.capitalize()}: [{conf_color}]{bar}[/] {conf:.0%}")
+                    lines.append(
+                        f"  {icon} {level_key.capitalize()}: [{conf_color}]{bar}[/] {conf:.0%}"
+                    )
 
             lines.append("")
 

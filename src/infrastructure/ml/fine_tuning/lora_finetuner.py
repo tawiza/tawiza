@@ -28,31 +28,32 @@ from loguru import logger
 
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
-    logger.debug(
-        "PyTorch not available. Install with: pip install torch"
-    )
+    logger.debug("PyTorch not available. Install with: pip install torch")
     TORCH_AVAILABLE = False
     torch = None  # type: ignore
 
 try:
     from unsloth import FastLanguageModel, is_bfloat16_supported
+
     UNSLOTH_AVAILABLE = True
 except ImportError:
-    logger.debug(
-        "Unsloth not available (optional). Install with: pip install unsloth"
-    )
+    logger.debug("Unsloth not available (optional). Install with: pip install unsloth")
     UNSLOTH_AVAILABLE = False
     # Fallback for when unsloth is not available
     FastLanguageModel = Any  # type: ignore
+
     def is_bfloat16_supported():
         return False  # type: ignore
+
 
 try:
     from datasets import Dataset
     from transformers import TrainingArguments
     from trl import SFTTrainer
+
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     logger.debug(
@@ -67,6 +68,7 @@ except ImportError:
 
 try:
     import mlflow
+
     MLFLOW_AVAILABLE = True
 except ImportError:
     logger.warning("MLflow not available for experiment tracking")
@@ -87,6 +89,7 @@ class LoRAConfig:
         use_4bit: Use 4-bit quantization (QLoRA)
         use_8bit: Use 8-bit quantization
     """
+
     r: int = 16
     lora_alpha: int = 32
     lora_dropout: float = 0.05
@@ -126,6 +129,7 @@ class TrainingConfig:
         logging_steps: Log every N steps
         save_steps: Save checkpoint every N steps
     """
+
     output_dir: str = "./outputs/lora"
     num_train_epochs: int = 3
     per_device_train_batch_size: int = 2
@@ -168,7 +172,7 @@ class LoRAFineTuner:
         lora_config: LoRAConfig,
         training_config: TrainingConfig,
         mlflow_tracking_uri: str | None = None,
-        progress_callback: Callable[[int, dict[str, Any]], None] | None = None
+        progress_callback: Callable[[int, dict[str, Any]], None] | None = None,
     ):
         """
         Initialize LoRA fine-tuner.
@@ -182,14 +186,12 @@ class LoRAFineTuner:
         """
         if not UNSLOTH_AVAILABLE:
             raise ImportError(
-                "Unsloth is required but not installed. "
-                "Install with: pip install unsloth"
+                "Unsloth is required but not installed. Install with: pip install unsloth"
             )
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Transformers/TRL required. "
-                "Install with: pip install transformers trl datasets"
+                "Transformers/TRL required. Install with: pip install transformers trl datasets"
             )
 
         self.model_name = model_name
@@ -266,14 +268,11 @@ class LoRAFineTuner:
             )
 
             logger.info(
-                f"LoRA adapters added (r={self.lora_config.r}, "
-                f"alpha={self.lora_config.lora_alpha})"
+                f"LoRA adapters added (r={self.lora_config.r}, alpha={self.lora_config.lora_alpha})"
             )
 
             # Print trainable parameters
-            trainable_params = sum(
-                p.numel() for p in self.model.parameters() if p.requires_grad
-            )
+            trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
             total_params = sum(p.numel() for p in self.model.parameters())
             logger.info(
                 f"Trainable params: {trainable_params:,} / {total_params:,} "
@@ -285,9 +284,7 @@ class LoRAFineTuner:
             raise RuntimeError(f"Model loading failed: {e}") from e
 
     def prepare_dataset(
-        self,
-        data: list[dict[str, str]],
-        formatting_func: Callable | None = None
+        self, data: list[dict[str, str]], formatting_func: Callable | None = None
     ) -> Dataset:
         """
         Prepare dataset for training.
@@ -318,7 +315,7 @@ class LoRAFineTuner:
         train_data: list[dict[str, str]],
         eval_data: list[dict[str, str]] | None = None,
         formatting_func: Callable | None = None,
-        experiment_name: str = "lora-finetuning"
+        experiment_name: str = "lora-finetuning",
     ) -> dict[str, Any]:
         """
         Train the model with LoRA.
@@ -339,19 +336,23 @@ class LoRAFineTuner:
             # Start MLflow run
             if MLFLOW_AVAILABLE:
                 mlflow.set_experiment(experiment_name)
-                mlflow.start_run(run_name=f"{self.model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+                mlflow.start_run(
+                    run_name=f"{self.model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                )
 
                 # Log parameters
-                mlflow.log_params({
-                    "model_name": self.model_name,
-                    "lora_r": self.lora_config.r,
-                    "lora_alpha": self.lora_config.lora_alpha,
-                    "lora_dropout": self.lora_config.lora_dropout,
-                    "learning_rate": self.training_config.learning_rate,
-                    "epochs": self.training_config.num_train_epochs,
-                    "batch_size": self.training_config.per_device_train_batch_size,
-                    "max_seq_length": self.training_config.max_seq_length,
-                })
+                mlflow.log_params(
+                    {
+                        "model_name": self.model_name,
+                        "lora_r": self.lora_config.r,
+                        "lora_alpha": self.lora_config.lora_alpha,
+                        "lora_dropout": self.lora_config.lora_dropout,
+                        "learning_rate": self.training_config.learning_rate,
+                        "epochs": self.training_config.num_train_epochs,
+                        "batch_size": self.training_config.per_device_train_batch_size,
+                        "max_seq_length": self.training_config.max_seq_length,
+                    }
+                )
 
             # Prepare datasets
             logger.info("Preparing datasets...")
@@ -384,13 +385,15 @@ class LoRAFineTuner:
 
             # Create default formatting function if not provided
             if formatting_func is None:
+
                 def default_formatting_func(examples):
                     """Default Alpaca-style formatting."""
                     texts = []
                     for instruction, input_text, output in zip(
                         examples.get("instruction", []),
                         examples.get("input", []),
-                        examples.get("output", []), strict=False
+                        examples.get("output", []),
+                        strict=False,
                     ):
                         text = f"### Instruction:\n{instruction}\n\n"
                         if input_text:
@@ -428,16 +431,13 @@ class LoRAFineTuner:
 
             # Call progress callback
             if self.progress_callback:
-                self.progress_callback(100, {
-                    "status": "completed",
-                    "metrics": metrics
-                })
+                self.progress_callback(100, {"status": "completed", "metrics": metrics})
 
             return {
                 "status": "completed",
                 "metrics": metrics,
                 "model_name": self.model_name,
-                "output_dir": self.training_config.output_dir
+                "output_dir": self.training_config.output_dir,
             }
 
         except Exception as e:
@@ -446,11 +446,7 @@ class LoRAFineTuner:
                 mlflow.end_run(status="FAILED")
             raise
 
-    async def save_model(
-        self,
-        output_path: str,
-        save_method: str = "merged"
-    ):
+    async def save_model(self, output_path: str, save_method: str = "merged"):
         """
         Save fine-tuned model.
 
@@ -505,9 +501,7 @@ class LoRAFineTuner:
         if self.model is None:
             return {"status": "not_loaded"}
 
-        trainable_params = sum(
-            p.numel() for p in self.model.parameters() if p.requires_grad
-        )
+        trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
         total_params = sum(p.numel() for p in self.model.parameters())
 
         return {
@@ -522,5 +516,5 @@ class LoRAFineTuner:
                 "lora_alpha": self.lora_config.lora_alpha,
                 "lora_dropout": self.lora_config.lora_dropout,
                 "target_modules": self.lora_config.target_modules,
-            }
+            },
         }

@@ -1,6 +1,5 @@
 """Training and fine-tuning commands for Tawiza CLI."""
 
-
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -120,7 +119,9 @@ def start(
             )
         )
 
-        console.print(f"\n[cyan]Track progress with:[/cyan] tawiza train status {result.get('job_id')}")
+        console.print(
+            f"\n[cyan]Track progress with:[/cyan] tawiza train status {result.get('job_id')}"
+        )
 
     except Exception as e:
         console.print(format_error("Failed to start training job", str(e)))
@@ -141,7 +142,9 @@ def logs(
             console.print(logs_data.get("content", "No logs available"))
         except Exception:
             # Endpoint not implemented yet
-            console.print(get_sunset_banner("[yellow]Training job logs endpoint not yet available[/yellow]"))
+            console.print(
+                get_sunset_banner("[yellow]Training job logs endpoint not yet available[/yellow]")
+            )
             console.print(f"[dim]You can check job status with: tawiza train status {job_id}[/dim]")
 
     except Exception as e:
@@ -157,7 +160,9 @@ def cancel(
     """Cancel a running training job."""
     try:
         if not yes:
-            confirm = typer.confirm(f"Are you sure you want to cancel job '{job_id}'?", default=False)
+            confirm = typer.confirm(
+                f"Are you sure you want to cancel job '{job_id}'?", default=False
+            )
             if not confirm:
                 console.print(get_sunset_banner("[yellow]Cancellation aborted[/yellow]"))
                 return
@@ -170,8 +175,14 @@ def cancel(
             console.print(format_success(f"Job cancelled: {job_id}"))
         except Exception:
             # Endpoint not implemented yet
-            console.print(get_sunset_banner("[yellow]Training job cancellation endpoint not yet available[/yellow]"))
-            console.print(get_sunset_banner("[dim]Please stop the job manually or wait for completion[/dim]"))
+            console.print(
+                get_sunset_banner(
+                    "[yellow]Training job cancellation endpoint not yet available[/yellow]"
+                )
+            )
+            console.print(
+                get_sunset_banner("[dim]Please stop the job manually or wait for completion[/dim]")
+            )
 
     except Exception as e:
         console.print(format_error("Failed to cancel training job", str(e)))

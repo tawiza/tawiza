@@ -38,11 +38,12 @@ app = typer.Typer(
     name="debug",
     help="Commandes de débogage avancé pour Tawiza-V2",
     add_completion=False,
-    rich_markup_mode="rich"
+    rich_markup_mode="rich",
 )
 
 # Variables globales
 debugger: AdvancedDebugger | None = None
+
 
 def show_debug_header():
     """Afficher l'en-tête du débogage avec thème sunset"""
@@ -51,23 +52,28 @@ def show_debug_header():
     header_text.append("Tawiza-V2 Advanced Debugger", style=f"bold {SUNSET_THEME['header_color']}")
     header_text.append(" 🔍", style=SUNSET_THEME["header_color"])
 
-    console.print(Panel(
-        Align.center(header_text),
-        style=f"{SUNSET_THEME['header_color']}",
-        box=box.DOUBLE,
-        padding=1
-    ))
+    console.print(
+        Panel(
+            Align.center(header_text),
+            style=f"{SUNSET_THEME['header_color']}",
+            box=box.DOUBLE,
+            padding=1,
+        )
+    )
 
     # Sous-titre
-    subtitle = Text("Système de débogage et troubleshooting avancé", style=SUNSET_THEME["dim_color"])
+    subtitle = Text(
+        "Système de débogage et troubleshooting avancé", style=SUNSET_THEME["dim_color"]
+    )
     console.print(Align.center(subtitle))
     console.print()
+
 
 @app.command("start")
 def start_debugging(
     debug_level: str = typer.Option("INFO", "--level", "-l", help="Niveau de débogage"),
     profiling: bool = typer.Option(True, "--profiling/--no-profiling", help="Activer le profilage"),
-    output: str = typer.Option("debug_output.json", "--output", "-o", help="Fichier de sortie")
+    output: str = typer.Option("debug_output.json", "--output", "-o", help="Fichier de sortie"),
 ):
     """Démarrer une session de débogage avancée"""
     global debugger
@@ -75,7 +81,9 @@ def start_debugging(
     show_debug_header()
 
     try:
-        console.print(f"[bold {SUNSET_THEME['info_color']}]🚀 Démarrage du système de débogage...[/bold {SUNSET_THEME['info_color']}]\n")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]🚀 Démarrage du système de débogage...[/bold {SUNSET_THEME['info_color']}]\n"
+        )
 
         # Créer le debugger
         debugger = create_advanced_debugger(debug_level, profiling)
@@ -86,7 +94,6 @@ def start_debugging(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-
             task = progress.add_task("🐛 Initialisation du debugger...", total=None)
 
             # Démarrer le debugging
@@ -94,14 +101,19 @@ def start_debugging(
 
             progress.update(task, completed=True)
 
-        console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Session de débogage démarrée![/bold {SUNSET_THEME['success_color']}]\n")
+        console.print(
+            f"\n[bold {SUNSET_THEME['success_color']}]✅ Session de débogage démarrée![/bold {SUNSET_THEME['success_color']}]\n"
+        )
 
         # Afficher les informations de débogage
         show_debug_info()
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du démarrage: {e}[/bold {SUNSET_THEME['error_color']}]\n")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du démarrage: {e}[/bold {SUNSET_THEME['error_color']}]\n"
+        )
         raise typer.Exit(1)
+
 
 @app.command("stop")
 def stop_debugging():
@@ -109,25 +121,34 @@ def stop_debugging():
     global debugger
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]"
+        )
         return
 
     show_debug_header()
 
     try:
-        console.print(f"[bold {SUNSET_THEME['info_color']}]🛑 Arrêt du système de débogage...[/bold {SUNSET_THEME['info_color']}]\n")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]🛑 Arrêt du système de débogage...[/bold {SUNSET_THEME['info_color']}]\n"
+        )
 
         # Arrêter le debugging
         run_async(debugger.stop_debugging())
 
-        console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Session de débogage arrêtée![/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['success_color']}]✅ Session de débogage arrêtée![/bold {SUNSET_THEME['success_color']}]"
+        )
         console.print("📊 Rapport généré dans: debug_reports/")
 
         debugger = None
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'arrêt: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'arrêt: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("status")
 def show_debug_status():
@@ -137,8 +158,12 @@ def show_debug_status():
     show_debug_header()
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['warning_color']}]⚠️  Aucune session de débogage active.[/bold {SUNSET_THEME['warning_color']}]")
-        console.print(f"Utilisez: [bold]{SUNSET_THEME['accent_color']}tawiza debug start[/bold]{SUNSET_THEME['text_color']}")
+        console.print(
+            f"[bold {SUNSET_THEME['warning_color']}]⚠️  Aucune session de débogage active.[/bold {SUNSET_THEME['warning_color']}]"
+        )
+        console.print(
+            f"Utilisez: [bold]{SUNSET_THEME['accent_color']}tawiza debug start[/bold]{SUNSET_THEME['text_color']}"
+        )
         return
 
     try:
@@ -146,13 +171,17 @@ def show_debug_status():
         report = run_async(debugger.generate_debug_report())
 
         # Afficher le statut
-        console.print(f"[bold {SUNSET_THEME['info_color']}]📊 Statut du Débogage:[/bold {SUNSET_THEME['info_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]📊 Statut du Débogage:[/bold {SUNSET_THEME['info_color']}]"
+        )
         console.print()
 
         # Informations système
         system_info = report.get("system_info", {})
         if system_info:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]🖥️  Système:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]🖥️  Système:[/bold {SUNSET_THEME['accent_color']}]"
+            )
             console.print(f"  • Python: {system_info.get('python_version', 'N/A')[:50]}...")
             console.print(f"  • Platform: {system_info.get('platform', 'N/A')}")
             console.print(f"  • CPU Count: {system_info.get('cpu_count', 'N/A')}")
@@ -162,7 +191,9 @@ def show_debug_status():
         # Performance summary
         perf_summary = report.get("performance_summary", {})
         if "cpu" in perf_summary:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]⚡ Performance:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]⚡ Performance:[/bold {SUNSET_THEME['accent_color']}]"
+            )
             console.print(f"  • CPU Moyenne: {perf_summary['cpu']['average']:.1f}%")
             console.print(f"  • Memory Moyenne: {perf_summary['memory']['average']:.1f}%")
 
@@ -174,7 +205,9 @@ def show_debug_status():
         # Agent status
         agent_summary = report.get("agent_status", {})
         if "total_agents" in agent_summary:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]🤖 Agents:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]🤖 Agents:[/bold {SUNSET_THEME['accent_color']}]"
+            )
             console.print(f"  • Total: {agent_summary['total_agents']}")
             console.print(f"  • Actifs: {agent_summary['active_agents']}")
             console.print(f"  • Tâches: {agent_summary['total_tasks']}")
@@ -184,7 +217,9 @@ def show_debug_status():
         # Recommandations
         recommendations = report.get("recommendations", [])
         if recommendations:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]"
+            )
             for i, rec in enumerate(recommendations[:3], 1):
                 console.print(f"  {i}. {rec}")
             if len(recommendations) > 3:
@@ -192,24 +227,31 @@ def show_debug_status():
             console.print()
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la génération du rapport: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la génération du rapport: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
+
 
 @app.command("monitor")
 def start_monitoring(
     duration: int = typer.Option(60, "--duration", "-d", help="Durée du monitoring en secondes"),
     realtime: bool = typer.Option(True, "--realtime/--no-realtime", help="Affichage en temps réel"),
-    export: str = typer.Option(None, "--export", help="Exporter les données")
+    export: str = typer.Option(None, "--export", help="Exporter les données"),
 ):
     """Monitorer le système en temps réel"""
     global debugger
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]"
+        )
         return
 
     show_debug_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]📊 Monitoring du système pour {duration}s...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]📊 Monitoring du système pour {duration}s...[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     try:
         if realtime:
@@ -236,7 +278,6 @@ def start_monitoring(
                 TextColumn("[progress.description]{task.description}"),
                 console=console,
             ) as progress:
-
                 task = progress.add_task("📊 Collecte des métriques...", total=duration)
 
                 metrics_history = []
@@ -251,7 +292,9 @@ def start_monitoring(
                     time.sleep(1)
 
             # Afficher le résumé
-            console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Monitoring terminé![/bold {SUNSET_THEME['success_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['success_color']}]✅ Monitoring terminé![/bold {SUNSET_THEME['success_color']}]"
+            )
             show_monitoring_summary(metrics_history)
 
             # Exporter si demandé
@@ -259,28 +302,37 @@ def start_monitoring(
                 export_monitoring_data(metrics_history, export)
 
     except KeyboardInterrupt:
-        console.print(f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Monitoring interrompu par l'utilisateur.[/bold {SUNSET_THEME['warning_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Monitoring interrompu par l'utilisateur.[/bold {SUNSET_THEME['warning_color']}]"
+        )
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du monitoring: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du monitoring: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("analyze")
 def analyze_issues(
     component: str = typer.Option(None, "--component", "-c", help="Composant à analyser"),
     time_range: str = typer.Option("1h", "--time-range", "-t", help="Plage de temps (1h, 24h, 7d)"),
     detailed: bool = typer.Option(False, "--detailed", "-d", help="Analyse détaillée"),
-    export: str = typer.Option(None, "--export", help="Exporter l'analyse")
+    export: str = typer.Option(None, "--export", help="Exporter l'analyse"),
 ):
     """Analyser les problèmes et erreurs"""
     global debugger
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]"
+        )
         return
 
     show_debug_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]🔍 Analyse des problèmes...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]🔍 Analyse des problèmes...[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     try:
         # Générer le rapport d'analyse
@@ -290,11 +342,15 @@ def analyze_issues(
         error_analysis = report.get("error_analysis", {})
 
         if not error_analysis or error_analysis.get("status") == "Aucune erreur enregistrée":
-            console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Aucun problème détecté![/bold {SUNSET_THEME['success_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['success_color']}]✅ Aucun problème détecté![/bold {SUNSET_THEME['success_color']}]"
+            )
             return
 
         # Afficher l'analyse des erreurs
-        console.print(f"\n[bold {SUNSET_THEME['accent_color']}]📊 Analyse des Erreurs:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['accent_color']}]📊 Analyse des Erreurs:[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         # Tableau des erreurs par composant
         table = Table(title="Erreurs par Composant", box=box.ROUNDED)
@@ -305,29 +361,31 @@ def analyze_issues(
         errors_by_component = error_analysis.get("errors_by_component", {})
         total_errors = error_analysis.get("total_errors", 0)
 
-        for component, count in sorted(errors_by_component.items(), key=lambda x: x[1], reverse=True):
+        for component, count in sorted(
+            errors_by_component.items(), key=lambda x: x[1], reverse=True
+        ):
             error_rate = (count / total_errors * 100) if total_errors > 0 else 0
-            table.add_row(
-                component,
-                str(count),
-                f"{error_rate:.1f}%"
-            )
+            table.add_row(component, str(count), f"{error_rate:.1f}%")
 
         console.print(table)
 
         # Erreurs récentes
         recent_errors = error_analysis.get("recent_errors", [])
         if recent_errors and detailed:
-            console.print(f"\n[bold {SUNSET_THEME['accent_color']}]🕐 Erreurs Récentes:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['accent_color']}]🕐 Erreurs Récentes:[/bold {SUNSET_THEME['accent_color']}]"
+            )
 
             for error in recent_errors[-10:]:  # 10 dernières
                 console.print(f"\n[dim]{error['timestamp']}[/dim]")
                 console.print(f"  [bold]{error['component']}[/bold]: {error['message']}")
-                if error.get('stack_trace'):
+                if error.get("stack_trace"):
                     console.print("  [dim]Stack trace disponible[/dim]")
 
         # Analyse des causes
-        console.print(f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Analyse des Causes:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Analyse des Causes:[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         causes = analyze_error_causes(errors_by_component)
         for i, cause in enumerate(causes, 1):
@@ -336,7 +394,9 @@ def analyze_issues(
         # Recommandations
         recommendations = report.get("recommendations", [])
         if recommendations:
-            console.print(f"\n[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]"
+            )
             for i, rec in enumerate(recommendations, 1):
                 console.print(f"  {i}. {rec}")
 
@@ -345,43 +405,58 @@ def analyze_issues(
             export_analysis(report, export)
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'analyse: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'analyse: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("memory")
 def analyze_memory(
     detailed: bool = typer.Option(False, "--detailed", "-d", help="Analyse mémoire détaillée"),
-    leak_detection: bool = typer.Option(True, "--leaks/--no-leaks", help="Détection de fuites mémoire"),
-    export: str = typer.Option(None, "--export", help="Exporter l'analyse mémoire")
+    leak_detection: bool = typer.Option(
+        True, "--leaks/--no-leaks", help="Détection de fuites mémoire"
+    ),
+    export: str = typer.Option(None, "--export", help="Exporter l'analyse mémoire"),
 ):
     """Analyser l'utilisation mémoire et détecter les fuites"""
     global debugger
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]"
+        )
         return
 
     show_debug_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]💾 Analyse de la mémoire...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]💾 Analyse de la mémoire...[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     try:
         # Forcer une analyse mémoire
         snapshot = debugger.memory_profiler.take_snapshot()
 
         if not snapshot:
-            console.print(f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Impossible d'obtenir un snapshot mémoire.[/bold {SUNSET_THEME['warning_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Impossible d'obtenir un snapshot mémoire.[/bold {SUNSET_THEME['warning_color']}]"
+            )
             return
 
         # Afficher l'analyse
-        console.print(f"\n[bold {SUNSET_THEME['accent_color']}]📊 Analyse Mémoire:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['accent_color']}]📊 Analyse Mémoire:[/bold {SUNSET_THEME['accent_color']}]"
+        )
         console.print(f"  • Mémoire totale: {snapshot.total_memory / 1024 / 1024:.1f} MB")
         console.print(f"  • Nombre d'objets: {len(snapshot.objects)}")
         console.print()
 
         if detailed:
             # Objets les plus volumineux
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]🏔️  Objets les Plus Volumineux:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]🏔️  Objets les Plus Volumineux:[/bold {SUNSET_THEME['accent_color']}]"
+            )
 
             table = Table(box=box.ROUNDED)
             table.add_column("Type", style=SUNSET_THEME["info_color"])
@@ -389,18 +464,16 @@ def analyze_memory(
             table.add_column("Est. Size", justify="right")
 
             for obj in snapshot.top_objects[:10]:
-                table.add_row(
-                    obj["type"],
-                    str(obj["count"]),
-                    f"{obj['size_bytes'] / 1024:.1f} KB"
-                )
+                table.add_row(obj["type"], str(obj["count"]), f"{obj['size_bytes'] / 1024:.1f} KB")
 
             console.print(table)
             console.print()
 
         # Détection de fuites
         if leak_detection:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]💧 Détection de Fuites:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]💧 Détection de Fuites:[/bold {SUNSET_THEME['accent_color']}]"
+            )
 
             leaks = detect_memory_leaks(debugger.memory_profiler.snapshots)
             if leaks:
@@ -415,7 +488,9 @@ def analyze_memory(
         # Recommandations
         recommendations = generate_memory_recommendations(snapshot)
         if recommendations:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]"
+            )
             for i, rec in enumerate(recommendations, 1):
                 console.print(f"  {i}. {rec}")
 
@@ -424,25 +499,32 @@ def analyze_memory(
             export_memory_analysis(snapshot, export)
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'analyse mémoire: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'analyse mémoire: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("trace")
 def trace_execution(
     component: str = typer.Argument(..., help="Composant à tracer"),
     duration: int = typer.Option(30, "--duration", "-d", help="Durée du traçage en secondes"),
-    detailed: bool = typer.Option(False, "--detailed", help="Traçage détaillé")
+    detailed: bool = typer.Option(False, "--detailed", help="Traçage détaillé"),
 ):
     """Tracer l'exécution d'un composant"""
     global debugger
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]"
+        )
         return
 
     show_debug_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]🔍 Traçage de {component} pendant {duration}s...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]🔍 Traçage de {component} pendant {duration}s...[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     try:
         # Démarrer le traçage
@@ -455,7 +537,6 @@ def trace_execution(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-
             task = progress.add_task(f"🎯 Traçage {component}...", total=duration)
 
             start_time = time.time()
@@ -470,8 +551,8 @@ def trace_execution(
                     {
                         "timestamp": time.time(),
                         "memory_usage": debugger._get_current_memory_usage(),
-                        "cpu_usage": debugger._get_current_cpu_usage()
-                    }
+                        "cpu_usage": debugger._get_current_cpu_usage(),
+                    },
                 )
 
                 progress.update(task, advance=1)
@@ -480,33 +561,46 @@ def trace_execution(
         # Terminer le traçage
         debugger.agent_tracer.end_trace(trace_id, True, {"steps": step_count})
 
-        console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Traçage terminé![/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['success_color']}]✅ Traçage terminé![/bold {SUNSET_THEME['success_color']}]"
+        )
         console.print(f"📊 Trace ID: {trace_id}")
         console.print(f"⏱️  Durée: {duration}s")
         console.print(f"📝 Étapes: {step_count}")
 
     except KeyboardInterrupt:
-        console.print(f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Traçage interrompu.[/bold {SUNSET_THEME['warning_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Traçage interrompu.[/bold {SUNSET_THEME['warning_color']}]"
+        )
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du traçage: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du traçage: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("report")
 def generate_report(
-    format: str = typer.Option("json", "--format", "-f", help="Format du rapport (json, html, markdown)"),
+    format: str = typer.Option(
+        "json", "--format", "-f", help="Format du rapport (json, html, markdown)"
+    ),
     output: str = typer.Option(None, "--output", "-o", help="Fichier de sortie"),
-    detailed: bool = typer.Option(False, "--detailed", "-d", help="Rapport détaillé")
+    detailed: bool = typer.Option(False, "--detailed", "-d", help="Rapport détaillé"),
 ):
     """Générer un rapport de débogage complet"""
     global debugger
 
     if not debugger:
-        console.print(f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['error_color']}]❌ Aucune session de débogage active.[/bold {SUNSET_THEME['error_color']}]"
+        )
         return
 
     show_debug_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]📋 Génération du rapport de débogage...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]📋 Génération du rapport de débogage...[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     try:
         # Générer le rapport
@@ -525,37 +619,58 @@ def generate_report(
         elif format == "markdown":
             export_markdown_report(report, output)
         else:
-            console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Format non supporté: {format}[/bold {SUNSET_THEME['error_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['error_color']}]❌ Format non supporté: {format}[/bold {SUNSET_THEME['error_color']}]"
+            )
             return
 
-        console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Rapport généré:[/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['success_color']}]✅ Rapport généré:[/bold {SUNSET_THEME['success_color']}]"
+        )
         console.print(f"📄 {output}")
 
         # Afficher un résumé
         show_report_summary(report)
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la génération du rapport: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la génération du rapport: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 # Fonctions utilitaires
 
+
 def show_debug_info():
     """Afficher les informations de débogage"""
-    console.print(f"[bold {SUNSET_THEME['info_color']}]ℹ️  Informations de Débogage:[/bold {SUNSET_THEME['info_color']}]")
-    console.print(f"  • Niveau de débogage: {SUNSET_THEME['accent_color']}INFO{SUNSET_THEME['text_color']}")
-    console.print(f"  • Profilage: {SUNSET_THEME['accent_color']}Activé{SUNSET_THEME['text_color']}")
-    console.print(f"  • Logs: {SUNSET_THEME['accent_color']}logs/advanced_debug.log{SUNSET_THEME['text_color']}")
-    console.print(f"  • Rapports: {SUNSET_THEME['accent_color']}debug_reports/{SUNSET_THEME['text_color']}")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]ℹ️  Informations de Débogage:[/bold {SUNSET_THEME['info_color']}]"
+    )
+    console.print(
+        f"  • Niveau de débogage: {SUNSET_THEME['accent_color']}INFO{SUNSET_THEME['text_color']}"
+    )
+    console.print(
+        f"  • Profilage: {SUNSET_THEME['accent_color']}Activé{SUNSET_THEME['text_color']}"
+    )
+    console.print(
+        f"  • Logs: {SUNSET_THEME['accent_color']}logs/advanced_debug.log{SUNSET_THEME['text_color']}"
+    )
+    console.print(
+        f"  • Rapports: {SUNSET_THEME['accent_color']}debug_reports/{SUNSET_THEME['text_color']}"
+    )
     console.print()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]📝 Commandes disponibles:[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]📝 Commandes disponibles:[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print("  • tawiza debug status     - Voir le statut")
     console.print("  • tawiza debug monitor    - Monitorer en temps réel")
     console.print("  • tawiza debug analyze    - Analyser les problèmes")
     console.print("  • tawiza debug memory     - Analyser la mémoire")
     console.print("  • tawiza debug report     - Générer un rapport")
     console.print()
+
 
 def create_monitoring_table(report: dict[str, Any]) -> Table:
     """Créer un tableau de monitoring"""
@@ -588,7 +703,13 @@ def create_monitoring_table(report: dict[str, Any]) -> Table:
         # CPU
         if "cpu" in perf_summary:
             cpu_avg = perf_summary["cpu"]["average"]
-            cpu_color = SUNSET_THEME["success_color"] if cpu_avg < 70 else SUNSET_THEME["warning_color"] if cpu_avg < 85 else SUNSET_THEME["error_color"]
+            cpu_color = (
+                SUNSET_THEME["success_color"]
+                if cpu_avg < 70
+                else SUNSET_THEME["warning_color"]
+                if cpu_avg < 85
+                else SUNSET_THEME["error_color"]
+            )
             row_data.append(f"[{cpu_color}]{cpu_avg:.1f}[/{cpu_color}]")
         else:
             row_data.append("N/A")
@@ -596,7 +717,13 @@ def create_monitoring_table(report: dict[str, Any]) -> Table:
         # Memory
         if "memory" in perf_summary:
             memory_avg = perf_summary["memory"]["average"]
-            memory_color = SUNSET_THEME["success_color"] if memory_avg < 70 else SUNSET_THEME["warning_color"] if memory_avg < 85 else SUNSET_THEME["error_color"]
+            memory_color = (
+                SUNSET_THEME["success_color"]
+                if memory_avg < 70
+                else SUNSET_THEME["warning_color"]
+                if memory_avg < 85
+                else SUNSET_THEME["error_color"]
+            )
             row_data.append(f"[{memory_color}]{memory_avg:.1f}[/{memory_color}]")
         else:
             row_data.append("N/A")
@@ -604,7 +731,13 @@ def create_monitoring_table(report: dict[str, Any]) -> Table:
         # GPU
         if "utilization" in gpu_summary:
             gpu_avg = gpu_summary["utilization"]["average"]
-            gpu_color = SUNSET_THEME["success_color"] if gpu_avg < 70 else SUNSET_THEME["warning_color"] if gpu_avg < 85 else SUNSET_THEME["error_color"]
+            gpu_color = (
+                SUNSET_THEME["success_color"]
+                if gpu_avg < 70
+                else SUNSET_THEME["warning_color"]
+                if gpu_avg < 85
+                else SUNSET_THEME["error_color"]
+            )
             row_data.append(f"[{gpu_color}]{gpu_avg:.1f}[/{gpu_color}]")
         elif "utilization" in gpu_summary:
             row_data.append("N/A")
@@ -620,7 +753,13 @@ def create_monitoring_table(report: dict[str, Any]) -> Table:
         # Errors
         if "total_errors" in error_analysis:
             total_errors = error_analysis["total_errors"]
-            error_color = SUNSET_THEME["success_color"] if total_errors == 0 else SUNSET_THEME["warning_color"] if total_errors < 10 else SUNSET_THEME["error_color"]
+            error_color = (
+                SUNSET_THEME["success_color"]
+                if total_errors == 0
+                else SUNSET_THEME["warning_color"]
+                if total_errors < 10
+                else SUNSET_THEME["error_color"]
+            )
             row_data.append(f"[{error_color}]{total_errors}[/{error_color}]")
         else:
             row_data.append("N/A")
@@ -633,12 +772,15 @@ def create_monitoring_table(report: dict[str, Any]) -> Table:
 
     return table
 
+
 def show_monitoring_summary(metrics_history: list[dict[str, Any]]):
     """Afficher un résumé du monitoring"""
     if not metrics_history:
         return
 
-    console.print(f"\n[bold {SUNSET_THEME['info_color']}]📈 Résumé du Monitoring:[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['info_color']}]📈 Résumé du Monitoring:[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     # Calculer les moyennes
     cpu_values = []
@@ -664,16 +806,18 @@ def show_monitoring_summary(metrics_history: list[dict[str, Any]]):
 
     console.print()
 
+
 def export_monitoring_data(metrics_history: list[dict[str, Any]], filename: str):
     """Exporter les données de monitoring"""
     try:
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(metrics_history, f, indent=2, ensure_ascii=False, default=str)
 
         console.print(f"📄 Données exportées: {filename}")
 
     except Exception as e:
         console.print(f"⚠️  Erreur lors de l'export: {e}")
+
 
 def analyze_error_causes(errors_by_component: dict[str, int]) -> list[str]:
     """Analyser les causes des erreurs"""
@@ -683,18 +827,25 @@ def analyze_error_causes(errors_by_component: dict[str, int]) -> list[str]:
     for component, count in errors_by_component.items():
         if count > 10:
             if "gpu" in component.lower():
-                causes.append(f"Problèmes GPU fréquents sur {component} - vérifiez la température et les drivers")
+                causes.append(
+                    f"Problèmes GPU fréquents sur {component} - vérifiez la température et les drivers"
+                )
             elif "memory" in component.lower():
                 causes.append(f"Problèmes mémoire sur {component} - surveillez les fuites mémoire")
             elif "agent" in component.lower():
-                causes.append(f"Agent {component} instable - redémarrez ou vérifiez la configuration")
+                causes.append(
+                    f"Agent {component} instable - redémarrez ou vérifiez la configuration"
+                )
             else:
-                causes.append(f"Composant {component} a un taux d'erreur élevé - investigation nécessaire")
+                causes.append(
+                    f"Composant {component} a un taux d'erreur élevé - investigation nécessaire"
+                )
 
     if not causes:
         causes.append("Aucun pattern d'erreur significatif détecté")
 
     return causes
+
 
 def detect_memory_leaks(snapshots: list) -> list[dict[str, Any]]:
     """Détecter les fuites mémoire"""
@@ -705,16 +856,14 @@ def detect_memory_leaks(snapshots: list) -> list[dict[str, Any]]:
 
     for i in range(1, len(snapshots)):
         current = snapshots[i]
-        previous = snapshots[i-1]
+        previous = snapshots[i - 1]
 
         growth = current.total_memory - previous.total_memory
         if growth > 50 * 1024 * 1024:  # 50MB
-            leaks.append({
-                "timestamp": current.timestamp,
-                "growth_mb": growth / 1024 / 1024
-            })
+            leaks.append({"timestamp": current.timestamp, "growth_mb": growth / 1024 / 1024})
 
     return leaks
+
 
 def generate_memory_recommendations(snapshot) -> list[str]:
     """Générer des recommandations basées sur l'analyse mémoire"""
@@ -723,7 +872,9 @@ def generate_memory_recommendations(snapshot) -> list[str]:
     memory_mb = snapshot.total_memory / 1024 / 1024
 
     if memory_mb > 1000:  # 1GB
-        recommendations.append("Utilisation mémoire élevée - envisagez d'optimiser les structures de données")
+        recommendations.append(
+            "Utilisation mémoire élevée - envisagez d'optimiser les structures de données"
+        )
 
     # Analyser les types d'objets
     object_types = {}
@@ -733,20 +884,25 @@ def generate_memory_recommendations(snapshot) -> list[str]:
 
     # Recommandations basées sur les types
     if object_types.get("dict", 0) > 10000:
-        recommendations.append("Nombre élevé de dictionnaires - envisagez d'utiliser des structures plus efficaces")
+        recommendations.append(
+            "Nombre élevé de dictionnaires - envisagez d'utiliser des structures plus efficaces"
+        )
 
     if object_types.get("list", 0) > 50000:
-        recommendations.append("Nombre élevé de listes - envisagez d'utiliser des arrays NumPy pour données numériques")
+        recommendations.append(
+            "Nombre élevé de listes - envisagez d'utiliser des arrays NumPy pour données numériques"
+        )
 
     if not recommendations:
         recommendations.append("Utilisation mémoire normale - aucune action requise")
 
     return recommendations
 
+
 def export_analysis(report: dict[str, Any], filename: str):
     """Exporter l'analyse"""
     try:
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, ensure_ascii=False, default=str)
 
         console.print(f"📄 Analyse exportée: {filename}")
@@ -754,16 +910,17 @@ def export_analysis(report: dict[str, Any], filename: str):
     except Exception as e:
         console.print(f"⚠️  Erreur lors de l'export: {e}")
 
+
 def export_memory_analysis(snapshot, filename: str):
     """Exporter l'analyse mémoire"""
     try:
         data = {
             "timestamp": snapshot.timestamp,
             "total_memory_mb": snapshot.total_memory / 1024 / 1024,
-            "objects": snapshot.objects
+            "objects": snapshot.objects,
         }
 
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False, default=str)
 
         console.print(f"📄 Analyse mémoire exportée: {filename}")
@@ -771,10 +928,11 @@ def export_memory_analysis(snapshot, filename: str):
     except Exception as e:
         console.print(f"⚠️  Erreur lors de l'export: {e}")
 
+
 def export_json_report(report: dict[str, Any], filename: str):
     """Exporter le rapport en JSON"""
     try:
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, ensure_ascii=False, default=str)
 
         console.print(f"📄 Rapport JSON exporté: {filename}")
@@ -782,12 +940,13 @@ def export_json_report(report: dict[str, Any], filename: str):
     except Exception as e:
         console.print(f"⚠️  Erreur lors de l'export: {e}")
 
+
 def export_html_report(report: dict[str, Any], filename: str):
     """Exporter le rapport en HTML"""
     try:
         html_content = generate_html_report(report)
 
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(html_content)
 
         console.print(f"📄 Rapport HTML exporté: {filename}")
@@ -795,18 +954,20 @@ def export_html_report(report: dict[str, Any], filename: str):
     except Exception as e:
         console.print(f"⚠️  Erreur lors de l'export: {e}")
 
+
 def export_markdown_report(report: dict[str, Any], filename: str):
     """Exporter le rapport en Markdown"""
     try:
         md_content = generate_markdown_report(report)
 
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(md_content)
 
         console.print(f"📄 Rapport Markdown exporté: {filename}")
 
     except Exception as e:
         console.print(f"⚠️  Erreur lors de l'export: {e}")
+
 
 def generate_html_report(report: dict[str, Any]) -> str:
     """Générer un rapport HTML"""
@@ -831,56 +992,58 @@ def generate_html_report(report: dict[str, Any]) -> str:
 <body>
     <div class="header">
         <h1>🐛 Tawiza-V2 Debug Report</h1>
-        <p>Généré le: {report.get('timestamp', 'N/A')}</p>
+        <p>Généré le: {report.get("timestamp", "N/A")}</p>
     </div>
 
     <div class="section">
         <h2>📊 Performance Summary</h2>
-        {generate_performance_html(report.get('performance_summary', {}))}
+        {generate_performance_html(report.get("performance_summary", {}))}
     </div>
 
     <div class="section">
         <h2>🤖 Agent Status</h2>
-        {generate_agents_html(report.get('agent_status', {}))}
+        {generate_agents_html(report.get("agent_status", {}))}
     </div>
 
     <div class="section">
         <h2>❌ Error Analysis</h2>
-        {generate_errors_html(report.get('error_analysis', {}))}
+        {generate_errors_html(report.get("error_analysis", {}))}
     </div>
 
     <div class="section">
         <h2>💡 Recommendations</h2>
-        {generate_recommendations_html(report.get('recommendations', []))}
+        {generate_recommendations_html(report.get("recommendations", []))}
     </div>
 </body>
 </html>
 """
     return html
 
+
 def generate_markdown_report(report: dict[str, Any]) -> str:
     """Générer un rapport Markdown"""
     md = f"""# 🐛 Tawiza-V2 Debug Report
 
-**Généré le:** {report.get('timestamp', 'N/A')}
+**Généré le:** {report.get("timestamp", "N/A")}
 
 ## 📊 Performance Summary
 
-{generate_performance_md(report.get('performance_summary', {}))}
+{generate_performance_md(report.get("performance_summary", {}))}
 
 ## 🤖 Agent Status
 
-{generate_agents_md(report.get('agent_status', {}))}
+{generate_agents_md(report.get("agent_status", {}))}
 
 ## ❌ Error Analysis
 
-{generate_errors_md(report.get('error_analysis', {}))}
+{generate_errors_md(report.get("error_analysis", {}))}
 
 ## 💡 Recommendations
 
-{generate_recommendations_md(report.get('recommendations', []))}
+{generate_recommendations_md(report.get("recommendations", []))}
 """
     return md
+
 
 def generate_performance_html(perf_summary: dict[str, Any]) -> str:
     """Générer le HTML des performances"""
@@ -888,8 +1051,8 @@ def generate_performance_html(perf_summary: dict[str, Any]) -> str:
         return "<p>Aucune donnée de performance disponible</p>"
 
     html = f"""
-    <div class="metric">CPU Moyenne: <strong>{perf_summary['cpu']['average']:.1f}%</strong></div>
-    <div class="metric">Memory Moyenne: <strong>{perf_summary['memory']['average']:.1f}%</strong></div>
+    <div class="metric">CPU Moyenne: <strong>{perf_summary["cpu"]["average"]:.1f}%</strong></div>
+    <div class="metric">Memory Moyenne: <strong>{perf_summary["memory"]["average"]:.1f}%</strong></div>
     """
 
     gpu_summary = perf_summary.get("gpu", {})
@@ -898,17 +1061,19 @@ def generate_performance_html(perf_summary: dict[str, Any]) -> str:
 
     return html
 
+
 def generate_agents_html(agent_summary: dict[str, Any]) -> str:
     """Générer le HTML des agents"""
     if "total_agents" not in agent_summary:
         return "<p>Aucun agent actif</p>"
 
     return f"""
-    <div class="metric">Total Agents: <strong>{agent_summary['total_agents']}</strong></div>
-    <div class="metric">Active Agents: <strong>{agent_summary['active_agents']}</strong></div>
-    <div class="metric">Total Tasks: <strong>{agent_summary['total_tasks']}</strong></div>
-    <div class="metric">Total Errors: <strong class='error'>{agent_summary['total_errors']}</strong></div>
+    <div class="metric">Total Agents: <strong>{agent_summary["total_agents"]}</strong></div>
+    <div class="metric">Active Agents: <strong>{agent_summary["active_agents"]}</strong></div>
+    <div class="metric">Total Tasks: <strong>{agent_summary["total_tasks"]}</strong></div>
+    <div class="metric">Total Errors: <strong class='error'>{agent_summary["total_errors"]}</strong></div>
     """
+
 
 def generate_errors_html(error_analysis: dict[str, Any]) -> str:
     """Générer le HTML des erreurs"""
@@ -916,9 +1081,10 @@ def generate_errors_html(error_analysis: dict[str, Any]) -> str:
         return "<p>Aucune erreur enregistrée</p>"
 
     return f"""
-    <p>Total Errors: <strong class='error'>{error_analysis['total_errors']}</strong></p>
-    <p>Error Rate: <strong>{error_analysis.get('error_rate', 0):.2f}%</strong></p>
+    <p>Total Errors: <strong class='error'>{error_analysis["total_errors"]}</strong></p>
+    <p>Error Rate: <strong>{error_analysis.get("error_rate", 0):.2f}%</strong></p>
     """
+
 
 def generate_recommendations_html(recommendations: list[str]) -> str:
     """Générer le HTML des recommandations"""
@@ -931,14 +1097,15 @@ def generate_recommendations_html(recommendations: list[str]) -> str:
     html += "</ul>"
     return html
 
+
 def generate_performance_md(perf_summary: dict[str, Any]) -> str:
     """Générer le Markdown des performances"""
     if "cpu" not in perf_summary:
         return "Aucune donnée de performance disponible"
 
     md = f"""
-- **CPU Moyenne:** {perf_summary['cpu']['average']:.1f}%
-- **Memory Moyenne:** {perf_summary['memory']['average']:.1f}%
+- **CPU Moyenne:** {perf_summary["cpu"]["average"]:.1f}%
+- **Memory Moyenne:** {perf_summary["memory"]["average"]:.1f}%
 """
 
     gpu_summary = perf_summary.get("gpu", {})
@@ -947,17 +1114,19 @@ def generate_performance_md(perf_summary: dict[str, Any]) -> str:
 
     return md
 
+
 def generate_agents_md(agent_summary: dict[str, Any]) -> str:
     """Générer le Markdown des agents"""
     if "total_agents" not in agent_summary:
         return "Aucun agent actif"
 
     return f"""
-- **Total Agents:** {agent_summary['total_agents']}
-- **Active Agents:** {agent_summary['active_agents']}
-- **Total Tasks:** {agent_summary['total_tasks']}
-- **Total Errors:** {agent_summary['total_errors']}
+- **Total Agents:** {agent_summary["total_agents"]}
+- **Active Agents:** {agent_summary["active_agents"]}
+- **Total Tasks:** {agent_summary["total_tasks"]}
+- **Total Errors:** {agent_summary["total_errors"]}
 """
+
 
 def generate_errors_md(error_analysis: dict[str, Any]) -> str:
     """Générer le Markdown des erreurs"""
@@ -965,9 +1134,10 @@ def generate_errors_md(error_analysis: dict[str, Any]) -> str:
         return "Aucune erreur enregistrée"
 
     return f"""
-- **Total Errors:** {error_analysis['total_errors']}
-- **Error Rate:** {error_analysis.get('error_rate', 0):.2f}%
+- **Total Errors:** {error_analysis["total_errors"]}
+- **Error Rate:** {error_analysis.get("error_rate", 0):.2f}%
 """
+
 
 def generate_recommendations_md(recommendations: list[str]) -> str:
     """Générer le Markdown des recommandations"""
@@ -979,9 +1149,12 @@ def generate_recommendations_md(recommendations: list[str]) -> str:
         md += f"{i}. {rec}\n"
     return md
 
+
 def show_report_summary(report: dict[str, Any]):
     """Afficher un résumé du rapport"""
-    console.print(f"\n[bold {SUNSET_THEME['info_color']}]📊 Résumé du Rapport:[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['info_color']}]📊 Résumé du Rapport:[/bold {SUNSET_THEME['info_color']}]"
+    )
 
     # Performance
     perf_summary = report.get("performance_summary", {})
@@ -991,7 +1164,9 @@ def show_report_summary(report: dict[str, Any]):
     # Agents
     agent_summary = report.get("agent_status", {})
     if "total_agents" in agent_summary:
-        console.print(f"  • Agents: {agent_summary['active_agents']}/{agent_summary['total_agents']} actifs")
+        console.print(
+            f"  • Agents: {agent_summary['active_agents']}/{agent_summary['total_agents']} actifs"
+        )
 
     # Erreurs
     error_analysis = report.get("error_analysis", {})
@@ -1000,26 +1175,16 @@ def show_report_summary(report: dict[str, Any]):
 
     console.print()
 
+
 @app.command("dashboard")
 def dashboard(
     mode: str = typer.Option(
-        "system",
-        "--mode",
-        "-m",
-        help="Dashboard mode: system, performance, agents, all"
+        "system", "--mode", "-m", help="Dashboard mode: system, performance, agents, all"
     ),
     duration: int = typer.Option(
-        60,
-        "--duration",
-        "-d",
-        help="Duration in seconds (0 for unlimited)"
+        60, "--duration", "-d", help="Duration in seconds (0 for unlimited)"
     ),
-    refresh: int = typer.Option(
-        2,
-        "--refresh",
-        "-r",
-        help="Refresh rate per second"
-    )
+    refresh: int = typer.Option(2, "--refresh", "-r", help="Refresh rate per second"),
 ):
     """
     Launch real-time monitoring dashboard
@@ -1054,23 +1219,22 @@ def dashboard(
         "system": "System Resources",
         "performance": "Performance Metrics",
         "agents": "AI Agents",
-        "all": "Full System Overview"
+        "all": "Full System Overview",
     }.get(mode, mode.title())
 
-    console.print(Panel(
-        f"[bold cyan]Tawiza Live Dashboard[/bold cyan]\n"
-        f"[dim]Mode: {mode_title} | Refresh: {refresh}/s[/dim]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            f"[bold cyan]Tawiza Live Dashboard[/bold cyan]\n"
+            f"[dim]Mode: {mode_title} | Refresh: {refresh}/s[/dim]",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     try:
         if mode == "system":
             # System resources dashboard
-            SystemDashboard.run(
-                duration=duration if duration > 0 else 3600,
-                refresh_rate=refresh
-            )
+            SystemDashboard.run(duration=duration if duration > 0 else 3600, refresh_rate=refresh)
 
         elif mode == "performance":
             # Performance metrics dashboard
@@ -1080,7 +1244,7 @@ def dashboard(
             with Live(
                 perf_dash.generate(PerformanceMetrics(0, 0, 100, 90, 0, 0, 0)),
                 console=console,
-                refresh_per_second=refresh
+                refresh_per_second=refresh,
             ) as live:
                 completed = 0
                 failed = 0
@@ -1097,7 +1261,7 @@ def dashboard(
                         cache_hit_rate=random.uniform(85, 98),
                         active_tasks=random.randint(1, 8),
                         completed_tasks=completed,
-                        failed_tasks=failed
+                        failed_tasks=failed,
                     )
                     live.update(perf_dash.generate(metrics))
                     time.sleep(1 / refresh)
@@ -1115,9 +1279,7 @@ def dashboard(
             iterations = (duration * refresh) if duration > 0 else 3600 * refresh
 
             with Live(
-                AgentsDashboard.generate(agents),
-                console=console,
-                refresh_per_second=refresh
+                AgentsDashboard.generate(agents), console=console, refresh_per_second=refresh
             ) as live:
                 for _i in range(iterations):
                     # Simulate agent activity
@@ -1126,7 +1288,9 @@ def dashboard(
                             agent.tasks_completed += random.randint(0, 2)
                         if random.random() < 0.1:
                             agent.status = "running" if agent.status == "idle" else "idle"
-                        agent.success_rate = min(100, max(90, agent.success_rate + random.uniform(-1, 1)))
+                        agent.success_rate = min(
+                            100, max(90, agent.success_rate + random.uniform(-1, 1))
+                        )
 
                     live.update(AgentsDashboard.generate(agents))
                     time.sleep(1 / refresh)

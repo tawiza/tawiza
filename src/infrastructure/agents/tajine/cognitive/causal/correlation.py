@@ -4,7 +4,6 @@ Time series correlation analysis for causal inference.
 Uses lagged cross-correlation to detect temporal causality.
 """
 
-
 import numpy as np
 from loguru import logger
 
@@ -34,9 +33,7 @@ def preprocess_series(values: list[float]) -> np.ndarray | None:
 
 
 def compute_lagged_correlation(
-    cause_values: list[float],
-    effect_values: list[float],
-    max_lag: int = 6
+    cause_values: list[float], effect_values: list[float], max_lag: int = 6
 ) -> tuple[float, int]:
     """Compute correlation at different lags to find optimal temporal offset.
 
@@ -76,7 +73,7 @@ def compute_lagged_correlation(
             c = cause[:min_len]
             e = effect[:min_len]
         else:
-            c = cause[:min_len - lag]
+            c = cause[: min_len - lag]
             e = effect[lag:min_len]
 
         if len(c) < 3:
@@ -131,11 +128,7 @@ def assess_temporal_validity(correlation: float, lag: int) -> float:
     return base_confidence * temporal_factor
 
 
-def compute_causal_confidence(
-    correlation: float,
-    lag: int,
-    sample_size: int
-) -> float:
+def compute_causal_confidence(correlation: float, lag: int, sample_size: int) -> float:
     """Compute overall confidence in causal relationship.
 
     Combines:

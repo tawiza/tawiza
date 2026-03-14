@@ -27,18 +27,18 @@ from loguru import logger
 class MemoryType(StrEnum):
     """Types of memory storage."""
 
-    SHORT_TERM = "short_term"   # Session-scoped, volatile
-    WORKING = "working"         # Task-scoped, cleared per task
-    LONG_TERM = "long_term"     # Persistent across sessions
+    SHORT_TERM = "short_term"  # Session-scoped, volatile
+    WORKING = "working"  # Task-scoped, cleared per task
+    LONG_TERM = "long_term"  # Persistent across sessions
 
 
 class MemoryScope(StrEnum):
     """Scope of memory access."""
 
-    GLOBAL = "global"           # Accessible by all agents
-    AGENT = "agent"             # Specific to one agent
-    TASK = "task"               # Specific to one task
-    CHAIN = "chain"             # Shared within an agent chain
+    GLOBAL = "global"  # Accessible by all agents
+    AGENT = "agent"  # Specific to one agent
+    TASK = "task"  # Specific to one task
+    CHAIN = "chain"  # Shared within an agent chain
 
 
 @dataclass
@@ -526,8 +526,7 @@ class SharedMemory:
         """Unsubscribe from memory changes."""
         if key_pattern in self._subscribers:
             self._subscribers[key_pattern] = [
-                cb for cb in self._subscribers[key_pattern]
-                if cb != callback
+                cb for cb in self._subscribers[key_pattern] if cb != callback
             ]
 
     async def _notify(
@@ -600,7 +599,7 @@ class ConversationMemory:
         # Trim if over limit
         if len(messages) > self.max_messages:
             # Keep first (system) and last N messages
-            messages = messages[:1] + messages[-(self.max_messages - 1):]
+            messages = messages[:1] + messages[-(self.max_messages - 1) :]
 
         await self.memory.set(
             self._messages_key,

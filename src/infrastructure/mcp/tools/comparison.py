@@ -16,6 +16,7 @@ from mcp.server.fastmcp import Context, FastMCP
 @dataclass
 class TerritoryAnalysis:
     """Results from analyzing a single territory."""
+
     territory: str
     query: str
     enterprises_count: int
@@ -47,6 +48,7 @@ class TerritoryAnalysis:
 @dataclass
 class ComparisonResult:
     """Results from comparing multiple territories."""
+
     query_base: str
     territories: list[str]
     analyses: list[TerritoryAnalysis]
@@ -145,10 +147,13 @@ def register_comparison_tools(mcp: FastMCP) -> None:
                     pass
 
         if len(territories) < 2:
-            return json.dumps({
-                "success": False,
-                "error": "Au moins 2 territoires requis pour comparaison",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Au moins 2 territoires requis pour comparaison",
+                },
+                ensure_ascii=False,
+            )
 
         if len(territories) > 5:
             territories = territories[:5]
@@ -201,7 +206,9 @@ def register_comparison_tools(mcp: FastMCP) -> None:
                     # Effectif distribution
                     effectif = ent.get("effectif", ent.get("trancheEffectifs", 0))
                     try:
-                        eff_val = int(str(effectif).split("-")[0].replace("+", "")) if effectif else 0
+                        eff_val = (
+                            int(str(effectif).split("-")[0].replace("+", "")) if effectif else 0
+                        )
                     except (ValueError, TypeError):
                         eff_val = 0
 
@@ -284,11 +291,15 @@ def register_comparison_tools(mcp: FastMCP) -> None:
         valid_analyses = [a for a in analyses if not a.error]
 
         if len(valid_analyses) < 2:
-            return json.dumps({
-                "success": False,
-                "error": "Pas assez de territoires avec resultats",
-                "analyses": [a.to_dict() for a in analyses],
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Pas assez de territoires avec resultats",
+                    "analyses": [a.to_dict() for a in analyses],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         # LLM Comparison
         territories_data = ""
@@ -298,12 +309,13 @@ def register_comparison_tools(mcp: FastMCP) -> None:
 - Entreprises: {a.enterprises_count}
 - Effectif moyen: {a.avg_effectif}
 - Creations recentes (2 ans): {a.creation_recent}
-- Distribution: <10={a.effectif_distribution.get('<10', 0)}, 10-50={a.effectif_distribution.get('10-50', 0)}, 50-250={a.effectif_distribution.get('50-250', 0)}, >250={a.effectif_distribution.get('>250', 0)}
-- Top secteurs: {', '.join(list(a.top_sectors.keys())[:3])}
+- Distribution: <10={a.effectif_distribution.get("<10", 0)}, 10-50={a.effectif_distribution.get("10-50", 0)}, 50-250={a.effectif_distribution.get("50-250", 0)}, >250={a.effectif_distribution.get(">250", 0)}
+- Top secteurs: {", ".join(list(a.top_sectors.keys())[:3])}
 """
 
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
 
             prompt = COMPARATOR_PROMPT.format(
@@ -380,10 +392,10 @@ def register_comparison_tools(mcp: FastMCP) -> None:
 **Distribution par taille:**
 | Taille | Nombre |
 |--------|--------|
-| TPE (<10) | {a.effectif_distribution.get('<10', 0)} |
-| PME (10-50) | {a.effectif_distribution.get('10-50', 0)} |
-| ETI (50-250) | {a.effectif_distribution.get('50-250', 0)} |
-| GE (>250) | {a.effectif_distribution.get('>250', 0)} |
+| TPE (<10) | {a.effectif_distribution.get("<10", 0)} |
+| PME (10-50) | {a.effectif_distribution.get("10-50", 0)} |
+| ETI (50-250) | {a.effectif_distribution.get("50-250", 0)} |
+| GE (>250) | {a.effectif_distribution.get(">250", 0)} |
 
 **Top 5 entreprises:**
 """
@@ -406,10 +418,10 @@ def register_comparison_tools(mcp: FastMCP) -> None:
         charts_data = {
             "enterprises_by_territory": {a.territory: a.enterprises_count for a in valid_analyses},
             "avg_effectif_by_territory": {a.territory: a.avg_effectif for a in valid_analyses},
-            "creation_recent_by_territory": {a.territory: a.creation_recent for a in valid_analyses},
-            "size_distribution": {
-                a.territory: a.effectif_distribution for a in valid_analyses
+            "creation_recent_by_territory": {
+                a.territory: a.creation_recent for a in valid_analyses
             },
+            "size_distribution": {a.territory: a.effectif_distribution for a in valid_analyses},
         }
 
         # Build result
@@ -426,11 +438,16 @@ def register_comparison_tools(mcp: FastMCP) -> None:
             charts_data=charts_data,
         )
 
-        return json.dumps({
-            "success": True,
-            **result.to_dict(),
-            "duration_seconds": duration,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                **result.to_dict(),
+                "duration_seconds": duration,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def tawiza_territory_benchmark(
@@ -477,9 +494,9 @@ def register_comparison_tools(mcp: FastMCP) -> None:
                 count = len(result.get("enterprises", [])) if result.get("success") else 0
                 results[sector] = {
                     "count": count,
-                    "top_3": [
-                        e.get("nom", "N/A") for e in result.get("enterprises", [])[:3]
-                    ] if result.get("enterprises") else [],
+                    "top_3": [e.get("nom", "N/A") for e in result.get("enterprises", [])[:3]]
+                    if result.get("enterprises")
+                    else [],
                 }
             except Exception as e:
                 results[sector] = {"count": 0, "error": str(e)}
@@ -492,14 +509,16 @@ def register_comparison_tools(mcp: FastMCP) -> None:
 
 ## Resume
 - **Entreprises totales**: {total}
-- **Secteur dominant**: {best_sector[0]} ({best_sector[1].get('count', 0)} entreprises)
+- **Secteur dominant**: {best_sector[0]} ({best_sector[1].get("count", 0)} entreprises)
 
 ## Par Secteur
 
 | Secteur | Entreprises | Top 3 |
 |---------|-------------|-------|
 """
-        for sector, data in sorted(results.items(), key=lambda x: x[1].get("count", 0), reverse=True):
+        for sector, data in sorted(
+            results.items(), key=lambda x: x[1].get("count", 0), reverse=True
+        ):
             top3 = ", ".join(data.get("top_3", [])[:3]) or "N/A"
             benchmark_md += f"| {sector} | {data.get('count', 0)} | {top3[:50]}... |\n"
 
@@ -514,12 +533,16 @@ def register_comparison_tools(mcp: FastMCP) -> None:
 
         notify(f"Benchmark termine: {total} entreprises", 100)
 
-        return json.dumps({
-            "success": True,
-            "territory": territory,
-            "sectors_analyzed": len(sectors),
-            "total_enterprises": total,
-            "best_sector": best_sector[0],
-            "results": results,
-            "benchmark_md": benchmark_md,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "territory": territory,
+                "sectors_analyzed": len(sectors),
+                "total_enterprises": total,
+                "best_sector": best_sector[0],
+                "results": results,
+                "benchmark_md": benchmark_md,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )

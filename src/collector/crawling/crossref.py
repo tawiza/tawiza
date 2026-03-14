@@ -22,11 +22,12 @@ from loguru import logger
 @dataclass
 class MicroSignal:
     """A detected micro-signal from cross-source analysis."""
-    signal_type: str          # dynamisme_territorial, declin_territorial, etc.
+
+    signal_type: str  # dynamisme_territorial, declin_territorial, etc.
     code_dept: str
-    score: float              # 0-1 significance
-    sources: list[str]        # contributing sources
-    metrics: dict[str, float] # metric_name → z-score or value
+    score: float  # 0-1 significance
+    sources: list[str]  # contributing sources
+    metrics: dict[str, float]  # metric_name → z-score or value
     description: str = ""
     detected_at: date = field(default_factory=date.today)
 
@@ -47,6 +48,7 @@ class MicroSignal:
 @dataclass
 class CrossRefPattern:
     """A pattern that defines a micro-signal from multiple source conditions."""
+
     name: str
     signal_type: str
     description_template: str
@@ -62,11 +64,36 @@ CROSSREF_PATTERNS: list[CrossRefPattern] = [
         signal_type="dynamisme_territorial",
         description_template="Dynamisme territorial détecté dans le {dept}: convergence de signaux positifs ({sources})",
         conditions=[
-            {"source": "sirene", "metric": "creation_entreprise", "direction": "up", "min_zscore": 1.5},
-            {"source": "france_travail", "metric": "offres_emploi", "direction": "up", "min_zscore": 1.5},
-            {"source": "presse_locale", "metric": "presse_creation", "direction": "up", "min_zscore": 1.0},
-            {"source": "presse_locale", "metric": "presse_emploi_positif", "direction": "up", "min_zscore": 1.0},
-            {"source": "presse_locale", "metric": "presse_investissement", "direction": "up", "min_zscore": 1.0},
+            {
+                "source": "sirene",
+                "metric": "creation_entreprise",
+                "direction": "up",
+                "min_zscore": 1.5,
+            },
+            {
+                "source": "france_travail",
+                "metric": "offres_emploi",
+                "direction": "up",
+                "min_zscore": 1.5,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_creation",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_emploi_positif",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_investissement",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
         ],
         min_sources=2,
         weight=1.2,
@@ -76,11 +103,36 @@ CROSSREF_PATTERNS: list[CrossRefPattern] = [
         signal_type="declin_territorial",
         description_template="Déclin territorial détecté dans le {dept}: convergence de signaux négatifs ({sources})",
         conditions=[
-            {"source": "sirene", "metric": "fermeture_entreprise", "direction": "up", "min_zscore": 1.5},
-            {"source": "france_travail", "metric": "offres_emploi", "direction": "down", "min_zscore": -1.5},
-            {"source": "presse_locale", "metric": "presse_fermeture", "direction": "up", "min_zscore": 1.0},
-            {"source": "presse_locale", "metric": "presse_emploi_negatif", "direction": "up", "min_zscore": 1.0},
-            {"source": "presse_locale", "metric": "presse_crise", "direction": "up", "min_zscore": 1.0},
+            {
+                "source": "sirene",
+                "metric": "fermeture_entreprise",
+                "direction": "up",
+                "min_zscore": 1.5,
+            },
+            {
+                "source": "france_travail",
+                "metric": "offres_emploi",
+                "direction": "down",
+                "min_zscore": -1.5,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_fermeture",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_emploi_negatif",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_crise",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
         ],
         min_sources=2,
         weight=1.3,
@@ -90,9 +142,24 @@ CROSSREF_PATTERNS: list[CrossRefPattern] = [
         signal_type="tension_emploi",
         description_template="Tension sur l'emploi dans le {dept}: forte demande non satisfaite ({sources})",
         conditions=[
-            {"source": "france_travail", "metric": "offres_emploi", "direction": "up", "min_zscore": 2.0},
-            {"source": "presse_locale", "metric": "presse_emploi_positif", "direction": "up", "min_zscore": 1.0},
-            {"source": "sirene", "metric": "creation_entreprise", "direction": "up", "min_zscore": 1.0},
+            {
+                "source": "france_travail",
+                "metric": "offres_emploi",
+                "direction": "up",
+                "min_zscore": 2.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_emploi_positif",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "sirene",
+                "metric": "creation_entreprise",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
         ],
         min_sources=2,
         weight=1.0,
@@ -102,9 +169,24 @@ CROSSREF_PATTERNS: list[CrossRefPattern] = [
         signal_type="crise_sectorielle",
         description_template="Crise sectorielle dans le {dept}: cluster de fermetures et licenciements ({sources})",
         conditions=[
-            {"source": "sirene", "metric": "fermeture_entreprise", "direction": "up", "min_zscore": 2.0},
-            {"source": "presse_locale", "metric": "presse_fermeture", "direction": "up", "min_zscore": 1.5},
-            {"source": "presse_locale", "metric": "presse_emploi_negatif", "direction": "up", "min_zscore": 1.5},
+            {
+                "source": "sirene",
+                "metric": "fermeture_entreprise",
+                "direction": "up",
+                "min_zscore": 2.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_fermeture",
+                "direction": "up",
+                "min_zscore": 1.5,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_emploi_negatif",
+                "direction": "up",
+                "min_zscore": 1.5,
+            },
         ],
         min_sources=2,
         weight=1.4,
@@ -114,9 +196,24 @@ CROSSREF_PATTERNS: list[CrossRefPattern] = [
         signal_type="attractivite",
         description_template="Attractivité croissante dans le {dept}: investissements et constructions ({sources})",
         conditions=[
-            {"source": "presse_locale", "metric": "presse_investissement", "direction": "up", "min_zscore": 1.0},
-            {"source": "presse_locale", "metric": "presse_construction", "direction": "up", "min_zscore": 1.0},
-            {"source": "sirene", "metric": "creation_entreprise", "direction": "up", "min_zscore": 1.0},
+            {
+                "source": "presse_locale",
+                "metric": "presse_investissement",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "presse_locale",
+                "metric": "presse_construction",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "sirene",
+                "metric": "creation_entreprise",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
         ],
         min_sources=2,
         weight=1.0,
@@ -126,9 +223,24 @@ CROSSREF_PATTERNS: list[CrossRefPattern] = [
         signal_type="desertification",
         description_template="Risque de désertification dans le {dept}: services en recul ({sources})",
         conditions=[
-            {"source": "presse_locale", "metric": "presse_desert", "direction": "up", "min_zscore": 1.0},
-            {"source": "sirene", "metric": "fermeture_entreprise", "direction": "up", "min_zscore": 1.5},
-            {"source": "france_travail", "metric": "offres_emploi", "direction": "down", "min_zscore": -1.0},
+            {
+                "source": "presse_locale",
+                "metric": "presse_desert",
+                "direction": "up",
+                "min_zscore": 1.0,
+            },
+            {
+                "source": "sirene",
+                "metric": "fermeture_entreprise",
+                "direction": "up",
+                "min_zscore": 1.5,
+            },
+            {
+                "source": "france_travail",
+                "metric": "offres_emploi",
+                "direction": "down",
+                "min_zscore": -1.0,
+            },
         ],
         min_sources=2,
         weight=1.2,
@@ -176,12 +288,12 @@ class CrossSourceDetector:
 
         # Sort by score descending
         results.sort(key=lambda r: r.score, reverse=True)
-        logger.info(f"[crossref] Detected {len(results)} micro-signals across {len(signals_by_dept)} departments")
+        logger.info(
+            f"[crossref] Detected {len(results)} micro-signals across {len(signals_by_dept)} departments"
+        )
         return results
 
-    def _detect_for_dept(
-        self, dept: str, signals: list[dict[str, Any]]
-    ) -> list[MicroSignal]:
+    def _detect_for_dept(self, dept: str, signals: list[dict[str, Any]]) -> list[MicroSignal]:
         """Detect patterns for a single department."""
         results = []
 
@@ -202,7 +314,12 @@ class CrossSourceDetector:
                 z = zscores[key]
                 min_z = cond["min_zscore"]
 
-                if cond["direction"] == "up" and z >= min_z or cond["direction"] == "down" and z <= min_z:
+                if (
+                    cond["direction"] == "up"
+                    and z >= min_z
+                    or cond["direction"] == "down"
+                    and z <= min_z
+                ):
                     matched_conditions.append(cond)
                     matched_sources.add(cond["source"])
                     matched_metrics[cond["metric"]] = round(z, 2)
@@ -220,20 +337,20 @@ class CrossSourceDetector:
                     sources=", ".join(sorted(matched_sources)),
                 )
 
-                results.append(MicroSignal(
-                    signal_type=pattern.signal_type,
-                    code_dept=dept,
-                    score=round(score, 3),
-                    sources=sorted(matched_sources),
-                    metrics=matched_metrics,
-                    description=description,
-                ))
+                results.append(
+                    MicroSignal(
+                        signal_type=pattern.signal_type,
+                        code_dept=dept,
+                        score=round(score, 3),
+                        sources=sorted(matched_sources),
+                        metrics=matched_metrics,
+                        description=description,
+                    )
+                )
 
         return results
 
-    def _compute_zscores(
-        self, signals: list[dict[str, Any]]
-    ) -> dict[tuple[str, str], float]:
+    def _compute_zscores(self, signals: list[dict[str, Any]]) -> dict[tuple[str, str], float]:
         """
         Compute z-scores for each (source, metric) pair.
 
@@ -305,9 +422,7 @@ class SpatialDetector:
         self._min_zscore = min_zscore
         self._min_depts = min_depts
 
-    async def detect(
-        self, signals_by_dept: dict[str, list[dict[str, Any]]]
-    ) -> list[MicroSignal]:
+    async def detect(self, signals_by_dept: dict[str, list[dict[str, Any]]]) -> list[MicroSignal]:
         """Detect spatial anomalies across departments."""
         metric_by_dept: dict[tuple[str, str], dict[str, float]] = {}
         for dept, signals in signals_by_dept.items():
@@ -341,10 +456,15 @@ class SpatialDetector:
                 if abs(z) >= self._min_zscore:
                     if dept not in dept_anomalies:
                         dept_anomalies[dept] = []
-                    dept_anomalies[dept].append({
-                        "source": source, "metric": metric,
-                        "value": val, "mean": mean, "z": z,
-                    })
+                    dept_anomalies[dept].append(
+                        {
+                            "source": source,
+                            "metric": metric,
+                            "value": val,
+                            "mean": mean,
+                            "z": z,
+                        }
+                    )
 
         # Build micro-signals for departments with cross-source convergence
         results: list[MicroSignal] = []
@@ -370,14 +490,16 @@ class SpatialDetector:
 
             score = min(len(anomalies) * 0.15 + max_abs_z * 0.1, 1.0)
 
-            results.append(MicroSignal(
-                signal_type=signal_type,
-                code_dept=dept,
-                score=round(score, 3),
-                sources=sorted(sources),
-                metrics={a["metric"]: round(a["z"], 2) for a in anomalies},
-                description=desc,
-            ))
+            results.append(
+                MicroSignal(
+                    signal_type=signal_type,
+                    code_dept=dept,
+                    score=round(score, 3),
+                    sources=sorted(sources),
+                    metrics={a["metric"]: round(a["z"], 2) for a in anomalies},
+                    description=desc,
+                )
+            )
 
         # === Ratio-based detection (liquidations vs créations) ===
         dept_counts: dict[str, dict[str, float]] = {}
@@ -386,7 +508,9 @@ class SpatialDetector:
             for s in signals:
                 m = s["metric_name"]
                 v = s.get("metric_value")
-                dept_counts[dept][m] = dept_counts[dept].get(m, 0) + (float(v) if v is not None else 1)
+                dept_counts[dept][m] = dept_counts[dept].get(m, 0) + (
+                    float(v) if v is not None else 1
+                )
 
         # Liquidation/creation ratio
         ratios = {}
@@ -405,31 +529,51 @@ class SpatialDetector:
                     z = (ratio - mean_r) / std_r
                     if z > 1.2:
                         # High liquidation ratio = economic distress
-                        existing = [r for r in results if r.code_dept == dept and r.signal_type == "declin_territorial"]
+                        existing = [
+                            r
+                            for r in results
+                            if r.code_dept == dept and r.signal_type == "declin_territorial"
+                        ]
                         if not existing:
-                            results.append(MicroSignal(
-                                signal_type="declin_territorial",
-                                code_dept=dept,
-                                score=round(min(0.5 + z * 0.15, 1.0), 3),
-                                sources=["bodacc", "sirene"],
-                                metrics={"ratio_liquidations_creations": round(ratio, 2), "z_score_ratio": round(z, 2)},
-                                description=f"Détresse économique dans le {dept}: ratio liquidations/créations = {ratio:.1f} (moyenne nationale: {mean_r:.1f})",
-                            ))
+                            results.append(
+                                MicroSignal(
+                                    signal_type="declin_territorial",
+                                    code_dept=dept,
+                                    score=round(min(0.5 + z * 0.15, 1.0), 3),
+                                    sources=["bodacc", "sirene"],
+                                    metrics={
+                                        "ratio_liquidations_creations": round(ratio, 2),
+                                        "z_score_ratio": round(z, 2),
+                                    },
+                                    description=f"Détresse économique dans le {dept}: ratio liquidations/créations = {ratio:.1f} (moyenne nationale: {mean_r:.1f})",
+                                )
+                            )
                     elif z < -1.2:
                         # Low liquidation ratio = dynamism
-                        existing = [r for r in results if r.code_dept == dept and r.signal_type == "dynamisme_territorial"]
+                        existing = [
+                            r
+                            for r in results
+                            if r.code_dept == dept and r.signal_type == "dynamisme_territorial"
+                        ]
                         if not existing:
-                            results.append(MicroSignal(
-                                signal_type="dynamisme_territorial",
-                                code_dept=dept,
-                                score=round(min(0.5 + abs(z) * 0.15, 1.0), 3),
-                                sources=["bodacc", "sirene"],
-                                metrics={"ratio_liquidations_creations": round(ratio, 2), "z_score_ratio": round(z, 2)},
-                                description=f"Dynamisme économique dans le {dept}: ratio liquidations/créations = {ratio:.1f} (nettement sous la moyenne {mean_r:.1f})",
-                            ))
+                            results.append(
+                                MicroSignal(
+                                    signal_type="dynamisme_territorial",
+                                    code_dept=dept,
+                                    score=round(min(0.5 + abs(z) * 0.15, 1.0), 3),
+                                    sources=["bodacc", "sirene"],
+                                    metrics={
+                                        "ratio_liquidations_creations": round(ratio, 2),
+                                        "z_score_ratio": round(z, 2),
+                                    },
+                                    description=f"Dynamisme économique dans le {dept}: ratio liquidations/créations = {ratio:.1f} (nettement sous la moyenne {mean_r:.1f})",
+                                )
+                            )
 
         results.sort(key=lambda r: r.score, reverse=True)
-        logger.info(f"[crossref-spatial] Detected {len(results)} micro-signals across {len(signals_by_dept)} departments")
+        logger.info(
+            f"[crossref-spatial] Detected {len(results)} micro-signals across {len(signals_by_dept)} departments"
+        )
         return results
 
 
@@ -452,12 +596,14 @@ async def run_cross_source_detection(
         dept = s.code_dept or "unknown"
         if dept not in by_dept:
             by_dept[dept] = []
-        by_dept[dept].append({
-            "source": s.source,
-            "metric_name": s.metric_name,
-            "metric_value": s.metric_value,
-            "event_date": s.event_date,
-        })
+        by_dept[dept].append(
+            {
+                "source": s.source,
+                "metric_name": s.metric_name,
+                "metric_value": s.metric_value,
+                "event_date": s.event_date,
+            }
+        )
 
     results: list[MicroSignal] = []
 

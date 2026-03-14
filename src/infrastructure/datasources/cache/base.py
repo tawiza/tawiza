@@ -7,12 +7,12 @@ from typing import Any, Protocol, runtime_checkable
 
 # Default TTL per data source (in seconds)
 DEFAULT_TTL = {
-    "bodacc": 86400,      # 24h - legal data, stable
-    "boamp": 43200,       # 12h - public markets, updated 2x/day
-    "sirene": 604800,     # 7 days - enterprise data, stable
-    "rss": 3600,          # 1h - news, frequent updates
-    "inpi": 86400,        # 24h - patents/trademarks, stable
-    "default": 3600,      # 1h fallback
+    "bodacc": 86400,  # 24h - legal data, stable
+    "boamp": 43200,  # 12h - public markets, updated 2x/day
+    "sirene": 604800,  # 7 days - enterprise data, stable
+    "rss": 3600,  # 1h - news, frequent updates
+    "inpi": 86400,  # 24h - patents/trademarks, stable
+    "default": 3600,  # 1h fallback
 }
 
 

@@ -38,6 +38,7 @@ def get_agent():
     global _agent_instance
     if _agent_instance is None:
         from src.infrastructure.agents.unified import UnifiedAdaptiveAgent
+
         _agent_instance = UnifiedAdaptiveAgent()
     return _agent_instance
 
@@ -95,7 +96,9 @@ def status():
     )
     table.add_row(
         "Pending Tasks",
-        f"[yellow]{status_data['pending_tasks']}[/yellow]" if status_data["pending_tasks"] > 0 else "0",
+        f"[yellow]{status_data['pending_tasks']}[/yellow]"
+        if status_data["pending_tasks"] > 0
+        else "0",
     )
     table.add_row(
         "Cooldown",
@@ -111,10 +114,10 @@ def execute(
     task_type: str | None = typer.Option(
         None, "--type", "-t", help="Task type for routing (e.g., web_scraping, code_execution)"
     ),
-    context: str | None = typer.Option(
-        None, "--context", "-c", help="Additional context as JSON"
+    context: str | None = typer.Option(None, "--context", "-c", help="Additional context as JSON"),
+    priority: int = typer.Option(
+        0, "--priority", "-p", help="Task priority (higher = more urgent)"
     ),
-    priority: int = typer.Option(0, "--priority", "-p", help="Task priority (higher = more urgent)"),
 ):
     """Execute a task through the agent."""
     import json
@@ -151,33 +154,39 @@ def execute(
 
     # Display result
     if result.status == TaskStatus.AWAITING_APPROVAL:
-        console.print(Panel(
-            f"[yellow]Task requires approval[/yellow]\n\n"
-            f"Task ID: [bold]{result.task_id}[/bold]\n"
-            f"Use [cyan]tawiza uaa approve {result.task_id}[/cyan] to approve\n"
-            f"Use [cyan]tawiza uaa reject {result.task_id}[/cyan] to reject",
-            title="Awaiting Approval",
-            border_style="yellow",
-        ))
+        console.print(
+            Panel(
+                f"[yellow]Task requires approval[/yellow]\n\n"
+                f"Task ID: [bold]{result.task_id}[/bold]\n"
+                f"Use [cyan]tawiza uaa approve {result.task_id}[/cyan] to approve\n"
+                f"Use [cyan]tawiza uaa reject {result.task_id}[/cyan] to reject",
+                title="Awaiting Approval",
+                border_style="yellow",
+            )
+        )
     elif result.status == TaskStatus.COMPLETED:
         output_str = str(result.output) if result.output else "No output"
-        console.print(Panel(
-            f"[green]Task completed successfully[/green]\n\n"
-            f"Task ID: [bold]{result.task_id}[/bold]\n"
-            f"Tool Used: {result.tool_used or 'N/A'}\n"
-            f"Execution Time: {result.execution_time:.2f}s\n\n"
-            f"Output: {output_str[:200]}{'...' if len(output_str) > 200 else ''}",
-            title="Completed",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                f"[green]Task completed successfully[/green]\n\n"
+                f"Task ID: [bold]{result.task_id}[/bold]\n"
+                f"Tool Used: {result.tool_used or 'N/A'}\n"
+                f"Execution Time: {result.execution_time:.2f}s\n\n"
+                f"Output: {output_str[:200]}{'...' if len(output_str) > 200 else ''}",
+                title="Completed",
+                border_style="green",
+            )
+        )
     else:
-        console.print(Panel(
-            f"[red]Task failed[/red]\n\n"
-            f"Task ID: [bold]{result.task_id}[/bold]\n"
-            f"Error: {result.error or 'Unknown error'}",
-            title="Failed",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"[red]Task failed[/red]\n\n"
+                f"Task ID: [bold]{result.task_id}[/bold]\n"
+                f"Error: {result.error or 'Unknown error'}",
+                title="Failed",
+                border_style="red",
+            )
+        )
 
 
 @app.command("approve")
@@ -270,7 +279,7 @@ def stats():
     task_table.add_row("Pending", f"[yellow]{stats_data['tasks_pending']}[/yellow]")
     task_table.add_row(
         "Success Rate",
-        f"{stats_data['success_rate']*100:.1f}%",
+        f"{stats_data['success_rate'] * 100:.1f}%",
     )
 
     console.print(Panel(task_table, border_style="blue"))
@@ -313,14 +322,16 @@ def learn(
 
     if not agent.learning_engine.should_trigger_learning() and not force:
         stats = agent.learning_engine.get_stats()
-        console.print(Panel(
-            f"[yellow]Not ready for learning[/yellow]\n\n"
-            f"Examples collected: {stats.get('examples_collected', 0)}\n"
-            f"Minimum required: {stats.get('min_examples', 50)}\n\n"
-            f"Use --force to trigger anyway",
-            title="Learning Status",
-            border_style="yellow",
-        ))
+        console.print(
+            Panel(
+                f"[yellow]Not ready for learning[/yellow]\n\n"
+                f"Examples collected: {stats.get('examples_collected', 0)}\n"
+                f"Minimum required: {stats.get('min_examples', 50)}\n\n"
+                f"Use --force to trigger anyway",
+                title="Learning Status",
+                border_style="yellow",
+            )
+        )
         return
 
     console.print("[cyan]Starting learning cycle...[/cyan]")
@@ -335,15 +346,17 @@ def learn(
             cycle = run_async(agent.learning_engine.run_full_cycle())
 
             if cycle:
-                console.print(Panel(
-                    f"[green]Learning cycle completed[/green]\n\n"
-                    f"State: {cycle.state}\n"
-                    f"Accuracy before: {cycle.metrics.accuracy_before:.1%}\n"
-                    f"Accuracy after: {cycle.metrics.accuracy_after:.1%}\n"
-                    f"Improvement: {cycle.metrics.accuracy_improvement:.1%}",
-                    title="Learning Complete",
-                    border_style="green",
-                ))
+                console.print(
+                    Panel(
+                        f"[green]Learning cycle completed[/green]\n\n"
+                        f"State: {cycle.state}\n"
+                        f"Accuracy before: {cycle.metrics.accuracy_before:.1%}\n"
+                        f"Accuracy after: {cycle.metrics.accuracy_after:.1%}\n"
+                        f"Improvement: {cycle.metrics.accuracy_improvement:.1%}",
+                        title="Learning Complete",
+                        border_style="green",
+                    )
+                )
             else:
                 console.print("[yellow]Learning cycle returned no results[/yellow]")
         except Exception as e:
@@ -353,9 +366,13 @@ def learn(
 @app.command("config")
 def config(
     set_level: str | None = typer.Option(
-        None, "--set-level", help="Set autonomy level (SUPERVISED, ASSISTED, SEMI_AUTONOMOUS, AUTONOMOUS, FULL_AUTONOMOUS)"
+        None,
+        "--set-level",
+        help="Set autonomy level (SUPERVISED, ASSISTED, SEMI_AUTONOMOUS, AUTONOMOUS, FULL_AUTONOMOUS)",
     ),
-    enable_learning: bool | None = typer.Option(None, "--learning/--no-learning", help="Enable/disable auto-learning"),
+    enable_learning: bool | None = typer.Option(
+        None, "--learning/--no-learning", help="Enable/disable auto-learning"
+    ),
 ):
     """View or modify agent configuration."""
     from src.infrastructure.agents.unified import AutonomyLevel
@@ -408,7 +425,9 @@ def config(
 
     learning_table.add_row(
         "Auto Learning",
-        "[green]Enabled[/green]" if agent.config.learning.auto_learning_enabled else "[dim]Disabled[/dim]",
+        "[green]Enabled[/green]"
+        if agent.config.learning.auto_learning_enabled
+        else "[dim]Disabled[/dim]",
     )
     learning_table.add_row("Min Examples", str(agent.config.learning.min_examples_for_training))
     learning_table.add_row("Fine-tune Threshold", f"{agent.config.learning.finetune_threshold:.0%}")
@@ -436,11 +455,15 @@ def pending():
     for task_id, request in pending_tasks.items():
         table.add_row(
             task_id,
-            request.description[:50] + "..." if len(request.description) > 50 else request.description,
+            request.description[:50] + "..."
+            if len(request.description) > 50
+            else request.description,
             request.task_type or "N/A",
             str(request.priority),
             request.created_at.strftime("%H:%M:%S"),
         )
 
     console.print(table)
-    console.print("\nUse [cyan]tawiza uaa approve <task_id>[/cyan] or [cyan]tawiza uaa reject <task_id>[/cyan]")
+    console.print(
+        "\nUse [cyan]tawiza uaa approve <task_id>[/cyan] or [cyan]tawiza uaa reject <task_id>[/cyan]"
+    )

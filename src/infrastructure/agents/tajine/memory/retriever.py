@@ -149,19 +149,19 @@ class EpisodicRetriever:
         for episode in self.store._episodes.values():
             if not episode.embedding:
                 # Generate embedding if missing
-                episode.embedding = await self.embedding_provider.embed(
-                    episode.get_search_text()
-                )
+                episode.embedding = await self.embedding_provider.embed(episode.get_search_text())
                 self.store._save_episode(episode)
 
             if episode.embedding:
                 score = self._cosine_similarity(query_embedding, episode.embedding)
                 if score >= min_score:
-                    results.append(RetrievalResult(
-                        episode=episode,
-                        score=score,
-                        match_type="semantic",
-                    ))
+                    results.append(
+                        RetrievalResult(
+                            episode=episode,
+                            score=score,
+                            match_type="semantic",
+                        )
+                    )
 
         # Sort by score and return top k
         results.sort(key=lambda x: x.score, reverse=True)
@@ -204,12 +204,14 @@ class EpisodicRetriever:
 
             score = recency_score + feedback_boost
 
-            results.append(RetrievalResult(
-                episode=episode,
-                score=min(score, 1.0),
-                match_type="territory",
-                highlights=[f"Territoire: {territory}"],
-            ))
+            results.append(
+                RetrievalResult(
+                    episode=episode,
+                    score=min(score, 1.0),
+                    match_type="territory",
+                    highlights=[f"Territoire: {territory}"],
+                )
+            )
 
         results.sort(key=lambda x: x.score, reverse=True)
         return results[:k]
@@ -240,12 +242,14 @@ class EpisodicRetriever:
                 days_old = (datetime.now(UTC) - episode.timestamp).days
                 recency_score = max(0, 1 - days_old / 365)
 
-                results.append(RetrievalResult(
-                    episode=episode,
-                    score=recency_score,
-                    match_type="sector",
-                    highlights=[f"Secteur: {episode.sector}"],
-                ))
+                results.append(
+                    RetrievalResult(
+                        episode=episode,
+                        score=recency_score,
+                        match_type="sector",
+                        highlights=[f"Secteur: {episode.sector}"],
+                    )
+                )
 
         results.sort(key=lambda x: x.score, reverse=True)
         return results[:k]
@@ -298,12 +302,14 @@ class EpisodicRetriever:
                 score += 0.2
 
             if score > 0:
-                results.append(RetrievalResult(
-                    episode=episode,
-                    score=min(score, 1.0),
-                    match_type="pattern",
-                    highlights=highlights,
-                ))
+                results.append(
+                    RetrievalResult(
+                        episode=episode,
+                        score=min(score, 1.0),
+                        match_type="pattern",
+                        highlights=highlights,
+                    )
+                )
 
         results.sort(key=lambda x: x.score, reverse=True)
         return results[:k]

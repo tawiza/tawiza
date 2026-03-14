@@ -1,5 +1,6 @@
 # src/cli/ui/mascot_dialogue.py
 """Système de dialogues contextuels pour la mascotte."""
+
 import random
 from enum import Enum, StrEnum
 
@@ -14,6 +15,7 @@ class DialogueContext(StrEnum):
     TIP = "tip"
     GPU_STATUS = "gpu_status"
     MODEL_LOADING = "model_loading"
+
 
 DIALOGUE_TEMPLATES = {
     DialogueContext.GREETING: [
@@ -62,6 +64,7 @@ DIALOGUE_TEMPLATES = {
         "💡 Essaie 'tawiza system status' pour voir l'état du système!",
     ],
 }
+
 
 class MascotDialogue:
     """Gestionnaire de dialogues contextuels."""

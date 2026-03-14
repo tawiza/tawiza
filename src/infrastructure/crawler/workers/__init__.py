@@ -1,4 +1,5 @@
 """Async worker pool for crawling."""
+
 from .base_worker import BaseWorker, CrawlResult
 from .httpx_worker import HTTPXWorker
 from .playwright_worker import PlaywrightWorker

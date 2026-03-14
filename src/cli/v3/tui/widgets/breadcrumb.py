@@ -8,7 +8,6 @@ Dynamic breadcrumb that shows the current navigation context:
 Format: Tawiza v6 │ Screen > Context > Detail
 """
 
-
 from loguru import logger
 from textual.reactive import reactive
 from textual.widgets import Static

@@ -114,7 +114,7 @@ class TAJINEChatWidget(Container):
         with Horizontal(classes="chat-input-area"):
             yield Input(
                 placeholder="Demandez une analyse... (ex: Analyse le secteur tech à Lyon)",
-                id="tajine-input"
+                id="tajine-input",
             )
             yield Button("📤", id="send-btn", variant="primary")
 
@@ -123,7 +123,7 @@ class TAJINEChatWidget(Container):
         self._add_message(
             "assistant",
             "Bonjour! Je suis TAJINE, votre assistant d'analyse cognitive. "
-            "Posez-moi des questions sur les territoires, secteurs ou tendances."
+            "Posez-moi des questions sur les territoires, secteurs ou tendances.",
         )
 
     def _add_message(self, role: str, content: str) -> None:
@@ -181,9 +181,9 @@ class TAJINEChatWidget(Container):
             self._add_message("assistant", response)
 
             # Emit event to update other widgets
-            self.post_message(TAJINEScreen.AnalysisComplete(
-                self._chat_service._service.last_result
-            ))
+            self.post_message(
+                TAJINEScreen.AnalysisComplete(self._chat_service._service.last_result)
+            )
 
         except Exception as e:
             logger.error(f"TAJINE chat error: {e}")
@@ -240,7 +240,7 @@ class QuickAnalysisPanel(Container):
                     ("Industrie", "industry"),
                 ],
                 value="all",
-                id="sector-filter"
+                id="sector-filter",
             )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -368,12 +368,14 @@ class TAJINEScreen(Container):
 
     class AnalysisComplete(Message):
         """Message when analysis is complete."""
+
         def __init__(self, result):
             super().__init__()
             self.result = result
 
     class QuickAnalysisRequested(Message):
         """Message for quick analysis request."""
+
         def __init__(self, query: str, territory: str | None):
             super().__init__()
             self.query = query
@@ -395,9 +397,8 @@ class TAJINEScreen(Container):
         """
         # Loading screen shown while widgets are mounted
         yield Static(
-            "[bold cyan]🔄 Chargement de TAJINE...[/]\n\n"
-            "[dim]Initialisation des composants...[/]",
-            id="init-loading"
+            "[bold cyan]🔄 Chargement de TAJINE...[/]\n\n[dim]Initialisation des composants...[/]",
+            id="init-loading",
         )
 
         # Department list panel - main focus (placeholder)
@@ -405,7 +406,10 @@ class TAJINEScreen(Container):
 
         # Loading overlay (shown during API fetch)
         with Container(id="loading-overlay"):
-            yield Static("[bold cyan]🔄 Chargement des données SIRENE...[/]\n\n[dim]0 / 96 départements[/]", id="loading-text")
+            yield Static(
+                "[bold cyan]🔄 Chargement des données SIRENE...[/]\n\n[dim]0 / 96 départements[/]",
+                id="loading-text",
+            )
 
         # Bottom bar placeholder - will be populated lazily
         yield Horizontal(id="bottom-bar")
@@ -445,7 +449,13 @@ class TAJINEScreen(Container):
         """Mount department panel widgets."""
         try:
             dept_panel = self.query_one("#dept-panel", Container)
-            dept_panel.mount(Label("[bold]🇫🇷 Départements - Croissance Entreprises[/]", classes="panel-title", id="dept-title"))
+            dept_panel.mount(
+                Label(
+                    "[bold]🇫🇷 Départements - Croissance Entreprises[/]",
+                    classes="panel-title",
+                    id="dept-title",
+                )
+            )
             dept_panel.mount(DepartmentSummary(id="dept-summary"))
             dept_panel.mount(DepartmentList(id="dept-list"))
             dept_panel.mount(RegionDetailPanel(id="region-detail"))
@@ -467,8 +477,12 @@ class TAJINEScreen(Container):
 
             # Note: TabbedContent needs children added via compose or explicit mount
             # Use a simpler structure to avoid complexity
-            tabs.mount(TabPane("🧠 Niveaux", CognitiveLevelsWidget(id="cognitive-levels"), id="tab-levels"))
-            tabs.mount(TabPane("⚡ Actions", QuickAnalysisPanel(id="quick-actions"), id="tab-actions"))
+            tabs.mount(
+                TabPane("🧠 Niveaux", CognitiveLevelsWidget(id="cognitive-levels"), id="tab-levels")
+            )
+            tabs.mount(
+                TabPane("⚡ Actions", QuickAnalysisPanel(id="quick-actions"), id="tab-actions")
+            )
         except Exception as e:
             logger.warning(f"Failed to mount metrics panel: {e}")
 
@@ -485,8 +499,16 @@ class TAJINEScreen(Container):
             tabs = TabbedContent()
             charts_panel.mount(tabs)
 
-            tabs.mount(TabPane("📊 Monte Carlo", MonteCarloChart(id="monte-carlo-chart"), id="tab-montecarlo"))
-            tabs.mount(TabPane("📈 Projection", TimeSeriesChart(id="time-series-chart"), id="tab-projection"))
+            tabs.mount(
+                TabPane(
+                    "📊 Monte Carlo", MonteCarloChart(id="monte-carlo-chart"), id="tab-montecarlo"
+                )
+            )
+            tabs.mount(
+                TabPane(
+                    "📈 Projection", TimeSeriesChart(id="time-series-chart"), id="tab-projection"
+                )
+            )
         except Exception as e:
             logger.warning(f"Failed to mount charts panel: {e}")
 
@@ -570,11 +592,13 @@ class TAJINEScreen(Container):
             error_msg = str(e)
             logger.error(f"Failed to load real data: {error_msg}")
             telemetry.track_render_error(
-                widget="TAJINEScreen",
-                message=f"Real data load failed: {error_msg}",
-                exception=e
+                widget="TAJINEScreen", message=f"Real data load failed: {error_msg}", exception=e
             )
-            self.call_later(lambda msg=error_msg: self.app.notify(f"[red]Erreur chargement API: {msg}[/]", timeout=5))
+            self.call_later(
+                lambda msg=error_msg: self.app.notify(
+                    f"[red]Erreur chargement API: {msg}[/]", timeout=5
+                )
+            )
 
         finally:
             self._loading = False
@@ -614,7 +638,7 @@ class TAJINEScreen(Container):
                 widget="DepartmentList",
                 message=f"Department list failed: {e}",
                 exception=e,
-                context={"dept_count": len(real_data)}
+                context={"dept_count": len(real_data)},
             )
 
     async def _load_cognitive_charts(self) -> None:
@@ -630,6 +654,7 @@ class TAJINEScreen(Container):
 
         # Prepare demo cognitive levels data
         from src.cli.v3.tui.widgets.cognitive_charts import CognitiveLevelResult
+
         demo_levels = [
             ("discovery", 0.85, "rule_based"),
             ("causal", 0.72, "rule_based"),
@@ -656,9 +681,9 @@ class TAJINEScreen(Container):
                 "percentiles": {
                     10: float(np.percentile(samples, 10)),
                     50: float(np.percentile(samples, 50)),
-                    90: float(np.percentile(samples, 90))
+                    90: float(np.percentile(samples, 90)),
                 },
-                "mean": float(np.mean(samples))
+                "mean": float(np.mean(samples)),
             }
             self.call_later(self._update_monte_carlo, mc_data, telemetry)
         except Exception as e:
@@ -679,7 +704,7 @@ class TAJINEScreen(Container):
                 "months": months,
                 "mean_path": mean_path,
                 "lower_bound": lower_bound,
-                "upper_bound": upper_bound
+                "upper_bound": upper_bound,
             }
             self.call_later(self._update_time_series, ts_data, telemetry)
         except Exception as e:
@@ -691,14 +716,11 @@ class TAJINEScreen(Container):
             levels_widget = self.query_one("#cognitive-levels", CognitiveLevelsWidget)
             for level, conf, method in demo_levels:
                 levels_widget.update_level(
-                    level,
-                    CognitiveLevelResult(name=level, confidence=conf, method=method)
+                    level, CognitiveLevelResult(name=level, confidence=conf, method=method)
                 )
         except Exception as e:
             telemetry.track_render_error(
-                widget="CognitiveLevelsWidget",
-                message=f"Cognitive levels failed: {e}",
-                exception=e
+                widget="CognitiveLevelsWidget", message=f"Cognitive levels failed: {e}", exception=e
             )
 
     def _update_monte_carlo(self, mc_data: dict, telemetry) -> None:
@@ -709,13 +731,11 @@ class TAJINEScreen(Container):
                 bins=mc_data["bins"],
                 counts=mc_data["counts"],
                 percentiles=mc_data["percentiles"],
-                mean=mc_data["mean"]
+                mean=mc_data["mean"],
             )
         except Exception as e:
             telemetry.track_render_error(
-                widget="MonteCarloChart",
-                message=f"Monte Carlo chart failed: {e}",
-                exception=e
+                widget="MonteCarloChart", message=f"Monte Carlo chart failed: {e}", exception=e
             )
 
     def _update_time_series(self, ts_data: dict, telemetry) -> None:
@@ -726,13 +746,11 @@ class TAJINEScreen(Container):
                 months=ts_data["months"],
                 mean_path=ts_data["mean_path"],
                 lower_bound=ts_data["lower_bound"],
-                upper_bound=ts_data["upper_bound"]
+                upper_bound=ts_data["upper_bound"],
             )
         except Exception as e:
             telemetry.track_render_error(
-                widget="TimeSeriesChart",
-                message=f"Time series projection failed: {e}",
-                exception=e
+                widget="TimeSeriesChart", message=f"Time series projection failed: {e}", exception=e
             )
 
     def _on_processing_event(self, event: ProcessingEvent) -> None:
@@ -744,20 +762,20 @@ class TAJINEScreen(Container):
                 levels_widget.set_active_level(event.level)
             elif event.state == ProcessingState.COMPLETED:
                 from src.cli.v3.tui.widgets.cognitive_charts import CognitiveLevelResult
+
                 levels_widget.update_level(
                     event.level,
                     CognitiveLevelResult(
                         name=event.level,
                         confidence=event.confidence,
-                        method=event.data.get("method", "rule_based")
-                    )
+                        method=event.data.get("method", "rule_based"),
+                    ),
                 )
         except Exception as e:
             logger.debug(f"Error updating cognitive levels: {e}")
 
     def on_department_list_department_selected(
-        self,
-        event: DepartmentList.DepartmentSelected
+        self, event: DepartmentList.DepartmentSelected
     ) -> None:
         """Handle department selection from list."""
         detail_panel = self.query_one("#region-detail", RegionDetailPanel)
@@ -781,12 +799,12 @@ class TAJINEScreen(Container):
             except Exception:
                 pass
 
-            self.app.notify(f"📍 {event.data.name} ({event.data.code}): {event.data.growth_rate:+.1%}", timeout=3)
+            self.app.notify(
+                f"📍 {event.data.name} ({event.data.code}): {event.data.growth_rate:+.1%}",
+                timeout=3,
+            )
 
-    def on_tajine_screen_analysis_complete(
-        self,
-        event: AnalysisComplete
-    ) -> None:
+    def on_tajine_screen_analysis_complete(self, event: AnalysisComplete) -> None:
         """Handle completed analysis."""
         if event.result:
             output = event.result.cognitive_output
@@ -811,14 +829,10 @@ class TAJINEScreen(Container):
                     logger.debug(f"Error updating charts: {e}")
 
             self.app.notify(
-                f"[green]Analyse complète[/] - Confiance: {event.result.confidence:.0%}",
-                timeout=3
+                f"[green]Analyse complète[/] - Confiance: {event.result.confidence:.0%}", timeout=3
             )
 
-    def on_tajine_screen_quick_analysis_requested(
-        self,
-        event: QuickAnalysisRequested
-    ) -> None:
+    def on_tajine_screen_quick_analysis_requested(self, event: QuickAnalysisRequested) -> None:
         """Handle quick analysis request.
 
         TUI v6: Quick analysis now uses the global chat modal.

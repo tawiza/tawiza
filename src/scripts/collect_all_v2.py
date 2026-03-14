@@ -36,11 +36,17 @@ from dotenv import load_dotenv
 load_dotenv(project_root / ".env")
 
 # Départements
-ALL_DEPTS = [f"{i:02d}" for i in range(1, 96) if i != 20] + ["2A", "2B"] + ["971", "972", "973", "974", "976"]
+ALL_DEPTS = (
+    [f"{i:02d}" for i in range(1, 96) if i != 20]
+    + ["2A", "2B"]
+    + ["971", "972", "973", "974", "976"]
+)
+
 
 @dataclass
 class Signal:
     """Un signal brut à insérer en base."""
+
     source: str
     metric_name: str
     code_dept: str
@@ -54,9 +60,11 @@ class Signal:
     extracted_text: str | None = None
     entities: dict | None = None
 
+
 @dataclass
 class CollectStats:
     """Statistiques de collecte."""
+
     source: str
     collected: int = 0
     errors: int = 0
@@ -68,7 +76,10 @@ class CollectStats:
 # BODACC — Annonces légales (créations, liquidations, modifications)
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_bodacc(client: httpx.AsyncClient, depts: list[str], days_back: int = 30) -> tuple[list[Signal], CollectStats]:
+
+async def collect_bodacc(
+    client: httpx.AsyncClient, depts: list[str], days_back: int = 30
+) -> tuple[list[Signal], CollectStats]:
     """Collecte BODACC via API bodacc-datadila."""
     stats = CollectStats(source="bodacc")
     signals = []
@@ -84,11 +95,14 @@ async def collect_bodacc(client: httpx.AsyncClient, depts: list[str], days_back:
                 ("Radiations", "radiation"),
                 ("Immatriculations", "immatriculation"),
             ]:
-                resp = await client.get(base_url, params={
-                    "limit": 100,
-                    "where": f"numerodepartement='{dept}' AND familleavis_lib='{famille}' AND dateparution >= date'{(datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')}'",
-                    "order_by": "dateparution DESC",
-                })
+                resp = await client.get(
+                    base_url,
+                    params={
+                        "limit": 100,
+                        "where": f"numerodepartement='{dept}' AND familleavis_lib='{famille}' AND dateparution >= date'{(datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')}'",
+                        "order_by": "dateparution DESC",
+                    },
+                )
 
                 if resp.status_code == 200:
                     data = resp.json()
@@ -96,7 +110,9 @@ async def collect_bodacc(client: httpx.AsyncClient, depts: list[str], days_back:
 
                     for rec in records:
                         # Affiner le type pour les procédures collectives
-                        contenu = str(rec.get("jugement", "") or "") + str(rec.get("acte", "") or "")
+                        contenu = str(rec.get("jugement", "") or "") + str(
+                            rec.get("acte", "") or ""
+                        )
                         if signal_label == "procedure_collective":
                             if "liquidation" in contenu.lower():
                                 metric = "liquidation_judiciaire"
@@ -109,17 +125,23 @@ async def collect_bodacc(client: httpx.AsyncClient, depts: list[str], days_back:
                         else:
                             metric = signal_label
 
-                        signals.append(Signal(
-                            source="bodacc",
-                            metric_name=metric,
-                            code_dept=dept,
-                            event_date=datetime.strptime(rec.get("dateparution", "")[:10], "%Y-%m-%d").date() if rec.get("dateparution") else None,
-                            signal_type="event",
-                            confidence=0.95,
-                            source_url=f"https://www.bodacc.fr/annonce/{rec.get('id_annonce', '')}",
-                            raw_data=rec,
-                            extracted_text=contenu[:500],
-                        ))
+                        signals.append(
+                            Signal(
+                                source="bodacc",
+                                metric_name=metric,
+                                code_dept=dept,
+                                event_date=datetime.strptime(
+                                    rec.get("dateparution", "")[:10], "%Y-%m-%d"
+                                ).date()
+                                if rec.get("dateparution")
+                                else None,
+                                signal_type="event",
+                                confidence=0.95,
+                                source_url=f"https://www.bodacc.fr/annonce/{rec.get('id_annonce', '')}",
+                                raw_data=rec,
+                                extracted_text=contenu[:500],
+                            )
+                        )
                         stats.collected += 1
 
                 await asyncio.sleep(0.2)
@@ -135,6 +157,7 @@ async def collect_bodacc(client: httpx.AsyncClient, depts: list[str], days_back:
 # ═══════════════════════════════════════════════════════════════
 # FRANCE TRAVAIL — Offres d'emploi
 # ═══════════════════════════════════════════════════════════════
+
 
 async def get_ft_token(client: httpx.AsyncClient) -> str | None:
     """OAuth2 token France Travail."""
@@ -162,7 +185,9 @@ async def get_ft_token(client: httpx.AsyncClient) -> str | None:
         return None
 
 
-async def collect_france_travail(client: httpx.AsyncClient, depts: list[str], max_per_dept: int = 50) -> tuple[list[Signal], CollectStats]:
+async def collect_france_travail(
+    client: httpx.AsyncClient, depts: list[str], max_per_dept: int = 50
+) -> tuple[list[Signal], CollectStats]:
     """Collecte offres France Travail."""
     stats = CollectStats(source="france_travail")
     signals = []
@@ -197,7 +222,10 @@ async def collect_france_travail(client: httpx.AsyncClient, depts: list[str], ma
                         try:
                             # Tenter d'extraire un nombre
                             import re
-                            nums = re.findall(r'[\d]+(?:[.,]\d+)?', salaire["libelle"].replace(" ", ""))
+
+                            nums = re.findall(
+                                r"[\d]+(?:[.,]\d+)?", salaire["libelle"].replace(" ", "")
+                            )
                             if nums:
                                 salaire_val = float(nums[0].replace(",", "."))
                         except Exception:
@@ -205,25 +233,34 @@ async def collect_france_travail(client: httpx.AsyncClient, depts: list[str], ma
 
                     type_contrat = offre.get("typeContrat", "")
 
-                    signals.append(Signal(
-                        source="france_travail",
-                        metric_name=f"offre_emploi_{type_contrat.lower()}" if type_contrat else "offre_emploi",
-                        code_dept=dept,
-                        metric_value=salaire_val,
-                        event_date=datetime.fromisoformat(offre["dateCreation"][:10]).date() if offre.get("dateCreation") else None,
-                        signal_type="event",
-                        confidence=0.9,
-                        source_url=offre.get("origineOffre", {}).get("urlOrigine"),
-                        raw_data={
-                            "id": offre.get("id"),
-                            "intitule": offre.get("intitule"),
-                            "typeContrat": type_contrat,
-                            "qualitesProfessionnelles": [q.get("libelle") for q in offre.get("qualitesProfessionnelles", [])],
-                            "secteurActivite": offre.get("secteurActivite"),
-                            "experienceExige": offre.get("experienceExige"),
-                        },
-                        extracted_text=offre.get("intitule", ""),
-                    ))
+                    signals.append(
+                        Signal(
+                            source="france_travail",
+                            metric_name=f"offre_emploi_{type_contrat.lower()}"
+                            if type_contrat
+                            else "offre_emploi",
+                            code_dept=dept,
+                            metric_value=salaire_val,
+                            event_date=datetime.fromisoformat(offre["dateCreation"][:10]).date()
+                            if offre.get("dateCreation")
+                            else None,
+                            signal_type="event",
+                            confidence=0.9,
+                            source_url=offre.get("origineOffre", {}).get("urlOrigine"),
+                            raw_data={
+                                "id": offre.get("id"),
+                                "intitule": offre.get("intitule"),
+                                "typeContrat": type_contrat,
+                                "qualitesProfessionnelles": [
+                                    q.get("libelle")
+                                    for q in offre.get("qualitesProfessionnelles", [])
+                                ],
+                                "secteurActivite": offre.get("secteurActivite"),
+                                "experienceExige": offre.get("experienceExige"),
+                            },
+                            extracted_text=offre.get("intitule", ""),
+                        )
+                    )
                     stats.collected += 1
 
             elif resp.status_code == 429:
@@ -247,7 +284,10 @@ async def collect_france_travail(client: httpx.AsyncClient, depts: list[str], ma
 # SIRENE — Créations d'entreprises (data.gouv.fr StockEtablissement)
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_sirene(client: httpx.AsyncClient, depts: list[str], months_back: int = 3) -> tuple[list[Signal], CollectStats]:
+
+async def collect_sirene(
+    client: httpx.AsyncClient, depts: list[str], months_back: int = 3
+) -> tuple[list[Signal], CollectStats]:
     """Collecte créations via API SIRENE publique (recherche.entreprises.api.gouv.fr)."""
     stats = CollectStats(source="sirene")
     signals = []
@@ -273,36 +313,48 @@ async def collect_sirene(client: httpx.AsyncClient, depts: list[str], months_bac
                 results = data.get("results", [])
 
                 # Signal agrégé : nombre de créations
-                signals.append(Signal(
-                    source="sirene",
-                    metric_name="creations_entreprises_count",
-                    code_dept=dept,
-                    metric_value=float(total),
-                    event_date=date.today(),
-                    signal_type="metric",
-                    confidence=0.95,
-                    raw_data={"total": total, "date_min": date_min, "sample_size": len(results)},
-                ))
+                signals.append(
+                    Signal(
+                        source="sirene",
+                        metric_name="creations_entreprises_count",
+                        code_dept=dept,
+                        metric_value=float(total),
+                        event_date=date.today(),
+                        signal_type="metric",
+                        confidence=0.95,
+                        raw_data={
+                            "total": total,
+                            "date_min": date_min,
+                            "sample_size": len(results),
+                        },
+                    )
+                )
                 stats.collected += 1
 
                 # Signaux individuels (échantillon)
                 for ent in results[:10]:
                     naf = ent.get("activite_principale", "")
-                    signals.append(Signal(
-                        source="sirene",
-                        metric_name=f"creation_entreprise_{naf}" if naf else "creation_entreprise",
-                        code_dept=dept,
-                        event_date=datetime.strptime(ent["date_creation"], "%Y-%m-%d").date() if ent.get("date_creation") else None,
-                        signal_type="event",
-                        confidence=0.9,
-                        raw_data={
-                            "siren": ent.get("siren"),
-                            "nom": ent.get("nom_complet"),
-                            "naf": naf,
-                            "nature_juridique": ent.get("nature_juridique"),
-                            "tranche_effectif": ent.get("tranche_effectif_salarie"),
-                        },
-                    ))
+                    signals.append(
+                        Signal(
+                            source="sirene",
+                            metric_name=f"creation_entreprise_{naf}"
+                            if naf
+                            else "creation_entreprise",
+                            code_dept=dept,
+                            event_date=datetime.strptime(ent["date_creation"], "%Y-%m-%d").date()
+                            if ent.get("date_creation")
+                            else None,
+                            signal_type="event",
+                            confidence=0.9,
+                            raw_data={
+                                "siren": ent.get("siren"),
+                                "nom": ent.get("nom_complet"),
+                                "naf": naf,
+                                "nature_juridique": ent.get("nature_juridique"),
+                                "tranche_effectif": ent.get("tranche_effectif_salarie"),
+                            },
+                        )
+                    )
                     stats.collected += 1
             else:
                 logger.debug(f"  SIRENE {dept}: HTTP {resp.status_code}")
@@ -322,6 +374,7 @@ async def collect_sirene(client: httpx.AsyncClient, depts: list[str], months_bac
 # INSEE — Chômage + Population
 # ═══════════════════════════════════════════════════════════════
 
+
 async def get_insee_token(client: httpx.AsyncClient) -> str | None:
     """OAuth2 token INSEE."""
     client_key = os.getenv("INSEE_CLIENT_ID")
@@ -335,7 +388,10 @@ async def get_insee_token(client: httpx.AsyncClient) -> str | None:
         resp = await client.post(
             "https://api.insee.fr/token",
             data={"grant_type": "client_credentials"},
-            headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"},
+            headers={
+                "Authorization": f"Basic {credentials}",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
         )
         resp.raise_for_status()
         token = resp.json()["access_token"]
@@ -346,7 +402,9 @@ async def get_insee_token(client: httpx.AsyncClient) -> str | None:
         return None
 
 
-async def collect_insee(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+async def collect_insee(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte INSEE : population + chômage."""
     stats = CollectStats(source="insee")
     signals = []
@@ -368,28 +426,32 @@ async def collect_insee(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
                 nb_communes = len(communes)
 
                 if total_pop > 0:
-                    signals.append(Signal(
-                        source="insee",
-                        metric_name="population",
-                        code_dept=dept,
-                        metric_value=float(total_pop),
-                        event_date=date.today(),
-                        signal_type="metric",
-                        confidence=0.99,
-                        raw_data={"nb_communes": nb_communes, "total_population": total_pop},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="insee",
+                            metric_name="population",
+                            code_dept=dept,
+                            metric_value=float(total_pop),
+                            event_date=date.today(),
+                            signal_type="metric",
+                            confidence=0.99,
+                            raw_data={"nb_communes": nb_communes, "total_population": total_pop},
+                        )
+                    )
                     stats.collected += 1
 
                     # Aussi : densité de communes (indicateur d'urbanisation)
-                    signals.append(Signal(
-                        source="insee",
-                        metric_name="nb_communes",
-                        code_dept=dept,
-                        metric_value=float(nb_communes),
-                        event_date=date.today(),
-                        signal_type="metric",
-                        confidence=0.99,
-                    ))
+                    signals.append(
+                        Signal(
+                            source="insee",
+                            metric_name="nb_communes",
+                            code_dept=dept,
+                            metric_value=float(nb_communes),
+                            event_date=date.today(),
+                            signal_type="metric",
+                            confidence=0.99,
+                        )
+                    )
                     stats.collected += 1
 
             await asyncio.sleep(0.1)
@@ -417,7 +479,22 @@ async def collect_insee(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
                     if datasets:
                         series_map = datasets[0].get("series", {})
                         # Map series index to dept codes
-                        dept_codes = ["01", "02", "06", "13", "31", "33", "35", "44", "59", "67", "69", "75", "93", "94"]
+                        dept_codes = [
+                            "01",
+                            "02",
+                            "06",
+                            "13",
+                            "31",
+                            "33",
+                            "35",
+                            "44",
+                            "59",
+                            "67",
+                            "69",
+                            "75",
+                            "93",
+                            "94",
+                        ]
                         for idx, (key, val) in enumerate(series_map.items()):
                             obs = val.get("observations", {})
                             if obs:
@@ -425,17 +502,21 @@ async def collect_insee(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
                                 last_key = max(obs.keys(), key=int)
                                 last_val = obs[last_key]
                                 if last_val and last_val[0] is not None:
-                                    dept_code = dept_codes[idx] if idx < len(dept_codes) else f"?{idx}"
-                                    signals.append(Signal(
-                                        source="insee",
-                                        metric_name="taux_chomage_trimestriel",
-                                        code_dept=dept_code,
-                                        metric_value=float(last_val[0]),
-                                        event_date=date.today(),
-                                        signal_type="metric",
-                                        confidence=0.95,
-                                        raw_data={"series_key": key, "period_index": last_key},
-                                    ))
+                                    dept_code = (
+                                        dept_codes[idx] if idx < len(dept_codes) else f"?{idx}"
+                                    )
+                                    signals.append(
+                                        Signal(
+                                            source="insee",
+                                            metric_name="taux_chomage_trimestriel",
+                                            code_dept=dept_code,
+                                            metric_value=float(last_val[0]),
+                                            event_date=date.today(),
+                                            signal_type="metric",
+                                            confidence=0.95,
+                                            raw_data={"series_key": key, "period_index": last_key},
+                                        )
+                                    )
                                     stats.collected += 1
                 except Exception as e:
                     logger.warning(f"  Parse BDM: {e}")
@@ -452,7 +533,10 @@ async def collect_insee(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
 # OFGL — Finances des collectivités
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_ofgl(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+
+async def collect_ofgl(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte OFGL : finances locales."""
     stats = CollectStats(source="ofgl")
     signals = []
@@ -489,7 +573,9 @@ async def collect_ofgl(client: httpx.AsyncClient, depts: list[str]) -> tuple[lis
 
                     if records:
                         found_data = True
-                        metric_name = agregat.lower().replace(" ", "_").replace("'", "").replace("/", "")
+                        metric_name = (
+                            agregat.lower().replace(" ", "_").replace("'", "").replace("/", "")
+                        )
 
                         for rec in records:
                             dept_code = rec.get("dep_code", "")
@@ -500,22 +586,24 @@ async def collect_ofgl(client: httpx.AsyncClient, depts: list[str]) -> tuple[lis
                             eur_hab = rec.get("euros_par_habitant")
 
                             if montant:
-                                signals.append(Signal(
-                                    source="ofgl",
-                                    metric_name=f"finances_{metric_name}",
-                                    code_dept=dept_code,
-                                    metric_value=float(montant),
-                                    event_date=date(year, 12, 31),
-                                    signal_type="metric",
-                                    confidence=0.95,
-                                    raw_data={
-                                        "agregat": agregat,
-                                        "dep_name": rec.get("dep_name"),
-                                        "euros_par_habitant": eur_hab,
-                                        "population": rec.get("ptot"),
-                                        "annee": year,
-                                    },
-                                ))
+                                signals.append(
+                                    Signal(
+                                        source="ofgl",
+                                        metric_name=f"finances_{metric_name}",
+                                        code_dept=dept_code,
+                                        metric_value=float(montant),
+                                        event_date=date(year, 12, 31),
+                                        signal_type="metric",
+                                        confidence=0.95,
+                                        raw_data={
+                                            "agregat": agregat,
+                                            "dep_name": rec.get("dep_name"),
+                                            "euros_par_habitant": eur_hab,
+                                            "population": rec.get("ptot"),
+                                            "annee": year,
+                                        },
+                                    )
+                                )
                                 stats.collected += 1
 
                         logger.info(f"  ✅ OFGL {agregat} {year}: {len(records)} depts")
@@ -535,7 +623,10 @@ async def collect_ofgl(client: httpx.AsyncClient, depts: list[str]) -> tuple[lis
 # DVF — Transactions immobilières (data.gouv.fr)
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_dvf(client: httpx.AsyncClient, depts: list[str], year: int = 2024) -> tuple[list[Signal], CollectStats]:
+
+async def collect_dvf(
+    client: httpx.AsyncClient, depts: list[str], year: int = 2024
+) -> tuple[list[Signal], CollectStats]:
     """Collecte DVF via CSV data.gouv.fr (fichiers géo-DVF)."""
     import csv
     import gzip
@@ -552,7 +643,9 @@ async def collect_dvf(client: httpx.AsyncClient, depts: list[str], year: int = 2
 
             if resp.status_code == 404 and year == 2024:
                 # Fallback année précédente
-                url = f"https://files.data.gouv.fr/geo-dvf/latest/csv/2023/departements/{dept}.csv.gz"
+                url = (
+                    f"https://files.data.gouv.fr/geo-dvf/latest/csv/2023/departements/{dept}.csv.gz"
+                )
                 resp = await client.get(url, timeout=30)
 
             if resp.status_code == 200:
@@ -566,7 +659,11 @@ async def collect_dvf(client: httpx.AsyncClient, depts: list[str], year: int = 2
                     rows.append(row)
 
                 # Prendre un échantillon des dernières transactions + stats agrégées
-                ventes = [r for r in rows if r.get("nature_mutation") == "Vente" and r.get("valeur_fonciere")]
+                ventes = [
+                    r
+                    for r in rows
+                    if r.get("nature_mutation") == "Vente" and r.get("valeur_fonciere")
+                ]
 
                 if ventes:
                     # Stats agrégées par département
@@ -582,36 +679,43 @@ async def collect_dvf(client: httpx.AsyncClient, depts: list[str], year: int = 2
 
                     if prix_list:
                         import statistics
-                        signals.append(Signal(
-                            source="dvf",
-                            metric_name="prix_m2_median",
-                            code_dept=dept,
-                            metric_value=round(statistics.median(prix_list), 2),
-                            event_date=date.today(),
-                            signal_type="metric",
-                            confidence=0.95,
-                            raw_data={
-                                "nb_transactions": len(ventes),
-                                "nb_avec_prix_m2": len(prix_list),
-                                "mean": round(statistics.mean(prix_list), 2),
-                                "median": round(statistics.median(prix_list), 2),
-                                "stdev": round(statistics.stdev(prix_list), 2) if len(prix_list) > 1 else 0,
-                                "year": year,
-                            },
-                        ))
+
+                        signals.append(
+                            Signal(
+                                source="dvf",
+                                metric_name="prix_m2_median",
+                                code_dept=dept,
+                                metric_value=round(statistics.median(prix_list), 2),
+                                event_date=date.today(),
+                                signal_type="metric",
+                                confidence=0.95,
+                                raw_data={
+                                    "nb_transactions": len(ventes),
+                                    "nb_avec_prix_m2": len(prix_list),
+                                    "mean": round(statistics.mean(prix_list), 2),
+                                    "median": round(statistics.median(prix_list), 2),
+                                    "stdev": round(statistics.stdev(prix_list), 2)
+                                    if len(prix_list) > 1
+                                    else 0,
+                                    "year": year,
+                                },
+                            )
+                        )
                         stats.collected += 1
 
                     # Signal nombre de transactions
-                    signals.append(Signal(
-                        source="dvf",
-                        metric_name="nb_transactions_immobilieres",
-                        code_dept=dept,
-                        metric_value=float(len(ventes)),
-                        event_date=date.today(),
-                        signal_type="metric",
-                        confidence=0.95,
-                        raw_data={"year": year, "total_rows": len(rows)},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="dvf",
+                            metric_name="nb_transactions_immobilieres",
+                            code_dept=dept,
+                            metric_value=float(len(ventes)),
+                            event_date=date.today(),
+                            signal_type="metric",
+                            confidence=0.95,
+                            raw_data={"year": year, "total_rows": len(rows)},
+                        )
+                    )
                     stats.collected += 1
 
                     # Dernières transactions individuelles (échantillon)
@@ -624,25 +728,31 @@ async def collect_dvf(client: httpx.AsyncClient, depts: list[str], year: int = 2
                             val = None
                             prix_m2 = None
 
-                        signals.append(Signal(
-                            source="dvf",
-                            metric_name="transaction_immobiliere",
-                            code_dept=dept,
-                            code_commune=v.get("code_commune", "")[:5] or None,
-                            metric_value=prix_m2,
-                            event_date=datetime.strptime(v["date_mutation"], "%Y-%m-%d").date() if v.get("date_mutation") else None,
-                            signal_type="event",
-                            confidence=0.95,
-                            raw_data={
-                                "valeur_fonciere": val,
-                                "surface": surf if surf else None,
-                                "type_local": v.get("type_local"),
-                                "commune": v.get("nom_commune"),
-                            },
-                        ))
+                        signals.append(
+                            Signal(
+                                source="dvf",
+                                metric_name="transaction_immobiliere",
+                                code_dept=dept,
+                                code_commune=v.get("code_commune", "")[:5] or None,
+                                metric_value=prix_m2,
+                                event_date=datetime.strptime(v["date_mutation"], "%Y-%m-%d").date()
+                                if v.get("date_mutation")
+                                else None,
+                                signal_type="event",
+                                confidence=0.95,
+                                raw_data={
+                                    "valeur_fonciere": val,
+                                    "surface": surf if surf else None,
+                                    "type_local": v.get("type_local"),
+                                    "commune": v.get("nom_commune"),
+                                },
+                            )
+                        )
                         stats.collected += 1
 
-                    logger.info(f"  ✅ DVF {dept}: {len(ventes)} ventes, prix médian {round(statistics.median(prix_list), 0) if prix_list else '?'}€/m²")
+                    logger.info(
+                        f"  ✅ DVF {dept}: {len(ventes)} ventes, prix médian {round(statistics.median(prix_list), 0) if prix_list else '?'}€/m²"
+                    )
             else:
                 logger.debug(f"  DVF {dept}: HTTP {resp.status_code}")
                 stats.skipped += 1
@@ -660,6 +770,7 @@ async def collect_dvf(client: httpx.AsyncClient, depts: list[str], year: int = 2
 # ═══════════════════════════════════════════════════════════════
 # BANQUE DE FRANCE — Défaillances d'entreprises
 # ═══════════════════════════════════════════════════════════════
+
 
 async def collect_banque_france(client: httpx.AsyncClient) -> tuple[list[Signal], CollectStats]:
     """Collecte statistiques défaillances Banque de France via webstat API SDMX."""
@@ -684,16 +795,18 @@ async def collect_banque_france(client: httpx.AsyncClient) -> tuple[list[Signal]
                 # Essayer de parser selon le format
                 if isinstance(data, list):
                     for item in data[-12:]:  # Derniers 12 mois
-                        signals.append(Signal(
-                            source="banque_france",
-                            metric_name="defaillances_mensuelles",
-                            code_dept="FR",
-                            metric_value=float(item.get("value", item.get("valeur", 0))),
-                            event_date=date.today(),
-                            signal_type="metric",
-                            confidence=0.98,
-                            raw_data=item,
-                        ))
+                        signals.append(
+                            Signal(
+                                source="banque_france",
+                                metric_name="defaillances_mensuelles",
+                                code_dept="FR",
+                                metric_value=float(item.get("value", item.get("valeur", 0))),
+                                event_date=date.today(),
+                                signal_type="metric",
+                                confidence=0.98,
+                                raw_data=item,
+                            )
+                        )
                         stats.collected += 1
                 elif isinstance(data, dict):
                     datasets = data.get("dataSets", [])
@@ -705,16 +818,18 @@ async def collect_banque_france(client: httpx.AsyncClient) -> tuple[list[Signal]
                                 last_key = max(obs.keys(), key=int)
                                 last_val = obs[last_key]
                                 if last_val and last_val[0] is not None:
-                                    signals.append(Signal(
-                                        source="banque_france",
-                                        metric_name="defaillances_mensuelles",
-                                        code_dept="FR",
-                                        metric_value=float(last_val[0]),
-                                        event_date=date.today(),
-                                        signal_type="metric",
-                                        confidence=0.98,
-                                        raw_data={"series_key": key, "url": url},
-                                    ))
+                                    signals.append(
+                                        Signal(
+                                            source="banque_france",
+                                            metric_name="defaillances_mensuelles",
+                                            code_dept="FR",
+                                            metric_value=float(last_val[0]),
+                                            event_date=date.today(),
+                                            signal_type="metric",
+                                            confidence=0.98,
+                                            raw_data={"series_key": key, "url": url},
+                                        )
+                                    )
                                     stats.collected += 1
 
                 if stats.collected > 0:
@@ -766,10 +881,25 @@ async def collect_presse(client: httpx.AsyncClient) -> tuple[list[Signal], Colle
     signals = []
 
     keywords_eco = [
-        "entreprise", "emploi", "chômage", "licenciement", "embauche",
-        "usine", "fermeture", "ouverture", "investissement", "start-up",
-        "commerce", "immobilier", "construction", "logement", "économie",
-        "défaillance", "liquidation", "redressement", "plan social",
+        "entreprise",
+        "emploi",
+        "chômage",
+        "licenciement",
+        "embauche",
+        "usine",
+        "fermeture",
+        "ouverture",
+        "investissement",
+        "start-up",
+        "commerce",
+        "immobilier",
+        "construction",
+        "logement",
+        "économie",
+        "défaillance",
+        "liquidation",
+        "redressement",
+        "plan social",
     ]
 
     for feed_name, feed_url in RSS_FEEDS.items():
@@ -784,10 +914,16 @@ async def collect_presse(client: httpx.AsyncClient) -> tuple[list[Signal], Colle
             items = root.findall(".//item") or root.findall(".//{http://www.w3.org/2005/Atom}entry")
 
             for item in items[:50]:
-                title = item.findtext("title", "") or item.findtext("{http://www.w3.org/2005/Atom}title", "")
-                desc = item.findtext("description", "") or item.findtext("{http://www.w3.org/2005/Atom}summary", "")
+                title = item.findtext("title", "") or item.findtext(
+                    "{http://www.w3.org/2005/Atom}title", ""
+                )
+                desc = item.findtext("description", "") or item.findtext(
+                    "{http://www.w3.org/2005/Atom}summary", ""
+                )
                 link = item.findtext("link", "") or ""
-                pub_date = item.findtext("pubDate", "") or item.findtext("{http://www.w3.org/2005/Atom}published", "")
+                pub_date = item.findtext("pubDate", "") or item.findtext(
+                    "{http://www.w3.org/2005/Atom}published", ""
+                )
 
                 text = f"{title} {desc}".lower()
 
@@ -797,24 +933,51 @@ async def collect_presse(client: httpx.AsyncClient) -> tuple[list[Signal], Colle
                     continue
 
                 # Détecter le sentiment
-                neg_words = ["fermeture", "licenciement", "liquidation", "défaillance", "plan social", "chômage", "déclin"]
-                pos_words = ["embauche", "ouverture", "investissement", "start-up", "croissance", "création"]
+                neg_words = [
+                    "fermeture",
+                    "licenciement",
+                    "liquidation",
+                    "défaillance",
+                    "plan social",
+                    "chômage",
+                    "déclin",
+                ]
+                pos_words = [
+                    "embauche",
+                    "ouverture",
+                    "investissement",
+                    "start-up",
+                    "croissance",
+                    "création",
+                ]
 
                 neg_count = sum(1 for w in neg_words if w in text)
                 pos_count = sum(1 for w in pos_words if w in text)
-                sentiment = "negative" if neg_count > pos_count else "positive" if pos_count > neg_count else "neutral"
+                sentiment = (
+                    "negative"
+                    if neg_count > pos_count
+                    else "positive"
+                    if pos_count > neg_count
+                    else "neutral"
+                )
 
-                signals.append(Signal(
-                    source="presse_locale",
-                    metric_name=f"article_{sentiment}",
-                    code_dept="FR",  # TODO: extraire le département du texte
-                    event_date=date.today(),
-                    signal_type="text",
-                    confidence=0.6,
-                    source_url=link,
-                    raw_data={"feed": feed_name, "keywords": matching_kw, "sentiment": sentiment},
-                    extracted_text=f"{title} — {desc[:300]}",
-                ))
+                signals.append(
+                    Signal(
+                        source="presse_locale",
+                        metric_name=f"article_{sentiment}",
+                        code_dept="FR",  # TODO: extraire le département du texte
+                        event_date=date.today(),
+                        signal_type="text",
+                        confidence=0.6,
+                        source_url=link,
+                        raw_data={
+                            "feed": feed_name,
+                            "keywords": matching_kw,
+                            "sentiment": sentiment,
+                        },
+                        extracted_text=f"{title} — {desc[:300]}",
+                    )
+                )
                 stats.collected += 1
 
         except ET.ParseError:
@@ -832,7 +995,10 @@ async def collect_presse(client: httpx.AsyncClient) -> tuple[list[Signal], Colle
 # URSSAF — Auto-entrepreneurs par département
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_urssaf(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+
+async def collect_urssaf(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte données auto-entrepreneurs URSSAF (open data)."""
     stats = CollectStats(source="urssaf")
     signals = []
@@ -868,40 +1034,68 @@ async def collect_urssaf(client: httpx.AsyncClient, depts: list[str]) -> tuple[l
                 period = f"{year}-T{trim}"
 
                 if immat is not None:
-                    signals.append(Signal(
-                        source="urssaf", metric_name="ae_immatriculations",
-                        code_dept=dept_code, metric_value=float(immat),
-                        event_date=date(int(year), int(trim) * 3, 28) if year and trim else None,
-                        signal_type="metric", confidence=0.95,
-                        raw_data={"period": period, "departement": rec.get("departement")},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="urssaf",
+                            metric_name="ae_immatriculations",
+                            code_dept=dept_code,
+                            metric_value=float(immat),
+                            event_date=date(int(year), int(trim) * 3, 28)
+                            if year and trim
+                            else None,
+                            signal_type="metric",
+                            confidence=0.95,
+                            raw_data={"period": period, "departement": rec.get("departement")},
+                        )
+                    )
                     stats.collected += 1
 
                 if rad is not None:
-                    signals.append(Signal(
-                        source="urssaf", metric_name="ae_radiations",
-                        code_dept=dept_code, metric_value=float(rad),
-                        event_date=date(int(year), int(trim) * 3, 28) if year and trim else None,
-                        signal_type="metric", confidence=0.95,
-                    ))
+                    signals.append(
+                        Signal(
+                            source="urssaf",
+                            metric_name="ae_radiations",
+                            code_dept=dept_code,
+                            metric_value=float(rad),
+                            event_date=date(int(year), int(trim) * 3, 28)
+                            if year and trim
+                            else None,
+                            signal_type="metric",
+                            confidence=0.95,
+                        )
+                    )
                     stats.collected += 1
 
                 if ca is not None:
-                    signals.append(Signal(
-                        source="urssaf", metric_name="ae_chiffre_affaires",
-                        code_dept=dept_code, metric_value=float(ca),
-                        event_date=date(int(year), int(trim) * 3, 28) if year and trim else None,
-                        signal_type="metric", confidence=0.95,
-                    ))
+                    signals.append(
+                        Signal(
+                            source="urssaf",
+                            metric_name="ae_chiffre_affaires",
+                            code_dept=dept_code,
+                            metric_value=float(ca),
+                            event_date=date(int(year), int(trim) * 3, 28)
+                            if year and trim
+                            else None,
+                            signal_type="metric",
+                            confidence=0.95,
+                        )
+                    )
                     stats.collected += 1
 
                 if actifs is not None:
-                    signals.append(Signal(
-                        source="urssaf", metric_name="ae_economiquement_actifs",
-                        code_dept=dept_code, metric_value=float(actifs),
-                        event_date=date(int(year), int(trim) * 3, 28) if year and trim else None,
-                        signal_type="metric", confidence=0.95,
-                    ))
+                    signals.append(
+                        Signal(
+                            source="urssaf",
+                            metric_name="ae_economiquement_actifs",
+                            code_dept=dept_code,
+                            metric_value=float(actifs),
+                            event_date=date(int(year), int(trim) * 3, 28)
+                            if year and trim
+                            else None,
+                            signal_type="metric",
+                            confidence=0.95,
+                        )
+                    )
                     stats.collected += 1
 
             logger.info(f"  ✅ URSSAF: {len(records)} records")
@@ -927,12 +1121,18 @@ async def collect_urssaf(client: httpx.AsyncClient, depts: list[str]) -> tuple[l
                     continue
                 effectif = rec.get("effectif")
                 if effectif:
-                    signals.append(Signal(
-                        source="urssaf", metric_name="effectifs_salaries",
-                        code_dept=dept_code, metric_value=float(effectif),
-                        event_date=date.today(), signal_type="metric", confidence=0.95,
-                        raw_data={"secteur": rec.get("grand_secteur_d_activite")},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="urssaf",
+                            metric_name="effectifs_salaries",
+                            code_dept=dept_code,
+                            metric_value=float(effectif),
+                            event_date=date.today(),
+                            signal_type="metric",
+                            confidence=0.95,
+                            raw_data={"secteur": rec.get("grand_secteur_d_activite")},
+                        )
+                    )
                     stats.collected += 1
     except Exception as e:
         logger.debug(f"  URSSAF effectifs: {e}")
@@ -945,7 +1145,10 @@ async def collect_urssaf(client: httpx.AsyncClient, depts: list[str]) -> tuple[l
 # GOOGLE TRENDS — Tendances de recherche
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_google_trends(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+
+async def collect_google_trends(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte Google Trends via pytrends (anciennes régions FR → départements)."""
     stats = CollectStats(source="google_trends")
     signals = []
@@ -991,12 +1194,12 @@ async def collect_google_trends(client: httpx.AsyncClient, depts: list[str]) -> 
     }
 
     try:
-        pytrends = TrendReq(hl='fr-FR', tz=60, timeout=(10, 25))
+        pytrends = TrendReq(hl="fr-FR", tz=60, timeout=(10, 25))
 
         for kw in keywords:
             try:
-                pytrends.build_payload([kw], cat=0, timeframe='today 3-m', geo='FR')
-                interest = pytrends.interest_by_region(resolution='REGION', inc_low_vol=True)
+                pytrends.build_payload([kw], cat=0, timeframe="today 3-m", geo="FR")
+                interest = pytrends.interest_by_region(resolution="REGION", inc_low_vol=True)
 
                 if not interest.empty:
                     for region_name, row in interest.iterrows():
@@ -1008,16 +1211,18 @@ async def collect_google_trends(client: httpx.AsyncClient, depts: list[str]) -> 
                         dept_list = OLD_REGIONS_TO_DEPTS.get(region_name, [])
                         for d in dept_list:
                             if d in depts:
-                                signals.append(Signal(
-                                    source="google_trends",
-                                    metric_name=f"trend_{kw.replace(' ', '_')}",
-                                    code_dept=d,
-                                    metric_value=float(val),
-                                    event_date=date.today(),
-                                    signal_type="metric",
-                                    confidence=0.6,
-                                    raw_data={"keyword": kw, "region": region_name},
-                                ))
+                                signals.append(
+                                    Signal(
+                                        source="google_trends",
+                                        metric_name=f"trend_{kw.replace(' ', '_')}",
+                                        code_dept=d,
+                                        metric_value=float(val),
+                                        event_date=date.today(),
+                                        signal_type="metric",
+                                        confidence=0.6,
+                                        raw_data={"keyword": kw, "region": region_name},
+                                    )
+                                )
                                 stats.collected += 1
 
                 await asyncio.sleep(3)  # Rate limiting Google
@@ -1039,6 +1244,7 @@ async def collect_google_trends(client: httpx.AsyncClient, depts: list[str]) -> 
 # STOCKAGE EN BASE
 # ═══════════════════════════════════════════════════════════════
 
+
 async def store_signals(signals: list[Signal]) -> int:
     """Insère les signaux en base via asyncpg batch insert."""
     if not signals:
@@ -1053,11 +1259,22 @@ async def store_signals(signals: list[Signal]) -> int:
         # Batch insert
         records = [
             (
-                s.source, s.source_url, datetime.now(), s.event_date,
-                s.code_commune, None, s.code_dept, None, None,
-                s.metric_name, s.metric_value, s.signal_type,
-                s.confidence, json.dumps(s.raw_data) if s.raw_data else None,
-                s.extracted_text, json.dumps(s.entities) if s.entities else None,
+                s.source,
+                s.source_url,
+                datetime.now(),
+                s.event_date,
+                s.code_commune,
+                None,
+                s.code_dept,
+                None,
+                None,
+                s.metric_name,
+                s.metric_value,
+                s.signal_type,
+                s.confidence,
+                json.dumps(s.raw_data) if s.raw_data else None,
+                s.extracted_text,
+                json.dumps(s.entities) if s.entities else None,
             )
             for s in signals
         ]
@@ -1067,17 +1284,21 @@ async def store_signals(signals: list[Signal]) -> int:
         metrics = [r for r, s in zip(records, signals) if s.signal_type == "metric"]
 
         if events:
-            await conn.executemany("""
+            await conn.executemany(
+                """
                 INSERT INTO signals (
                     source, source_url, collected_at, event_date,
                     code_commune, code_epci, code_dept, latitude, longitude,
                     metric_name, metric_value, signal_type,
                     confidence, raw_data, extracted_text, entities
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb, $15, $16::jsonb)
-            """, events)
+            """,
+                events,
+            )
 
         if metrics:
-            await conn.executemany("""
+            await conn.executemany(
+                """
                 INSERT INTO signals (
                     source, source_url, collected_at, event_date,
                     code_commune, code_epci, code_dept, latitude, longitude,
@@ -1087,7 +1308,9 @@ async def store_signals(signals: list[Signal]) -> int:
                 ON CONFLICT (source, code_dept, metric_name, event_date)
                 WHERE signal_type = 'metric'
                 DO UPDATE SET metric_value = EXCLUDED.metric_value, collected_at = EXCLUDED.collected_at, raw_data = EXCLUDED.raw_data
-            """, metrics)
+            """,
+                metrics,
+            )
 
         logger.info(f"💾 {len(records)} signaux insérés en base")
         return len(records)
@@ -1102,7 +1325,10 @@ async def store_signals(signals: list[Signal]) -> int:
 DIDO_BASE = "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1"
 LOGEMENTS_DEPT_RID = "d264957b-c6d2-4efa-bf5e-6a8da836550a"
 
-async def collect_sitadel(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+
+async def collect_sitadel(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte permis de construire Sitadel via SDES DiDo API."""
     import csv
     import io
@@ -1131,22 +1357,29 @@ async def collect_sitadel(client: httpx.AsyncClient, depts: list[str]) -> tuple[
 
                 ev_date = date(year, month, 1)
 
-                for field, metric in [("LOG_AUT", "logements_autorises"), ("LOG_COM", "logements_commences")]:
+                for field, metric in [
+                    ("LOG_AUT", "logements_autorises"),
+                    ("LOG_COM", "logements_commences"),
+                ]:
                     val_str = row.get(field, "").strip().strip('"')
                     if val_str and val_str not in ("", "s", "nd"):
                         try:
                             val = int(float(val_str))
                             if val > 0:
-                                signals.append(Signal(
-                                    source="sitadel",
-                                    source_url=f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/{dept}/{year}-{month:02d}",
-                                    metric_name=metric,
-                                    metric_value=val,
-                                    code_dept=dept,
-                                    event_date=ev_date,
-                                    signal_type="construction",
-                                    raw_data={"type_logement": row.get("TYPE_LGT", "").strip('"')},
-                                ))
+                                signals.append(
+                                    Signal(
+                                        source="sitadel",
+                                        source_url=f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/{dept}/{year}-{month:02d}",
+                                        metric_name=metric,
+                                        metric_value=val,
+                                        code_dept=dept,
+                                        event_date=ev_date,
+                                        signal_type="construction",
+                                        raw_data={
+                                            "type_logement": row.get("TYPE_LGT", "").strip('"')
+                                        },
+                                    )
+                                )
                                 stats.collected += 1
                         except (ValueError, TypeError):
                             pass
@@ -1165,7 +1398,10 @@ async def collect_sitadel(client: httpx.AsyncClient, depts: list[str]) -> tuple[
 # GDELT — Événements mondiaux géolocalisés en France
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_gdelt(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+
+async def collect_gdelt(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte événements GDELT géolocalisés en France via BigQuery API."""
     stats = CollectStats(source="gdelt")
     signals = []
@@ -1217,17 +1453,22 @@ async def collect_gdelt(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
                         dept_found = d
                         break
 
-                signals.append(Signal(
-                    source="gdelt",
-                    source_url=url_art,
-                    metric_name=kw.replace(" ", "_"),
-                    metric_value=art.get("socialimage", 0) or 0,
-                    code_dept=dept_found,
-                    event_date=ev_date,
-                    signal_type="presse",
-                    extracted_text=title[:500],
-                    raw_data={"domain": art.get("domain", ""), "language": art.get("language", "")},
-                ))
+                signals.append(
+                    Signal(
+                        source="gdelt",
+                        source_url=url_art,
+                        metric_name=kw.replace(" ", "_"),
+                        metric_value=art.get("socialimage", 0) or 0,
+                        code_dept=dept_found,
+                        event_date=ev_date,
+                        signal_type="presse",
+                        extracted_text=title[:500],
+                        raw_data={
+                            "domain": art.get("domain", ""),
+                            "language": art.get("language", ""),
+                        },
+                    )
+                )
                 stats.collected += 1
 
         except Exception as e:
@@ -1242,7 +1483,10 @@ async def collect_gdelt(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
 # DGFiP — Fiscalité locale & Comptes départementaux
 # ═══════════════════════════════════════════════════════════════
 
-async def collect_dgfip(client: httpx.AsyncClient, depts: list[str]) -> tuple[list[Signal], CollectStats]:
+
+async def collect_dgfip(
+    client: httpx.AsyncClient, depts: list[str]
+) -> tuple[list[Signal], CollectStats]:
     """Collecte DGFiP via data.economie.gouv.fr open data API.
 
     2 datasets:
@@ -1289,39 +1533,59 @@ async def collect_dgfip(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
                 nb_communes = r.get("nb_communes", 0)
 
                 if avg_tfb is not None:
-                    signals.append(Signal(
-                        source="dgfip", metric_name="taux_moyen_tfb",
-                        code_dept=dept, metric_value=round(avg_tfb, 2),
-                        event_date=date(2024, 1, 1), signal_type="metric",
-                        confidence=0.95,
-                        source_url="https://data.economie.gouv.fr/explore/dataset/fiscalite-locale-des-entreprises",
-                        extracted_text=f"Dept {dept}: Taux moyen TFB {avg_tfb:.2f}%, CFE {avg_cfe:.2f}%, TEOM {avg_teom:.2f}% ({nb_communes} communes)",
-                        raw_data={"avg_tfb": avg_tfb, "avg_cfe": avg_cfe, "avg_teom": avg_teom, "nb_communes": nb_communes},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="dgfip",
+                            metric_name="taux_moyen_tfb",
+                            code_dept=dept,
+                            metric_value=round(avg_tfb, 2),
+                            event_date=date(2024, 1, 1),
+                            signal_type="metric",
+                            confidence=0.95,
+                            source_url="https://data.economie.gouv.fr/explore/dataset/fiscalite-locale-des-entreprises",
+                            extracted_text=f"Dept {dept}: Taux moyen TFB {avg_tfb:.2f}%, CFE {avg_cfe:.2f}%, TEOM {avg_teom:.2f}% ({nb_communes} communes)",
+                            raw_data={
+                                "avg_tfb": avg_tfb,
+                                "avg_cfe": avg_cfe,
+                                "avg_teom": avg_teom,
+                                "nb_communes": nb_communes,
+                            },
+                        )
+                    )
                     stats.collected += 1
 
                 if avg_cfe is not None:
-                    signals.append(Signal(
-                        source="dgfip", metric_name="taux_moyen_cfe",
-                        code_dept=dept, metric_value=round(avg_cfe, 2),
-                        event_date=date(2024, 1, 1), signal_type="metric",
-                        confidence=0.95,
-                        source_url="https://data.economie.gouv.fr/explore/dataset/fiscalite-locale-des-entreprises",
-                        extracted_text=f"Dept {dept}: Taux moyen CFE (hors zone) {avg_cfe:.2f}%",
-                        raw_data={"avg_cfe": avg_cfe, "dept": dept},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="dgfip",
+                            metric_name="taux_moyen_cfe",
+                            code_dept=dept,
+                            metric_value=round(avg_cfe, 2),
+                            event_date=date(2024, 1, 1),
+                            signal_type="metric",
+                            confidence=0.95,
+                            source_url="https://data.economie.gouv.fr/explore/dataset/fiscalite-locale-des-entreprises",
+                            extracted_text=f"Dept {dept}: Taux moyen CFE (hors zone) {avg_cfe:.2f}%",
+                            raw_data={"avg_cfe": avg_cfe, "dept": dept},
+                        )
+                    )
                     stats.collected += 1
 
                 if avg_teom is not None:
-                    signals.append(Signal(
-                        source="dgfip", metric_name="taux_moyen_teom",
-                        code_dept=dept, metric_value=round(avg_teom, 2),
-                        event_date=date(2024, 1, 1), signal_type="metric",
-                        confidence=0.95,
-                        source_url="https://data.economie.gouv.fr/explore/dataset/fiscalite-locale-des-entreprises",
-                        extracted_text=f"Dept {dept}: Taux moyen TEOM {avg_teom:.2f}%",
-                        raw_data={"avg_teom": avg_teom, "dept": dept},
-                    ))
+                    signals.append(
+                        Signal(
+                            source="dgfip",
+                            metric_name="taux_moyen_teom",
+                            code_dept=dept,
+                            metric_value=round(avg_teom, 2),
+                            event_date=date(2024, 1, 1),
+                            signal_type="metric",
+                            confidence=0.95,
+                            source_url="https://data.economie.gouv.fr/explore/dataset/fiscalite-locale-des-entreprises",
+                            extracted_text=f"Dept {dept}: Taux moyen TEOM {avg_teom:.2f}%",
+                            raw_data={"avg_teom": avg_teom, "dept": dept},
+                        )
+                    )
                     stats.collected += 1
 
             except Exception as e:
@@ -1388,15 +1652,25 @@ async def collect_dgfip(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
                     val = r.get(field_name)
                     if val is not None:
                         # Values are in thousands of euros
-                        signals.append(Signal(
-                            source="dgfip", metric_name=metric_name,
-                            code_dept=dept, metric_value=round(val, 2),
-                            event_date=date(2023, 12, 31), signal_type="metric",
-                            confidence=0.95,
-                            source_url=f"https://data.economie.gouv.fr/explore/dataset/{dataset_id}",
-                            extracted_text=f"{lbudg} ({dept}): {label} = {val:,.0f} k€ (pop: {pop:,})",
-                            raw_data={"value_keur": val, "population": pop, "exercice": 2023, "field": field_name},
-                        ))
+                        signals.append(
+                            Signal(
+                                source="dgfip",
+                                metric_name=metric_name,
+                                code_dept=dept,
+                                metric_value=round(val, 2),
+                                event_date=date(2023, 12, 31),
+                                signal_type="metric",
+                                confidence=0.95,
+                                source_url=f"https://data.economie.gouv.fr/explore/dataset/{dataset_id}",
+                                extracted_text=f"{lbudg} ({dept}): {label} = {val:,.0f} k€ (pop: {pop:,})",
+                                raw_data={
+                                    "value_keur": val,
+                                    "population": pop,
+                                    "exercice": 2023,
+                                    "field": field_name,
+                                },
+                            )
+                        )
                         stats.collected += 1
 
             except Exception as e:
@@ -1415,6 +1689,7 @@ async def collect_dgfip(client: httpx.AsyncClient, depts: list[str]) -> tuple[li
 # ORCHESTRATEUR
 # ═══════════════════════════════════════════════════════════════
 
+
 async def run_full_collect(
     depts: list[str] | None = None,
     sources: list[str] | None = None,
@@ -1422,7 +1697,21 @@ async def run_full_collect(
 ):
     """Lance la collecte complète."""
     target_depts = depts or ALL_DEPTS
-    target_sources = sources or ["bodacc", "france_travail", "sirene", "insee", "ofgl", "dvf", "urssaf", "banque_france", "presse_locale", "google_trends", "sitadel", "gdelt", "dgfip"]
+    target_sources = sources or [
+        "bodacc",
+        "france_travail",
+        "sirene",
+        "insee",
+        "ofgl",
+        "dvf",
+        "urssaf",
+        "banque_france",
+        "presse_locale",
+        "google_trends",
+        "sitadel",
+        "gdelt",
+        "dgfip",
+    ]
 
     logger.info("🚀 COLLECTE Tawiza V2")
     logger.info(f"   Départements: {len(target_depts)}")
@@ -1437,7 +1726,6 @@ async def run_full_collect(
         limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
         follow_redirects=True,
     ) as client:
-
         collectors = {
             "bodacc": lambda: collect_bodacc(client, target_depts, days_back),
             "france_travail": lambda: collect_france_travail(client, target_depts),
@@ -1459,9 +1747,9 @@ async def run_full_collect(
                 logger.warning(f"  ⚠️ Source inconnue: {src_name}")
                 continue
 
-            logger.info(f"\n{'='*60}")
+            logger.info(f"\n{'=' * 60}")
             logger.info(f"📡 {src_name.upper()}")
-            logger.info(f"{'='*60}")
+            logger.info(f"{'=' * 60}")
 
             try:
                 signals, stats = await collectors[src_name]()
@@ -1478,9 +1766,9 @@ async def run_full_collect(
         stored = 0
 
     # Résumé
-    logger.info(f"\n{'='*60}")
+    logger.info(f"\n{'=' * 60}")
     logger.info("📊 RÉSUMÉ COLLECTE Tawiza V2")
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
 
     total_collected = 0
     total_errors = 0
@@ -1489,7 +1777,7 @@ async def run_full_collect(
         total_collected += s.collected
         total_errors += s.errors
 
-    logger.info(f"  {'─'*50}")
+    logger.info(f"  {'─' * 50}")
     logger.info(f"  {'TOTAL':20s} | {total_collected:6d} collectés | {total_errors:3d} erreurs")
     logger.info(f"  💾 {stored} signaux insérés en base")
 
@@ -1505,7 +1793,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Collecteur unifié Tawiza V2")
     parser.add_argument("--depts", nargs="+", help="Départements à collecter (ex: 75 93 35)")
-    parser.add_argument("--sources", nargs="+", help="Sources (bodacc france_travail sirene insee ofgl dvf banque_france presse_locale)")
+    parser.add_argument(
+        "--sources",
+        nargs="+",
+        help="Sources (bodacc france_travail sirene insee ofgl dvf banque_france presse_locale)",
+    )
     parser.add_argument("--days", type=int, default=30, help="Lookback en jours (défaut: 30)")
     parser.add_argument("--all", action="store_true", help="Tous les 101 départements")
 
@@ -1516,12 +1808,33 @@ if __name__ == "__main__":
         depts = args.depts
     elif not args.all:
         # Par défaut: 20 départements stratégiques
-        depts = ["75", "93", "92", "94", "91", "78", "95", "77",  # IDF
-                 "13", "69", "31", "33", "59", "44", "35", "67",  # Grandes métropoles
-                 "06", "34", "17", "15"]  # Mix
+        depts = [
+            "75",
+            "93",
+            "92",
+            "94",
+            "91",
+            "78",
+            "95",
+            "77",  # IDF
+            "13",
+            "69",
+            "31",
+            "33",
+            "59",
+            "44",
+            "35",
+            "67",  # Grandes métropoles
+            "06",
+            "34",
+            "17",
+            "15",
+        ]  # Mix
 
-    asyncio.run(run_full_collect(
-        depts=depts,
-        sources=args.sources,
-        days_back=args.days,
-    ))
+    asyncio.run(
+        run_full_collect(
+            depts=depts,
+            sources=args.sources,
+            days_back=args.days,
+        )
+    )

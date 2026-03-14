@@ -23,6 +23,7 @@ from typing import Any
 @dataclass
 class DataPoint:
     """Un point de donnee pour le tableau."""
+
     label: str
     value: str
     variation: str = ""
@@ -32,6 +33,7 @@ class DataPoint:
 @dataclass
 class AnalysisResult:
     """Resultat d'analyse TAJINE."""
+
     summary: str
     data: list[DataPoint] = field(default_factory=list)
     analysis: list[str] = field(default_factory=list)
@@ -187,12 +189,14 @@ def format_response(
     data_points = []
     if data:
         for d in data:
-            data_points.append(DataPoint(
-                label=d.get("label", ""),
-                value=str(d.get("value", "")),
-                variation=d.get("variation", ""),
-                unit=d.get("unit", ""),
-            ))
+            data_points.append(
+                DataPoint(
+                    label=d.get("label", ""),
+                    value=str(d.get("value", "")),
+                    variation=d.get("variation", ""),
+                    unit=d.get("unit", ""),
+                )
+            )
 
     result = AnalysisResult(
         summary=summary,

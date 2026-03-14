@@ -110,12 +110,11 @@ def check_service_health(service_id: str) -> tuple[bool, str]:
     if service.get("ssh_check"):
         # Check SSH connectivity
         import subprocess
+
         try:
             host = service["url"].replace("http://", "").split(":")[0]
             result = subprocess.run(
-                ["nc", "-z", "-w", "2", host, "22"],
-                capture_output=True,
-                timeout=5
+                ["nc", "-z", "-w", "2", host, "22"], capture_output=True, timeout=5
             )
             if result.returncode == 0:
                 return True, "reachable"
@@ -159,8 +158,7 @@ def register(app: typer.Typer) -> None:
                 continue
 
             services_in_cat = [
-                (sid, s) for sid, s in SERVICES.items()
-                if s.get("category") == cat_id
+                (sid, s) for sid, s in SERVICES.items() if s.get("category") == cat_id
             ]
 
             if not services_in_cat:
@@ -183,7 +181,7 @@ def register(app: typer.Typer) -> None:
             for service_id, service in services_in_cat:
                 if check_health:
                     is_healthy, status = check_service_health(service_id)
-                    status_color = THEME['success'] if is_healthy else THEME['error']
+                    status_color = THEME["success"] if is_healthy else THEME["error"]
                     status_text = f"[{status_color}]{status}[/]"
                 else:
                     status_text = "[dim]--[/]"
@@ -214,9 +212,7 @@ def register(app: typer.Typer) -> None:
             layout = Layout()
 
             layout.split_column(
-                Layout(name="header", size=3),
-                Layout(name="body"),
-                Layout(name="footer", size=5)
+                Layout(name="header", size=3), Layout(name="body"), Layout(name="footer", size=5)
             )
 
             # Header
@@ -227,8 +223,7 @@ def register(app: typer.Typer) -> None:
 
             # Body split into services and metrics
             layout["body"].split_row(
-                Layout(name="services", ratio=1),
-                Layout(name="metrics", ratio=1)
+                Layout(name="services", ratio=1), Layout(name="metrics", ratio=1)
             )
 
             # Services panel
@@ -244,10 +239,7 @@ def register(app: typer.Typer) -> None:
             for service_id, service in SERVICES.items():
                 is_healthy, status = check_service_health(service_id)
                 status_color = "green" if is_healthy else "red"
-                services_table.add_row(
-                    service["name"],
-                    Text(status, style=f"bold {status_color}")
-                )
+                services_table.add_row(service["name"], Text(status, style=f"bold {status_color}"))
 
             layout["body"]["services"].update(
                 Panel(services_table, title="Services", border_style="blue")
@@ -265,6 +257,7 @@ def register(app: typer.Typer) -> None:
             # System metrics
             try:
                 import psutil
+
                 metrics_table.add_row("CPU", f"{psutil.cpu_percent():.1f}%")
                 metrics_table.add_row("RAM", f"{psutil.virtual_memory().percent:.1f}%")
                 metrics_table.add_row("Disk", f"{psutil.disk_usage('/').percent:.1f}%")
@@ -274,14 +267,14 @@ def register(app: typer.Typer) -> None:
             # GPU metrics
             try:
                 import subprocess
+
                 result = subprocess.run(
-                    ["rocm-smi", "--showuse"],
-                    capture_output=True, text=True, timeout=3
+                    ["rocm-smi", "--showuse"], capture_output=True, text=True, timeout=3
                 )
                 if result.returncode == 0:
                     # Parse GPU usage from output
-                    for line in result.stdout.split('\n'):
-                        if '%' in line and 'GPU' in line:
+                    for line in result.stdout.split("\n"):
+                        if "%" in line and "GPU" in line:
                             metrics_table.add_row("GPU", line.strip()[:30])
                             break
                     else:
@@ -359,10 +352,12 @@ def register(app: typer.Typer) -> None:
 
         if not service:
             msg = MessageBox()
-            console.print(msg.error(
-                f"Service not found: {service_name}",
-                [f"Available: {', '.join(SERVICES.keys())}"]
-            ))
+            console.print(
+                msg.error(
+                    f"Service not found: {service_name}",
+                    [f"Available: {', '.join(SERVICES.keys())}"],
+                )
+            )
             console.print(footer(50))
             return
 
@@ -375,7 +370,7 @@ def register(app: typer.Typer) -> None:
         console.print()
 
         if is_healthy:
-            status_color = THEME['success']
+            status_color = THEME["success"]
             console.print(f"  [bold]Status:[/] [{status_color}]{status}[/]")
             console.print()
 
@@ -385,6 +380,7 @@ def register(app: typer.Typer) -> None:
             # Try to open in browser
             try:
                 import webbrowser
+
                 console.print()
                 console.print("  [dim]Opening in browser...[/]")
                 webbrowser.open(url)
@@ -392,15 +388,12 @@ def register(app: typer.Typer) -> None:
                 console.print()
                 console.print("  [dim]Copy the URL above to your browser.[/]")
         else:
-            status_color = THEME['error']
+            status_color = THEME["error"]
             console.print(f"  [bold]Status:[/] [{status_color}]{status}[/]")
             console.print()
 
             msg = MessageBox()
-            console.print(msg.warning(
-                "Service is not available",
-                "Try starting it first"
-            ))
+            console.print(msg.warning("Service is not available", "Try starting it first"))
 
             # Show start command if available
             if service_id == "ollama":

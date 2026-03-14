@@ -4,6 +4,7 @@ Computes a weighted reward signal from multiple fetch quality dimensions,
 with error classification to distinguish external failures (skip update)
 from internal failures (light penalty).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from src.infrastructure.agents.tajine.trust import (
 @dataclass
 class FetchSignals:
     """Raw signals collected after a source fetch."""
+
     item_count: int = 0
     field_count: int = 0
     total_fields_possible: int = 1  # avoid division by zero
@@ -29,6 +31,7 @@ class FetchSignals:
 @dataclass
 class RewardResult:
     """Output of reward computation."""
+
     reward: float | None  # None means "skip bandit update"
     components: dict[str, float]
     is_external_failure: bool = False
@@ -96,10 +99,7 @@ def compute_reward(signals: FetchSignals) -> RewardResult:
     components["success"] = 1.0 if signals.success else 0.0
 
     # --- Weighted sum ---------------------------------------------------------
-    reward = sum(
-        _WEIGHTS[dim] * components[dim]
-        for dim in _WEIGHTS
-    )
+    reward = sum(_WEIGHTS[dim] * components[dim] for dim in _WEIGHTS)
 
     return RewardResult(
         reward=round(reward, 4),

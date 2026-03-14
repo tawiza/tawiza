@@ -1,6 +1,5 @@
 """Tawiza CLI v2 Design System - Minimal theme with subtle accents."""
 
-
 # Core color palette
 THEME: dict[str, str] = {
     "bg": "default",

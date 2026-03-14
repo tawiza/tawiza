@@ -4,6 +4,7 @@ This service handles creation and verification of application directories.
 
 Follows Single Responsibility Principle: Only handles directory operations.
 """
+
 from pathlib import Path
 
 from loguru import logger
@@ -26,10 +27,7 @@ class DirectoryManagerService:
         """
         self.base_path = base_path or Path.cwd()
 
-    def create_required_directories(
-        self,
-        directories: list[str] = None
-    ) -> None:
+    def create_required_directories(self, directories: list[str] = None) -> None:
         """Create all required directories.
 
         Args:
@@ -52,10 +50,7 @@ class DirectoryManagerService:
                 logger.error(f"Failed to create directory {dir_path}: {e}")
                 raise
 
-    def verify_directory_structure(
-        self,
-        directories: list[str] = None
-    ) -> bool:
+    def verify_directory_structure(self, directories: list[str] = None) -> bool:
         """Verify all required directories exist.
 
         Args:
@@ -80,10 +75,7 @@ class DirectoryManagerService:
 
         return all_exist
 
-    def get_directory_status(
-        self,
-        directories: list[str] = None
-    ) -> dict[str, bool]:
+    def get_directory_status(self, directories: list[str] = None) -> dict[str, bool]:
         """Get existence status of all directories.
 
         Args:
@@ -136,9 +128,7 @@ class DirectoryManagerService:
             OSError: If deletion fails
         """
         if not confirm:
-            raise ValueError(
-                "Must pass confirm=True to delete directory contents"
-            )
+            raise ValueError("Must pass confirm=True to delete directory contents")
 
         dir_path = self.base_path / directory
 
@@ -148,6 +138,7 @@ class DirectoryManagerService:
 
         try:
             import shutil
+
             shutil.rmtree(dir_path)
             dir_path.mkdir(parents=True)
             logger.info(f"Directory cleaned: {dir_path}")

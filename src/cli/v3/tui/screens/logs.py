@@ -103,7 +103,7 @@ class LogViewer(ScrollableContainer):
         line = Static(
             f"[dim]{time_str}[/] [{color}]{level_str:4}[/] "
             f"[cyan]{entry.source:8}[/] {entry.message}",
-            classes="log-line"
+            classes="log-line",
         )
         self.mount(line)
 
@@ -115,7 +115,9 @@ class LogViewer(ScrollableContainer):
         self._entries.clear()
         self.remove_children()
 
-    def get_entries(self, level: LogLevel | None = None, source: str | None = None) -> list[LogEntry]:
+    def get_entries(
+        self, level: LogLevel | None = None, source: str | None = None
+    ) -> list[LogEntry]:
         """Get filtered log entries."""
         entries = self._entries
 
@@ -210,7 +212,7 @@ class LogsScreen(Container):
                     ("Critical", "critical"),
                 ],
                 value="all",
-                id="level-filter"
+                id="level-filter",
             )
             yield Select(
                 [
@@ -224,7 +226,7 @@ class LogsScreen(Container):
                     ("TUI", "tui"),
                 ],
                 value="all",
-                id="source-filter"
+                id="source-filter",
             )
             with Horizontal(id="logs-controls"):
                 yield Static("[bold]Auto-scroll[/]")
@@ -256,12 +258,14 @@ class LogsScreen(Container):
         self._log_reader = get_log_reader()
 
         # Add welcome message
-        viewer.add_log(LogEntry(
-            timestamp=datetime.now(),
-            level=LogLevel.INFO,
-            source="tui",
-            message="Loading system logs..."
-        ))
+        viewer.add_log(
+            LogEntry(
+                timestamp=datetime.now(),
+                level=LogLevel.INFO,
+                source="tui",
+                message="Loading system logs...",
+            )
+        )
         self._log_count["info"] += 1
 
         try:
@@ -284,22 +288,26 @@ class LogsScreen(Container):
 
                 self.app.notify(f"Loaded {len(entries)} log entries", timeout=2)
             else:
-                viewer.add_log(LogEntry(
-                    timestamp=datetime.now(),
-                    level=LogLevel.WARNING,
-                    source="tui",
-                    message="No log files found or empty logs"
-                ))
+                viewer.add_log(
+                    LogEntry(
+                        timestamp=datetime.now(),
+                        level=LogLevel.WARNING,
+                        source="tui",
+                        message="No log files found or empty logs",
+                    )
+                )
                 self._log_count["warning"] += 1
 
         except Exception as e:
             logger.error(f"Failed to load logs: {e}")
-            viewer.add_log(LogEntry(
-                timestamp=datetime.now(),
-                level=LogLevel.ERROR,
-                source="tui",
-                message=f"Error loading logs: {e}"
-            ))
+            viewer.add_log(
+                LogEntry(
+                    timestamp=datetime.now(),
+                    level=LogLevel.ERROR,
+                    source="tui",
+                    message=f"Error loading logs: {e}",
+                )
+            )
             self._log_count["error"] += 1
 
         self._update_stats()
@@ -395,11 +403,14 @@ class LogsScreen(Container):
             from pathlib import Path
 
             from src.cli.constants import PROJECT_ROOT
+
             export_path = PROJECT_ROOT / "logs" / "tui_export.log"
             with open(export_path, "w") as f:
                 for entry in entries:
                     time_str = entry.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-                    f.write(f"{time_str} | {entry.level.value.upper():8} | {entry.source:10} | {entry.message}\n")
+                    f.write(
+                        f"{time_str} | {entry.level.value.upper():8} | {entry.source:10} | {entry.message}\n"
+                    )
 
             self.app.notify(f"Exported {len(entries)} logs to {export_path}", timeout=3)
         except Exception as e:

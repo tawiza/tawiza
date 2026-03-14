@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
 class AgentState(Enum):
     """Agent lifecycle states."""
+
     IDLE = "idle"
     STARTING = "starting"
     RUNNING = "running"
@@ -34,6 +35,7 @@ class AgentState(Enum):
 
 class EventType(Enum):
     """Standard orchestrator event types."""
+
     # Agent lifecycle
     AGENT_REGISTERED = "agent.registered"
     AGENT_UNREGISTERED = "agent.unregistered"
@@ -69,6 +71,7 @@ class EventType(Enum):
 @dataclass
 class OrchestratorEvent:
     """Event emitted by the orchestrator."""
+
     type: str
     agent_id: str | None = None
     data: dict[str, Any] = field(default_factory=dict)
@@ -89,6 +92,7 @@ class OrchestratorEvent:
 @dataclass
 class AgentInfo:
     """Information about a registered agent."""
+
     agent_id: str
     agent_type: str
     name: str
@@ -172,7 +176,7 @@ class AgentOrchestrator:
         agent: "BaseAgent",
         agent_type: str,
         name: str | None = None,
-        metadata: dict[str, Any] | None = None
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Register an agent with the orchestrator.
 
@@ -196,11 +200,13 @@ class AgentOrchestrator:
         )
 
         # Emit registration event
-        self.emit(OrchestratorEvent(
-            type=EventType.AGENT_REGISTERED.value,
-            agent_id=agent_id,
-            data={"agent_type": agent_type, "name": name}
-        ))
+        self.emit(
+            OrchestratorEvent(
+                type=EventType.AGENT_REGISTERED.value,
+                agent_id=agent_id,
+                data={"agent_type": agent_type, "name": name},
+            )
+        )
 
         logger.info(f"Agent registered: {agent_id} ({agent_type})")
         return agent_id
@@ -220,11 +226,13 @@ class AgentOrchestrator:
         del self._agents[agent_id]
         info = self._agent_info.pop(agent_id, None)
 
-        self.emit(OrchestratorEvent(
-            type=EventType.AGENT_UNREGISTERED.value,
-            agent_id=agent_id,
-            data={"agent_type": info.agent_type if info else "unknown"}
-        ))
+        self.emit(
+            OrchestratorEvent(
+                type=EventType.AGENT_UNREGISTERED.value,
+                agent_id=agent_id,
+                data={"agent_type": info.agent_type if info else "unknown"},
+            )
+        )
 
         logger.info(f"Agent unregistered: {agent_id}")
         return True
@@ -239,10 +247,7 @@ class AgentOrchestrator:
 
     def get_agents_by_type(self, agent_type: str) -> list[str]:
         """Get all agent IDs of a specific type."""
-        return [
-            aid for aid, info in self._agent_info.items()
-            if info.agent_type == agent_type
-        ]
+        return [aid for aid, info in self._agent_info.items() if info.agent_type == agent_type]
 
     def list_agents(self) -> list[AgentInfo]:
         """List all registered agents."""
@@ -258,11 +263,7 @@ class AgentOrchestrator:
     # Event Bus
     # =========================================================================
 
-    def subscribe(
-        self,
-        event_type: str,
-        callback: EventCallback
-    ) -> None:
+    def subscribe(self, event_type: str, callback: EventCallback) -> None:
         """Subscribe to a specific event type.
 
         Args:
@@ -273,11 +274,7 @@ class AgentOrchestrator:
             self._subscribers[event_type] = []
         self._subscribers[event_type].append(callback)
 
-    def subscribe_async(
-        self,
-        event_type: str,
-        callback: AsyncEventCallback
-    ) -> None:
+    def subscribe_async(self, event_type: str, callback: AsyncEventCallback) -> None:
         """Subscribe to a specific event type with async callback.
 
         Args:
@@ -351,10 +348,7 @@ class AgentOrchestrator:
                 logger.error(f"Global async event callback error: {e}")
 
     def get_event_history(
-        self,
-        event_type: str | None = None,
-        agent_id: str | None = None,
-        limit: int = 100
+        self, event_type: str | None = None, agent_id: str | None = None, limit: int = 100
     ) -> list[OrchestratorEvent]:
         """Get event history with optional filters.
 
@@ -403,21 +397,21 @@ class AgentOrchestrator:
             info.current_task = task
             info.last_activity = datetime.now()
 
-            self.emit(OrchestratorEvent(
-                type=EventType.AGENT_STARTED.value,
-                agent_id=agent_id,
-                data={"task": task}
-            ))
+            self.emit(
+                OrchestratorEvent(
+                    type=EventType.AGENT_STARTED.value, agent_id=agent_id, data={"task": task}
+                )
+            )
 
             return True
 
         except Exception as e:
             self.update_agent_state(agent_id, AgentState.ERROR)
-            self.emit(OrchestratorEvent(
-                type=EventType.AGENT_ERROR.value,
-                agent_id=agent_id,
-                data={"error": str(e)}
-            ))
+            self.emit(
+                OrchestratorEvent(
+                    type=EventType.AGENT_ERROR.value, agent_id=agent_id, data={"error": str(e)}
+                )
+            )
             return False
 
     async def stop_agent(self, agent_id: str) -> bool:
@@ -435,10 +429,7 @@ class AgentOrchestrator:
 
         self.update_agent_state(agent_id, AgentState.STOPPED)
 
-        self.emit(OrchestratorEvent(
-            type=EventType.AGENT_STOPPED.value,
-            agent_id=agent_id
-        ))
+        self.emit(OrchestratorEvent(type=EventType.AGENT_STOPPED.value, agent_id=agent_id))
 
         return True
 
@@ -449,10 +440,7 @@ class AgentOrchestrator:
 
         self.update_agent_state(agent_id, AgentState.PAUSED)
 
-        self.emit(OrchestratorEvent(
-            type=EventType.AGENT_PAUSED.value,
-            agent_id=agent_id
-        ))
+        self.emit(OrchestratorEvent(type=EventType.AGENT_PAUSED.value, agent_id=agent_id))
 
         return True
 
@@ -465,10 +453,7 @@ class AgentOrchestrator:
         if info and info.state == AgentState.PAUSED:
             self.update_agent_state(agent_id, AgentState.RUNNING)
 
-            self.emit(OrchestratorEvent(
-                type=EventType.AGENT_RESUMED.value,
-                agent_id=agent_id
-            ))
+            self.emit(OrchestratorEvent(type=EventType.AGENT_RESUMED.value, agent_id=agent_id))
 
             return True
 
@@ -479,10 +464,7 @@ class AgentOrchestrator:
     # =========================================================================
 
     async def run_tajine_task(
-        self,
-        agent_id: str,
-        prompt: str,
-        context: dict[str, Any] | None = None
+        self, agent_id: str, prompt: str, context: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Run a TAJINE task with full PPDSL cycle.
 
@@ -503,21 +485,23 @@ class AgentOrchestrator:
             info.current_task = prompt[:50]
             info.state = AgentState.RUNNING
 
-        self.emit(OrchestratorEvent(
-            type=EventType.TASK_STARTED.value,
-            agent_id=agent_id,
-            data={"prompt": prompt, "context": context}
-        ))
+        self.emit(
+            OrchestratorEvent(
+                type=EventType.TASK_STARTED.value,
+                agent_id=agent_id,
+                data={"prompt": prompt, "context": context},
+            )
+        )
 
         try:
             # Run TAJINE PPDSL cycle
             result = await agent.run(prompt, context=context)
 
-            self.emit(OrchestratorEvent(
-                type=EventType.TASK_COMPLETED.value,
-                agent_id=agent_id,
-                data={"result": result}
-            ))
+            self.emit(
+                OrchestratorEvent(
+                    type=EventType.TASK_COMPLETED.value, agent_id=agent_id, data={"result": result}
+                )
+            )
 
             if info:
                 info.state = AgentState.IDLE
@@ -526,11 +510,11 @@ class AgentOrchestrator:
             return result
 
         except Exception as e:
-            self.emit(OrchestratorEvent(
-                type=EventType.TASK_FAILED.value,
-                agent_id=agent_id,
-                data={"error": str(e)}
-            ))
+            self.emit(
+                OrchestratorEvent(
+                    type=EventType.TASK_FAILED.value, agent_id=agent_id, data={"error": str(e)}
+                )
+            )
 
             if info:
                 info.state = AgentState.ERROR

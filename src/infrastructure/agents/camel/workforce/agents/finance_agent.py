@@ -15,7 +15,6 @@ Example:
     >>> print(response.msgs[0].content)
 """
 
-
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import FunctionTool
@@ -146,8 +145,7 @@ SIRET : [siret]
 
 
 def create_finance_agent(
-    model_id: str = "qwen3.5:27b",
-    base_url: str = "http://localhost:11434/v1"
+    model_id: str = "qwen3.5:27b", base_url: str = "http://localhost:11434/v1"
 ) -> ChatAgent:
     """Create a FinanceAgent for financial analysis.
 

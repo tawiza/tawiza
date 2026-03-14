@@ -9,7 +9,7 @@ from collections.abc import Coroutine
 from functools import wraps
 from typing import Any, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 # Event loop réutilisable
 _event_loop = None
@@ -62,6 +62,7 @@ def run_async[T](coro: Coroutine[Any, Any, T]) -> T:
         loop = asyncio.get_running_loop()
         # On est déjà dans un event loop, créer une task
         import nest_asyncio
+
         nest_asyncio.apply()
         return asyncio.run(coro)
     except RuntimeError:
@@ -82,9 +83,11 @@ def async_command(func):
         ... async def my_command():
         ...     await some_async_operation()
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         return run_async(func(*args, **kwargs))
+
     return wrapper
 
 

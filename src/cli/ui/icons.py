@@ -11,6 +11,7 @@ from enum import Enum
 
 class IconSet(Enum):
     """Available icon sets"""
+
     NERD_FONTS = "nerd_fonts"  # Nerd Fonts (requires compatible terminal)
     EMOJI = "emoji"  # Unicode emoji
     ASCII = "ascii"  # ASCII fallback
@@ -19,6 +20,7 @@ class IconSet(Enum):
 @dataclass
 class Icon:
     """Icon representation with multiple set support"""
+
     nerd: str  # Nerd Fonts icon
     emoji: str  # Emoji icon
     ascii: str  # ASCII fallback
@@ -269,28 +271,23 @@ class CommandIcons:
         "finetune": Icons.TRAINING,
         "annotate": Icons.ANNOTATION,
         "prompts": Icons.PROMPT,
-
         # System subcommands
         "health": Icons.HEALTHY,
         "status": Icons.INFO,
         "gpu": Icons.GPU,
         "services": Icons.WORKFLOW,
-
         # Model operations
         "list": Icons.FOLDER,
         "show": Icons.INFO,
         "delete": Icons.DELETE,
-
         # Training operations
         "start": Icons.START,
         "stop": Icons.STOP,
         "logs": Icons.FILE,
-
         # Browser operations
         "navigate": Icons.BROWSER,
         "click": Icons.CLICK,
         "screenshot": Icons.SCREENSHOT,
-
         # Status indicators
         "success": Icons.SUCCESS,
         "error": Icons.ERROR,

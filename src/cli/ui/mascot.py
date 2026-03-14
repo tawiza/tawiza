@@ -173,7 +173,7 @@ TAWIZA_CAT_MOODS = {
               \=._◡_.=/
                )  `  ( 🎉
               /       \
-"""
+""",
 }
 
 # Mini mascotte pour les messages courts
@@ -204,10 +204,7 @@ def get_detailed_mascot(style: str = "default") -> str:
 
 
 def print_mascot(
-    mood: str = "default",
-    message: str = None,
-    style: str = "cyan",
-    console: Console = None
+    mood: str = "default", message: str = None, style: str = "cyan", console: Console = None
 ):
     """Print mascot with optional message."""
     if console is None:
@@ -236,7 +233,7 @@ def print_banner(console: Console = None):
     if console is None:
         console = Console()
 
-    lines = TAWIZA_BANNER_FULL.split('\n')
+    lines = TAWIZA_BANNER_FULL.split("\n")
     colors = ["#FF6B6B", "#FF8E72", "#FFB347", "#87CEEB", "#DDA0DD", "#98D8C8"]
 
     for i, line in enumerate(lines):

@@ -113,26 +113,30 @@ class InvestigationReport:
             "| Critère | Valeur |",
             "|---------|--------|",
             f"| **Niveau de risque** | {self.summary.risk_level.value} |",
-            f"| **Probabilité** | {self.summary.posterior*100:.1f}% |",
-            f"| **Confiance** | {self.summary.confidence*100:.0f}% |",
-            f"| **Couverture données** | {self.summary.data_coverage*100:.0f}% |",
+            f"| **Probabilité** | {self.summary.posterior * 100:.1f}% |",
+            f"| **Confiance** | {self.summary.confidence * 100:.0f}% |",
+            f"| **Couverture données** | {self.summary.data_coverage * 100:.0f}% |",
             "",
         ]
 
         if self.summary.main_concerns:
-            lines.extend([
-                "**Préoccupations principales:**",
-            ])
+            lines.extend(
+                [
+                    "**Préoccupations principales:**",
+                ]
+            )
             for concern in self.summary.main_concerns:
                 lines.append(f"- {concern}")
             lines.append("")
 
-        lines.extend([
-            "---",
-            "",
-            "## ✅ Ce qu'on sait",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## ✅ Ce qu'on sait",
+                "",
+            ]
+        )
 
         for fact in self.known_facts:
             emoji = "🟢" if fact.impact == "POSITIF" else "🟡" if fact.impact == "NEUTRE" else "🔴"
@@ -140,34 +144,40 @@ class InvestigationReport:
             if fact.details:
                 lines.append(f"  - {fact.details}")
 
-        lines.extend([
-            "",
-            "---",
-            "",
-            "## ⚠️ Points d'attention",
-            "",
-        ])
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "## ⚠️ Points d'attention",
+                "",
+            ]
+        )
 
         if self.suspect_signals:
             for signal in self.suspect_signals:
-                lines.extend([
-                    f"### {signal.signal}",
-                    "",
-                    f"**Raison:** {signal.reason}",
-                    "",
-                    f"**Recommandation:** {signal.recommendation}",
-                    "",
-                ])
+                lines.extend(
+                    [
+                        f"### {signal.signal}",
+                        "",
+                        f"**Raison:** {signal.reason}",
+                        "",
+                        f"**Recommandation:** {signal.recommendation}",
+                        "",
+                    ]
+                )
         else:
             lines.append("*Aucun signal suspect détecté.*")
             lines.append("")
 
-        lines.extend([
-            "---",
-            "",
-            "## ❓ Données manquantes",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## ❓ Données manquantes",
+                "",
+            ]
+        )
 
         if self.missing_data:
             lines.append("| Variable | Importance | Suggestion |")
@@ -179,22 +189,26 @@ class InvestigationReport:
             lines.append("*Toutes les données principales sont disponibles.*")
             lines.append("")
 
-        lines.extend([
-            "---",
-            "",
-            "## 📝 Questions à poser au demandeur",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 📝 Questions à poser au demandeur",
+                "",
+            ]
+        )
 
         for i, q in enumerate(self.questions_for_applicant, 1):
             lines.append(f"{i}. {q}")
 
-        lines.extend([
-            "",
-            "---",
-            "",
-            "*Rapport généré automatiquement par TAJINE Investigation Engine*",
-        ])
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "*Rapport généré automatiquement par TAJINE Investigation Engine*",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -422,9 +436,7 @@ class ReportGenerator:
 
         return missing
 
-    def _generate_questions(
-        self, signals: list[Signal], context: str
-    ) -> list[str]:
+    def _generate_questions(self, signals: list[Signal], context: str) -> list[str]:
         """Generate questions to ask the applicant."""
         questions = set()
 
@@ -440,13 +452,9 @@ class ReportGenerator:
 
         # Context-specific questions
         if "france 2030" in context.lower():
-            questions.add(
-                "Comment ce projet s'inscrit-il dans les objectifs France 2030?"
-            )
+            questions.add("Comment ce projet s'inscrit-il dans les objectifs France 2030?")
         if "innovation" in context.lower():
-            questions.add(
-                "Pouvez-vous détailler la dimension innovante de votre projet?"
-            )
+            questions.add("Pouvez-vous détailler la dimension innovante de votre projet?")
         if "subvention" in context.lower():
             questions.add(
                 "Quel est le montant de la subvention demandée et son utilisation prévue?"

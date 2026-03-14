@@ -11,6 +11,7 @@ from textual.widgets import Static
 
 class StepStatus(Enum):
     """Status of a timeline step."""
+
     PENDING = "pending"
     CURRENT = "current"
     COMPLETED = "completed"
@@ -21,6 +22,7 @@ class StepStatus(Enum):
 @dataclass
 class TimelineStep:
     """A single step in the timeline."""
+
     step_id: str
     name: str
     status: StepStatus = StepStatus.PENDING
@@ -87,7 +89,7 @@ class TimelineStepWidget(Static):
             if self.step.duration_seconds < 60:
                 duration_str = f" [dim]({self.step.duration_seconds:.1f}s)[/]"
             else:
-                duration_str = f" [dim]({self.step.duration_seconds/60:.1f}m)[/]"
+                duration_str = f" [dim]({self.step.duration_seconds / 60:.1f}m)[/]"
 
         # Screenshot indicator
         screenshot_str = " [cyan][📷][/]" if self.step.has_screenshot else ""
@@ -138,6 +140,7 @@ class ActionTimeline(Vertical):
 
     class StepClicked(Message):
         """Message emitted when a step is clicked."""
+
         def __init__(self, step: TimelineStep):
             super().__init__()
             self.step = step

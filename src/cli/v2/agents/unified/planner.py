@@ -194,14 +194,22 @@ class ReActPlanner:
                 response_lower = response.lower()
 
                 # Check if LLM is explaining an error/limitation
-                if any(word in response_lower for word in ["error", "cannot", "unable", "failed", "limitation"]):
+                if any(
+                    word in response_lower
+                    for word in ["error", "cannot", "unable", "failed", "limitation"]
+                ):
                     tool_name = "finish"
                     # Use the explanation as the answer
                     params = {"answer": f"Agent encountered an issue: {response[:300]}"}
-                    thought = "LLM provided explanation instead of action - completing with findings"
+                    thought = (
+                        "LLM provided explanation instead of action - completing with findings"
+                    )
 
                 # Check if LLM is trying to finish
-                elif any(word in response_lower for word in ["complete", "done", "finished", "result", "answer"]):
+                elif any(
+                    word in response_lower
+                    for word in ["complete", "done", "finished", "result", "answer"]
+                ):
                     tool_name = "finish"
                     params = {"answer": response[:500]}
                     thought = "LLM appears to be providing final answer"

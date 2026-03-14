@@ -4,7 +4,6 @@ Analyzes user requests and delegates to specialized agents.
 Synthesizes results into cohesive deliverables.
 """
 
-
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import FunctionTool
@@ -117,8 +116,7 @@ Pour chaque agent :
 
 
 def create_orchestrator_agent(
-    model_id: str = "qwen3.5:27b",
-    base_url: str = "http://localhost:11434/v1"
+    model_id: str = "qwen3.5:27b", base_url: str = "http://localhost:11434/v1"
 ) -> ChatAgent:
     """Create an OrchestratorAgent for coordinating multi-agent workflows.
 

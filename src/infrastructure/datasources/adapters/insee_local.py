@@ -160,7 +160,9 @@ class INSEELocalAdapter(BaseAdapter):
         /donnees/geo-{CODE_GEO}@{NIVEAU_GEO}/jeuDeDonnees/{INDICATEUR}
         """
         niveau_geo = query.get("niveau_geo", "DEP")
-        code_geo = query.get("code_departement") or query.get("code_insee") or query.get("code_region")
+        code_geo = (
+            query.get("code_departement") or query.get("code_insee") or query.get("code_region")
+        )
         indicateur = query.get("indicateur", "GEO2024POP_G")  # Default: population data
 
         if not code_geo:
@@ -173,14 +175,16 @@ class INSEELocalAdapter(BaseAdapter):
             # Fallback to geo API for basic population
             return await self._get_population_fallback(query)
 
-        return [{
-            "source": "insee_local",
-            "type": "indicateur",
-            "indicateur": indicateur,
-            "niveau_geo": niveau_geo,
-            "code_geo": code_geo,
-            "data": data,
-        }]
+        return [
+            {
+                "source": "insee_local",
+                "type": "indicateur",
+                "indicateur": indicateur,
+                "niveau_geo": niveau_geo,
+                "code_geo": code_geo,
+                "data": data,
+            }
+        ]
 
     async def _get_population(self, query: dict[str, Any]) -> list[dict[str, Any]]:
         """Get population data for a territory using real INSEE API."""
@@ -194,15 +198,17 @@ class INSEELocalAdapter(BaseAdapter):
             data = await self._api_request(endpoint)
 
             if data:
-                return [{
-                    "source": "insee_local",
-                    "type": "population",
-                    "niveau_geo": "DEP",
-                    "code_geo": code_dept,
-                    "authenticated": True,
-                    "data": data,
-                    "indicateurs": self._extract_population_indicators(data),
-                }]
+                return [
+                    {
+                        "source": "insee_local",
+                        "type": "population",
+                        "niveau_geo": "DEP",
+                        "code_geo": code_dept,
+                        "authenticated": True,
+                        "data": data,
+                        "indicateurs": self._extract_population_indicators(data),
+                    }
+                ]
 
         # Fallback to geo API (always available)
         return await self._get_population_fallback(query)
@@ -223,15 +229,17 @@ class INSEELocalAdapter(BaseAdapter):
                 communes = response.json()
                 total_pop = sum(c.get("population", 0) for c in communes)
 
-                return [{
-                    "source": "insee_local",
-                    "type": "population",
-                    "niveau_geo": "DEP",
-                    "code_geo": code_dept,
-                    "authenticated": False,
-                    "population_totale": total_pop,
-                    "nombre_communes": len(communes),
-                }]
+                return [
+                    {
+                        "source": "insee_local",
+                        "type": "population",
+                        "niveau_geo": "DEP",
+                        "code_geo": code_dept,
+                        "authenticated": False,
+                        "population_totale": total_pop,
+                        "nombre_communes": len(communes),
+                    }
+                ]
             except httpx.HTTPError as e:
                 self._log_error("get_population_fallback", e)
 
@@ -244,15 +252,17 @@ class INSEELocalAdapter(BaseAdapter):
                 response.raise_for_status()
                 data = response.json()
 
-                return [{
-                    "source": "insee_local",
-                    "type": "population",
-                    "code_insee": data.get("code"),
-                    "nom": data.get("nom"),
-                    "population": data.get("population"),
-                    "densite": data.get("densité"),
-                    "authenticated": False,
-                }]
+                return [
+                    {
+                        "source": "insee_local",
+                        "type": "population",
+                        "code_insee": data.get("code"),
+                        "nom": data.get("nom"),
+                        "population": data.get("population"),
+                        "densite": data.get("densité"),
+                        "authenticated": False,
+                    }
+                ]
             except httpx.HTTPError as e:
                 self._log_error("get_population_fallback", e)
 
@@ -287,32 +297,36 @@ class INSEELocalAdapter(BaseAdapter):
         data = await self._api_request(endpoint)
 
         if data:
-            return [{
-                "source": "insee_local",
-                "type": "logement",
-                "niveau_geo": niveau_geo,
-                "code_geo": code_geo,
-                "authenticated": True,
-                "data": data,
-                "indicateurs": self._extract_housing_indicators(data),
-            }]
+            return [
+                {
+                    "source": "insee_local",
+                    "type": "logement",
+                    "niveau_geo": niveau_geo,
+                    "code_geo": code_geo,
+                    "authenticated": True,
+                    "data": data,
+                    "indicateurs": self._extract_housing_indicators(data),
+                }
+            ]
 
         # Fallback with available indicators
-        return [{
-            "source": "insee_local",
-            "type": "logement",
-            "code_geo": code_geo,
-            "authenticated": False,
-            "message": "Données logement disponibles sur statistiques-locales.insee.fr",
-            "url": "https://statistiques-locales.insee.fr/#bbox=-578921,6022566,1693773,982604&c=indicator&i=desl.log_vac&s=2020&view=map2",
-            "indicators_available": [
-                "residences_principales",
-                "residences_secondaires",
-                "logements_vacants",
-                "proprietaires",
-                "locataires",
-            ],
-        }]
+        return [
+            {
+                "source": "insee_local",
+                "type": "logement",
+                "code_geo": code_geo,
+                "authenticated": False,
+                "message": "Données logement disponibles sur statistiques-locales.insee.fr",
+                "url": "https://statistiques-locales.insee.fr/#bbox=-578921,6022566,1693773,982604&c=indicator&i=desl.log_vac&s=2020&view=map2",
+                "indicators_available": [
+                    "residences_principales",
+                    "residences_secondaires",
+                    "logements_vacants",
+                    "proprietaires",
+                    "locataires",
+                ],
+            }
+        ]
 
     def _extract_housing_indicators(self, data: dict) -> dict[str, Any]:
         """Extract key housing indicators from INSEE response."""
@@ -342,23 +356,27 @@ class INSEELocalAdapter(BaseAdapter):
         data = await self._api_request(endpoint)
 
         if data:
-            return [{
+            return [
+                {
+                    "source": "insee_local",
+                    "type": "revenus",
+                    "niveau_geo": niveau_geo,
+                    "code_geo": code_geo,
+                    "authenticated": True,
+                    "data": data,
+                }
+            ]
+
+        return [
+            {
                 "source": "insee_local",
                 "type": "revenus",
-                "niveau_geo": niveau_geo,
                 "code_geo": code_geo,
-                "authenticated": True,
-                "data": data,
-            }]
-
-        return [{
-            "source": "insee_local",
-            "type": "revenus",
-            "code_geo": code_geo,
-            "authenticated": False,
-            "message": "Données revenus sur statistiques-locales.insee.fr",
-            "url": "https://statistiques-locales.insee.fr",
-        }]
+                "authenticated": False,
+                "message": "Données revenus sur statistiques-locales.insee.fr",
+                "url": "https://statistiques-locales.insee.fr",
+            }
+        ]
 
     async def _get_emploi(self, query: dict[str, Any]) -> list[dict[str, Any]]:
         """Get employment data for a territory."""
@@ -375,35 +393,41 @@ class INSEELocalAdapter(BaseAdapter):
         data = await self._api_request(endpoint)
 
         if data:
-            return [{
+            return [
+                {
+                    "source": "insee_local",
+                    "type": "emploi",
+                    "niveau_geo": niveau_geo,
+                    "code_geo": code_geo,
+                    "authenticated": True,
+                    "data": data,
+                }
+            ]
+
+        return [
+            {
                 "source": "insee_local",
                 "type": "emploi",
-                "niveau_geo": niveau_geo,
                 "code_geo": code_geo,
-                "authenticated": True,
-                "data": data,
-            }]
-
-        return [{
-            "source": "insee_local",
-            "type": "emploi",
-            "code_geo": code_geo,
-            "authenticated": False,
-            "message": "Données emploi via statistiques-locales.insee.fr",
-            "url": "https://statistiques-locales.insee.fr",
-        }]
+                "authenticated": False,
+                "message": "Données emploi via statistiques-locales.insee.fr",
+                "url": "https://statistiques-locales.insee.fr",
+            }
+        ]
 
     async def _get_dossier_complet(self, query: dict[str, Any]) -> list[dict[str, Any]]:
         """Get complete statistical file for a commune."""
         code_insee = query.get("code_insee")
 
-        return [{
-            "source": "insee_local",
-            "type": "dossier_complet",
-            "code_insee": code_insee,
-            "url": f"https://www.insee.fr/fr/statistiques/2011101?geo=COM-{code_insee}",
-            "sections": ["population", "logement", "revenus", "emploi", "entreprises"],
-        }]
+        return [
+            {
+                "source": "insee_local",
+                "type": "dossier_complet",
+                "code_insee": code_insee,
+                "url": f"https://www.insee.fr/fr/statistiques/2011101?geo=COM-{code_insee}",
+                "sections": ["population", "logement", "revenus", "emploi", "entreprises"],
+            }
+        ]
 
     async def get_by_id(self, id: str) -> dict[str, Any] | None:
         """Get all available data for a commune."""
@@ -615,8 +639,7 @@ class INSEELocalAdapter(BaseAdapter):
         # Find all Series elements with REF_AREA starting with 'D' (departement)
         # Pattern: <Series ...REF_AREA="D75"...>...<Obs ...OBS_VALUE="6.1".../>...</Series>
         series_pattern = re.compile(
-            r'<Series[^>]*REF_AREA="(D[0-9A-B]+)"[^>]*>.*?<Obs[^>]*OBS_VALUE="([0-9.]+)"',
-            re.DOTALL
+            r'<Series[^>]*REF_AREA="(D[0-9A-B]+)"[^>]*>.*?<Obs[^>]*OBS_VALUE="([0-9.]+)"', re.DOTALL
         )
 
         for match in series_pattern.finditer(xml_text):

@@ -10,6 +10,7 @@ Benefits:
 - Immutable state snapshots
 - Clear state lifecycle management
 """
+
 from dataclasses import dataclass
 from datetime import datetime
 from threading import Lock, RLock
@@ -24,6 +25,7 @@ class InitializationConfig:
 
     Frozen dataclass ensures configuration cannot be modified after creation.
     """
+
     gpu_enabled: bool
     monitoring_enabled: bool
     max_concurrent_tasks: int = 5
@@ -44,6 +46,7 @@ class SystemState:
     - Easier reasoning about state changes
     - Thread safety (immutable objects are inherently thread-safe)
     """
+
     # Core components (can be None if not initialized)
     agents: Any | None = None
     monitoring: Any | None = None
@@ -79,7 +82,7 @@ class SystemState:
         """Check if monitoring is enabled."""
         return self.monitoring is not None
 
-    def with_updates(self, **updates) -> 'SystemState':
+    def with_updates(self, **updates) -> "SystemState":
         """Create new state with updates (functional approach).
 
         Args:
@@ -95,6 +98,7 @@ class SystemState:
             >>> assert new_state.active_tasks == 6  # New state
         """
         from dataclasses import replace
+
         return replace(self, **updates)
 
 
@@ -117,10 +121,10 @@ class SystemStateManager:
         True
     """
 
-    _instance: Optional['SystemStateManager'] = None
+    _instance: Optional["SystemStateManager"] = None
     _lock: Lock = Lock()  # Class-level lock for singleton creation
 
-    def __new__(cls) -> 'SystemStateManager':
+    def __new__(cls) -> "SystemStateManager":
         """Implement thread-safe singleton pattern.
 
         Uses double-checked locking to minimize lock overhead.
@@ -167,7 +171,7 @@ class SystemStateManager:
                 self._history.append(self._state)
                 # Trim history if needed
                 if len(self._history) > self._max_history:
-                    self._history = self._history[-self._max_history:]
+                    self._history = self._history[-self._max_history :]
 
             self._state = state
             logger.info(f"System state updated: initialized={state.is_initialized}")
@@ -221,7 +225,7 @@ class SystemStateManager:
                 self._state = self._state.with_updates(
                     active_tasks=max(0, self._state.active_tasks + active),
                     completed_tasks=self._state.completed_tasks + completed,
-                    failed_tasks=self._state.failed_tasks + failed
+                    failed_tasks=self._state.failed_tasks + failed,
                 )
 
     def get_history(self) -> list[SystemState]:
@@ -245,7 +249,7 @@ class SystemStateManager:
                     "initialized": False,
                     "active_tasks": 0,
                     "completed_tasks": 0,
-                    "failed_tasks": 0
+                    "failed_tasks": 0,
                 }
 
             return {
@@ -255,8 +259,10 @@ class SystemStateManager:
                 "active_tasks": self._state.active_tasks,
                 "completed_tasks": self._state.completed_tasks,
                 "failed_tasks": self._state.failed_tasks,
-                "initialized_at": self._state.initialized_at.isoformat() if self._state.initialized_at else None,
-                "version": self._state.version
+                "initialized_at": self._state.initialized_at.isoformat()
+                if self._state.initialized_at
+                else None,
+                "version": self._state.version,
             }
 
     def __repr__(self) -> str:
@@ -270,6 +276,7 @@ class SystemStateManager:
 # ============================================================================
 # Module-level convenience functions
 # ============================================================================
+
 
 def get_system_state_manager() -> SystemStateManager:
     """Get the global SystemStateManager instance.

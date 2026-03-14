@@ -119,9 +119,7 @@ class SignalRepository:
             await session.refresh(anomaly)
             return anomaly
 
-    async def get_signal_summary(
-        self, code_commune: str, weeks: int = 12
-    ) -> list[dict[str, Any]]:
+    async def get_signal_summary(self, code_commune: str, weeks: int = 12) -> list[dict[str, Any]]:
         """Get signal summary for a commune (weekly aggregation)."""
         async with self._session_factory() as session:
             result = await session.execute(

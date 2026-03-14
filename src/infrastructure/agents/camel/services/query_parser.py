@@ -46,7 +46,6 @@ TECH_MAPPINGS = {
         "keywords": ["deep learning", "intelligence artificielle", "neural network"],
         "naf_codes": ["62.01Z", "72.19Z"],
     },
-
     # Data
     "data": {
         "keywords": ["data", "données", "analytics", "big data"],
@@ -60,7 +59,6 @@ TECH_MAPPINGS = {
         "keywords": ["big data", "données massives", "analytics"],
         "naf_codes": ["62.01Z", "63.11Z"],
     },
-
     # Développement
     "dev": {
         "keywords": ["développement", "logiciel", "programmation"],
@@ -86,7 +84,6 @@ TECH_MAPPINGS = {
         "keywords": ["mobile", "application", "smartphone", "android", "ios"],
         "naf_codes": ["62.01Z"],
     },
-
     # Cloud & Infra
     "cloud": {
         "keywords": ["cloud", "hébergement", "infrastructure", "aws", "azure"],
@@ -100,7 +97,6 @@ TECH_MAPPINGS = {
         "keywords": ["infrastructure", "système", "réseau", "devops"],
         "naf_codes": ["62.03Z", "62.02A"],
     },
-
     # Cybersécurité
     "cybersécurité": {
         "keywords": ["cybersécurité", "sécurité informatique", "protection"],
@@ -110,7 +106,6 @@ TECH_MAPPINGS = {
         "keywords": ["sécurité informatique", "cybersécurité", "protection données"],
         "naf_codes": ["62.01Z", "62.02A"],
     },
-
     # Startup/Innovation
     "startup": {
         "keywords": ["startup", "innovation", "tech", "numérique"],
@@ -144,7 +139,6 @@ TECH_MAPPINGS = {
         "keywords": ["greentech", "environnement", "énergie", "durable"],
         "naf_codes": ["62.01Z", "71.12B", "72.19Z"],
     },
-
     # IoT & Hardware
     "iot": {
         "keywords": ["iot", "objets connectés", "capteurs", "embarqué"],
@@ -158,7 +152,6 @@ TECH_MAPPINGS = {
         "keywords": ["embarqué", "systèmes embarqués", "firmware", "hardware"],
         "naf_codes": ["62.01Z", "26.11Z"],
     },
-
     # Blockchain
     "blockchain": {
         "keywords": ["blockchain", "crypto", "décentralisé", "web3"],
@@ -188,7 +181,6 @@ SERVICES_MAPPINGS = {
         "keywords": ["coaching", "mentoring"],
         "naf_codes": ["70.22Z", "85.59A"],
     },
-
     # IT Services
     "informatique": {
         "keywords": ["informatique", "IT", "système d'information"],
@@ -210,7 +202,6 @@ SERVICES_MAPPINGS = {
         "keywords": ["maintenance", "support", "TMA", "infogérance"],
         "naf_codes": ["62.02B", "62.03Z"],
     },
-
     # Formation
     "formation": {
         "keywords": ["formation", "enseignement", "apprentissage", "cours"],
@@ -220,13 +211,11 @@ SERVICES_MAPPINGS = {
         "keywords": ["e-learning", "formation en ligne", "MOOC", "digital learning"],
         "naf_codes": ["85.59A", "62.01Z"],
     },
-
     # Audit
     "audit": {
         "keywords": ["audit", "contrôle", "conformité", "certification"],
         "naf_codes": ["69.20Z", "70.22Z", "71.20B"],
     },
-
     # RH
     "rh": {
         "keywords": ["ressources humaines", "RH", "recrutement", "emploi"],
@@ -236,7 +225,6 @@ SERVICES_MAPPINGS = {
         "keywords": ["recrutement", "chasseur de têtes", "emploi", "talent"],
         "naf_codes": ["78.10Z"],
     },
-
     # Marketing & Communication
     "marketing": {
         "keywords": ["marketing", "communication", "publicité", "digital"],
@@ -254,7 +242,6 @@ SERVICES_MAPPINGS = {
         "keywords": ["agence web", "création site", "webdesign"],
         "naf_codes": ["62.01Z", "73.11Z", "74.10Z"],
     },
-
     # Design
     "design": {
         "keywords": ["design", "UX", "UI", "graphisme", "créatif"],
@@ -288,7 +275,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["recherche", "laboratoire", "scientifique", "R&D"],
         "naf_codes": ["72.19Z", "72.11Z", "72.20Z"],
     },
-
     # Énergie
     "énergie": {
         "keywords": ["énergie", "électricité", "renouvelable", "transition"],
@@ -306,7 +292,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["nucléaire", "atome", "réacteur", "énergie"],
         "naf_codes": ["71.12B", "72.19Z", "35.11Z"],
     },
-
     # BTP
     "btp": {
         "keywords": ["BTP", "bâtiment", "construction", "travaux publics"],
@@ -320,7 +305,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["architecture", "architecte", "urbanisme", "maîtrise d'œuvre"],
         "naf_codes": ["71.11Z"],
     },
-
     # Manufacturing
     "industrie": {
         "keywords": ["industrie", "fabrication", "production", "usine"],
@@ -350,7 +334,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["ferroviaire", "train", "rail", "transport"],
         "naf_codes": ["30.20Z", "42.12Z", "71.12B"],
     },
-
     # Logistique
     "logistique": {
         "keywords": ["logistique", "supply chain", "transport", "entreposage"],
@@ -360,7 +343,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["transport", "livraison", "fret", "messagerie"],
         "naf_codes": ["49.41A", "49.41B", "52.29A"],
     },
-
     # Environnement
     "environnement": {
         "keywords": ["environnement", "écologie", "développement durable", "RSE"],
@@ -370,7 +352,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["recyclage", "déchets", "économie circulaire", "valorisation"],
         "naf_codes": ["38.21Z", "38.32Z", "46.77Z"],
     },
-
     # Biotech/Pharma
     "biotech": {
         "keywords": ["biotechnologie", "biotech", "sciences du vivant"],
@@ -384,7 +365,6 @@ INDUSTRIE_MAPPINGS = {
         "keywords": ["medtech", "dispositif médical", "santé", "diagnostic"],
         "naf_codes": ["26.60Z", "32.50A", "72.11Z"],
     },
-
     # Agroalimentaire
     "agroalimentaire": {
         "keywords": ["agroalimentaire", "alimentaire", "food", "agri"],
@@ -422,7 +402,6 @@ REGION_MAPPINGS = {
     "arras": "32",
     "beauvais": "32",
     "compiègne": "32",
-
     # Île-de-France
     "ile-de-france": "11",
     "idf": "11",
@@ -432,7 +411,6 @@ REGION_MAPPINGS = {
     "nanterre": "11",
     "versailles": "11",
     "saint-denis": "11",
-
     # Auvergne-Rhône-Alpes
     "auvergne-rhone-alpes": "84",
     "ara": "84",
@@ -442,7 +420,6 @@ REGION_MAPPINGS = {
     "clermont-ferrand": "84",
     "annecy": "84",
     "chambéry": "84",
-
     # Nouvelle-Aquitaine
     "nouvelle-aquitaine": "75",
     "bordeaux": "75",
@@ -451,7 +428,6 @@ REGION_MAPPINGS = {
     "la rochelle": "75",
     "pau": "75",
     "bayonne": "75",
-
     # Occitanie
     "occitanie": "76",
     "toulouse": "76",
@@ -459,7 +435,6 @@ REGION_MAPPINGS = {
     "nîmes": "76",
     "perpignan": "76",
     "béziers": "76",
-
     # Bretagne
     "bretagne": "53",
     "rennes": "53",
@@ -468,7 +443,6 @@ REGION_MAPPINGS = {
     "vannes": "53",
     "saint-brieuc": "53",
     "quimper": "53",
-
     # Pays de la Loire
     "pays-de-la-loire": "52",
     "pdl": "52",
@@ -476,7 +450,6 @@ REGION_MAPPINGS = {
     "angers": "52",
     "le mans": "52",
     "saint-nazaire": "52",
-
     # Grand Est
     "grand-est": "44",
     "strasbourg": "44",
@@ -485,14 +458,12 @@ REGION_MAPPINGS = {
     "reims": "44",
     "mulhouse": "44",
     "colmar": "44",
-
     # Normandie
     "normandie": "28",
     "rouen": "28",
     "le havre": "28",
     "caen": "28",
     "cherbourg": "28",
-
     # Provence-Alpes-Côte d'Azur
     "provence-alpes-cote-d-azur": "93",
     "paca": "93",
@@ -502,19 +473,16 @@ REGION_MAPPINGS = {
     "aix-en-provence": "93",
     "cannes": "93",
     "sophia antipolis": "93",
-
     # Centre-Val de Loire
     "centre-val-de-loire": "24",
     "orléans": "24",
     "tours": "24",
     "bourges": "24",
     "chartres": "24",
-
     # Bourgogne-Franche-Comté
     "bourgogne-franche-comte": "27",
     "dijon": "27",
     "besançon": "27",
-
     # Corse
     "corse": "94",
     "ajaccio": "94",
@@ -564,7 +532,7 @@ class QueryParser:
 
         for term in sorted_terms:
             # Use word boundary matching to avoid partial matches (e.g., "tech" in "biotech")
-            pattern = r'\b' + re.escape(term) + r'\b'
+            pattern = r"\b" + re.escape(term) + r"\b"
             if re.search(pattern, query_without_region, re.IGNORECASE):
                 mapping = ALL_TERM_MAPPINGS[term]
                 terms_found.append(term)
@@ -606,7 +574,7 @@ class QueryParser:
                 region_code = REGION_MAPPINGS[region_name]
                 # Remove region from query for further processing
                 query_clean = query.replace(region_name, " ").strip()
-                query_clean = re.sub(r'\s+', ' ', query_clean)
+                query_clean = re.sub(r"\s+", " ", query_clean)
                 break
 
         return region_code, query_clean
@@ -623,20 +591,24 @@ class QueryParser:
 
         if not parsed.keywords and not parsed.naf_codes:
             # Fallback: use original query
-            strategies.append({
-                "query": parsed.original,
-                "naf": None,
-            })
+            strategies.append(
+                {
+                    "query": parsed.original,
+                    "naf": None,
+                }
+            )
             return strategies
 
         # Strategy 1: Search with NAF codes (most precise)
         # NAF codes give exact activity matches
         if parsed.naf_codes:
             for naf in parsed.naf_codes[:3]:  # Top 3 NAF codes
-                strategies.append({
-                    "query": "",
-                    "naf": naf,
-                })
+                strategies.append(
+                    {
+                        "query": "",
+                        "naf": naf,
+                    }
+                )
 
         # Strategy 2: Use original query words (minus region)
         # This captures user intent directly
@@ -646,20 +618,24 @@ class QueryParser:
             original_words = original_words.replace(region, "").strip()
 
         if original_words and len(original_words) > 2:
-            strategies.append({
-                "query": original_words,
-                "naf": None,
-            })
+            strategies.append(
+                {
+                    "query": original_words,
+                    "naf": None,
+                }
+            )
 
         # Strategy 3: Top keyword only as fallback
         if parsed.keywords and len(strategies) < 4:
             # Only add first keyword if different from original
             first_keyword = parsed.keywords[0]
             if first_keyword.lower() not in original_words:
-                strategies.append({
-                    "query": first_keyword,
-                    "naf": None,
-                })
+                strategies.append(
+                    {
+                        "query": first_keyword,
+                        "naf": None,
+                    }
+                )
 
         # Deduplicate
         seen = set()
@@ -700,7 +676,7 @@ Les codes NAF doivent être des codes réels (ex: 62.01Z = programmation informa
 
             # Try to find JSON in response
             text = response.get("response", "")
-            json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+            json_match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
 
             if json_match:
                 return json.loads(json_match.group())

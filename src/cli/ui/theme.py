@@ -3,6 +3,7 @@
 This module centralizes all theme colors and UI styling constants
 to ensure consistency across the CLI interface.
 """
+
 from dataclasses import dataclass
 from typing import Final
 
@@ -13,6 +14,7 @@ class Theme:
 
     Using a dataclass ensures type safety and immutability.
     """
+
     header_color: str
     accent_color: str
     success_color: str
@@ -34,7 +36,7 @@ SUNSET_THEME: Final[Theme] = Theme(
     warning_color="#FF8E53",
     error_color="#FF5252",
     text_color="#F0F0F0",
-    dim_color="#B0B0B0"
+    dim_color="#B0B0B0",
 )
 
 
@@ -49,7 +51,7 @@ DARK_THEME: Final[Theme] = Theme(
     warning_color="#F59E0B",
     error_color="#EF4444",
     text_color="#E5E7EB",
-    dim_color="#9CA3AF"
+    dim_color="#9CA3AF",
 )
 
 
@@ -64,7 +66,7 @@ LIGHT_THEME: Final[Theme] = Theme(
     warning_color="#D97706",
     error_color="#DC2626",
     text_color="#1F2937",
-    dim_color="#6B7280"
+    dim_color="#6B7280",
 )
 
 
@@ -79,7 +81,7 @@ NO_COLOR_THEME: Final[Theme] = Theme(
     warning_color="white",
     error_color="white",
     text_color="white",
-    dim_color="white"
+    dim_color="white",
 )
 
 
@@ -212,6 +214,7 @@ MSG_DEBUG_STARTED: Final[str] = "✅ Système de débogage démarré!"
 # Emoji Sets
 # ============================================================================
 
+
 class Emoji:
     """Emoji constants for consistent usage."""
 
@@ -290,10 +293,7 @@ def get_sunset_banner(text: str, subtitle: str = None) -> Panel:
         content.append(f"\n{subtitle}", style=f"{SUNSET_THEME.dim_color}")
 
     return Panel(
-        Align.center(content),
-        border_style=SUNSET_THEME.accent_color,
-        box=box.DOUBLE,
-        padding=1
+        Align.center(content), border_style=SUNSET_THEME.accent_color, box=box.DOUBLE, padding=1
     )
 
 
@@ -311,7 +311,7 @@ def get_sunset_table(title: str, columns: list = None) -> Table:
         title=f"[bold {SUNSET_THEME.header_color}]{title}[/]",
         border_style=SUNSET_THEME.accent_color,
         header_style=f"bold {SUNSET_THEME.info_color}",
-        box=box.ROUNDED
+        box=box.ROUNDED,
     )
 
     if columns:
@@ -345,9 +345,4 @@ def get_animated_status(status: str, message: str) -> Panel:
     content.append(f"{icon} ", style=color)
     content.append(message, style=f"bold {color}")
 
-    return Panel(
-        Align.center(content),
-        border_style=color,
-        box=box.ROUNDED,
-        padding=(0, 2)
-    )
+    return Panel(Align.center(content), border_style=color, box=box.ROUNDED, padding=(0, 2))

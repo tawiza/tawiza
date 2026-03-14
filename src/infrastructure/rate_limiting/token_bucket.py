@@ -212,10 +212,7 @@ class RateLimiter:
             )
 
             # Auto-cleanup if too many buckets
-            if (
-                self.auto_cleanup
-                and len(self.buckets) > self.cleanup_threshold
-            ):
+            if self.auto_cleanup and len(self.buckets) > self.cleanup_threshold:
                 self._cleanup()
 
         return self.buckets[key]
@@ -284,9 +281,7 @@ class RateLimiter:
             "allowed_requests": self.allowed_requests,
             "rejected_requests": self.rejected_requests,
             "rejection_rate": (
-                (self.rejected_requests / total_requests * 100)
-                if total_requests > 0
-                else 0.0
+                (self.rejected_requests / total_requests * 100) if total_requests > 0 else 0.0
             ),
         }
 

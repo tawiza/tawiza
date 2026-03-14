@@ -35,23 +35,27 @@ class GdeltPoller(BasePoller):
         if keywords:
             # Search for each keyword
             for keyword in keywords:
-                results = await self.adapter.search({
-                    "keywords": keyword,
-                    "country": "FR",
-                    "language": "French",
-                    "days": 3,  # More recent for news
-                    "limit": 30,
-                })
+                results = await self.adapter.search(
+                    {
+                        "keywords": keyword,
+                        "country": "FR",
+                        "language": "French",
+                        "days": 3,  # More recent for news
+                        "limit": 30,
+                    }
+                )
                 alerts.extend(self._results_to_alerts(results, keyword))
         else:
             # Default: French tech/business news
-            results = await self.adapter.search({
-                "keywords": "startup entreprise innovation",
-                "country": "FR",
-                "language": "French",
-                "days": 3,
-                "limit": 50,
-            })
+            results = await self.adapter.search(
+                {
+                    "keywords": "startup entreprise innovation",
+                    "country": "FR",
+                    "language": "French",
+                    "days": 3,
+                    "limit": 50,
+                }
+            )
             alerts.extend(self._results_to_alerts(results))
 
         # Deduplicate by URL
@@ -135,11 +139,13 @@ class GdeltPoller(BasePoller):
         Returns:
             List of alerts for sector news
         """
-        results = await self.adapter.search({
-            "keywords": sector,
-            "country": "FR",
-            "language": "French",
-            "days": days,
-            "limit": 50,
-        })
+        results = await self.adapter.search(
+            {
+                "keywords": sector,
+                "country": "FR",
+                "language": "French",
+                "days": days,
+                "limit": 50,
+            }
+        )
         return self._results_to_alerts(results, matched_keyword=sector)

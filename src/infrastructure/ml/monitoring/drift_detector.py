@@ -38,9 +38,7 @@ class DriftDetector:
             "count": len(samples),
         }
 
-        logger.info(
-            f"Set baseline distribution with {len(samples)} samples"
-        )
+        logger.info(f"Set baseline distribution with {len(samples)} samples")
 
     def detect_drift(
         self,
@@ -75,9 +73,7 @@ class DriftDetector:
 
         # Calculate drift score using Kullback-Leibler-like metric
         # Simplified: mean squared difference normalized by std
-        mean_diff = np.mean(
-            np.abs(current_mean - baseline_mean) / (baseline_std + 1e-6)
-        )
+        mean_diff = np.mean(np.abs(current_mean - baseline_mean) / (baseline_std + 1e-6))
 
         drift_detected = mean_diff > threshold
 
@@ -90,9 +86,7 @@ class DriftDetector:
         }
 
         if drift_detected:
-            logger.warning(
-                f"Data drift detected: score={mean_diff:.4f} > {threshold}"
-            )
+            logger.warning(f"Data drift detected: score={mean_diff:.4f} > {threshold}")
 
         return result
 

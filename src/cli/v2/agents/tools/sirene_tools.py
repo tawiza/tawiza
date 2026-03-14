@@ -39,43 +39,121 @@ REGION_CODES = {
 
 # Department codes (most common ones)
 DEPARTMENT_CODES = {
-    "ain": "01", "aisne": "02", "allier": "03", "alpes-de-haute-provence": "04",
-    "hautes-alpes": "05", "alpes-maritimes": "06", "ardeche": "07", "ardennes": "08",
-    "ariege": "09", "aube": "10", "aude": "11", "aveyron": "12",
-    "bouches-du-rhone": "13", "calvados": "14", "cantal": "15", "charente": "16",
-    "charente-maritime": "17", "cher": "18", "correze": "19", "corse-du-sud": "2A",
-    "haute-corse": "2B", "cote-d-or": "21", "cotes-d-armor": "22", "creuse": "23",
-    "dordogne": "24", "doubs": "25", "drome": "26", "eure": "27",
-    "eure-et-loir": "28", "finistere": "29", "gard": "30", "haute-garonne": "31",
-    "gers": "32", "gironde": "33", "herault": "34", "ille-et-vilaine": "35",
-    "indre": "36", "indre-et-loire": "37", "isere": "38", "jura": "39",
-    "landes": "40", "loir-et-cher": "41", "loire": "42", "haute-loire": "43",
-    "loire-atlantique": "44", "loiret": "45", "lot": "46", "lot-et-garonne": "47",
-    "lozere": "48", "maine-et-loire": "49", "manche": "50", "marne": "51",
-    "haute-marne": "52", "mayenne": "53", "meurthe-et-moselle": "54", "meuse": "55",
-    "morbihan": "56", "moselle": "57", "nievre": "58", "nord": "59",
-    "oise": "60", "orne": "61", "pas-de-calais": "62", "puy-de-dome": "63",
-    "pyrenees-atlantiques": "64", "hautes-pyrenees": "65", "pyrenees-orientales": "66",
-    "bas-rhin": "67", "haut-rhin": "68", "rhone": "69", "haute-saone": "70",
-    "saone-et-loire": "71", "sarthe": "72", "savoie": "73", "haute-savoie": "74",
-    "paris": "75", "seine-maritime": "76", "seine-et-marne": "77", "yvelines": "78",
-    "deux-sevres": "79", "somme": "80", "tarn": "81", "tarn-et-garonne": "82",
-    "var": "83", "vaucluse": "84", "vendee": "85", "vienne": "86",
-    "haute-vienne": "87", "vosges": "88", "yonne": "89", "territoire-de-belfort": "90",
-    "essonne": "91", "hauts-de-seine": "92", "seine-saint-denis": "93",
-    "val-de-marne": "94", "val-d-oise": "95",
+    "ain": "01",
+    "aisne": "02",
+    "allier": "03",
+    "alpes-de-haute-provence": "04",
+    "hautes-alpes": "05",
+    "alpes-maritimes": "06",
+    "ardeche": "07",
+    "ardennes": "08",
+    "ariege": "09",
+    "aube": "10",
+    "aude": "11",
+    "aveyron": "12",
+    "bouches-du-rhone": "13",
+    "calvados": "14",
+    "cantal": "15",
+    "charente": "16",
+    "charente-maritime": "17",
+    "cher": "18",
+    "correze": "19",
+    "corse-du-sud": "2A",
+    "haute-corse": "2B",
+    "cote-d-or": "21",
+    "cotes-d-armor": "22",
+    "creuse": "23",
+    "dordogne": "24",
+    "doubs": "25",
+    "drome": "26",
+    "eure": "27",
+    "eure-et-loir": "28",
+    "finistere": "29",
+    "gard": "30",
+    "haute-garonne": "31",
+    "gers": "32",
+    "gironde": "33",
+    "herault": "34",
+    "ille-et-vilaine": "35",
+    "indre": "36",
+    "indre-et-loire": "37",
+    "isere": "38",
+    "jura": "39",
+    "landes": "40",
+    "loir-et-cher": "41",
+    "loire": "42",
+    "haute-loire": "43",
+    "loire-atlantique": "44",
+    "loiret": "45",
+    "lot": "46",
+    "lot-et-garonne": "47",
+    "lozere": "48",
+    "maine-et-loire": "49",
+    "manche": "50",
+    "marne": "51",
+    "haute-marne": "52",
+    "mayenne": "53",
+    "meurthe-et-moselle": "54",
+    "meuse": "55",
+    "morbihan": "56",
+    "moselle": "57",
+    "nievre": "58",
+    "nord": "59",
+    "oise": "60",
+    "orne": "61",
+    "pas-de-calais": "62",
+    "puy-de-dome": "63",
+    "pyrenees-atlantiques": "64",
+    "hautes-pyrenees": "65",
+    "pyrenees-orientales": "66",
+    "bas-rhin": "67",
+    "haut-rhin": "68",
+    "rhone": "69",
+    "haute-saone": "70",
+    "saone-et-loire": "71",
+    "sarthe": "72",
+    "savoie": "73",
+    "haute-savoie": "74",
+    "paris": "75",
+    "seine-maritime": "76",
+    "seine-et-marne": "77",
+    "yvelines": "78",
+    "deux-sevres": "79",
+    "somme": "80",
+    "tarn": "81",
+    "tarn-et-garonne": "82",
+    "var": "83",
+    "vaucluse": "84",
+    "vendee": "85",
+    "vienne": "86",
+    "haute-vienne": "87",
+    "vosges": "88",
+    "yonne": "89",
+    "territoire-de-belfort": "90",
+    "essonne": "91",
+    "hauts-de-seine": "92",
+    "seine-saint-denis": "93",
+    "val-de-marne": "94",
+    "val-d-oise": "95",
     # Aliases
-    "lyon": "69", "marseille": "13", "lille": "59", "toulouse": "31",
-    "bordeaux": "33", "nantes": "44", "strasbourg": "67", "nice": "06",
+    "lyon": "69",
+    "marseille": "13",
+    "lille": "59",
+    "toulouse": "31",
+    "bordeaux": "33",
+    "nantes": "44",
+    "strasbourg": "67",
+    "nice": "06",
 }
 
 
 def _normalize_text(text: str) -> str:
     """Remove accents and normalize text for matching."""
     import unicodedata
+
     # Normalize to NFD (decomposed form), then remove combining marks
-    normalized = unicodedata.normalize('NFD', text)
-    return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn').lower().strip()
+    normalized = unicodedata.normalize("NFD", text)
+    return "".join(c for c in normalized if unicodedata.category(c) != "Mn").lower().strip()
 
 
 def _normalize_region(region: str) -> str | None:
@@ -154,12 +232,16 @@ def _parse_entreprise(data: dict) -> dict:
         "geo": {
             "lat": float(siege.get("latitude")) if siege.get("latitude") else None,
             "lon": float(siege.get("longitude")) if siege.get("longitude") else None,
-        } if siege.get("latitude") else None,
+        }
+        if siege.get("latitude")
+        else None,
         "dirigeants": data.get("dirigeants", []),
         "finances": {
             "ca": data.get("finances", {}).get("ca"),
             "resultat": data.get("finances", {}).get("resultat_net"),
-        } if data.get("finances") else None,
+        }
+        if data.get("finances")
+        else None,
         "est_association": data.get("complements", {}).get("est_association", False),
         "est_ess": data.get("complements", {}).get("est_ess", False),
     }
@@ -271,13 +353,15 @@ def register_sirene_tools(registry: ToolRegistry) -> None:
             siret_clean = siret.replace(" ", "").replace(".", "")
 
             if len(siret_clean) != 14:
-                return {"success": False, "error": f"Invalid SIRET: must be 14 digits, got {len(siret_clean)}"}
+                return {
+                    "success": False,
+                    "error": f"Invalid SIRET: must be 14 digits, got {len(siret_clean)}",
+                }
 
             async with httpx.AsyncClient(timeout=30.0) as client:
                 # Search by SIRET
                 response = await client.get(
-                    f"{API_BASE}/search",
-                    params={"q": siret_clean, "per_page": 1}
+                    f"{API_BASE}/search", params={"q": siret_clean, "per_page": 1}
                 )
 
                 response.raise_for_status()
@@ -285,7 +369,10 @@ def register_sirene_tools(registry: ToolRegistry) -> None:
 
                 results = data.get("results", [])
                 if not results:
-                    return {"success": False, "error": f"No enterprise found for SIRET {siret_clean}"}
+                    return {
+                        "success": False,
+                        "error": f"No enterprise found for SIRET {siret_clean}",
+                    }
 
                 enterprise = _parse_entreprise(results[0])
 
@@ -403,7 +490,10 @@ def register_sirene_tools(registry: ToolRegistry) -> None:
         for keyword, codes in keyword_mapping.items():
             if keyword in query_lower:
                 for code in codes:
-                    if code in naf_database and {"code": code, "description": naf_database[code]} not in matches:
+                    if (
+                        code in naf_database
+                        and {"code": code, "description": naf_database[code]} not in matches
+                    ):
                         matches.append({"code": code, "description": naf_database[code]})
 
         return {

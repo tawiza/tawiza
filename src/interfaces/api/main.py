@@ -220,7 +220,9 @@ _default_origins = [
     "http://127.0.0.1:8000",
 ]
 _env_origins = os.getenv("CORS_ORIGINS", "")
-ALLOWED_ORIGINS = [o.strip() for o in _env_origins.split(",") if o.strip()] if _env_origins else _default_origins
+ALLOWED_ORIGINS = (
+    [o.strip() for o in _env_origins.split(",") if o.strip()] if _env_origins else _default_origins
+)
 
 app.add_middleware(
     CORSMiddleware,

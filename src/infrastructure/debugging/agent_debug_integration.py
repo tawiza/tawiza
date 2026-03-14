@@ -21,8 +21,9 @@ from src.infrastructure.debugging.advanced_debugger import (
 )
 
 # Types génériques
-T = TypeVar('T')
-F = TypeVar('F', bound=Callable[..., Any])
+T = TypeVar("T")
+F = TypeVar("F", bound=Callable[..., Any])
+
 
 class AgentDebugIntegration:
     """Intégration du débogage pour les agents"""
@@ -46,6 +47,7 @@ class AgentDebugIntegration:
 
     def debug_agent_method(self, agent_type: str, method_name: str):
         """Décorateur pour debugger les méthodes d'agents"""
+
         def decorator(func: F) -> F:
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
@@ -63,7 +65,7 @@ class AgentDebugIntegration:
                         f"method_start.{method_name}",
                         method=method_name,
                         args_count=len(args),
-                        kwargs_count=len(kwargs)
+                        kwargs_count=len(kwargs),
                     )
 
                     # Démarrer le traçage
@@ -82,11 +84,13 @@ class AgentDebugIntegration:
                         agent_type,
                         f"method_complete.{method_name}",
                         execution_time=execution_time,
-                        success=True
+                        success=True,
                     )
 
                     # Terminer le traçage
-                    self.debugger.agent_tracer.end_trace(trace_id, True, {"execution_time": execution_time})
+                    self.debugger.agent_tracer.end_trace(
+                        trace_id, True, {"execution_time": execution_time}
+                    )
 
                     # Enregistrer la métrique de performance
                     self._record_performance_metric(f"{agent_type}.{method_name}", execution_time)
@@ -105,8 +109,8 @@ class AgentDebugIntegration:
                             "agent_id": agent_id,
                             "execution_time": execution_time,
                             "args": str(args),
-                            "kwargs": str(kwargs)
-                        }
+                            "kwargs": str(kwargs),
+                        },
                     )
 
                     # Log l'activité de l'agent
@@ -116,7 +120,7 @@ class AgentDebugIntegration:
                         f"method_error.{method_name}",
                         error=str(e),
                         execution_time=execution_time,
-                        success=False
+                        success=False,
                     )
 
                     # Terminer le traçage avec erreur
@@ -144,7 +148,7 @@ class AgentDebugIntegration:
                         f"method_start.{method_name}",
                         method=method_name,
                         args_count=len(args),
-                        kwargs_count=len(kwargs)
+                        kwargs_count=len(kwargs),
                     )
 
                     # Exécuter la méthode
@@ -159,7 +163,7 @@ class AgentDebugIntegration:
                         agent_type,
                         f"method_complete.{method_name}",
                         execution_time=execution_time,
-                        success=True
+                        success=True,
                     )
 
                     # Enregistrer la métrique de performance
@@ -179,8 +183,8 @@ class AgentDebugIntegration:
                             "agent_id": agent_id,
                             "execution_time": execution_time,
                             "args": str(args),
-                            "kwargs": str(kwargs)
-                        }
+                            "kwargs": str(kwargs),
+                        },
                     )
 
                     # Log l'activité de l'agent
@@ -190,7 +194,7 @@ class AgentDebugIntegration:
                         f"method_error.{method_name}",
                         error=str(e),
                         execution_time=execution_time,
-                        success=False
+                        success=False,
                     )
 
                     # Analyser le pattern d'erreur
@@ -209,13 +213,14 @@ class AgentDebugIntegration:
 
     def debug_agent_task(self, agent_type: str):
         """Décorateur pour debugger le traitement des tâches"""
+
         def decorator(func: F) -> F:
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
                 if not self.is_enabled:
                     return await func(*args, **kwargs)
 
-                task_id = kwargs.get('task_id') or self._extract_task_id(args, kwargs)
+                task_id = kwargs.get("task_id") or self._extract_task_id(args, kwargs)
                 agent_id = self._extract_agent_id(args, kwargs)
                 start_time = time.time()
 
@@ -226,7 +231,7 @@ class AgentDebugIntegration:
                         agent_type,
                         "task_processing_start",
                         task_id=task_id,
-                        timestamp=datetime.now().isoformat()
+                        timestamp=datetime.now().isoformat(),
                     )
 
                     # Traçage détaillé
@@ -246,17 +251,20 @@ class AgentDebugIntegration:
                         "task_processing_complete",
                         task_id=task_id,
                         processing_time=processing_time,
-                        success=True
+                        success=True,
                     )
 
                     # Terminer le traçage
-                    self.debugger.agent_tracer.end_trace(trace_id, True, {
-                        "processing_time": processing_time,
-                        "result_type": type(result).__name__
-                    })
+                    self.debugger.agent_tracer.end_trace(
+                        trace_id,
+                        True,
+                        {"processing_time": processing_time, "result_type": type(result).__name__},
+                    )
 
                     # Enregistrer la métrique
-                    self._record_performance_metric(f"{agent_type}.task_processing", processing_time)
+                    self._record_performance_metric(
+                        f"{agent_type}.task_processing", processing_time
+                    )
 
                     return result
 
@@ -271,8 +279,8 @@ class AgentDebugIntegration:
                         {
                             "task_id": task_id,
                             "agent_id": agent_id,
-                            "processing_time": processing_time
-                        }
+                            "processing_time": processing_time,
+                        },
                     )
 
                     # Log l'échec du traitement
@@ -283,18 +291,18 @@ class AgentDebugIntegration:
                         task_id=task_id,
                         processing_time=processing_time,
                         error=str(e),
-                        success=False
+                        success=False,
                     )
 
                     # Terminer le traçage avec erreur
-                    self.debugger.agent_tracer.end_trace(trace_id, False, {
-                        "processing_time": processing_time,
-                        "error": str(e)
-                    })
+                    self.debugger.agent_tracer.end_trace(
+                        trace_id, False, {"processing_time": processing_time, "error": str(e)}
+                    )
 
                     raise
 
             return async_wrapper
+
         return decorator
 
     def monitor_agent_lifecycle(self, agent_type: str, agent_id: str):
@@ -309,10 +317,12 @@ class AgentDebugIntegration:
             "lifecycle_monitoring",
             status="active",
             memory_usage=self.debugger._get_current_memory_usage(),
-            cpu_usage=self.debugger._get_current_cpu_usage()
+            cpu_usage=self.debugger._get_current_cpu_usage(),
         )
 
-    def track_agent_performance(self, agent_type: str, agent_id: str, metric_name: str, value: float):
+    def track_agent_performance(
+        self, agent_type: str, agent_id: str, metric_name: str, value: float
+    ):
         """Tracker une métrique de performance spécifique"""
         if not self.is_enabled:
             return
@@ -339,10 +349,12 @@ class AgentDebugIntegration:
                     metric_name=metric_name,
                     value=value,
                     average=avg_value,
-                    deviation=(value - avg_value) / avg_value * 100
+                    deviation=(value - avg_value) / avg_value * 100,
                 )
 
-    def detect_agent_anomalies(self, agent_type: str, agent_id: str, current_metrics: dict[str, Any]) -> list[str]:
+    def detect_agent_anomalies(
+        self, agent_type: str, agent_id: str, current_metrics: dict[str, Any]
+    ) -> list[str]:
         """Détecter des anomalies dans le comportement de l'agent"""
         anomalies = []
 
@@ -372,7 +384,7 @@ class AgentDebugIntegration:
                 level="WARNING",
                 agent_id=agent_id,
                 anomalies=anomalies,
-                current_metrics=current_metrics
+                current_metrics=current_metrics,
             )
 
         return anomalies
@@ -381,21 +393,21 @@ class AgentDebugIntegration:
         """Extraire l'ID de l'agent des arguments"""
         # Chercher dans les arguments positionnels
         for arg in args:
-            if hasattr(arg, 'agent_id'):
+            if hasattr(arg, "agent_id"):
                 return arg.agent_id
-            if hasattr(arg, 'id'):
+            if hasattr(arg, "id"):
                 return arg.id
 
         # Chercher dans les arguments nommés
-        if 'agent_id' in kwargs:
-            return kwargs['agent_id']
-        if 'id' in kwargs:
-            return kwargs['id']
+        if "agent_id" in kwargs:
+            return kwargs["agent_id"]
+        if "id" in kwargs:
+            return kwargs["id"]
 
         # Chercher dans self si c'est une méthode
-        if args and hasattr(args[0], 'agent_id'):
+        if args and hasattr(args[0], "agent_id"):
             return args[0].agent_id
-        if args and hasattr(args[0], 'id'):
+        if args and hasattr(args[0], "id"):
             return args[0].id
 
         return None
@@ -403,16 +415,16 @@ class AgentDebugIntegration:
     def _extract_task_id(self, args: tuple, kwargs: dict) -> str | None:
         """Extraire l'ID de la tâche des arguments"""
         # Chercher dans les arguments nommés
-        if 'task_id' in kwargs:
-            return kwargs['task_id']
-        if 'task' in kwargs and hasattr(kwargs['task'], 'task_id'):
-            return kwargs['task'].task_id
+        if "task_id" in kwargs:
+            return kwargs["task_id"]
+        if "task" in kwargs and hasattr(kwargs["task"], "task_id"):
+            return kwargs["task"].task_id
 
         # Chercher dans les arguments positionnels
         for arg in args:
-            if hasattr(arg, 'task_id'):
+            if hasattr(arg, "task_id"):
                 return arg.task_id
-            if hasattr(arg, 'id'):
+            if hasattr(arg, "id"):
                 return arg.id
 
         return None
@@ -446,7 +458,7 @@ class AgentDebugIntegration:
                 agent_type=agent_type,
                 method_name=method_name,
                 error_count=self.error_patterns[error_key],
-                error_message=error_message
+                error_message=error_message,
             )
 
     def get_debug_summary(self, agent_type: str | None = None) -> dict[str, Any]:
@@ -456,19 +468,27 @@ class AgentDebugIntegration:
             "total_trace_points": len(self.trace_points),
             "performance_metrics_count": len(self.performance_metrics),
             "error_patterns_count": len(self.error_patterns),
-            "agents_monitored": list(self.trace_points.keys()) if agent_type is None else [agent_type]
+            "agents_monitored": list(self.trace_points.keys())
+            if agent_type is None
+            else [agent_type],
         }
 
         if agent_type:
             # Statistiques spécifiques à l'agent
-            agent_metrics = {k: v for k, v in self.performance_metrics.items() if k.startswith(f"{agent_type}.")}
-            agent_errors = {k: v for k, v in self.error_patterns.items() if k.startswith(f"{agent_type}.")}
+            agent_metrics = {
+                k: v for k, v in self.performance_metrics.items() if k.startswith(f"{agent_type}.")
+            }
+            agent_errors = {
+                k: v for k, v in self.error_patterns.items() if k.startswith(f"{agent_type}.")
+            }
 
-            summary.update({
-                "performance_metrics": len(agent_metrics),
-                "error_patterns": len(agent_errors),
-                "avg_response_time": self._calculate_avg_response_time(agent_type)
-            })
+            summary.update(
+                {
+                    "performance_metrics": len(agent_metrics),
+                    "error_patterns": len(agent_errors),
+                    "avg_response_time": self._calculate_avg_response_time(agent_type),
+                }
+            )
 
         return summary
 
@@ -482,41 +502,51 @@ class AgentDebugIntegration:
 
         return sum(response_times) / len(response_times) if response_times else 0.0
 
+
 # Décorateurs de debugging prêts à l'emploi
+
 
 def debug_data_analyst():
     """Décorateur pour debugger le DataAnalystAgent"""
     debug_integration = AgentDebugIntegration()
     return debug_integration.debug_agent_method("data_analyst", "analyze_dataset")
 
+
 def debug_ml_engineer():
     """Décorateur pour debugger le MLEngineerAgent"""
     debug_integration = AgentDebugIntegration()
     return debug_integration.debug_agent_method("ml_engineer", "create_ml_pipeline")
+
 
 def debug_browser_automation():
     """Décorateur pour debugger le BrowserAutomationAgent"""
     debug_integration = AgentDebugIntegration()
     return debug_integration.debug_agent_method("browser_automation", "execute_task")
 
+
 def debug_code_generator():
     """Décorateur pour debugger le CodeGeneratorAgent"""
     debug_integration = AgentDebugIntegration()
     return debug_integration.debug_agent_method("code_generator", "generate_code")
+
 
 def debug_gpu_optimizer():
     """Décorateur pour debugger le GPUOptimizer"""
     debug_integration = AgentDebugIntegration()
     return debug_integration.debug_agent_method("gpu_optimizer", "optimize_inference_performance")
 
+
 # Fonctions utilitaires pour le debugging
 
-def create_debug_wrapper(agent_instance: Any, debugger: AdvancedDebugger | None = None) -> AgentDebugIntegration:
+
+def create_debug_wrapper(
+    agent_instance: Any, debugger: AdvancedDebugger | None = None
+) -> AgentDebugIntegration:
     """Créer un wrapper de debugging pour une instance d'agent"""
     debug_integration = AgentDebugIntegration(debugger)
 
     # Wrapper les méthodes principales
-    if hasattr(agent_instance, 'process_request'):
+    if hasattr(agent_instance, "process_request"):
         original_method = agent_instance.process_request
 
         @debug_integration.debug_agent_method(agent_instance.agent_type, "process_request")
@@ -527,7 +557,10 @@ def create_debug_wrapper(agent_instance: Any, debugger: AdvancedDebugger | None 
 
     return debug_integration
 
-def enable_comprehensive_debugging(debugger: AdvancedDebugger | None = None) -> AgentDebugIntegration:
+
+def enable_comprehensive_debugging(
+    debugger: AdvancedDebugger | None = None,
+) -> AgentDebugIntegration:
     """Activer le debugging complet pour tous les agents"""
     debug_integration = AgentDebugIntegration(debugger)
     debug_integration.enable_debugging()
@@ -535,19 +568,23 @@ def enable_comprehensive_debugging(debugger: AdvancedDebugger | None = None) -> 
     logger.info("🐛 Debugging complet activé pour tous les agents")
     return debug_integration
 
+
 def get_debug_insights(agent_type: str, debug_integration: AgentDebugIntegration) -> dict[str, Any]:
     """Obtenir des insights de debugging pour un type d'agent"""
     insights = debug_integration.get_debug_summary(agent_type)
 
     # Ajouter des insights supplémentaires
-    insights.update({
-        "debug_level": "comprehensive",
-        "monitoring_active": True,
-        "last_updated": datetime.now().isoformat(),
-        "recommendations": generate_debug_recommendations(insights)
-    })
+    insights.update(
+        {
+            "debug_level": "comprehensive",
+            "monitoring_active": True,
+            "last_updated": datetime.now().isoformat(),
+            "recommendations": generate_debug_recommendations(insights),
+        }
+    )
 
     return insights
+
 
 def generate_debug_recommendations(debug_summary: dict[str, Any]) -> list[str]:
     """Générer des recommandations basées sur le résumé de debugging"""
@@ -556,31 +593,38 @@ def generate_debug_recommendations(debug_summary: dict[str, Any]) -> list[str]:
     # Recommandations basées sur les métriques
     avg_response_time = debug_summary.get("avg_response_time", 0)
     if avg_response_time > 5.0:  # 5 secondes
-        recommendations.append("Temps de réponse élevé - optimisez les algorithmes ou augmentez les ressources")
+        recommendations.append(
+            "Temps de réponse élevé - optimisez les algorithmes ou augmentez les ressources"
+        )
 
     error_patterns = debug_summary.get("error_patterns", 0)
     if error_patterns > 10:
-        recommendations.append("Nombre élevé de patterns d'erreur - analysez les logs pour identifier les problèmes récurrents")
+        recommendations.append(
+            "Nombre élevé de patterns d'erreur - analysez les logs pour identifier les problèmes récurrents"
+        )
 
     performance_metrics = debug_summary.get("performance_metrics", 0)
     if performance_metrics > 100:
-        recommendations.append("Beaucoup de métriques de performance - envisagez une agrégation ou un résumé")
+        recommendations.append(
+            "Beaucoup de métriques de performance - envisagez une agrégation ou un résumé"
+        )
 
     if not recommendations:
         recommendations.append("Aucun problème détecté - le debugging fonctionne correctement")
 
     return recommendations
 
+
 # Export
 __all__ = [
-    'AgentDebugIntegration',
-    'debug_data_analyst',
-    'debug_ml_engineer',
-    'debug_browser_automation',
-    'debug_code_generator',
-    'debug_gpu_optimizer',
-    'create_debug_wrapper',
-    'enable_comprehensive_debugging',
-    'get_debug_insights',
-    'generate_debug_recommendations'
+    "AgentDebugIntegration",
+    "debug_data_analyst",
+    "debug_ml_engineer",
+    "debug_browser_automation",
+    "debug_code_generator",
+    "debug_gpu_optimizer",
+    "create_debug_wrapper",
+    "enable_comprehensive_debugging",
+    "get_debug_insights",
+    "generate_debug_recommendations",
 ]

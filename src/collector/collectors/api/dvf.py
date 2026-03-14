@@ -145,42 +145,46 @@ class DVFCollector(BaseCollector):
             dept = commune[:3] if commune.startswith("97") else commune[:2]
 
             # Transaction volume signal
-            signals.append(CollectedSignal(
-                source="dvf",
-                source_url=f"https://files.data.gouv.fr/geo-dvf/latest/csv/{commune}/transactions",
-                event_date=stats["last_date"],
-                code_commune=commune,
-                code_dept=dept,
-                metric_name="transactions_immobilieres",
-                metric_value=float(stats["count"]),
-                signal_type="neutre",
-                confidence=0.9,
-                raw_data={
-                    "nom_commune": stats["nom"],
-                    "total_value": stats["total_value"],
-                    "types": stats["types"],
-                },
-            ))
+            signals.append(
+                CollectedSignal(
+                    source="dvf",
+                    source_url=f"https://files.data.gouv.fr/geo-dvf/latest/csv/{commune}/transactions",
+                    event_date=stats["last_date"],
+                    code_commune=commune,
+                    code_dept=dept,
+                    metric_name="transactions_immobilieres",
+                    metric_value=float(stats["count"]),
+                    signal_type="neutre",
+                    confidence=0.9,
+                    raw_data={
+                        "nom_commune": stats["nom"],
+                        "total_value": stats["total_value"],
+                        "types": stats["types"],
+                    },
+                )
+            )
 
             # Price per m² signal
             if stats["prices_m2"]:
                 avg_price = sum(stats["prices_m2"]) / len(stats["prices_m2"])
-                signals.append(CollectedSignal(
-                    source="dvf",
-                    source_url=f"https://files.data.gouv.fr/geo-dvf/latest/csv/{commune}/prix_m2",
-                    event_date=stats["last_date"],
-                    code_dept=dept,
-                    code_commune=commune,
-                    metric_name="prix_m2_moyen",
-                    metric_value=round(avg_price, 2),
-                    signal_type="neutre",
-                    confidence=min(0.5 + len(stats["prices_m2"]) * 0.05, 0.95),
-                    raw_data={
-                        "nom_commune": stats["nom"],
-                        "nb_transactions": len(stats["prices_m2"]),
-                        "min": round(min(stats["prices_m2"]), 2),
-                        "max": round(max(stats["prices_m2"]), 2),
-                    },
-                ))
+                signals.append(
+                    CollectedSignal(
+                        source="dvf",
+                        source_url=f"https://files.data.gouv.fr/geo-dvf/latest/csv/{commune}/prix_m2",
+                        event_date=stats["last_date"],
+                        code_dept=dept,
+                        code_commune=commune,
+                        metric_name="prix_m2_moyen",
+                        metric_value=round(avg_price, 2),
+                        signal_type="neutre",
+                        confidence=min(0.5 + len(stats["prices_m2"]) * 0.05, 0.95),
+                        raw_data={
+                            "nom_commune": stats["nom"],
+                            "nb_transactions": len(stats["prices_m2"]),
+                            "min": round(min(stats["prices_m2"]), 2),
+                            "max": round(max(stats["prices_m2"]), 2),
+                        },
+                    )
+                )
 
         return signals

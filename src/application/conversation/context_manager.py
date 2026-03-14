@@ -13,6 +13,7 @@ from typing import Any
 
 class MessageRole(StrEnum):
     """Message roles in conversation"""
+
     USER = "user"
     ASSISTANT = "assistant"
     SYSTEM = "system"
@@ -21,6 +22,7 @@ class MessageRole(StrEnum):
 @dataclass
 class Message:
     """Single message in conversation"""
+
     role: MessageRole
     content: str
     timestamp: datetime = field(default_factory=datetime.now)
@@ -32,7 +34,7 @@ class Message:
             "role": self.role.value,
             "content": self.content,
             "timestamp": self.timestamp.isoformat(),
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -42,7 +44,7 @@ class Message:
             role=MessageRole(data["role"]),
             content=data["content"],
             timestamp=datetime.fromisoformat(data["timestamp"]),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
@@ -54,6 +56,7 @@ class ConversationContext:
     Maintains conversation history, user profile, and working memory
     for context-aware responses.
     """
+
     session_id: str
     user_id: str = "default_user"
     messages: list[Message] = field(default_factory=list)
@@ -70,11 +73,7 @@ class ConversationContext:
 
     def add_message(self, role: MessageRole, content: str, **metadata):
         """Add a message to conversation history"""
-        message = Message(
-            role=role,
-            content=content,
-            metadata=metadata
-        )
+        message = Message(role=role, content=content, metadata=metadata)
         self.messages.append(message)
         self.last_activity = datetime.now()
         return message
@@ -108,7 +107,7 @@ class ConversationContext:
                 "id": entity_id,
                 "first_seen": datetime.now(),
                 "mentions": 0,
-                "data": {}
+                "data": {},
             }
 
         self.entities[entity_id]["mentions"] += 1
@@ -141,7 +140,7 @@ class ConversationContext:
             "last_activity": self.last_activity.isoformat(),
             "entities": self.entities,
             "topics": self.topics,
-            "current_intent": self.current_intent
+            "current_intent": self.current_intent,
         }
 
     @classmethod
@@ -157,13 +156,11 @@ class ConversationContext:
             last_activity=datetime.fromisoformat(data["last_activity"]),
             entities=data.get("entities", {}),
             topics=data.get("topics", []),
-            current_intent=data.get("current_intent")
+            current_intent=data.get("current_intent"),
         )
 
         # Restore messages
-        context.messages = [
-            Message.from_dict(m) for m in data.get("messages", [])
-        ]
+        context.messages = [Message.from_dict(m) for m in data.get("messages", [])]
 
         return context
 
@@ -180,10 +177,7 @@ class ContextManager:
 
     def create_session(self, session_id: str, user_id: str = "default_user") -> ConversationContext:
         """Create a new conversation session"""
-        context = ConversationContext(
-            session_id=session_id,
-            user_id=user_id
-        )
+        context = ConversationContext(session_id=session_id, user_id=user_id)
         self.sessions[session_id] = context
         return context
 
@@ -191,17 +185,21 @@ class ContextManager:
         """Get existing session"""
         return self.sessions.get(session_id)
 
-    def get_or_create_session(self, session_id: str, user_id: str = "default_user") -> ConversationContext:
+    def get_or_create_session(
+        self, session_id: str, user_id: str = "default_user"
+    ) -> ConversationContext:
         """Get existing session or create new one"""
         if session_id not in self.sessions:
             return self.create_session(session_id, user_id)
         return self.sessions[session_id]
 
-    def update_context(self,
-                      session_id: str,
-                      new_message: str | None = None,
-                      role: MessageRole = MessageRole.USER,
-                      **updates) -> ConversationContext:
+    def update_context(
+        self,
+        session_id: str,
+        new_message: str | None = None,
+        role: MessageRole = MessageRole.USER,
+        **updates,
+    ) -> ConversationContext:
         """Update conversation context"""
         context = self.get_or_create_session(session_id)
 
@@ -228,7 +226,7 @@ class ContextManager:
         system_messages = [m for m in context.messages if m.role == MessageRole.SYSTEM]
 
         # Get recent conversation
-        recent_messages = context.messages[-self.max_context_length:]
+        recent_messages = context.messages[-self.max_context_length :]
 
         # Combine, removing duplicate system messages
         pruned_messages = system_messages + [
@@ -249,9 +247,7 @@ class ContextManager:
 
         # Get most recent entities mentioned
         recent_entities = sorted(
-            context.entities.values(),
-            key=lambda e: e.get("last_seen", datetime.min),
-            reverse=True
+            context.entities.values(), key=lambda e: e.get("last_seen", datetime.min), reverse=True
         )
 
         # If text contains "it" or "that", try to resolve
@@ -263,7 +259,9 @@ class ContextManager:
 
         return resolved
 
-    def extract_context_for_prompt(self, context: ConversationContext, max_messages: int = 10) -> str:
+    def extract_context_for_prompt(
+        self, context: ConversationContext, max_messages: int = 10
+    ) -> str:
         """
         Extract relevant context for LLM prompt
 
@@ -287,7 +285,7 @@ class ContextManager:
         entities = sorted(
             context.entities.values(),
             key=lambda e: (e["mentions"], e.get("last_seen", datetime.min)),
-            reverse=True
+            reverse=True,
         )
 
         return entities[:5]  # Top 5 most relevant
@@ -318,7 +316,7 @@ class ContextManager:
         if not context:
             raise ValueError(f"Session {session_id} not found")
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(context.to_dict(), f, indent=2)
 
     def load_session(self, filepath: str) -> ConversationContext:

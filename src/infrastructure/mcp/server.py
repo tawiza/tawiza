@@ -28,10 +28,15 @@ from mcp.server.fastmcp import FastMCP
 # Parse arguments early to configure server
 def _parse_args():
     parser = argparse.ArgumentParser(description="Tawiza MCP Server")
-    parser.add_argument("--sse", action="store_true", help="Use SSE transport (HTTP) instead of stdio")
-    parser.add_argument("--port", type=int, default=8080, help="Port for SSE server (default: 8080)")
+    parser.add_argument(
+        "--sse", action="store_true", help="Use SSE transport (HTTP) instead of stdio"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8080, help="Port for SSE server (default: 8080)"
+    )
     parser.add_argument("--host", default="0.0.0.0", help="Host for SSE server (default: 0.0.0.0)")
     return parser.parse_args()
+
 
 _args = _parse_args()
 
@@ -198,21 +203,21 @@ def get_alerts_resource() -> str:
     return f"""# Alertes de Veille Tawiza
 
 ## Resume
-- **Alertes non lues**: {alerts_count.get('total_unread', 0)}
-- **Total alertes**: {alerts_count.get('total', 0)}
+- **Alertes non lues**: {alerts_count.get("total_unread", 0)}
+- **Total alertes**: {alerts_count.get("total", 0)}
 
 ## Par Source
-- BODACC: {alerts_count.get('by_source', {}).get('bodacc', 0)}
-- BOAMP: {alerts_count.get('by_source', {}).get('boamp', 0)}
-- GDELT: {alerts_count.get('by_source', {}).get('gdelt', 0)}
+- BODACC: {alerts_count.get("by_source", {}).get("bodacc", 0)}
+- BOAMP: {alerts_count.get("by_source", {}).get("boamp", 0)}
+- GDELT: {alerts_count.get("by_source", {}).get("gdelt", 0)}
 
 ## Dernieres Alertes Non Lues
 {"".join(f"- **{a['title'][:50]}...** ({a['source']})" + chr(10) for a in alerts[:10]) or "Aucune alerte non lue"}
 
 ## Status Polling
-- BODACC: {poll_status.get('bodacc', {}).get('last_poll', 'jamais')}
-- BOAMP: {poll_status.get('boamp', {}).get('last_poll', 'jamais')}
-- GDELT: {poll_status.get('gdelt', {}).get('last_poll', 'jamais')}
+- BODACC: {poll_status.get("bodacc", {}).get("last_poll", "jamais")}
+- BOAMP: {poll_status.get("boamp", {}).get("last_poll", "jamais")}
+- GDELT: {poll_status.get("gdelt", {}).get("last_poll", "jamais")}
 
 ## Outils Disponibles
 - `tawiza_veille_scan` - Scan avec filtrage LLM

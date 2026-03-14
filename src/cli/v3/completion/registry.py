@@ -1,6 +1,5 @@
 """Completion provider registry and main entry point."""
 
-
 from src.cli.v3.completion.base import CompletionProvider, CompletionResult
 from src.cli.v3.completion.providers.contextual import HistoryProvider
 from src.cli.v3.completion.providers.dynamic import DynamicAgentProvider, DynamicModelProvider

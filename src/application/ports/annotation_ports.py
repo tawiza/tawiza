@@ -179,19 +179,23 @@ class IAnnotationService(ABC):
 
 class AnnotationError(Exception):
     """Base exception for annotation errors."""
+
     pass
 
 
 class ProjectNotFoundError(AnnotationError):
     """Raised when annotation project is not found."""
+
     pass
 
 
 class ImportError(AnnotationError):
     """Raised when data import fails."""
+
     pass
 
 
 class ExportError(AnnotationError):
     """Raised when annotation export fails."""
+
     pass

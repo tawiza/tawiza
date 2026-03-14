@@ -110,11 +110,14 @@ def capture_datasource(source: str, success: bool = True, duration_ms: int | Non
 
 def capture_startup():
     """Capture app startup with system info."""
-    capture("app:startup", {
-        "llm_provider": os.getenv("OLLAMA__BASE_URL", "none"),
-        "db_type": "postgresql" if "postgresql" in os.getenv("DATABASE_URL", "") else "sqlite",
-        "vectordb_enabled": os.getenv("VECTORDB__ENABLED", "false"),
-    })
+    capture(
+        "app:startup",
+        {
+            "llm_provider": os.getenv("OLLAMA__BASE_URL", "none"),
+            "db_type": "postgresql" if "postgresql" in os.getenv("DATABASE_URL", "") else "sqlite",
+            "vectordb_enabled": os.getenv("VECTORDB__ENABLED", "false"),
+        },
+    )
 
 
 def shutdown():

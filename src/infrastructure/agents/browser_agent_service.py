@@ -107,17 +107,12 @@ class BrowserAgentService(IWebAgent):
                 # Try detailed template first
                 if url and context:
                     return self.prompt_manager.render(
-                        "browser_task_detailed",
-                        url=url,
-                        task=description,
-                        context=context
+                        "browser_task_detailed", url=url, task=description, context=context
                     )
                 # Use navigation template if URL provided
                 elif url:
                     return self.prompt_manager.render(
-                        "browser_navigation",
-                        url=url,
-                        action=description
+                        "browser_navigation", url=url, action=description
                     )
             except (ValueError, KeyError) as e:
                 logger.warning(f"Failed to use prompt template: {e}, falling back to default")
@@ -127,12 +122,14 @@ class BrowserAgentService(IWebAgent):
             return f"Navigate to {url} and {description}"
         return description
 
-    @with_retry(RetryConfig(
-        max_attempts=3,
-        base_delay=3.0,
-        max_delay=60.0,
-        exceptions=(ConnectionError, TimeoutError, RuntimeError),
-    ))
+    @with_retry(
+        RetryConfig(
+            max_attempts=3,
+            base_delay=3.0,
+            max_delay=60.0,
+            exceptions=(ConnectionError, TimeoutError, RuntimeError),
+        )
+    )
     async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """
         Execute a web automation task with real-time progress tracking.
@@ -163,7 +160,7 @@ class BrowserAgentService(IWebAgent):
                 "description": task_description,
                 "url": task_config.get("url"),
                 "max_actions": task_config.get("max_actions", 50),
-            }
+            },
         )
 
         try:
@@ -172,7 +169,7 @@ class BrowserAgentService(IWebAgent):
                 task_id=progress_task_id,
                 status=ProgressStatus.RUNNING,
                 progress=5,
-                current_step=f"Initializing browser for: {task_description[:60]}..."
+                current_step=f"Initializing browser for: {task_description[:60]}...",
             )
 
             logger.info(f"Executing browser task {progress_task_id}: {task_description[:100]}...")
@@ -182,7 +179,7 @@ class BrowserAgentService(IWebAgent):
                 task_id=progress_task_id,
                 status=ProgressStatus.RUNNING,
                 progress=10,
-                current_step="Browser initialized, starting task execution"
+                current_step="Browser initialized, starting task execution",
             )
 
             # Execute using browser-use adapter
@@ -197,7 +194,7 @@ class BrowserAgentService(IWebAgent):
                 task_id=progress_task_id,
                 status=ProgressStatus.RUNNING,
                 progress=70,
-                current_step="Processing task results and extracting data"
+                current_step="Processing task results and extracting data",
             )
 
             logger.info(f"Task completed: {task.task_id} (status: {task.status})")
@@ -219,7 +216,7 @@ class BrowserAgentService(IWebAgent):
                 status=ProgressStatus.COMPLETED,
                 progress=100,
                 current_step=f"Task completed successfully: {task.status}",
-                metadata={"result_size": len(str(task.result or {}))}
+                metadata={"result_size": len(str(task.result or {}))},
             )
 
             return result
@@ -233,14 +230,12 @@ class BrowserAgentService(IWebAgent):
                 status=ProgressStatus.FAILED,
                 progress=0,
                 current_step="Task failed",
-                error=str(e)
+                error=str(e),
             )
 
             raise
 
-    async def stream_progress(
-        self, task_id: str
-    ) -> AsyncGenerator[dict[str, Any]]:
+    async def stream_progress(self, task_id: str) -> AsyncGenerator[dict[str, Any]]:
         """
         Stream real-time task execution progress using Server-Sent Events.
 
@@ -271,12 +266,14 @@ class BrowserAgentService(IWebAgent):
                 "metadata": event.metadata,
             }
 
-    @with_retry(RetryConfig(
-        max_attempts=3,
-        base_delay=1.0,
-        max_delay=10.0,
-        exceptions=(ConnectionError, TimeoutError),
-    ))
+    @with_retry(
+        RetryConfig(
+            max_attempts=3,
+            base_delay=1.0,
+            max_delay=10.0,
+            exceptions=(ConnectionError, TimeoutError),
+        )
+    )
     async def get_task_status(self, task_id: str) -> dict[str, Any]:
         """
         Get current task status.
@@ -353,9 +350,7 @@ class BrowserAgentService(IWebAgent):
         if task.status != "completed":
             from src.application.ports.agent_ports import TaskNotCompletedError
 
-            raise TaskNotCompletedError(
-                f"Task {task_id} has not completed (status: {task.status})"
-            )
+            raise TaskNotCompletedError(f"Task {task_id} has not completed (status: {task.status})")
 
         return {
             "task_id": task_id,
@@ -363,12 +358,14 @@ class BrowserAgentService(IWebAgent):
             "history": task.history,
         }
 
-    @with_retry(RetryConfig(
-        max_attempts=3,
-        base_delay=1.0,
-        max_delay=10.0,
-        exceptions=(ConnectionError, TimeoutError),
-    ))
+    @with_retry(
+        RetryConfig(
+            max_attempts=3,
+            base_delay=1.0,
+            max_delay=10.0,
+            exceptions=(ConnectionError, TimeoutError),
+        )
+    )
     async def list_tasks(
         self,
         status: TaskStatus | None = None,
@@ -404,9 +401,7 @@ class BrowserAgentService(IWebAgent):
                     "task_id": str(task.task_id),
                     "description": task.description,
                     "status": task.status,
-                    "result_preview": (
-                        str(task.result)[:100] + "..." if task.result else None
-                    ),
+                    "result_preview": (str(task.result)[:100] + "..." if task.result else None),
                     "error": task.error,
                 }
                 for task in tasks
@@ -415,12 +410,14 @@ class BrowserAgentService(IWebAgent):
             logger.error(f"Failed to list tasks: {e}")
             raise
 
-    @with_retry(RetryConfig(
-        max_attempts=3,
-        base_delay=1.0,
-        max_delay=10.0,
-        exceptions=(ConnectionError, TimeoutError),
-    ))
+    @with_retry(
+        RetryConfig(
+            max_attempts=3,
+            base_delay=1.0,
+            max_delay=10.0,
+            exceptions=(ConnectionError, TimeoutError),
+        )
+    )
     async def health_check(self) -> bool:
         """
         Check if browser automation is available.

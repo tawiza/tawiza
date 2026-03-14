@@ -39,27 +39,107 @@ _RAW_DB_URL = os.getenv(
 
 # Department names for save_scores
 DEPT_NAMES: dict[str, str] = {
-    '01':'Ain','02':'Aisne','03':'Allier','04':'Alpes-de-Haute-Provence','05':'Hautes-Alpes',
-    '06':'Alpes-Maritimes','07':'Ardèche','08':'Ardennes','09':'Ariège','10':'Aube',
-    '11':'Aude','12':'Aveyron','13':'Bouches-du-Rhône','14':'Calvados','15':'Cantal',
-    '16':'Charente','17':'Charente-Maritime','18':'Cher','19':'Corrèze','2A':'Corse-du-Sud',
-    '2B':'Haute-Corse','21':"Côte-d'Or",'22':"Côtes-d'Armor",'23':'Creuse','24':'Dordogne',
-    '25':'Doubs','26':'Drôme','27':'Eure','28':'Eure-et-Loir','29':'Finistère',
-    '30':'Gard','31':'Haute-Garonne','32':'Gers','33':'Gironde','34':'Hérault',
-    '35':'Ille-et-Vilaine','36':'Indre','37':'Indre-et-Loire','38':'Isère','39':'Jura',
-    '40':'Landes','41':'Loir-et-Cher','42':'Loire','43':'Haute-Loire','44':'Loire-Atlantique',
-    '45':'Loiret','46':'Lot','47':'Lot-et-Garonne','48':'Lozère','49':'Maine-et-Loire',
-    '50':'Manche','51':'Marne','52':'Haute-Marne','53':'Mayenne','54':'Meurthe-et-Moselle',
-    '55':'Meuse','56':'Morbihan','57':'Moselle','58':'Nièvre','59':'Nord',
-    '60':'Oise','61':'Orne','62':'Pas-de-Calais','63':'Puy-de-Dôme','64':'Pyrénées-Atlantiques',
-    '65':'Hautes-Pyrénées','66':'Pyrénées-Orientales','67':'Bas-Rhin','68':'Haut-Rhin','69':'Rhône',
-    '70':'Haute-Saône','71':'Saône-et-Loire','72':'Sarthe','73':'Savoie','74':'Haute-Savoie',
-    '75':'Paris','76':'Seine-Maritime','77':'Seine-et-Marne','78':'Yvelines','79':'Deux-Sèvres',
-    '80':'Somme','81':'Tarn','82':'Tarn-et-Garonne','83':'Var','84':'Vaucluse',
-    '85':'Vendée','86':'Vienne','87':'Haute-Vienne','88':'Vosges','89':'Yonne',
-    '90':'Territoire de Belfort','91':'Essonne','92':'Hauts-de-Seine','93':'Seine-Saint-Denis',
-    '94':'Val-de-Marne','95':"Val-d'Oise",
-    '971':'Guadeloupe','972':'Martinique','973':'Guyane','974':'La Réunion','976':'Mayotte',
+    "01": "Ain",
+    "02": "Aisne",
+    "03": "Allier",
+    "04": "Alpes-de-Haute-Provence",
+    "05": "Hautes-Alpes",
+    "06": "Alpes-Maritimes",
+    "07": "Ardèche",
+    "08": "Ardennes",
+    "09": "Ariège",
+    "10": "Aube",
+    "11": "Aude",
+    "12": "Aveyron",
+    "13": "Bouches-du-Rhône",
+    "14": "Calvados",
+    "15": "Cantal",
+    "16": "Charente",
+    "17": "Charente-Maritime",
+    "18": "Cher",
+    "19": "Corrèze",
+    "2A": "Corse-du-Sud",
+    "2B": "Haute-Corse",
+    "21": "Côte-d'Or",
+    "22": "Côtes-d'Armor",
+    "23": "Creuse",
+    "24": "Dordogne",
+    "25": "Doubs",
+    "26": "Drôme",
+    "27": "Eure",
+    "28": "Eure-et-Loir",
+    "29": "Finistère",
+    "30": "Gard",
+    "31": "Haute-Garonne",
+    "32": "Gers",
+    "33": "Gironde",
+    "34": "Hérault",
+    "35": "Ille-et-Vilaine",
+    "36": "Indre",
+    "37": "Indre-et-Loire",
+    "38": "Isère",
+    "39": "Jura",
+    "40": "Landes",
+    "41": "Loir-et-Cher",
+    "42": "Loire",
+    "43": "Haute-Loire",
+    "44": "Loire-Atlantique",
+    "45": "Loiret",
+    "46": "Lot",
+    "47": "Lot-et-Garonne",
+    "48": "Lozère",
+    "49": "Maine-et-Loire",
+    "50": "Manche",
+    "51": "Marne",
+    "52": "Haute-Marne",
+    "53": "Mayenne",
+    "54": "Meurthe-et-Moselle",
+    "55": "Meuse",
+    "56": "Morbihan",
+    "57": "Moselle",
+    "58": "Nièvre",
+    "59": "Nord",
+    "60": "Oise",
+    "61": "Orne",
+    "62": "Pas-de-Calais",
+    "63": "Puy-de-Dôme",
+    "64": "Pyrénées-Atlantiques",
+    "65": "Hautes-Pyrénées",
+    "66": "Pyrénées-Orientales",
+    "67": "Bas-Rhin",
+    "68": "Haut-Rhin",
+    "69": "Rhône",
+    "70": "Haute-Saône",
+    "71": "Saône-et-Loire",
+    "72": "Sarthe",
+    "73": "Savoie",
+    "74": "Haute-Savoie",
+    "75": "Paris",
+    "76": "Seine-Maritime",
+    "77": "Seine-et-Marne",
+    "78": "Yvelines",
+    "79": "Deux-Sèvres",
+    "80": "Somme",
+    "81": "Tarn",
+    "82": "Tarn-et-Garonne",
+    "83": "Var",
+    "84": "Vaucluse",
+    "85": "Vendée",
+    "86": "Vienne",
+    "87": "Haute-Vienne",
+    "88": "Vosges",
+    "89": "Yonne",
+    "90": "Territoire de Belfort",
+    "91": "Essonne",
+    "92": "Hauts-de-Seine",
+    "93": "Seine-Saint-Denis",
+    "94": "Val-de-Marne",
+    "95": "Val-d'Oise",
+    "971": "Guadeloupe",
+    "972": "Martinique",
+    "973": "Guyane",
+    "974": "La Réunion",
+    "976": "Mayotte",
 }
 
 
@@ -105,6 +185,7 @@ class DepartmentFactors:
 async def load_all_metrics() -> dict[str, DepartmentFactors]:
     """Charge toutes les métriques par département."""
     import asyncpg
+
     conn = await asyncpg.connect(_RAW_DB_URL)
 
     try:
@@ -270,7 +351,9 @@ def compute_factors(depts: dict[str, DepartmentFactors]) -> dict[str, Department
         # α1: Santé entreprises
         crea_vals = [v for _, v in metrics_per_cap["crea_rate"]]
         liq_vals = [v for _, v in metrics_per_cap["liq_rate"]]
-        crea_score = percentile_score(crea_vals, (d.creations + d.sirene_creations * 0.01) / pop if pop else 0)
+        crea_score = percentile_score(
+            crea_vals, (d.creations + d.sirene_creations * 0.01) / pop if pop else 0
+        )
         liq_score = percentile_score(liq_vals, d.liquidations / pop if pop else 0, invert=True)
         d.alpha1_sante_entreprises = round(crea_score * 0.6 + liq_score * 0.4, 1)
 
@@ -304,8 +387,12 @@ def compute_factors(depts: dict[str, DepartmentFactors]) -> dict[str, Department
             rec_dep_vals = [v for _, v in metrics_per_cap["ratio_rec_dep"]]
             dette_vals = [v for _, v in metrics_per_cap["dette_hab"]]
 
-            rec_dep_score = percentile_score(rec_dep_vals, d.recettes / d.depenses if d.depenses else 1)
-            dette_score = percentile_score(dette_vals, d.dette / d.population if d.population else 0, invert=True)
+            rec_dep_score = percentile_score(
+                rec_dep_vals, d.recettes / d.depenses if d.depenses else 1
+            )
+            dette_score = percentile_score(
+                dette_vals, d.dette / d.population if d.population else 0, invert=True
+            )
 
             d.alpha4_sante_financiere = round(rec_dep_score * 0.5 + dette_score * 0.5, 1)
 
@@ -336,13 +423,13 @@ def compute_factors(depts: dict[str, DepartmentFactors]) -> dict[str, Department
         }
 
         d.score_composite = round(
-            d.alpha1_sante_entreprises * weights["alpha1"] +
-            d.alpha2_tension_emploi * weights["alpha2"] +
-            d.alpha3_dynamisme_immo * weights["alpha3"] +
-            d.alpha4_sante_financiere * weights["alpha4"] +
-            d.alpha5_declin_ratio * weights["alpha5"] +
-            d.alpha6_sentiment * weights["alpha6"],
-            1
+            d.alpha1_sante_entreprises * weights["alpha1"]
+            + d.alpha2_tension_emploi * weights["alpha2"]
+            + d.alpha3_dynamisme_immo * weights["alpha3"]
+            + d.alpha4_sante_financiere * weights["alpha4"]
+            + d.alpha5_declin_ratio * weights["alpha5"]
+            + d.alpha6_sentiment * weights["alpha6"],
+            1,
         )
 
     return depts
@@ -351,6 +438,7 @@ def compute_factors(depts: dict[str, DepartmentFactors]) -> dict[str, Department
 async def save_scores(depts: dict[str, DepartmentFactors]):
     """Sauvegarde les scores dans territorial_snapshots (upsert)."""
     import asyncpg
+
     conn = await asyncpg.connect(_RAW_DB_URL)
 
     try:
@@ -360,22 +448,25 @@ async def save_scores(depts: dict[str, DepartmentFactors]):
             if d.population <= 0:
                 continue
 
-            extra = json.dumps({
-                "alpha1_sante_entreprises": d.alpha1_sante_entreprises,
-                "alpha2_tension_emploi": d.alpha2_tension_emploi,
-                "alpha3_dynamisme_immo": d.alpha3_dynamisme_immo,
-                "alpha4_sante_financiere": d.alpha4_sante_financiere,
-                "alpha5_declin_ratio": d.alpha5_declin_ratio,
-                "alpha6_sentiment": d.alpha6_sentiment,
-                "score_composite": d.score_composite,
-                "population": d.population,
-                "creations": d.creations,
-                "liquidations": d.liquidations,
-                "offres_emploi": d.offres_emploi,
-                "prix_m2": d.prix_m2,
-            })
+            extra = json.dumps(
+                {
+                    "alpha1_sante_entreprises": d.alpha1_sante_entreprises,
+                    "alpha2_tension_emploi": d.alpha2_tension_emploi,
+                    "alpha3_dynamisme_immo": d.alpha3_dynamisme_immo,
+                    "alpha4_sante_financiere": d.alpha4_sante_financiere,
+                    "alpha5_declin_ratio": d.alpha5_declin_ratio,
+                    "alpha6_sentiment": d.alpha6_sentiment,
+                    "score_composite": d.score_composite,
+                    "population": d.population,
+                    "creations": d.creations,
+                    "liquidations": d.liquidations,
+                    "offres_emploi": d.offres_emploi,
+                    "prix_m2": d.prix_m2,
+                }
+            )
 
-            await conn.execute("""
+            await conn.execute(
+                """
                 INSERT INTO territorial_snapshots
                 (territory_code, territory_name, snapshot_date, population,
                  attractiveness_score, capital_humain_score, environnement_eco_score,
@@ -431,14 +522,17 @@ async def run_scoring():
 
     ranked = sorted(
         [(d.code_dept, d.score_composite, d) for d in depts.values() if d.population > 0],
-        key=lambda x: x[1], reverse=True,
+        key=lambda x: x[1],
+        reverse=True,
     )
 
-    logger.info(f"\n{'='*70}")
+    logger.info(f"\n{'=' * 70}")
     logger.info(f"CLASSEMENT TERRITORIAL - {len(ranked)} departements")
-    logger.info(f"{'='*70}")
-    logger.info(f"{'Dept':>5} {'Score':>6} {'a1 Entr':>8} {'a2 Empl':>8} {'a3 Immo':>8} {'a4 Fin':>8} {'a5 Decl':>8} {'a6 Sent':>8}")
-    logger.info(f"{'─'*70}")
+    logger.info(f"{'=' * 70}")
+    logger.info(
+        f"{'Dept':>5} {'Score':>6} {'a1 Entr':>8} {'a2 Empl':>8} {'a3 Immo':>8} {'a4 Fin':>8} {'a5 Decl':>8} {'a6 Sent':>8}"
+    )
+    logger.info(f"{'─' * 70}")
 
     for i, (dept, score, d) in enumerate(ranked[:20], 1):
         logger.info(
@@ -448,7 +542,7 @@ async def run_scoring():
             f"{d.alpha6_sentiment:>8.1f}"
         )
 
-    logger.info(f"\n  {'─'*70}")
+    logger.info(f"\n  {'─' * 70}")
     logger.info("  ... BOTTOM 10:")
     for dept, score, d in ranked[-10:]:
         logger.info(

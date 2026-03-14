@@ -29,25 +29,28 @@ from src.infrastructure.agents.tajine.trust import TrustManager
 
 class AutonomyDecision(Enum):
     """What action the agent should take regarding human oversight."""
-    AUTONOMOUS = "autonomous"   # Act independently, notify on completion
-    PROPOSE = "propose"         # Show plan, wait for quick approval
-    ASK = "ask"                 # Present options, request decision
-    ESCALATE = "escalate"       # Alert supervisor, pause execution
+
+    AUTONOMOUS = "autonomous"  # Act independently, notify on completion
+    PROPOSE = "propose"  # Show plan, wait for quick approval
+    ASK = "ask"  # Present options, request decision
+    ESCALATE = "escalate"  # Alert supervisor, pause execution
 
 
 class OutcomeType(Enum):
     """Types of outcomes that affect trust score."""
-    VALIDATED_SUCCESS = "validated_success"     # Human confirmed success
-    IMPLICIT_SUCCESS = "implicit_success"       # No complaints = success
-    MINOR_FAILURE = "minor_failure"             # Small error, recoverable
-    MAJOR_FAILURE = "major_failure"             # Significant failure
-    POSITIVE_FEEDBACK = "positive_feedback"     # Explicit positive feedback
-    NEGATIVE_FEEDBACK = "negative_feedback"     # Explicit negative feedback
+
+    VALIDATED_SUCCESS = "validated_success"  # Human confirmed success
+    IMPLICIT_SUCCESS = "implicit_success"  # No complaints = success
+    MINOR_FAILURE = "minor_failure"  # Small error, recoverable
+    MAJOR_FAILURE = "major_failure"  # Significant failure
+    POSITIVE_FEEDBACK = "positive_feedback"  # Explicit positive feedback
+    NEGATIVE_FEEDBACK = "negative_feedback"  # Explicit negative feedback
 
 
 @dataclass
 class Action:
     """Represents an action that requires autonomy decision."""
+
     name: str
     category: str  # 'data_collection', 'analysis', 'recommendation', 'execution'
     description: str = ""
@@ -64,6 +67,7 @@ class Action:
 @dataclass
 class ActionContext:
     """Context for making an autonomy decision."""
+
     action: Action
     data_confidence: float  # Quality of input data (0.0 to 1.0)
     complexity: float = 0.5  # Complexity of the task (0.0 to 1.0)
@@ -80,6 +84,7 @@ class ActionContext:
 @dataclass
 class Outcome:
     """Records the outcome of an action for trust updates."""
+
     outcome_type: OutcomeType
     action_name: str
     timestamp: datetime = field(default_factory=datetime.now)
@@ -106,9 +111,9 @@ class AutonomyManager:
 
     # Base thresholds for autonomy decisions
     THRESHOLDS = {
-        'autonomous': 0.70,
-        'propose': 0.50,
-        'ask': 0.30,
+        "autonomous": 0.70,
+        "propose": 0.50,
+        "ask": 0.30,
     }
 
     # Delta values for different outcome types
@@ -123,12 +128,12 @@ class AutonomyManager:
 
     # Category-specific threshold adjustments
     CATEGORY_ADJUSTMENTS = {
-        'data_collection': 0.1,   # More autonomous for data gathering
-        'analysis': 0.05,         # Slightly more autonomous for analysis
-        'recommendation': 0.0,    # Standard for recommendations
-        'execution': -0.1,        # More cautious for execution
-        'financial': -0.15,       # Very cautious for financial actions
-        'deletion': -0.2,         # Most cautious for deletions
+        "data_collection": 0.1,  # More autonomous for data gathering
+        "analysis": 0.05,  # Slightly more autonomous for analysis
+        "recommendation": 0.0,  # Standard for recommendations
+        "execution": -0.1,  # More cautious for execution
+        "financial": -0.15,  # Very cautious for financial actions
+        "deletion": -0.2,  # Most cautious for deletions
     }
 
     # Daily decay rate (applied once per day)
@@ -209,11 +214,11 @@ class AutonomyManager:
         thresholds = self._get_adjusted_thresholds(action, category_adj)
 
         # Make decision
-        if base_score >= thresholds['autonomous']:
+        if base_score >= thresholds["autonomous"]:
             decision = AutonomyDecision.AUTONOMOUS
-        elif base_score >= thresholds['propose']:
+        elif base_score >= thresholds["propose"]:
             decision = AutonomyDecision.PROPOSE
-        elif base_score >= thresholds['ask']:
+        elif base_score >= thresholds["ask"]:
             decision = AutonomyDecision.ASK
         else:
             decision = AutonomyDecision.ESCALATE
@@ -252,11 +257,7 @@ class AutonomyManager:
 
         return score
 
-    def _get_adjusted_thresholds(
-        self,
-        action: Action,
-        category_adj: float
-    ) -> dict[str, float]:
+    def _get_adjusted_thresholds(self, action: Action, category_adj: float) -> dict[str, float]:
         """Get thresholds adjusted for action characteristics."""
         thresholds = dict(self.THRESHOLDS)
 
@@ -312,7 +313,7 @@ class AutonomyManager:
 
         if days_since_decay > 0:
             # Apply decay for each day missed
-            decay_factor = self.DAILY_DECAY_RATE ** days_since_decay
+            decay_factor = self.DAILY_DECAY_RATE**days_since_decay
             current_score = self.trust_score
             new_score = current_score * decay_factor
 
@@ -323,8 +324,7 @@ class AutonomyManager:
             self._last_decay_date = today
 
             logger.debug(
-                f"Applied {days_since_decay}-day decay: "
-                f"{current_score:.3f} → {new_score:.3f}"
+                f"Applied {days_since_decay}-day decay: {current_score:.3f} → {new_score:.3f}"
             )
 
     def _record_decision(
@@ -332,19 +332,19 @@ class AutonomyManager:
         context: ActionContext,
         decision: AutonomyDecision,
         reason: str,
-        score: float | None = None
+        score: float | None = None,
     ) -> None:
         """Record a decision for analysis."""
         record = {
-            'timestamp': datetime.now().isoformat(),
-            'action': context.action.name,
-            'category': context.action.category,
-            'decision': decision.value,
-            'reason': reason,
-            'trust_score': self.trust_score,
-            'data_confidence': context.data_confidence,
-            'complexity': context.complexity,
-            'computed_score': score,
+            "timestamp": datetime.now().isoformat(),
+            "action": context.action.name,
+            "category": context.action.category,
+            "decision": decision.value,
+            "reason": reason,
+            "trust_score": self.trust_score,
+            "data_confidence": context.data_confidence,
+            "complexity": context.complexity,
+            "computed_score": score,
         }
         self._decision_history.append(record)
 
@@ -352,10 +352,7 @@ class AutonomyManager:
         if len(self._decision_history) > 1000:
             self._decision_history = self._decision_history[-1000:]
 
-    def add_decision_hook(
-        self,
-        hook: Callable[[ActionContext, float], float]
-    ) -> None:
+    def add_decision_hook(self, hook: Callable[[ActionContext, float], float]) -> None:
         """
         Add a hook to modify autonomy score calculation.
 
@@ -372,19 +369,19 @@ class AutonomyManager:
     def get_decision_stats(self) -> dict[str, Any]:
         """Get statistics about recent decisions."""
         if not self._decision_history:
-            return {'total_decisions': 0}
+            return {"total_decisions": 0}
 
-        decisions = [d['decision'] for d in self._decision_history]
+        decisions = [d["decision"] for d in self._decision_history]
 
         return {
-            'total_decisions': len(decisions),
-            'autonomous_count': decisions.count('autonomous'),
-            'propose_count': decisions.count('propose'),
-            'ask_count': decisions.count('ask'),
-            'escalate_count': decisions.count('escalate'),
-            'autonomous_rate': decisions.count('autonomous') / len(decisions),
-            'current_trust': self.trust_score,
-            'outcomes_recorded': len(self._outcome_history),
+            "total_decisions": len(decisions),
+            "autonomous_count": decisions.count("autonomous"),
+            "propose_count": decisions.count("propose"),
+            "ask_count": decisions.count("ask"),
+            "escalate_count": decisions.count("escalate"),
+            "autonomous_rate": decisions.count("autonomous") / len(decisions),
+            "current_trust": self.trust_score,
+            "outcomes_recorded": len(self._outcome_history),
         }
 
     def get_outcome_stats(self) -> dict[str, int]:
@@ -411,16 +408,16 @@ class AutonomyManager:
     def export_state(self) -> dict[str, Any]:
         """Export manager state for persistence."""
         return {
-            'trust_state': self.trust_manager.export_state(),
-            'last_decay_date': self._last_decay_date.isoformat() if self._last_decay_date else None,
-            'decision_history': self._decision_history[-100:],
-            'outcome_history': [
+            "trust_state": self.trust_manager.export_state(),
+            "last_decay_date": self._last_decay_date.isoformat() if self._last_decay_date else None,
+            "decision_history": self._decision_history[-100:],
+            "outcome_history": [
                 {
-                    'type': o.outcome_type.value,
-                    'action': o.action_name,
-                    'timestamp': o.timestamp.isoformat(),
-                    'details': o.details,
-                    'impact': o.impact_score,
+                    "type": o.outcome_type.value,
+                    "action": o.action_name,
+                    "timestamp": o.timestamp.isoformat(),
+                    "details": o.details,
+                    "impact": o.impact_score,
                 }
                 for o in self._outcome_history[-100:]
             ],
@@ -428,27 +425,29 @@ class AutonomyManager:
 
     def import_state(self, state: dict[str, Any]) -> None:
         """Import manager state from persistence."""
-        if 'trust_state' in state:
-            self.trust_manager.import_state(state['trust_state'])
+        if "trust_state" in state:
+            self.trust_manager.import_state(state["trust_state"])
 
-        if state.get('last_decay_date'):
+        if state.get("last_decay_date"):
             try:
-                self._last_decay_date = datetime.fromisoformat(state['last_decay_date']).date()
+                self._last_decay_date = datetime.fromisoformat(state["last_decay_date"]).date()
             except (ValueError, TypeError):
                 self._last_decay_date = None
 
-        self._decision_history = state.get('decision_history', [])
+        self._decision_history = state.get("decision_history", [])
 
         self._outcome_history = []
-        for o in state.get('outcome_history', []):
+        for o in state.get("outcome_history", []):
             try:
-                self._outcome_history.append(Outcome(
-                    outcome_type=OutcomeType(o['type']),
-                    action_name=o['action'],
-                    timestamp=datetime.fromisoformat(o['timestamp']),
-                    details=o.get('details', ''),
-                    impact_score=o.get('impact', 1.0),
-                ))
+                self._outcome_history.append(
+                    Outcome(
+                        outcome_type=OutcomeType(o["type"]),
+                        action_name=o["action"],
+                        timestamp=datetime.fromisoformat(o["timestamp"]),
+                        details=o.get("details", ""),
+                        impact_score=o.get("impact", 1.0),
+                    )
+                )
             except (KeyError, ValueError):
                 continue
 
@@ -456,19 +455,9 @@ class AutonomyManager:
 
 
 # Convenience factory functions
-def create_action(
-    name: str,
-    category: str = "analysis",
-    risk: float = 0.5,
-    **kwargs
-) -> Action:
+def create_action(name: str, category: str = "analysis", risk: float = 0.5, **kwargs) -> Action:
     """Create an Action with sensible defaults."""
-    return Action(
-        name=name,
-        category=category,
-        risk_level=risk,
-        **kwargs
-    )
+    return Action(name=name, category=category, risk_level=risk, **kwargs)
 
 
 def create_context(

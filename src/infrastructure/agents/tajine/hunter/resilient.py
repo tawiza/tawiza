@@ -6,6 +6,7 @@ This module provides robust data fetching with:
 - DataCache: TTL-based caching to avoid refetching
 - RareDataAugmenter: Cross-source triangulation for scarce data
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -37,7 +38,6 @@ FALLBACK_CHAINS: dict[str, list[str]] = {
     "boamp": ["data_gouv_boamp", "marches_publics"],
     "infogreffe": ["pappers", "societe_com", "bodacc"],
     "ban": ["data_gouv_adresse", "nominatim"],
-
     # Fallback for unknown sources
     "default": ["sirene", "data_gouv"],
 }
@@ -46,6 +46,7 @@ FALLBACK_CHAINS: dict[str, list[str]] = {
 @dataclass
 class FetchResult:
     """Result of a resilient fetch operation."""
+
     success: bool
     data: RawData | None = None
     source_used: str = ""
@@ -239,9 +240,11 @@ class FallbackSourceChain:
 
 # === Data Cache ===
 
+
 @dataclass
 class CacheEntry:
     """A cached data entry."""
+
     data: RawData
     cached_at: datetime
     ttl_seconds: int
@@ -266,12 +269,12 @@ class DataCache:
 
     # Default TTLs by source type (seconds)
     DEFAULT_TTLS = {
-        "sirene": 86400,      # 24 hours (official data, rarely changes)
-        "bodacc": 3600,       # 1 hour (announcements)
-        "boamp": 3600,        # 1 hour (public markets)
+        "sirene": 86400,  # 24 hours (official data, rarely changes)
+        "bodacc": 3600,  # 1 hour (announcements)
+        "boamp": 3600,  # 1 hour (public markets)
         "infogreffe": 86400,  # 24 hours
-        "web": 1800,          # 30 minutes (web scraping)
-        "default": 3600,      # 1 hour
+        "web": 1800,  # 30 minutes (web scraping)
+        "default": 3600,  # 1 hour
     }
 
     def __init__(
@@ -422,9 +425,11 @@ class DataCache:
 
 # === Rare Data Augmentation ===
 
+
 @dataclass
 class AugmentedData:
     """Data augmented from multiple sources."""
+
     primary: RawData
     supplements: list[RawData] = field(default_factory=list)
     inferred_fields: dict[str, Any] = field(default_factory=dict)
@@ -511,10 +516,7 @@ class RareDataAugmenter:
         if not isinstance(content, dict):
             return False
 
-        return all(
-            content.get(f) is not None
-            for f in target_fields
-        )
+        return all(content.get(f) is not None for f in target_fields)
 
     async def _triangulate(
         self,
@@ -611,7 +613,7 @@ class RareDataAugmenter:
 
         # Penalty for inferred fields
         if inferred:
-            base *= (1.0 - 0.1 * len(inferred))
+            base *= 1.0 - 0.1 * len(inferred)
 
         return round(max(0.0, min(1.0, base)), 3)
 
@@ -627,6 +629,7 @@ class RareDataAugmenter:
 
 
 # === Persistent Bandit ===
+
 
 class PersistentBanditMixin:
     """

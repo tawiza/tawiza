@@ -71,14 +71,17 @@ class BrowserPreview(Vertical):
 
     class OpenBrowserRequested(Message):
         """Request to open browser in external window."""
+
         pass
 
     class TakeControlRequested(Message):
         """Request to take control of browser."""
+
         pass
 
     class ResumeAgentRequested(Message):
         """Request to resume agent after manual intervention."""
+
         pass
 
     def __init__(self, **kwargs):
@@ -127,7 +130,9 @@ class BrowserPreview(Vertical):
     def _update_display(self) -> None:
         """Update all display elements."""
         # Status info
-        status_color = "green" if self.status == "Active" else "yellow" if self.status == "Ready" else "dim"
+        status_color = (
+            "green" if self.status == "Active" else "yellow" if self.status == "Ready" else "dim"
+        )
         status_icon = "●" if self.status == "Active" else "○"
 
         url_display = self.url[:50] + "..." if len(self.url) > 50 else self.url or "No URL"

@@ -5,6 +5,7 @@ Docker availability, GPU detection, etc.
 
 Follows Single Responsibility Principle: Only handles verification logic.
 """
+
 import asyncio
 import sys
 from typing import Any
@@ -44,13 +45,10 @@ class SystemVerificationService:
 
         if current_version < MIN_PYTHON_VERSION:
             raise PythonVersionError(
-                current_version=current_version,
-                required_version=MIN_PYTHON_VERSION
+                current_version=current_version, required_version=MIN_PYTHON_VERSION
             )
 
-        logger.info(
-            f"Python version verified: {current_version[0]}.{current_version[1]}"
-        )
+        logger.info(f"Python version verified: {current_version[0]}.{current_version[1]}")
         return True
 
     async def verify_docker(self) -> bool:
@@ -65,20 +63,18 @@ class SystemVerificationService:
         try:
             # Use async subprocess
             proc = await asyncio.create_subprocess_exec(
-                "docker", "--version",
+                "docker",
+                "--version",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
+                proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT
             )
 
             if proc.returncode != 0:
-                raise DockerNotAvailableError(
-                    f"Docker command failed: {stderr.decode()}"
-                )
+                raise DockerNotAvailableError(f"Docker command failed: {stderr.decode()}")
 
             version = stdout.decode().strip()
             logger.info(f"Docker verified: {version}")
@@ -106,20 +102,18 @@ class SystemVerificationService:
         try:
             # Check ROCm installation
             proc = await asyncio.create_subprocess_exec(
-                "rocm-smi", "--showid",
+                "rocm-smi",
+                "--showid",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
+                proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT
             )
 
             if proc.returncode != 0:
-                raise GPUNotAvailableError(
-                    f"ROCm command failed: {stderr.decode()}"
-                )
+                raise GPUNotAvailableError(f"ROCm command failed: {stderr.decode()}")
 
             gpu_info = stdout.decode().strip()
             logger.info(f"GPU verified: {gpu_info}")
@@ -134,10 +128,7 @@ class SystemVerificationService:
         except Exception as e:
             raise GPUNotAvailableError(f"Unexpected error: {e}")
 
-    async def verify_all(
-        self,
-        config: InitializationConfig
-    ) -> dict[str, bool]:
+    async def verify_all(self, config: InitializationConfig) -> dict[str, bool]:
         """Verify all system requirements based on configuration.
 
         Args:
@@ -196,14 +187,14 @@ class GPUDetectionService:
         """
         try:
             proc = await asyncio.create_subprocess_exec(
-                "rocm-smi", "--showid",
+                "rocm-smi",
+                "--showid",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
+                proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT
             )
 
             return proc.returncode == 0
@@ -218,54 +209,39 @@ class GPUDetectionService:
             Dictionary with GPU details (model, memory, etc.)
         """
         if not await self.detect_amd_gpu():
-            return {
-                "available": False,
-                "reason": "No AMD GPU detected or ROCm not installed"
-            }
+            return {"available": False, "reason": "No AMD GPU detected or ROCm not installed"}
 
         try:
             # Get GPU info
             proc = await asyncio.create_subprocess_exec(
-                "rocm-smi", "--showproductname",
+                "rocm-smi",
+                "--showproductname",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, _ = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
-            )
+            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT)
 
             gpu_name = stdout.decode().strip()
 
             # Get memory info
             proc = await asyncio.create_subprocess_exec(
-                "rocm-smi", "--showmeminfo", "vram",
+                "rocm-smi",
+                "--showmeminfo",
+                "vram",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, _ = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=COMMAND_TIMEOUT_SHORT
-            )
+            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=COMMAND_TIMEOUT_SHORT)
 
             memory_info = stdout.decode().strip()
 
-            return {
-                "available": True,
-                "model": gpu_name,
-                "memory": memory_info,
-                "driver": "ROCm"
-            }
+            return {"available": True, "model": gpu_name, "memory": memory_info, "driver": "ROCm"}
 
         except Exception as e:
             logger.error(f"Failed to get GPU info: {e}")
-            return {
-                "available": True,
-                "model": "Unknown AMD GPU",
-                "error": str(e)
-            }
+            return {"available": True, "model": "Unknown AMD GPU", "error": str(e)}
 
     async def test_gpu_functionality(self) -> bool:
         """Test if GPU is functional (can run computations).

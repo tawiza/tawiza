@@ -193,6 +193,7 @@ Return:
         try:
             response = await self.llm_client.generate(prompt)
             import json
+
             return json.loads(response)
         except Exception as e:
             logger.warning(f"LLM analysis failed: {e}, falling back to rules")
@@ -355,19 +356,23 @@ Return:
                 step_analysis = await self.analyze(step_desc)
                 step_tools = await self.select_tools(step_analysis)
 
-                steps.append(PlanStep(
-                    tool=step_tools[0] if step_tools else tools[0],
-                    action=step_desc,
-                    depends_on=i - 1 if i > 0 else None,
-                    fallback_tool=step_tools[1] if len(step_tools) > 1 else None,
-                ))
+                steps.append(
+                    PlanStep(
+                        tool=step_tools[0] if step_tools else tools[0],
+                        action=step_desc,
+                        depends_on=i - 1 if i > 0 else None,
+                        fallback_tool=step_tools[1] if len(step_tools) > 1 else None,
+                    )
+                )
         else:
             # Single-step task
-            steps.append(PlanStep(
-                tool=tools[0],
-                action=task,
-                fallback_tool=tools[1] if len(tools) > 1 else None,
-            ))
+            steps.append(
+                PlanStep(
+                    tool=tools[0],
+                    action=task,
+                    fallback_tool=tools[1] if len(tools) > 1 else None,
+                )
+            )
 
         return ExecutionPlan(
             task=task,

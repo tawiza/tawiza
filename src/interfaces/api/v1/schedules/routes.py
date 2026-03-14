@@ -8,10 +8,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.scheduled_analysis_model import ScheduleFrequency
 
 from src.application.services.tajine_scheduler import get_tajine_scheduler
 from src.infrastructure.persistence.database import get_db_session
+from src.infrastructure.persistence.models.scheduled_analysis_model import ScheduleFrequency
 from src.infrastructure.security.auth import User as AuthUser
 from src.infrastructure.security.auth import get_current_user
 
@@ -20,24 +20,40 @@ router = APIRouter(prefix="/schedules", tags=["Scheduled Analyses"])
 
 # --- Pydantic Models ---
 
+
 class CreateScheduleRequest(BaseModel):
     """Request to create a scheduled analysis."""
+
     name: str = Field(..., min_length=1, max_length=255, description="Name of the schedule")
     query: str = Field(..., min_length=1, max_length=2048, description="TAJINE query to execute")
     description: str | None = Field(None, max_length=1024)
-    cognitive_level: str = Field("analytical", description="Cognitive level (reactive, analytical, strategic, prospective, theoretical)")
-    frequency: str = Field("daily", description="Schedule frequency (once, hourly, daily, weekly, monthly)")
-    scheduled_time: str = Field("08:00", pattern=r"^\d{2}:\d{2}$", description="Time of day (HH:MM)")
-    day_of_week: int | None = Field(None, ge=0, le=6, description="Day of week (0=Monday, 6=Sunday)")
+    cognitive_level: str = Field(
+        "analytical",
+        description="Cognitive level (reactive, analytical, strategic, prospective, theoretical)",
+    )
+    frequency: str = Field(
+        "daily", description="Schedule frequency (once, hourly, daily, weekly, monthly)"
+    )
+    scheduled_time: str = Field(
+        "08:00", pattern=r"^\d{2}:\d{2}$", description="Time of day (HH:MM)"
+    )
+    day_of_week: int | None = Field(
+        None, ge=0, le=6, description="Day of week (0=Monday, 6=Sunday)"
+    )
     day_of_month: int | None = Field(None, ge=1, le=31, description="Day of month (1-31)")
-    department_codes: list[str] | None = Field(None, description="Target department codes (null=all)")
+    department_codes: list[str] | None = Field(
+        None, description="Target department codes (null=all)"
+    )
     timezone: str = Field("Europe/Paris", description="Timezone for scheduling")
     notify_email: bool = Field(True, description="Send email notifications")
-    notify_webhook: str | None = Field(None, max_length=500, description="Webhook URL for notifications")
+    notify_webhook: str | None = Field(
+        None, max_length=500, description="Webhook URL for notifications"
+    )
 
 
 class UpdateScheduleRequest(BaseModel):
     """Request to update a scheduled analysis."""
+
     name: str | None = Field(None, min_length=1, max_length=255)
     query: str | None = Field(None, min_length=1, max_length=2048)
     description: str | None = Field(None, max_length=1024)
@@ -54,6 +70,7 @@ class UpdateScheduleRequest(BaseModel):
 
 class ScheduleResponse(BaseModel):
     """Response for a scheduled analysis."""
+
     id: str
     user_id: str
     name: str
@@ -79,11 +96,13 @@ class ScheduleResponse(BaseModel):
 
 class ScheduleListResponse(BaseModel):
     """Response for listing scheduled analyses."""
+
     schedules: list[ScheduleResponse]
     total: int
 
 
 # --- Helper Functions ---
+
 
 def schedule_to_response(schedule) -> ScheduleResponse:
     """Convert a ScheduledAnalysisDB to response model."""
@@ -113,6 +132,7 @@ def schedule_to_response(schedule) -> ScheduleResponse:
 
 
 # --- API Endpoints ---
+
 
 @router.post("", response_model=ScheduleResponse, status_code=status.HTTP_201_CREATED)
 async def create_schedule(
@@ -388,6 +408,7 @@ async def run_schedule_now(
 
     # Execute immediately (async)
     import asyncio
+
     asyncio.create_task(scheduler._execute_analysis(schedule_id))
 
     return {

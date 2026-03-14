@@ -27,8 +27,10 @@ from src.interfaces.api.v1.openai_compatible.schemas import (
 # Event types for WebSocket communication
 # =============================================================================
 
+
 class TaskEventType(StrEnum):
     """Types of events emitted during task execution."""
+
     STARTED = "started"
     THINKING = "thinking"
     PROGRESS = "progress"
@@ -43,6 +45,7 @@ class TaskEventType(StrEnum):
 @dataclass
 class TaskEvent:
     """Event emitted during task execution."""
+
     type: TaskEventType
     task_id: str
     timestamp: datetime = field(default_factory=datetime.now)
@@ -53,7 +56,7 @@ class TaskEvent:
             "type": self.type.value,
             "task_id": self.task_id,
             "timestamp": self.timestamp.isoformat(),
-            **self.data
+            **self.data,
         }
 
 
@@ -214,10 +217,10 @@ class AgentOrchestrator:
         """
         try:
             from src.interfaces.api.websocket.handlers import get_tajine_handler
+
             handler = get_tajine_handler()
             await handler._handle_tajine_event(
-                task_id=event_data.get('task_id', 'unknown'),
-                event_data=event_data
+                task_id=event_data.get("task_id", "unknown"), event_data=event_data
             )
         except Exception as e:
             logger.debug(f"TAJINE event forward failed: {e}")
@@ -324,6 +327,7 @@ class AgentOrchestrator:
             # Connect TAJINE events to WebSocket handler
             try:
                 from src.interfaces.api.websocket.handlers import get_tajine_handler
+
                 get_tajine_handler()
                 # Register a global task ID for broadcasting
                 tajine_agent.on_ws(lambda event: self._forward_tajine_event(event))
@@ -353,10 +357,7 @@ class AgentOrchestrator:
 
     def list_tui_agents(self) -> list[dict[str, Any]]:
         """List all TUI agents with their info."""
-        return [
-            {"id": agent_id, **info}
-            for agent_id, info in self.tui_agents.items()
-        ]
+        return [{"id": agent_id, **info} for agent_id, info in self.tui_agents.items()]
 
     async def execute_task(
         self,
@@ -385,7 +386,7 @@ class AgentOrchestrator:
         yield TaskEvent(
             type=TaskEventType.STARTED,
             task_id=task_id,
-            data={"agent": agent_type, "prompt": prompt[:100]}
+            data={"agent": agent_type, "prompt": prompt[:100]},
         )
 
         try:
@@ -409,26 +410,18 @@ class AgentOrchestrator:
 
             if use_ollama_fallback:
                 # Fallback to Ollama-based execution
-                async for event in self._execute_with_ollama(
-                    task_id, agent_type, prompt, context
-                ):
+                async for event in self._execute_with_ollama(task_id, agent_type, prompt, context):
                     yield event
 
             # Emit completed event
             duration = time.time() - start_time
             yield TaskEvent(
-                type=TaskEventType.COMPLETED,
-                task_id=task_id,
-                data={"duration_seconds": duration}
+                type=TaskEventType.COMPLETED, task_id=task_id, data={"duration_seconds": duration}
             )
 
         except Exception as e:
             logger.error(f"Task {task_id} failed: {e}")
-            yield TaskEvent(
-                type=TaskEventType.ERROR,
-                task_id=task_id,
-                data={"error": str(e)}
-            )
+            yield TaskEvent(type=TaskEventType.ERROR, task_id=task_id, data={"error": str(e)})
 
     async def _execute_with_real_agent(
         self,
@@ -447,37 +440,31 @@ class AgentOrchestrator:
         - DataAnalystAgent: analyze(data_path) -> DataAnalysisReport
         """
         agent_name = agent.__class__.__name__
-        agent_type = getattr(agent, 'agent_type', 'unknown')
+        agent_type = getattr(agent, "agent_type", "unknown")
 
         yield TaskEvent(
-            type=TaskEventType.THINKING,
-            task_id=task_id,
-            data={"content": f"Using {agent_name}..."}
+            type=TaskEventType.THINKING, task_id=task_id, data={"content": f"Using {agent_name}..."}
         )
 
         try:
             result = None
 
             # Route to appropriate agent method based on agent type
-            if agent_type == "manus" or hasattr(agent, 'execute_task'):
+            if agent_type == "manus" or hasattr(agent, "execute_task"):
                 # ManusAgent - uses execute_task with task_config
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 1, "total_steps": 3, "message": "Reasoning..."}
+                    data={"step": 1, "total_steps": 3, "message": "Reasoning..."},
                 )
 
-                task_config = {
-                    "prompt": prompt,
-                    "task_id": task_id,
-                    **context
-                }
+                task_config = {"prompt": prompt, "task_id": task_id, **context}
                 result = await agent.execute_task(task_config)
 
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 2, "total_steps": 3, "message": "Processing..."}
+                    data={"step": 2, "total_steps": 3, "message": "Processing..."},
                 )
 
                 # Extract response from ManusAgent result
@@ -489,7 +476,7 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.THINKING,
                     task_id=task_id,
-                    data={"content": str(response)[:1000]}
+                    data={"content": str(response)[:1000]},
                 )
 
             elif agent_type == "browser_automation":
@@ -497,13 +484,13 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 1, "total_steps": 4, "message": "Initializing browser..."}
+                    data={"step": 1, "total_steps": 4, "message": "Initializing browser..."},
                 )
 
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 2, "total_steps": 4, "message": "Planning automation..."}
+                    data={"step": 2, "total_steps": 4, "message": "Planning automation..."},
                 )
 
                 # Use execute_from_prompt method
@@ -512,7 +499,7 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 3, "total_steps": 4, "message": "Executing browser actions..."}
+                    data={"step": 3, "total_steps": 4, "message": "Executing browser actions..."},
                 )
 
                 # Format the result
@@ -529,9 +516,7 @@ class AgentOrchestrator:
                     response = f"Browser task failed: {result.get('error', 'Unknown error')}"
 
                 yield TaskEvent(
-                    type=TaskEventType.THINKING,
-                    task_id=task_id,
-                    data={"content": response}
+                    type=TaskEventType.THINKING, task_id=task_id, data={"content": response}
                 )
 
             elif agent_type == "research" or agent_type == "deep_research":
@@ -539,13 +524,13 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 1, "total_steps": 4, "message": "Starting research..."}
+                    data={"step": 1, "total_steps": 4, "message": "Starting research..."},
                 )
 
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 2, "total_steps": 4, "message": "Crawling sources..."}
+                    data={"step": 2, "total_steps": 4, "message": "Crawling sources..."},
                 )
 
                 # Use execute_from_prompt for natural language interface
@@ -554,7 +539,7 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 3, "total_steps": 4, "message": "Synthesizing..."}
+                    data={"step": 3, "total_steps": 4, "message": "Synthesizing..."},
                 )
 
                 # Format research results
@@ -570,9 +555,7 @@ class AgentOrchestrator:
                     response = f"Research failed: {result.get('error', 'Unknown error')}"
 
                 yield TaskEvent(
-                    type=TaskEventType.THINKING,
-                    task_id=task_id,
-                    data={"content": response[:1500]}
+                    type=TaskEventType.THINKING, task_id=task_id, data={"content": response[:1500]}
                 )
 
             elif agent_type == "coder" or agent_type == "code_generator":
@@ -580,7 +563,7 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 1, "total_steps": 3, "message": "Analyzing request..."}
+                    data={"step": 1, "total_steps": 3, "message": "Analyzing request..."},
                 )
 
                 # Use execute_from_prompt for natural language interface
@@ -589,7 +572,7 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 2, "total_steps": 3, "message": "Generating code..."}
+                    data={"step": 2, "total_steps": 3, "message": "Generating code..."},
                 )
 
                 # Format code generation results
@@ -604,9 +587,7 @@ class AgentOrchestrator:
                     response = f"Code generation failed: {result.get('error', 'Unknown error')}"
 
                 yield TaskEvent(
-                    type=TaskEventType.THINKING,
-                    task_id=task_id,
-                    data={"content": response[:2000]}
+                    type=TaskEventType.THINKING, task_id=task_id, data={"content": response[:2000]}
                 )
 
             elif agent_type == "data_analyst":
@@ -614,7 +595,9 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.THINKING,
                     task_id=task_id,
-                    data={"content": "DataAnalystAgent requires a data file. Using LLM fallback..."}
+                    data={
+                        "content": "DataAnalystAgent requires a data file. Using LLM fallback..."
+                    },
                 )
                 # Fallback to Ollama for general data questions
                 raise NotImplementedError("DataAnalyst needs data file")
@@ -624,7 +607,7 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.PROGRESS,
                     task_id=task_id,
-                    data={"step": 1, "total_steps": 5, "message": "PERCEIVE: Analyzing query..."}
+                    data={"step": 1, "total_steps": 5, "message": "PERCEIVE: Analyzing query..."},
                 )
 
                 # Execute full PPDSL cycle via TAJINEAgent
@@ -637,7 +620,7 @@ class AgentOrchestrator:
                     yield TaskEvent(
                         type=TaskEventType.PROGRESS,
                         task_id=task_id,
-                        data={"step": i, "total_steps": 5, "message": f"{phase} phase"}
+                        data={"step": i, "total_steps": 5, "message": f"{phase} phase"},
                     )
 
                 # Format TAJINE result
@@ -657,23 +640,23 @@ class AgentOrchestrator:
                         response += f"**{level.title()}:** {summary}\n\n"
 
                     if isinstance(analysis, dict):
-                        response += f"\n**Conclusion:** {analysis.get('summary', 'Analyse terminée')}"
+                        response += (
+                            f"\n**Conclusion:** {analysis.get('summary', 'Analyse terminée')}"
+                        )
                     else:
                         response += f"\n**Résultat:** {str(analysis)[:500]}"
                 else:
                     response = f"Analyse TAJINE échouée: {result.get('error', 'Erreur inconnue')}"
 
                 yield TaskEvent(
-                    type=TaskEventType.THINKING,
-                    task_id=task_id,
-                    data={"content": response[:2000]}
+                    type=TaskEventType.THINKING, task_id=task_id, data={"content": response[:2000]}
                 )
 
             else:
                 # Unknown agent type - try generic execute
-                if hasattr(agent, 'execute'):
+                if hasattr(agent, "execute"):
                     result = await agent.execute(prompt)
-                elif hasattr(agent, 'run'):
+                elif hasattr(agent, "run"):
                     result = await agent.run(prompt)
                 else:
                     raise NotImplementedError(f"Unknown agent interface: {agent_type}")
@@ -681,13 +664,13 @@ class AgentOrchestrator:
                 yield TaskEvent(
                     type=TaskEventType.THINKING,
                     task_id=task_id,
-                    data={"content": str(result)[:500]}
+                    data={"content": str(result)[:500]},
                 )
 
             yield TaskEvent(
                 type=TaskEventType.PROGRESS,
                 task_id=task_id,
-                data={"step": 3, "total_steps": 3, "message": "Complete!"}
+                data={"step": 3, "total_steps": 3, "message": "Complete!"},
             )
 
         except NotImplementedError as e:
@@ -725,35 +708,34 @@ class AgentOrchestrator:
         yield TaskEvent(
             type=TaskEventType.PROGRESS,
             task_id=task_id,
-            data={"step": 1, "total_steps": 3, "message": f"Using {model}..."}
+            data={"step": 1, "total_steps": 3, "message": f"Using {model}..."},
         )
 
         # Build messages
-        messages = [
-            {"role": "system", "content": system},
-            {"role": "user", "content": prompt}
-        ]
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
 
         yield TaskEvent(
             type=TaskEventType.PROGRESS,
             task_id=task_id,
-            data={"step": 2, "total_steps": 3, "message": "Generating response..."}
+            data={"step": 2, "total_steps": 3, "message": "Generating response..."},
         )
 
         # Stream response
         full_response = ""
         try:
-            async for chunk in self.ollama_client._chat_stream({
-                "model": model,
-                "messages": messages,
-                "stream": True,
-                "options": {"temperature": 0.7}
-            }):
+            async for chunk in self.ollama_client._chat_stream(
+                {
+                    "model": model,
+                    "messages": messages,
+                    "stream": True,
+                    "options": {"temperature": 0.7},
+                }
+            ):
                 full_response += chunk
                 yield TaskEvent(
                     type=TaskEventType.STREAMING,
                     task_id=task_id,
-                    data={"content": chunk, "full_content": full_response}
+                    data={"content": chunk, "full_content": full_response},
                 )
         except Exception as e:
             # Fallback to non-streaming
@@ -768,28 +750,27 @@ class AgentOrchestrator:
         yield TaskEvent(
             type=TaskEventType.PROGRESS,
             task_id=task_id,
-            data={"step": 3, "total_steps": 3, "message": "Complete!"}
+            data={"step": 3, "total_steps": 3, "message": "Complete!"},
         )
 
         yield TaskEvent(
-            type=TaskEventType.THINKING,
-            task_id=task_id,
-            data={"content": full_response[:1000]}
+            type=TaskEventType.THINKING, task_id=task_id, data={"content": full_response[:1000]}
         )
 
     async def _get_best_model(self) -> str:
         """Get the best available Ollama model."""
         try:
             import httpx
+
             async with httpx.AsyncClient(timeout=5.0) as client:
                 resp = await client.get(f"{self.ollama_url}/api/tags")
                 models = resp.json().get("models", [])
 
                 # Filter out embedding models
                 chat_models = [
-                    m["name"] for m in models
-                    if "embed" not in m["name"].lower()
-                    and "nomic" not in m["name"].lower()
+                    m["name"]
+                    for m in models
+                    if "embed" not in m["name"].lower() and "nomic" not in m["name"].lower()
                 ]
 
                 # Prefer certain models
@@ -815,9 +796,7 @@ class AgentOrchestrator:
         """Get agent information."""
         return self.tawiza_agents.get(model)
 
-    async def chat_completion(
-        self, request: ChatCompletionRequest
-    ) -> ChatCompletionResponse:
+    async def chat_completion(self, request: ChatCompletionRequest) -> ChatCompletionResponse:
         """
         Process chat completion request.
 
@@ -832,9 +811,7 @@ class AgentOrchestrator:
         else:
             return await self._ollama_completion(request)
 
-    async def chat_completion_stream(
-        self, request: ChatCompletionRequest
-    ) -> AsyncIterator[str]:
+    async def chat_completion_stream(self, request: ChatCompletionRequest) -> AsyncIterator[str]:
         """
         Process streaming chat completion request.
 
@@ -865,9 +842,7 @@ class AgentOrchestrator:
         system_prompt = self._build_agent_system_prompt(request.model, agent_info)
 
         # Convert messages to Ollama format
-        ollama_messages = self._convert_messages_to_ollama(
-            request.messages, system_prompt
-        )
+        ollama_messages = self._convert_messages_to_ollama(request.messages, system_prompt)
 
         # Call underlying Ollama model with agent context
         base_model = agent_info["base_model"]
@@ -914,9 +889,7 @@ class AgentOrchestrator:
         system_prompt = self._build_agent_system_prompt(request.model, agent_info)
 
         # Convert messages to Ollama format
-        ollama_messages = self._convert_messages_to_ollama(
-            request.messages, system_prompt
-        )
+        ollama_messages = self._convert_messages_to_ollama(request.messages, system_prompt)
 
         # Stream from underlying Ollama model
         base_model = agent_info["base_model"]
@@ -957,9 +930,7 @@ class AgentOrchestrator:
         yield f"data: {final_chunk.model_dump_json()}\n\n"
         yield "data: [DONE]\n\n"
 
-    async def _ollama_completion(
-        self, request: ChatCompletionRequest
-    ) -> ChatCompletionResponse:
+    async def _ollama_completion(self, request: ChatCompletionRequest) -> ChatCompletionResponse:
         """Forward request to Ollama."""
         logger.info(f"Forwarding request to Ollama model: {request.model}")
 
@@ -996,9 +967,7 @@ class AgentOrchestrator:
             ),
         )
 
-    async def _ollama_completion_stream(
-        self, request: ChatCompletionRequest
-    ) -> AsyncIterator[str]:
+    async def _ollama_completion_stream(self, request: ChatCompletionRequest) -> AsyncIterator[str]:
         """Forward streaming request to Ollama."""
         logger.info(f"Forwarding streaming request to Ollama model: {request.model}")
 
@@ -1043,9 +1012,7 @@ class AgentOrchestrator:
         yield f"data: {final_chunk.model_dump_json()}\n\n"
         yield "data: [DONE]\n\n"
 
-    def _build_agent_system_prompt(
-        self, model: str, agent_info: dict[str, str]
-    ) -> str:
+    def _build_agent_system_prompt(self, model: str, agent_info: dict[str, str]) -> str:
         """Build system prompt for Tawiza agent."""
         agent_prompts = {
             "tawiza-analyst": """You are the Tawiza Analyst Agent, an expert in strategic analysis and territorial intelligence for French territories.
@@ -1183,9 +1150,7 @@ You provide comprehensive, professional business plans.""",
 
         # Add Ollama models
         try:
-            ollama_models = await self.ollama_client.client.get(
-                f"{self.ollama_url}/api/tags"
-            )
+            ollama_models = await self.ollama_client.client.get(f"{self.ollama_url}/api/tags")
             ollama_data = ollama_models.json()
 
             for model in ollama_data.get("models", []):

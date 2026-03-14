@@ -129,6 +129,7 @@ class ConfigScreen(Container):
     def _load_tui_preferences(self) -> dict[str, Any]:
         """Load TUI preferences from JSON file."""
         from src.cli.constants import PROJECT_ROOT
+
         prefs_path = PROJECT_ROOT / ".tui_preferences.json"
         if prefs_path.exists():
             try:
@@ -141,9 +142,10 @@ class ConfigScreen(Container):
     def _save_tui_preferences(self) -> None:
         """Save TUI preferences to JSON file."""
         from src.cli.constants import PROJECT_ROOT
+
         prefs_path = PROJECT_ROOT / ".tui_preferences.json"
         try:
-            with open(prefs_path, 'w') as f:
+            with open(prefs_path, "w") as f:
                 json.dump(self._tui_prefs, f, indent=2)
             logger.info("TUI preferences saved")
         except Exception as e:
@@ -152,6 +154,7 @@ class ConfigScreen(Container):
     def _load_config(self) -> None:
         """Load configuration directly from .env file."""
         from src.cli.constants import PROJECT_ROOT
+
         env_path = PROJECT_ROOT / ".env"
         env_vars = {}
 
@@ -161,8 +164,8 @@ class ConfigScreen(Container):
                 with open(env_path) as f:
                     for line in f:
                         line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            key, value = line.split('=', 1)
+                        if line and not line.startswith("#") and "=" in line:
+                            key, value = line.split("=", 1)
                             env_vars[key.strip()] = value.strip()
             except Exception as e:
                 logger.warning(f"Could not read .env: {e}")
@@ -177,27 +180,21 @@ class ConfigScreen(Container):
             "app_env": env_vars.get("APP_ENV", "development"),
             "debug": env_vars.get("DEBUG", "false").lower() == "true",
             "log_level": env_vars.get("LOG_LEVEL", "INFO"),
-
             # Appearance (from TUI prefs)
             "theme": self._tui_prefs.get("theme", "dark"),
-
             # Ollama
             "ollama_url": env_vars.get("OLLAMA_BASE_URL", "http://localhost:11434"),
             "ollama_model": env_vars.get("OLLAMA_MODEL_NAME", "qwen3.5:27b"),
             "ollama_temperature": float(env_vars.get("OLLAMA_TEMPERATURE", "0.7")),
             "ollama_timeout": int(env_vars.get("OLLAMA_TIMEOUT", "300")),
-
             # Database
             "db_pool_size": int(env_vars.get("DATABASE_POOL_SIZE", "10")),
             "db_echo": env_vars.get("DATABASE_ECHO", "false").lower() == "true",
-
             # API
             "api_host": env_vars.get("API_HOST", "0.0.0.0"),
             "api_port": int(env_vars.get("API_PORT", "8000")),
-
             # Redis
             "redis_url": env_vars.get("REDIS_URL", "redis://localhost:6379/0"),
-
             # VectorDB
             "vectordb_enabled": env_vars.get("VECTORDB_ENABLED", "true").lower() == "true",
             "vectordb_chunk_size": int(env_vars.get("VECTORDB_CHUNK_SIZE", "512")),
@@ -234,7 +231,6 @@ class ConfigScreen(Container):
 
         # Content
         with ScrollableContainer(id="config-content"):
-
             # Ollama Section
             with Vertical(classes="config-section"):
                 yield Static("[bold cyan]Ollama LLM Settings[/]", classes="section-title")
@@ -247,7 +243,7 @@ class ConfigScreen(Container):
                         value=self._config.get("ollama_url", ""),
                         placeholder="http://localhost:11434",
                         id="setting-ollama_url",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -257,7 +253,7 @@ class ConfigScreen(Container):
                         [("Loading...", "")],
                         allow_blank=True,
                         id="setting-ollama_model",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -267,7 +263,7 @@ class ConfigScreen(Container):
                         value=str(self._config.get("ollama_temperature", 0.7)),
                         placeholder="0.7",
                         id="setting-ollama_temperature",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -277,7 +273,7 @@ class ConfigScreen(Container):
                         value=str(self._config.get("ollama_timeout", 300)),
                         placeholder="300",
                         id="setting-ollama_timeout",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -298,7 +294,7 @@ class ConfigScreen(Container):
                         ],
                         value=self._config.get("app_env", "development"),
                         id="setting-app_env",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -307,7 +303,7 @@ class ConfigScreen(Container):
                     yield Switch(
                         value=self._config.get("debug", False),
                         id="setting-debug",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -322,7 +318,7 @@ class ConfigScreen(Container):
                         ],
                         value=self._config.get("log_level", "INFO"),
                         id="setting-log_level",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -356,7 +352,7 @@ class ConfigScreen(Container):
                         theme_options,
                         value=theme_value,
                         id="setting-theme",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -373,7 +369,7 @@ class ConfigScreen(Container):
                         value=self._config.get("api_host", "0.0.0.0"),
                         placeholder="0.0.0.0",
                         id="setting-api_host",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -383,7 +379,7 @@ class ConfigScreen(Container):
                         value=str(self._config.get("api_port", 8000)),
                         placeholder="8000",
                         id="setting-api_port",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -400,7 +396,7 @@ class ConfigScreen(Container):
                         value=str(self._config.get("db_pool_size", 10)),
                         placeholder="10",
                         id="setting-db_pool_size",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -409,7 +405,7 @@ class ConfigScreen(Container):
                     yield Switch(
                         value=self._config.get("db_echo", False),
                         id="setting-db_echo",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -426,7 +422,7 @@ class ConfigScreen(Container):
                         value=self._config.get("redis_url", ""),
                         placeholder="redis://localhost:6379/0",
                         id="setting-redis_url",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -442,7 +438,7 @@ class ConfigScreen(Container):
                     yield Switch(
                         value=self._config.get("vectordb_enabled", True),
                         id="setting-vectordb_enabled",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
                 with SettingRow():
@@ -452,7 +448,7 @@ class ConfigScreen(Container):
                         value=str(self._config.get("vectordb_chunk_size", 512)),
                         placeholder="512",
                         id="setting-vectordb_chunk_size",
-                        classes="setting-control"
+                        classes="setting-control",
                     )
 
             yield Rule()
@@ -517,6 +513,7 @@ class ConfigScreen(Container):
         """Check Ollama connection."""
         try:
             import httpx
+
             url = self._config.get("ollama_url", "http://localhost:11434")
             async with httpx.AsyncClient(timeout=5.0) as client:
                 response = await client.get(f"{url}/api/tags")
@@ -532,6 +529,7 @@ class ConfigScreen(Container):
         """Load available Ollama models and update the Select widget."""
         try:
             import httpx
+
             url = self._config.get("ollama_url", "http://localhost:11434")
             async with httpx.AsyncClient(timeout=5.0) as client:
                 response = await client.get(f"{url}/api/tags")
@@ -572,6 +570,7 @@ class ConfigScreen(Container):
         """Check Redis connection."""
         try:
             import redis.asyncio as aioredis
+
             url = self._config.get("redis_url", "redis://localhost:6379/0")
             # Parse password from URL if present
             client = aioredis.from_url(url, decode_responses=True)
@@ -585,11 +584,9 @@ class ConfigScreen(Container):
             if redis_password:
                 try:
                     import redis.asyncio as aioredis
+
                     client = aioredis.Redis(
-                        host="localhost",
-                        port=6379,
-                        password=redis_password,
-                        decode_responses=True
+                        host="localhost", port=6379, password=redis_password, decode_responses=True
                     )
                     await client.ping()
                     await client.close()
@@ -605,6 +602,7 @@ class ConfigScreen(Container):
 
             # Get database URL from .env
             from src.cli.constants import PROJECT_ROOT
+
             env_path = PROJECT_ROOT / ".env"
             db_url = None
             if env_path.exists():
@@ -659,6 +657,7 @@ class ConfigScreen(Container):
 
             # Copy the selected theme to theme.tcss
             from src.cli.constants import PROJECT_ROOT
+
             styles_dir = PROJECT_ROOT / "src" / "cli" / "v3" / "tui" / "styles"
             theme_file = styles_dir / f"theme-{theme}.tcss"
             target_file = styles_dir / "theme.tcss"
@@ -696,6 +695,7 @@ class ConfigScreen(Container):
         """Save configuration to .env file."""
         try:
             from src.cli.constants import PROJECT_ROOT
+
             env_path = PROJECT_ROOT / ".env"
 
             # Read existing .env
@@ -704,8 +704,8 @@ class ConfigScreen(Container):
                 with open(env_path) as f:
                     for line in f:
                         line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            key, value = line.split('=', 1)
+                        if line and not line.startswith("#") and "=" in line:
+                            key, value = line.split("=", 1)
                             env_vars[key] = value
 
             # Update with new values
@@ -725,7 +725,7 @@ class ConfigScreen(Container):
             env_vars["VECTORDB_CHUNK_SIZE"] = str(self._config.get("vectordb_chunk_size", 512))
 
             # Write back
-            with open(env_path, 'w') as f:
+            with open(env_path, "w") as f:
                 f.write("# Tawiza Configuration\n")
                 f.write("# Generated by TUI Config Screen\n\n")
                 for key, value in sorted(env_vars.items()):

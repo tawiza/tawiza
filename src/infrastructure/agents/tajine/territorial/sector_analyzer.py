@@ -23,6 +23,7 @@ from src.infrastructure.agents.tajine.territorial.naf_classifier import (
 @dataclass
 class SectorStats:
     """Statistiques d'un secteur."""
+
     code: str
     name: str
     short_name: str
@@ -58,6 +59,7 @@ class SectorStats:
 @dataclass
 class TerritorialSectorAnalysis:
     """Analyse sectorielle complète d'un territoire."""
+
     territory_code: str
     territory_name: str
     analyzed_at: datetime
@@ -71,7 +73,7 @@ class TerritorialSectorAnalysis:
         return sorted(
             [s for s in self.sectors.values() if s.creations > 0],
             key=lambda s: s.creations,
-            reverse=True
+            reverse=True,
         )[:5]
 
     @property
@@ -80,7 +82,7 @@ class TerritorialSectorAnalysis:
         return sorted(
             [s for s in self.sectors.values() if s.closures > 0],
             key=lambda s: s.closures,
-            reverse=True
+            reverse=True,
         )[:5]
 
     @property
@@ -89,7 +91,7 @@ class TerritorialSectorAnalysis:
         return sorted(
             [s for s in self.sectors.values() if s.net_creation > 0],
             key=lambda s: s.net_creation,
-            reverse=True
+            reverse=True,
         )[:5]
 
     @property
@@ -104,7 +106,9 @@ class TerritorialSectorAnalysis:
             "analyzed_at": self.analyzed_at.isoformat(),
             "total_records": self.total_records,
             "classified_records": self.classified_records,
-            "classification_rate": round(self.classified_records / max(1, self.total_records) * 100, 1),
+            "classification_rate": round(
+                self.classified_records / max(1, self.total_records) * 100, 1
+            ),
             "sectors": {k: v.to_dict() for k, v in self.sectors.items()},
             "summary": {
                 "top_creators": [s.to_dict() for s in self.top_creators],
@@ -138,10 +142,12 @@ class SectorAnalyzer:
             limit: Nombre max d'annonces à analyser
         """
         # Récupérer les données BODACC
-        results = await bodacc_adapter.search({
-            "departement": territory_code,
-            "limit": limit,
-        })
+        results = await bodacc_adapter.search(
+            {
+                "departement": territory_code,
+                "limit": limit,
+            }
+        )
 
         # Initialiser les stats par secteur
         sector_stats: dict[str, SectorStats] = {}

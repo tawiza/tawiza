@@ -7,8 +7,8 @@ from uuid import UUID
 from loguru import logger
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.user_model import RefreshTokenDB, UserDB
 
+from src.infrastructure.persistence.models.user_model import RefreshTokenDB, UserDB
 from src.infrastructure.security.auth import hash_password, verify_password
 
 
@@ -86,9 +86,7 @@ class UserRepository:
         user.last_login = datetime.utcnow()
         await self._session.flush()
 
-    async def update_preferences(
-        self, user: UserDB, preferences: dict
-    ) -> UserDB:
+    async def update_preferences(self, user: UserDB, preferences: dict) -> UserDB:
         """Update user preferences.
 
         Args:
@@ -108,9 +106,7 @@ class UserRepository:
         await self._session.refresh(user)
         return user
 
-    async def verify_credentials(
-        self, email: str, password: str
-    ) -> UserDB | None:
+    async def verify_credentials(self, email: str, password: str) -> UserDB | None:
         """Verify user credentials.
 
         Args:
@@ -137,9 +133,7 @@ class RefreshTokenRepository:
         """
         self._session = session
 
-    async def create(
-        self, user_id: UUID, expires_days: int = 7
-    ) -> RefreshTokenDB:
+    async def create(self, user_id: UUID, expires_days: int = 7) -> RefreshTokenDB:
         """Create a new refresh token.
 
         Args:
@@ -217,9 +211,7 @@ class RefreshTokenRepository:
         Returns:
             Number of tokens deleted
         """
-        query = delete(RefreshTokenDB).where(
-            RefreshTokenDB.expires_at < datetime.utcnow()
-        )
+        query = delete(RefreshTokenDB).where(RefreshTokenDB.expires_at < datetime.utcnow())
         result = await self._session.execute(query)
         count = result.rowcount
         if count > 0:

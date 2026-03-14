@@ -23,6 +23,7 @@ from rich.text import Text
 @dataclass
 class AnimationFrame:
     """Single animation frame"""
+
     content: str
     delay: float = 0.05
 
@@ -432,15 +433,17 @@ class ParticleEffects:
         for _ in range(num_particles):
             angle = random.uniform(0, 2 * math.pi)
             speed = random.uniform(0.5, 2.0)
-            particles.append({
-                "x": float(center_x),
-                "y": float(center_y),
-                "vx": math.cos(angle) * speed,
-                "vy": math.sin(angle) * speed,
-                "char": random.choice("✦✧✶✸✹✺"),
-                "lifetime": random.uniform(0.5, duration),
-                "age": 0.0,
-            })
+            particles.append(
+                {
+                    "x": float(center_x),
+                    "y": float(center_y),
+                    "vx": math.cos(angle) * speed,
+                    "vy": math.sin(angle) * speed,
+                    "char": random.choice("✦✧✶✸✹✺"),
+                    "lifetime": random.uniform(0.5, duration),
+                    "age": 0.0,
+                }
+            )
 
         frame_delay = 1.0 / fps
         start_time = time.time()
@@ -473,6 +476,7 @@ class ParticleEffects:
 # ═══════════════════════════════════════════════════════════════════════════
 # BREATHING MASCOT - Subtle animated mascot for loading/waiting
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class BreathingMascot:
     """
@@ -535,9 +539,9 @@ class BreathingMascot:
         message: str = "",
         *,
         mode: str = "breathing",  # breathing, working, thinking
-        style: str = "mini",      # mini, full
+        style: str = "mini",  # mini, full
         console: Console | None = None,
-        fps: int = 4,             # Lent pour être subtil
+        fps: int = 4,  # Lent pour être subtil
     ):
         """
         Args:
@@ -558,13 +562,17 @@ class BreathingMascot:
 
         # Sélectionner les frames selon le mode
         if mode == "working":
-            self.frames = self.WORKING_FRAMES if style == "full" else [
-                "(=^･ｪ･^=)⚙️ ", "(=^･ｪ･^=) ⚙️", "(=^･ｪ･^=)  ⚙️", "(=^･ｪ･^=) ⚙️"
-            ]
+            self.frames = (
+                self.WORKING_FRAMES
+                if style == "full"
+                else ["(=^･ｪ･^=)⚙️ ", "(=^･ｪ･^=) ⚙️", "(=^･ｪ･^=)  ⚙️", "(=^･ｪ･^=) ⚙️"]
+            )
         elif mode == "thinking":
-            self.frames = self.THINKING_FRAMES if style == "full" else [
-                "(=^･◔･^=)💭", "(=^◔･^=) 💭", "(=^･◔^=) 💭", "(=^◔･^=) 💭"
-            ]
+            self.frames = (
+                self.THINKING_FRAMES
+                if style == "full"
+                else ["(=^･◔･^=)💭", "(=^◔･^=) 💭", "(=^･◔^=) 💭", "(=^◔･^=) 💭"]
+            )
         else:  # breathing
             self.frames = self.BREATHING_FRAMES if style == "full" else self.MINI_BREATHING
 
@@ -686,10 +694,10 @@ class MascotProgressBar:
 
     # Expressions selon le pourcentage
     EXPRESSIONS = {
-        0: "(=^･ω･^=)",    # Début - neutre
+        0: "(=^･ω･^=)",  # Début - neutre
         25: "(=^･ω･^=)✨",  # 25% - content
-        50: "(=^◡^=)✨",    # 50% - souriant
-        75: "(=^▽^=)🎉",   # 75% - excité
+        50: "(=^◡^=)✨",  # 50% - souriant
+        75: "(=^▽^=)🎉",  # 75% - excité
         100: "(=^◡^=)🎊",  # 100% - célébration
     }
 

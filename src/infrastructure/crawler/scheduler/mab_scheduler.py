@@ -1,4 +1,5 @@
 """Multi-Armed Bandit scheduler using UCB algorithm."""
+
 import math
 
 from loguru import logger
@@ -59,14 +60,12 @@ class MABScheduler:
             UCB score (higher = should select)
         """
         if arm.pulls == 0:
-            return float('inf')
+            return float("inf")
 
         exploitation = arm.average_reward
 
         if self.total_pulls > 0:
-            exploration = self.exploration_param * math.sqrt(
-                math.log(self.total_pulls) / arm.pulls
-            )
+            exploration = self.exploration_param * math.sqrt(math.log(self.total_pulls) / arm.pulls)
         else:
             exploration = 0
 
@@ -83,7 +82,7 @@ class MABScheduler:
             return None
 
         best_arm = None
-        best_score = float('-inf')
+        best_score = float("-inf")
 
         for arm in self.arms.values():
             score = self.compute_ucb(arm)
@@ -116,7 +115,7 @@ class MABScheduler:
         source_id: str,
         success: bool,
         freshness: float | None = None,
-        quality: float | None = None
+        quality: float | None = None,
     ) -> None:
         """
         Record crawl result for an arm.

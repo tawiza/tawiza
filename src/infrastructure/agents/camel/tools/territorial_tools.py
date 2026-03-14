@@ -37,6 +37,7 @@ def _run_async_factory(async_func: Callable[..., Coroutine], *args, **kwargs):
     Returns:
         The result of the async function
     """
+
     def run_in_thread():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -81,21 +82,21 @@ REGION_CODES = {
 # Tranche effectif codes (INSEE nomenclature)
 # See: https://www.sirene.fr/static-resources/htm/v_effectif.htm
 EFFECTIF_TRANCHES = {
-    "0": "00",     # 0 salarié
-    "1": "01",     # 1-2 salariés
-    "3": "02",     # 3-5 salariés
-    "6": "03",     # 6-9 salariés
-    "10": "11",    # 10-19 salariés
-    "20": "12",    # 20-49 salariés
-    "50": "21",    # 50-99 salariés
-    "100": "22",   # 100-199 salariés
-    "200": "31",   # 200-249 salariés
-    "250": "32",   # 250-499 salariés
-    "500": "41",   # 500-999 salariés
+    "0": "00",  # 0 salarié
+    "1": "01",  # 1-2 salariés
+    "3": "02",  # 3-5 salariés
+    "6": "03",  # 6-9 salariés
+    "10": "11",  # 10-19 salariés
+    "20": "12",  # 20-49 salariés
+    "50": "21",  # 50-99 salariés
+    "100": "22",  # 100-199 salariés
+    "200": "31",  # 200-249 salariés
+    "250": "32",  # 250-499 salariés
+    "500": "41",  # 500-999 salariés
     "1000": "42",  # 1000-1999 salariés
     "2000": "51",  # 2000-4999 salariés
     "5000": "52",  # 5000-9999 salariés
-    "10000": "53", # 10000+ salariés
+    "10000": "53",  # 10000+ salariés
 }
 
 # Sorted thresholds for effectif mapping
@@ -103,42 +104,120 @@ _EFFECTIF_THRESHOLDS = [0, 1, 3, 6, 10, 20, 50, 100, 200, 250, 500, 1000, 2000, 
 
 # Department codes (all 95 French departments + aliases)
 DEPARTMENT_CODES = {
-    "ain": "01", "aisne": "02", "allier": "03", "alpes-de-haute-provence": "04",
-    "hautes-alpes": "05", "alpes-maritimes": "06", "ardeche": "07", "ardennes": "08",
-    "ariege": "09", "aube": "10", "aude": "11", "aveyron": "12",
-    "bouches-du-rhone": "13", "calvados": "14", "cantal": "15", "charente": "16",
-    "charente-maritime": "17", "cher": "18", "correze": "19", "corse-du-sud": "2A",
-    "haute-corse": "2B", "cote-d-or": "21", "cotes-d-armor": "22", "creuse": "23",
-    "dordogne": "24", "doubs": "25", "drome": "26", "eure": "27",
-    "eure-et-loir": "28", "finistere": "29", "gard": "30", "haute-garonne": "31",
-    "gers": "32", "gironde": "33", "herault": "34", "ille-et-vilaine": "35",
-    "indre": "36", "indre-et-loire": "37", "isere": "38", "jura": "39",
-    "landes": "40", "loir-et-cher": "41", "loire": "42", "haute-loire": "43",
-    "loire-atlantique": "44", "loiret": "45", "lot": "46", "lot-et-garonne": "47",
-    "lozere": "48", "maine-et-loire": "49", "manche": "50", "marne": "51",
-    "haute-marne": "52", "mayenne": "53", "meurthe-et-moselle": "54", "meuse": "55",
-    "morbihan": "56", "moselle": "57", "nievre": "58", "nord": "59",
-    "oise": "60", "orne": "61", "pas-de-calais": "62", "puy-de-dome": "63",
-    "pyrenees-atlantiques": "64", "hautes-pyrenees": "65", "pyrenees-orientales": "66",
-    "bas-rhin": "67", "haut-rhin": "68", "rhone": "69", "haute-saone": "70",
-    "saone-et-loire": "71", "sarthe": "72", "savoie": "73", "haute-savoie": "74",
-    "paris": "75", "seine-maritime": "76", "seine-et-marne": "77", "yvelines": "78",
-    "deux-sevres": "79", "somme": "80", "tarn": "81", "tarn-et-garonne": "82",
-    "var": "83", "vaucluse": "84", "vendee": "85", "vienne": "86",
-    "haute-vienne": "87", "vosges": "88", "yonne": "89", "territoire-de-belfort": "90",
-    "essonne": "91", "hauts-de-seine": "92", "seine-saint-denis": "93",
-    "val-de-marne": "94", "val-d-oise": "95",
+    "ain": "01",
+    "aisne": "02",
+    "allier": "03",
+    "alpes-de-haute-provence": "04",
+    "hautes-alpes": "05",
+    "alpes-maritimes": "06",
+    "ardeche": "07",
+    "ardennes": "08",
+    "ariege": "09",
+    "aube": "10",
+    "aude": "11",
+    "aveyron": "12",
+    "bouches-du-rhone": "13",
+    "calvados": "14",
+    "cantal": "15",
+    "charente": "16",
+    "charente-maritime": "17",
+    "cher": "18",
+    "correze": "19",
+    "corse-du-sud": "2A",
+    "haute-corse": "2B",
+    "cote-d-or": "21",
+    "cotes-d-armor": "22",
+    "creuse": "23",
+    "dordogne": "24",
+    "doubs": "25",
+    "drome": "26",
+    "eure": "27",
+    "eure-et-loir": "28",
+    "finistere": "29",
+    "gard": "30",
+    "haute-garonne": "31",
+    "gers": "32",
+    "gironde": "33",
+    "herault": "34",
+    "ille-et-vilaine": "35",
+    "indre": "36",
+    "indre-et-loire": "37",
+    "isere": "38",
+    "jura": "39",
+    "landes": "40",
+    "loir-et-cher": "41",
+    "loire": "42",
+    "haute-loire": "43",
+    "loire-atlantique": "44",
+    "loiret": "45",
+    "lot": "46",
+    "lot-et-garonne": "47",
+    "lozere": "48",
+    "maine-et-loire": "49",
+    "manche": "50",
+    "marne": "51",
+    "haute-marne": "52",
+    "mayenne": "53",
+    "meurthe-et-moselle": "54",
+    "meuse": "55",
+    "morbihan": "56",
+    "moselle": "57",
+    "nievre": "58",
+    "nord": "59",
+    "oise": "60",
+    "orne": "61",
+    "pas-de-calais": "62",
+    "puy-de-dome": "63",
+    "pyrenees-atlantiques": "64",
+    "hautes-pyrenees": "65",
+    "pyrenees-orientales": "66",
+    "bas-rhin": "67",
+    "haut-rhin": "68",
+    "rhone": "69",
+    "haute-saone": "70",
+    "saone-et-loire": "71",
+    "sarthe": "72",
+    "savoie": "73",
+    "haute-savoie": "74",
+    "paris": "75",
+    "seine-maritime": "76",
+    "seine-et-marne": "77",
+    "yvelines": "78",
+    "deux-sevres": "79",
+    "somme": "80",
+    "tarn": "81",
+    "tarn-et-garonne": "82",
+    "var": "83",
+    "vaucluse": "84",
+    "vendee": "85",
+    "vienne": "86",
+    "haute-vienne": "87",
+    "vosges": "88",
+    "yonne": "89",
+    "territoire-de-belfort": "90",
+    "essonne": "91",
+    "hauts-de-seine": "92",
+    "seine-saint-denis": "93",
+    "val-de-marne": "94",
+    "val-d-oise": "95",
     # City aliases
-    "lyon": "69", "marseille": "13", "lille": "59", "toulouse": "31",
-    "bordeaux": "33", "nantes": "44", "strasbourg": "67", "nice": "06",
+    "lyon": "69",
+    "marseille": "13",
+    "lille": "59",
+    "toulouse": "31",
+    "bordeaux": "33",
+    "nantes": "44",
+    "strasbourg": "67",
+    "nice": "06",
 }
 
 
 def _normalize_text(text: str) -> str:
     """Remove accents and normalize text for matching."""
     import unicodedata
-    normalized = unicodedata.normalize('NFD', text)
-    return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn').lower().strip()
+
+    normalized = unicodedata.normalize("NFD", text)
+    return "".join(c for c in normalized if unicodedata.category(c) != "Mn").lower().strip()
 
 
 def _normalize_effectif(effectif_min: str) -> str | None:
@@ -230,7 +309,7 @@ def sirene_search(
     region: str | None = None,
     activite: str | None = None,
     effectif_min: str | None = None,
-    limite: int = 20
+    limite: int = 20,
 ) -> dict:
     """Search French companies in the Sirene database.
 
@@ -337,13 +416,15 @@ def sirene_get(siret: str) -> dict:
         siret_clean = siret.replace(" ", "").replace(".", "")
 
         if len(siret_clean) != 14:
-            return {"success": False, "error": f"Invalid SIRET: must be 14 digits, got {len(siret_clean)}"}
+            return {
+                "success": False,
+                "error": f"Invalid SIRET: must be 14 digits, got {len(siret_clean)}",
+            }
 
         # Use synchronous httpx client
         with httpx.Client(timeout=30.0) as client:
             response = client.get(
-                f"{SIRENE_API_BASE}/search",
-                params={"q": siret_clean, "per_page": 1}
+                f"{SIRENE_API_BASE}/search", params={"q": siret_clean, "per_page": 1}
             )
 
             if response.status_code == 429:
@@ -376,6 +457,7 @@ def sirene_get(siret: str) -> dict:
 # GEO TOOLS
 # ============================================================================
 
+
 def geo_locate(address: str) -> dict:
     """Geocode an address to get coordinates.
 
@@ -390,22 +472,19 @@ def geo_locate(address: str) -> dict:
         - city: City name
         - postcode: Postal code
     """
+
     async def _locate(addr):
         from src.cli.v2.agents.tools import register_all_tools
         from src.cli.v2.agents.unified.tools import ToolRegistry
 
         registry = ToolRegistry()
         register_all_tools(registry)
-        return await registry.execute('geo.locate', {'address': addr})
+        return await registry.execute("geo.locate", {"address": addr})
 
     return _run_async_factory(_locate, address)
 
 
-def geo_map(
-    locations: list[dict],
-    title: str = "Map",
-    style: str = "default"
-) -> dict:
+def geo_map(locations: list[dict], title: str = "Map", style: str = "default") -> dict:
     """Generate an interactive Folium map with markers.
 
     Args:
@@ -420,17 +499,21 @@ def geo_map(
         - markers: Number of markers on map
         - center: Map center coordinates
     """
+
     async def _map(locs, t, s):
         from src.cli.v2.agents.tools import register_all_tools
         from src.cli.v2.agents.unified.tools import ToolRegistry
 
         registry = ToolRegistry()
         register_all_tools(registry)
-        return await registry.execute('geo.map', {
-            'locations': locs,
-            'title': t,
-            'style': s,
-        })
+        return await registry.execute(
+            "geo.map",
+            {
+                "locations": locs,
+                "title": t,
+                "style": s,
+            },
+        )
 
     return _run_async_factory(_map, locations, title, style)
 
@@ -445,13 +528,14 @@ def geo_search_commune(name: str) -> dict:
         Dictionary with commune info: name, INSEE code, postal codes,
         department, region, population, coordinates
     """
+
     async def _search(n):
         from src.cli.v2.agents.tools import register_all_tools
         from src.cli.v2.agents.unified.tools import ToolRegistry
 
         registry = ToolRegistry()
         register_all_tools(registry)
-        return await registry.execute('geo.search_commune', {'name': n})
+        return await registry.execute("geo.search_commune", {"name": n})
 
     return _run_async_factory(_search, name)
 
@@ -460,11 +544,9 @@ def geo_search_commune(name: str) -> dict:
 # SUBVENTIONS TOOLS
 # ============================================================================
 
+
 def aides_search(
-    text: str,
-    territory: str | None = None,
-    categories: list[str] | None = None,
-    limit: int = 10
+    text: str, territory: str | None = None, categories: list[str] | None = None, limit: int = 10
 ) -> dict:
     """Search public subsidies and grants catalog.
 
@@ -479,18 +561,22 @@ def aides_search(
         - aides: List of subsidies with name, description, eligibility, amounts
         - count: Number of results
     """
+
     async def _search(txt, terr, cats, lim):
         from src.cli.v2.agents.tools import register_all_tools
         from src.cli.v2.agents.unified.tools import ToolRegistry
 
         registry = ToolRegistry()
         register_all_tools(registry)
-        return await registry.execute('aides.search', {
-            'text': txt,
-            'territory': terr,
-            'categories': cats,
-            'limit': lim,
-        })
+        return await registry.execute(
+            "aides.search",
+            {
+                "text": txt,
+                "territory": terr,
+                "categories": cats,
+                "limit": lim,
+            },
+        )
 
     return _run_async_factory(_search, text, territory, categories, limit)
 
@@ -505,16 +591,20 @@ def subventions_by_theme(theme: str, limit: int = 20) -> dict:
     Returns:
         Dictionary with subsidies for the theme
     """
+
     async def _search(th, lim):
         from src.cli.v2.agents.tools import register_all_tools
         from src.cli.v2.agents.unified.tools import ToolRegistry
 
         registry = ToolRegistry()
         register_all_tools(registry)
-        return await registry.execute('subventions.by_theme', {
-            'theme': th,
-            'limit': lim,
-        })
+        return await registry.execute(
+            "subventions.by_theme",
+            {
+                "theme": th,
+                "limit": lim,
+            },
+        )
 
     return _run_async_factory(_search, theme, limit)
 
@@ -522,6 +612,7 @@ def subventions_by_theme(theme: str, limit: int = 20) -> dict:
 # ============================================================================
 # TOOL REGISTRATION
 # ============================================================================
+
 
 def get_territorial_tools() -> list[FunctionTool]:
     """Get all territorial intelligence tools as Camel FunctionTools.

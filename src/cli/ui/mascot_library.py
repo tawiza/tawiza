@@ -1,4 +1,5 @@
 """Bibliothèque de mascottes par style."""
+
 from dataclasses import dataclass
 
 from .mascot_config import MascotStyle
@@ -7,6 +8,7 @@ from .mascot_config import MascotStyle
 @dataclass
 class MascotFaces:
     """Ensemble d'expressions pour une mascotte."""
+
     happy: str
     sad: str
     thinking: str
@@ -15,6 +17,7 @@ class MascotFaces:
     success: str
     waiting: str
     excited: str
+
 
 MASCOT_LIBRARY: dict[MascotStyle, MascotFaces] = {
     MascotStyle.KAWAII: MascotFaces(
@@ -68,6 +71,7 @@ MASCOT_LIBRARY: dict[MascotStyle, MascotFaces] = {
         excited="*_*",
     ),
 }
+
 
 def get_mascot_for_style(style: MascotStyle) -> MascotFaces:
     """Retourne les expressions pour un style donné."""

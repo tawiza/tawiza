@@ -1,6 +1,5 @@
 """Sparkline Widget - Mini inline charts for metrics."""
 
-
 from textual.reactive import reactive
 from textual.widget import Widget
 
@@ -42,7 +41,7 @@ class Sparkline(Widget):
         color: str = "primary",
         show_value: bool = True,
         label: str = "",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._data = data or []
@@ -64,7 +63,7 @@ class Sparkline(Widget):
             range_val = 1
 
         # Take last N values based on width
-        display_data = self._data[-self._width:]
+        display_data = self._data[-self._width :]
 
         # Build sparkline string
         bars = []
@@ -142,10 +141,7 @@ class MultiSparkline(Widget):
     """
 
     def __init__(
-        self,
-        metrics: list[tuple[str, str, float, float]] | None = None,
-        width: int = 30,
-        **kwargs
+        self, metrics: list[tuple[str, str, float, float]] | None = None, width: int = 30, **kwargs
     ):
         """Initialize with list of (label, color, min, max) tuples."""
         super().__init__(**kwargs)
@@ -166,7 +162,7 @@ class MultiSparkline(Widget):
 
             # Build sparkline
             range_val = max_val - min_val if max_val != min_val else 1
-            display_data = data[-self._width:]
+            display_data = data[-self._width :]
 
             bars = []
             for val in display_data:
@@ -252,7 +248,7 @@ class MetricCard(Widget):
         max_val: float = 100.0,
         color: str = "primary",
         icon: str = "",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._title = title

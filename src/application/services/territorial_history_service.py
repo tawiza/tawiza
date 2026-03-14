@@ -21,10 +21,7 @@ class TerritorialHistoryService:
         self.session = session
 
     async def create_snapshot(
-        self,
-        territory_code: str,
-        data: dict[str, Any],
-        source: str = "api"
+        self, territory_code: str, data: dict[str, Any], source: str = "api"
     ) -> TerritorialSnapshot:
         """Create a new territorial snapshot.
 
@@ -71,7 +68,7 @@ class TerritorialHistoryService:
         territory_code: str,
         start_date: datetime | None = None,
         end_date: datetime | None = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> list[TerritorialSnapshot]:
         """Get historical snapshots for a territory.
 
@@ -99,10 +96,7 @@ class TerritorialHistoryService:
         return list(result.scalars().all())
 
     async def compute_trends(
-        self,
-        territory_code: str,
-        indicator: str,
-        period: str = "12m"
+        self, territory_code: str, indicator: str, period: str = "12m"
     ) -> dict[str, Any]:
         """Compute trends from historical data.
 
@@ -117,11 +111,7 @@ class TerritorialHistoryService:
         months = {"3m": 3, "6m": 6, "12m": 12, "24m": 24}.get(period, 12)
         start_date = datetime.utcnow() - timedelta(days=months * 30)
 
-        snapshots = await self.get_snapshots(
-            territory_code,
-            start_date=start_date,
-            limit=months
-        )
+        snapshots = await self.get_snapshots(territory_code, start_date=start_date, limit=months)
 
         if not snapshots:
             logger.warning(f"No historical data for {territory_code}/{indicator}")
@@ -132,10 +122,7 @@ class TerritorialHistoryService:
         for snap in reversed(snapshots):  # Oldest first
             value = getattr(snap, indicator, None)
             if value is not None:
-                data_points.append({
-                    "date": snap.snapshot_date.isoformat(),
-                    "value": value
-                })
+                data_points.append({"date": snap.snapshot_date.isoformat(), "value": value})
 
         if len(data_points) < 2:
             return self._empty_trend()
@@ -152,7 +139,7 @@ class TerritorialHistoryService:
             "data_points": data_points,
             "period": period,
             "computed_at": datetime.utcnow().isoformat(),
-            "is_real_data": True
+            "is_real_data": True,
         }
 
     def _empty_trend(self) -> dict[str, Any]:
@@ -163,13 +150,11 @@ class TerritorialHistoryService:
             "change": 0,
             "direction": "unknown",
             "data_points": [],
-            "is_real_data": False
+            "is_real_data": False,
         }
 
     async def get_or_compute_trends(
-        self,
-        territory_code: str,
-        period: str = "12m"
+        self, territory_code: str, period: str = "12m"
     ) -> dict[str, Any]:
         """Get trends for all main indicators.
 
@@ -188,7 +173,7 @@ class TerritorialHistoryService:
             "population",
             "unemployment_rate",
             "real_estate_price_m2",
-            "attractiveness_score"
+            "attractiveness_score",
         ]
 
         trends = {}
@@ -205,15 +190,14 @@ class TerritorialHistoryService:
             "period": period,
             "has_real_data": has_real_data,
             "trends": trends,
-            "note": "Données historiques réelles" if has_real_data else "Données estimées - historique insuffisant"
+            "note": "Données historiques réelles"
+            if has_real_data
+            else "Données estimées - historique insuffisant",
         }
 
 
 async def collect_territorial_snapshot(
-    session: AsyncSession,
-    territory_code: str,
-    sirene_adapter,
-    insee_adapter=None
+    session: AsyncSession, territory_code: str, sirene_adapter, insee_adapter=None
 ) -> TerritorialSnapshot | None:
     """Helper to collect and store a snapshot from APIs.
 
@@ -223,10 +207,7 @@ async def collect_territorial_snapshot(
         data = {}
 
         # Get enterprise count from SIRENE
-        sirene_result = await sirene_adapter.search({
-            "departement": territory_code,
-            "per_page": 1
-        })
+        sirene_result = await sirene_adapter.search({"departement": territory_code, "per_page": 1})
         if sirene_result:
             data["entreprises_count"] = sirene_result.get("total_results", 0)
 

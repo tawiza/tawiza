@@ -14,11 +14,11 @@ class MetricsStorage:
 
     # Retention policies (in days)
     RETENTION = {
-        "raw": 1,           # 1 day for raw data
-        "1min": 1,          # 1 day for 1-minute aggregates
-        "5min": 7,          # 7 days for 5-minute aggregates
-        "hourly": 30,       # 30 days for hourly aggregates
-        "daily": 365,       # 1 year for daily aggregates
+        "raw": 1,  # 1 day for raw data
+        "1min": 1,  # 1 day for 1-minute aggregates
+        "5min": 7,  # 7 days for 5-minute aggregates
+        "hourly": 30,  # 30 days for hourly aggregates
+        "daily": 365,  # 1 year for daily aggregates
     }
 
     def __init__(self, db_path: Path | None = None):
@@ -85,8 +85,14 @@ class MetricsStorage:
                 ON metrics_raw(category, name)
             """)
 
-    def record(self, category: MetricCategory, name: str, value: float,
-               unit: str = "", tags: dict | None = None) -> None:
+    def record(
+        self,
+        category: MetricCategory,
+        name: str,
+        value: float,
+        unit: str = "",
+        tags: dict | None = None,
+    ) -> None:
         """Record a single metric point.
 
         Args:
@@ -98,17 +104,20 @@ class MetricsStorage:
         """
         with self._get_conn() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO metrics_raw (timestamp, category, name, value, unit, tags)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                datetime.now().isoformat(),
-                category.value,
-                name,
-                value,
-                unit,
-                json.dumps(tags or {}),
-            ))
+            """,
+                (
+                    datetime.now().isoformat(),
+                    category.value,
+                    name,
+                    value,
+                    unit,
+                    json.dumps(tags or {}),
+                ),
+            )
 
     def record_batch(self, metrics: dict[str, dict]) -> None:
         """Record multiple metrics at once.
@@ -125,10 +134,13 @@ class MetricsStorage:
                 cat = MetricCategory(category) if isinstance(category, str) else category
                 for name, value in values.items():
                     if isinstance(value, (int, float)):
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                             INSERT INTO metrics_raw (timestamp, category, name, value)
                             VALUES (?, ?, ?, ?)
-                        """, (timestamp, cat.value, name, value))
+                        """,
+                            (timestamp, cat.value, name, value),
+                        )
 
     def query(
         self,
@@ -289,7 +301,8 @@ class MetricsStorage:
             count = 0
             for pair in pairs:
                 # Group and aggregate
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     INSERT INTO metrics_{resolution}
                     (timestamp, category, name, min_value, max_value, avg_value, count)
                     SELECT
@@ -303,7 +316,9 @@ class MetricsStorage:
                     FROM metrics_raw
                     WHERE category = ? AND name = ?
                     GROUP BY ts, category, name
-                """, (pair["category"], pair["name"]))
+                """,
+                    (pair["category"], pair["name"]),
+                )
                 count += cursor.rowcount
 
             return count
@@ -327,9 +342,12 @@ class MetricsStorage:
                 cutoff = (datetime.now() - timedelta(days=actual_days)).isoformat()
 
                 table_name = f"metrics_{table}" if table != "raw" else "metrics_raw"
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     DELETE FROM {table_name} WHERE timestamp < ?
-                """, (cutoff,))
+                """,
+                    (cutoff,),
+                )
                 deleted += cursor.rowcount
 
         return deleted
@@ -356,7 +374,10 @@ class MetricsStorage:
         """
         with self._get_conn() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT DISTINCT name FROM metrics_raw WHERE category = ?
-            """, (category.value,))
+            """,
+                (category.value,),
+            )
             return [row["name"] for row in cursor.fetchall()]

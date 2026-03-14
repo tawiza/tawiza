@@ -125,17 +125,15 @@ class MinIOStorageAdapter(IModelStorageService):
         if not filename:
             raise ValueError("Filename cannot be empty")
 
-        if '/' in filename or '\\' in filename:
+        if "/" in filename or "\\" in filename:
             raise ValueError("Filename cannot contain path separators")
 
-        if '..' in filename:
+        if ".." in filename:
             raise ValueError("Filename cannot contain parent directory references")
 
         # Additional check: filename should be alphanumeric with dots/hyphens
-        if not all(c.isalnum() or c in '.-_' for c in filename):
-            raise ValueError(
-                f"Filename contains invalid characters: {filename}"
-            )
+        if not all(c.isalnum() or c in ".-_" for c in filename):
+            raise ValueError(f"Filename contains invalid characters: {filename}")
 
         return f"{validated_model_name}/{version}/{filename}"
 
@@ -239,15 +237,11 @@ class MinIOStorageAdapter(IModelStorageService):
             if version is None:
                 version = await self.get_latest_version(model_name)
                 if version is None:
-                    raise ModelNotFoundError(
-                        f"No versions found for model: {model_name}"
-                    )
+                    raise ModelNotFoundError(f"No versions found for model: {model_name}")
 
             # Check if version exists
             if not await self.version_exists(model_name, version):
-                raise ModelNotFoundError(
-                    f"Model {model_name} version {version} not found"
-                )
+                raise ModelNotFoundError(f"Model {model_name} version {version} not found")
 
             # Retrieve modelfile
             modelfile_path = self._get_object_path(model_name, version, "modelfile")
@@ -265,9 +259,7 @@ class MinIOStorageAdapter(IModelStorageService):
 
         except S3Error as e:
             if e.code == "NoSuchKey":
-                raise ModelNotFoundError(
-                    f"Model {model_name} version {version} not found"
-                )
+                raise ModelNotFoundError(f"Model {model_name} version {version} not found")
             logger.error(f"Failed to retrieve model {model_name} {version}: {e}")
             raise StorageError(f"Model retrieval failed: {e}")
 
@@ -293,9 +285,7 @@ class MinIOStorageAdapter(IModelStorageService):
 
             # List all objects under model_name/
             prefix = f"{model_name}/"
-            objects = self.client.list_objects(
-                self.bucket_name, prefix=prefix, recursive=True
-            )
+            objects = self.client.list_objects(self.bucket_name, prefix=prefix, recursive=True)
 
             # Extract version numbers from paths
             version_numbers = set()
@@ -378,9 +368,7 @@ class MinIOStorageAdapter(IModelStorageService):
         try:
             # Check if version exists
             if not await self.version_exists(model_name, version):
-                raise ModelNotFoundError(
-                    f"Model {model_name} version {version} not found"
-                )
+                raise ModelNotFoundError(f"Model {model_name} version {version} not found")
 
             # Delete modelfile
             modelfile_path = self._get_object_path(model_name, version, "modelfile")
@@ -463,9 +451,7 @@ class MinIOStorageAdapter(IModelStorageService):
 
         except S3Error as e:
             if e.code == "NoSuchKey":
-                raise ModelNotFoundError(
-                    f"Metadata for {model_name} {version} not found"
-                )
+                raise ModelNotFoundError(f"Metadata for {model_name} {version} not found")
             logger.error(f"Failed to get metadata for {model_name} {version}: {e}")
             raise StorageError(f"Metadata retrieval failed: {e}")
 
@@ -489,9 +475,7 @@ class MinIOStorageAdapter(IModelStorageService):
         try:
             # Check if version exists
             if not await self.version_exists(model_name, version):
-                raise ModelNotFoundError(
-                    f"Model {model_name} version {version} not found"
-                )
+                raise ModelNotFoundError(f"Model {model_name} version {version} not found")
 
             # Store updated metadata
             metadata_path = self._get_object_path(model_name, version, "metadata.json")
@@ -594,9 +578,7 @@ class MinIOStorageAdapter(IModelStorageService):
             }
 
             prefix = f"{model_name}/" if model_name else ""
-            objects = self.client.list_objects(
-                self.bucket_name, prefix=prefix, recursive=True
-            )
+            objects = self.client.list_objects(self.bucket_name, prefix=prefix, recursive=True)
 
             for obj in objects:
                 stats["total_size_bytes"] += obj.size
@@ -619,15 +601,13 @@ class MinIOStorageAdapter(IModelStorageService):
 
             # Count versions and convert sets to lists
             for model in stats["models"]:
-                stats["models"][model]["version_count"] = len(
-                    stats["models"][model]["versions"]
-                )
-                stats["models"][model]["versions"] = sorted(
-                    stats["models"][model]["versions"]
-                )
+                stats["models"][model]["version_count"] = len(stats["models"][model]["versions"])
+                stats["models"][model]["versions"] = sorted(stats["models"][model]["versions"])
                 stats["total_versions"] += stats["models"][model]["version_count"]
 
-            logger.info(f"Storage stats: {stats['total_versions']} versions, {stats['total_size_bytes']} bytes")
+            logger.info(
+                f"Storage stats: {stats['total_versions']} versions, {stats['total_size_bytes']} bytes"
+            )
 
             return stats
 
@@ -659,13 +639,11 @@ class MinIOStorageAdapter(IModelStorageService):
             # SECURITY FIX (VULN-005): Validate export path to prevent path traversal
             validated_export_path = validate_path(
                 str(export_path),
-                must_be_within_base=False  # Allow exports anywhere
+                must_be_within_base=False,  # Allow exports anywhere
             )
 
             # Retrieve model
-            modelfile_content, metadata = await self.retrieve_model(
-                model_name, version
-            )
+            modelfile_content, metadata = await self.retrieve_model(model_name, version)
 
             # Ensure export directory exists
             validated_export_path.parent.mkdir(parents=True, exist_ok=True)

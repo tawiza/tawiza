@@ -15,6 +15,7 @@ from .context_manager import ConversationContext
 
 class DialogState(StrEnum):
     """Dialog states"""
+
     IDLE = "idle"
     GREETING = "greeting"
     HELPING = "helping"
@@ -27,6 +28,7 @@ class DialogState(StrEnum):
 @dataclass
 class DialogAction:
     """Action to take in dialog"""
+
     action_type: str
     parameters: dict[str, Any] = field(default_factory=dict)
     next_state: DialogState | None = None
@@ -54,9 +56,7 @@ class DialogManager:
             "end_conversation": self._handle_end_conversation,
         }
 
-    async def process_turn(self,
-                          user_input: str,
-                          context: ConversationContext) -> dict[str, Any]:
+    async def process_turn(self, user_input: str, context: ConversationContext) -> dict[str, Any]:
         """
         Process a conversation turn
 
@@ -77,18 +77,20 @@ class DialogManager:
         self._transition_state(action.next_state)
 
         # Store in history
-        self.state_history.append({
-            "timestamp": datetime.now(),
-            "state": self.current_state.value,
-            "action": action.action_type,
-            "user_input": user_input
-        })
+        self.state_history.append(
+            {
+                "timestamp": datetime.now(),
+                "state": self.current_state.value,
+                "action": action.action_type,
+                "user_input": user_input,
+            }
+        )
 
         return {
             "action": action.action_type,
             "state": self.current_state.value,
             "result": result,
-            "requires_confirmation": action.requires_confirmation
+            "requires_confirmation": action.requires_confirmation,
         }
 
     def _determine_action(self, user_input: str, context: ConversationContext) -> DialogAction:
@@ -98,17 +100,11 @@ class DialogManager:
 
         # Greeting detection
         if any(word in text_lower for word in ["hello", "hi", "hey", "greetings"]):
-            return DialogAction(
-                action_type="greet",
-                next_state=DialogState.GREETING
-            )
+            return DialogAction(action_type="greet", next_state=DialogState.GREETING)
 
         # Help request detection
         if any(phrase in text_lower for phrase in ["help", "what can you", "how do i", "?"]):
-            return DialogAction(
-                action_type="provide_help",
-                next_state=DialogState.HELPING
-            )
+            return DialogAction(action_type="provide_help", next_state=DialogState.HELPING)
 
         # Command execution detection
         if any(word in text_lower for word in ["run", "execute", "start", "show", "list"]):
@@ -116,33 +112,23 @@ class DialogManager:
                 action_type="execute_command",
                 parameters={"command_hint": text_lower},
                 next_state=DialogState.EXECUTING,
-                requires_confirmation=True
+                requires_confirmation=True,
             )
 
         # Exit/goodbye detection
         if any(word in text_lower for word in ["bye", "goodbye", "exit", "quit"]):
-            return DialogAction(
-                action_type="end_conversation",
-                next_state=DialogState.ENDING
-            )
+            return DialogAction(action_type="end_conversation", next_state=DialogState.ENDING)
 
         # Clarification needed
         if len(text_lower.split()) < 3 or text_lower.count("?") > 2:
-            return DialogAction(
-                action_type="clarify",
-                next_state=DialogState.CLARIFYING
-            )
+            return DialogAction(action_type="clarify", next_state=DialogState.CLARIFYING)
 
         # Default: provide help
-        return DialogAction(
-            action_type="provide_help",
-            next_state=DialogState.HELPING
-        )
+        return DialogAction(action_type="provide_help", next_state=DialogState.HELPING)
 
-    async def _execute_action(self,
-                             action: DialogAction,
-                             user_input: str,
-                             context: ConversationContext) -> dict[str, Any]:
+    async def _execute_action(
+        self, action: DialogAction, user_input: str, context: ConversationContext
+    ) -> dict[str, Any]:
         """Execute dialog action"""
 
         handler = self.action_handlers.get(action.action_type)
@@ -151,17 +137,21 @@ class DialogManager:
 
         return await handler(user_input, context, action.parameters)
 
-    async def _handle_greeting(self, user_input: str, context: ConversationContext, params: dict) -> dict[str, Any]:
+    async def _handle_greeting(
+        self, user_input: str, context: ConversationContext, params: dict
+    ) -> dict[str, Any]:
         """Handle greeting"""
         return {
             "response_type": "greeting",
             "suggestions": [
                 "What would you like to do?",
-                "Ask me about models, fine-tuning, or system status"
-            ]
+                "Ask me about models, fine-tuning, or system status",
+            ],
         }
 
-    async def _handle_help_request(self, user_input: str, context: ConversationContext, params: dict) -> dict[str, Any]:
+    async def _handle_help_request(
+        self, user_input: str, context: ConversationContext, params: dict
+    ) -> dict[str, Any]:
         """Handle help request"""
 
         # Detect specific help topic
@@ -184,11 +174,13 @@ class DialogManager:
             "suggestions": [
                 "List available models",
                 "Start a fine-tuning job",
-                "Check system status"
-            ]
+                "Check system status",
+            ],
         }
 
-    async def _handle_command_execution(self, user_input: str, context: ConversationContext, params: dict) -> dict[str, Any]:
+    async def _handle_command_execution(
+        self, user_input: str, context: ConversationContext, params: dict
+    ) -> dict[str, Any]:
         """Handle command execution"""
 
         # Extract potential command
@@ -201,50 +193,44 @@ class DialogManager:
             "response_type": "command_suggestion",
             "suggested_command": suggested_command,
             "needs_confirmation": True,
-            "explanation": "I think you want to run this command. Shall I proceed?"
+            "explanation": "I think you want to run this command. Shall I proceed?",
         }
 
-    async def _handle_clarification(self, user_input: str, context: ConversationContext, params: dict) -> dict[str, Any]:
+    async def _handle_clarification(
+        self, user_input: str, context: ConversationContext, params: dict
+    ) -> dict[str, Any]:
         """Handle clarification request"""
         return {
             "response_type": "clarification",
             "questions": [
                 "What specific aspect would you like help with?",
-                "Could you provide more details?"
-            ]
+                "Could you provide more details?",
+            ],
         }
 
-    async def _handle_confirmation(self, user_input: str, context: ConversationContext, params: dict) -> dict[str, Any]:
+    async def _handle_confirmation(
+        self, user_input: str, context: ConversationContext, params: dict
+    ) -> dict[str, Any]:
         """Handle confirmation"""
 
         text_lower = user_input.lower()
 
         # Positive confirmation
         if any(word in text_lower for word in ["yes", "yeah", "sure", "ok", "proceed"]):
-            return {
-                "response_type": "confirmed",
-                "action": "execute_pending_action"
-            }
+            return {"response_type": "confirmed", "action": "execute_pending_action"}
 
         # Negative confirmation
         if any(word in text_lower for word in ["no", "nope", "cancel", "stop"]):
-            return {
-                "response_type": "cancelled",
-                "action": "cancel_pending_action"
-            }
+            return {"response_type": "cancelled", "action": "cancel_pending_action"}
 
         # Unclear - ask again
-        return {
-            "response_type": "unclear",
-            "action": "request_clarification"
-        }
+        return {"response_type": "unclear", "action": "request_clarification"}
 
-    async def _handle_end_conversation(self, user_input: str, context: ConversationContext, params: dict) -> dict[str, Any]:
+    async def _handle_end_conversation(
+        self, user_input: str, context: ConversationContext, params: dict
+    ) -> dict[str, Any]:
         """Handle conversation ending"""
-        return {
-            "response_type": "farewell",
-            "should_exit": True
-        }
+        return {"response_type": "farewell", "should_exit": True}
 
     def _transition_state(self, new_state: DialogState | None):
         """Transition to new dialog state"""
@@ -271,10 +257,14 @@ class DialogManager:
             return "tawiza models pull <model-name>"
 
         # Fine-tuning commands
-        if "start" in text_lower and any(w in text_lower for w in ["finetune", "fine-tune", "training"]):
+        if "start" in text_lower and any(
+            w in text_lower for w in ["finetune", "fine-tune", "training"]
+        ):
             return "tawiza finetune start --config <config-file>"
 
-        if "status" in text_lower and any(w in text_lower for w in ["finetune", "fine-tune", "job"]):
+        if "status" in text_lower and any(
+            w in text_lower for w in ["finetune", "fine-tune", "job"]
+        ):
             return "tawiza finetune status <job-id>"
 
         if "list" in text_lower and any(w in text_lower for w in ["finetune", "fine-tune", "job"]):
@@ -302,5 +292,5 @@ class DialogManager:
             "current_state": self.current_state.value,
             "total_turns": len(self.state_history),
             "states_visited": list({h["state"] for h in self.state_history}),
-            "actions_taken": list({h["action"] for h in self.state_history})
+            "actions_taken": list({h["action"] for h in self.state_history}),
         }

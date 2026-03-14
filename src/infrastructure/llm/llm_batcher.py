@@ -250,8 +250,8 @@ class LLMBatcher:
                     continue
 
                 # Take up to max_batch_size requests
-                batch = self._queues[model][:self._max_batch_size]
-                self._queues[model] = self._queues[model][self._max_batch_size:]
+                batch = self._queues[model][: self._max_batch_size]
+                self._queues[model] = self._queues[model][self._max_batch_size :]
 
             if batch:
                 tasks.append(self._process_batch(model, batch))
@@ -278,10 +278,7 @@ class LLMBatcher:
             logger.debug(f"Processing batch: model={model}, size={len(batch)}")
 
             # Process requests concurrently within the batch
-            tasks = [
-                self._process_single(request)
-                for request in batch
-            ]
+            tasks = [self._process_single(request) for request in batch]
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -305,9 +302,7 @@ class LLMBatcher:
             total_requests = self._stats["requests_processed"]
             self._stats["avg_batch_size"] = total_requests / total_batches
 
-            logger.debug(
-                f"Batch completed: {len(batch)} requests in {batch_latency:.0f}ms"
-            )
+            logger.debug(f"Batch completed: {len(batch)} requests in {batch_latency:.0f}ms")
 
     async def _process_single(self, request: BatchRequest) -> str:
         """Process a single request."""
@@ -469,8 +464,8 @@ class EmbeddingBatcher:
             if not self._queue:
                 return
 
-            batch = self._queue[:self._batch_size]
-            self._queue = self._queue[self._batch_size:]
+            batch = self._queue[: self._batch_size]
+            self._queue = self._queue[self._batch_size :]
 
         texts = [text for text, _ in batch]
         futures = [future for _, future in batch]
@@ -481,9 +476,7 @@ class EmbeddingBatcher:
                 embeddings = await self._batch_embed_func(texts)
             else:
                 # Fall back to individual calls
-                embeddings = await asyncio.gather(
-                    *[self._embed_func(text) for text in texts]
-                )
+                embeddings = await asyncio.gather(*[self._embed_func(text) for text in texts])
 
             for future, embedding in zip(futures, embeddings, strict=False):
                 future.set_result(embedding)

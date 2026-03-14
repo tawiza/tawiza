@@ -24,7 +24,9 @@ def _extract_text_from_html(html: str, max_length: int = 10000) -> str:
         soup = BeautifulSoup(html, "html.parser")
 
         # Remove noise elements
-        for element in soup(["script", "style", "nav", "footer", "header", "aside", "iframe", "noscript"]):
+        for element in soup(
+            ["script", "style", "nav", "footer", "header", "aside", "iframe", "noscript"]
+        ):
             element.decompose()
 
         # Get text
@@ -62,6 +64,7 @@ def _extract_text_from_pdf(pdf_path: str, max_pages: int = 50) -> str:
         # Fallback: try pdfplumber or pypdf
         try:
             import pypdf
+
             reader = pypdf.PdfReader(pdf_path)
             text_parts = []
             for i, page in enumerate(reader.pages[:max_pages]):
@@ -87,26 +90,26 @@ def _extract_entities(text: str) -> dict[str, list[str]]:
 
     # Amounts (€, euros, EUR)
     montant_patterns = [
-        r'(\d[\d\s]*(?:[.,]\d+)?\s*(?:€|euros?|EUR|M€|k€))',
-        r'(\d[\d\s]*(?:[.,]\d+)?\s*millions?\s*d\'euros)',
-        r'(\d[\d\s]*(?:[.,]\d+)?\s*milliards?\s*d\'euros)',
+        r"(\d[\d\s]*(?:[.,]\d+)?\s*(?:€|euros?|EUR|M€|k€))",
+        r"(\d[\d\s]*(?:[.,]\d+)?\s*millions?\s*d\'euros)",
+        r"(\d[\d\s]*(?:[.,]\d+)?\s*milliards?\s*d\'euros)",
     ]
     for pattern in montant_patterns:
         entities["montants"].extend(re.findall(pattern, text, re.IGNORECASE))
 
     # Dates
     date_patterns = [
-        r'\b(\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4})\b',
-        r'\b(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})\b',
+        r"\b(\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4})\b",
+        r"\b(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})\b",
     ]
     for pattern in date_patterns:
         entities["dates"].extend(re.findall(pattern, text, re.IGNORECASE))
 
     # Emails
-    entities["emails"] = re.findall(r'\b[\w.-]+@[\w.-]+\.\w+\b', text)
+    entities["emails"] = re.findall(r"\b[\w.-]+@[\w.-]+\.\w+\b", text)
 
     # SIRET (14 digits)
-    entities["sirets"] = re.findall(r'\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{5})\b', text)
+    entities["sirets"] = re.findall(r"\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{5})\b", text)
 
     # URLs
     entities["urls"] = re.findall(r'https?://[^\s<>"{}|\\^`\[\]]+', text)
@@ -124,9 +127,9 @@ def _extract_organizations(text: str) -> list[str]:
 
     # Common patterns for French organizations
     patterns = [
-        r'(?:la\s+)?(?:société|entreprise|groupe|association|fondation|institut|laboratoire|pôle|cluster)\s+([A-Z][A-Za-zÀ-ÿ\s\-&]+)',
-        r'([A-Z][A-Z0-9\s\-&]{2,}(?:\s+(?:SAS|SA|SARL|SNC|EURL|SASU))?)',  # Acronyms/company names
-        r'(?:Université|CNRS|INRIA|CEA|INSERM|Ifremer)\s+(?:de\s+)?([A-Za-zÀ-ÿ\s\-]+)',
+        r"(?:la\s+)?(?:société|entreprise|groupe|association|fondation|institut|laboratoire|pôle|cluster)\s+([A-Z][A-Za-zÀ-ÿ\s\-&]+)",
+        r"([A-Z][A-Z0-9\s\-&]{2,}(?:\s+(?:SAS|SA|SARL|SNC|EURL|SASU))?)",  # Acronyms/company names
+        r"(?:Université|CNRS|INRIA|CEA|INSERM|Ifremer)\s+(?:de\s+)?([A-Za-zÀ-ÿ\s\-]+)",
     ]
 
     for pattern in patterns:
@@ -169,6 +172,7 @@ def register_document_tools(registry: ToolRegistry) -> None:
                     if "pdf" in content_type:
                         # Download PDF to temp file
                         import tempfile
+
                         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
                             f.write(response.content)
                             temp_path = f.name
@@ -181,6 +185,7 @@ def register_document_tools(registry: ToolRegistry) -> None:
                         # Try to get title
                         try:
                             from bs4 import BeautifulSoup
+
                             soup = BeautifulSoup(response.text, "html.parser")
                             title_tag = soup.find("title")
                             if title_tag:
@@ -201,7 +206,9 @@ def register_document_tools(registry: ToolRegistry) -> None:
                     source_type = "pdf"
                     title = path.stem
                 elif suffix in [".html", ".htm"]:
-                    text = _extract_text_from_html(path.read_text(encoding="utf-8", errors="ignore"))
+                    text = _extract_text_from_html(
+                        path.read_text(encoding="utf-8", errors="ignore")
+                    )
                     source_type = "html"
                 elif suffix in [".txt", ".md", ".csv"]:
                     text = path.read_text(encoding="utf-8", errors="ignore")[:50000]
@@ -267,7 +274,9 @@ def register_document_tools(registry: ToolRegistry) -> None:
             logger.error(f"Document analysis failed: {e}")
             return {"success": False, "error": str(e)}
 
-    async def doc_summarize(content: str, focus: str | None = None, max_length: int = 500) -> dict[str, Any]:
+    async def doc_summarize(
+        content: str, focus: str | None = None, max_length: int = 500
+    ) -> dict[str, Any]:
         """Create a summary of document content.
 
         Note: For LLM-based summarization, use the agent's thinking capability.
@@ -286,7 +295,7 @@ def register_document_tools(registry: ToolRegistry) -> None:
                 return {"success": False, "error": "Content too short to summarize"}
 
             # Split into sentences
-            sentences = re.split(r'[.!?]+', content)
+            sentences = re.split(r"[.!?]+", content)
             sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
 
             if not sentences:
@@ -302,11 +311,19 @@ def register_document_tools(registry: ToolRegistry) -> None:
                     score += 1
 
                 # Contains numbers (often important)
-                if re.search(r'\d', sent):
+                if re.search(r"\d", sent):
                     score += 1
 
                 # Contains key terms
-                key_terms = ["important", "objectif", "résultat", "montant", "projet", "million", "euro"]
+                key_terms = [
+                    "important",
+                    "objectif",
+                    "résultat",
+                    "montant",
+                    "projet",
+                    "million",
+                    "euro",
+                ]
                 if any(term in sent.lower() for term in key_terms):
                     score += 2
 
@@ -314,13 +331,19 @@ def register_document_tools(registry: ToolRegistry) -> None:
                 if focus:
                     focus_lower = focus.lower()
                     if focus_lower in ["financier", "budget", "montant"]:
-                        if re.search(r'(?:€|euro|million|budget|financement)', sent, re.IGNORECASE):
+                        if re.search(r"(?:€|euro|million|budget|financement)", sent, re.IGNORECASE):
                             score += 3
                     elif focus_lower in ["acteur", "entreprise", "partenaire"]:
-                        if re.search(r'(?:société|entreprise|partenaire|consortium)', sent, re.IGNORECASE):
+                        if re.search(
+                            r"(?:société|entreprise|partenaire|consortium)", sent, re.IGNORECASE
+                        ):
                             score += 3
                     elif focus_lower in ["date", "calendrier", "délai"]:
-                        if re.search(r'(?:\d{4}|janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)', sent, re.IGNORECASE):
+                        if re.search(
+                            r"(?:\d{4}|janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)",
+                            sent,
+                            re.IGNORECASE,
+                        ):
                             score += 3
 
                 scored.append((score, sent))
@@ -387,10 +410,12 @@ def register_document_tools(registry: ToolRegistry) -> None:
                 if context_end < len(content):
                     excerpt = excerpt + "..."
 
-                matches.append({
-                    "position": pos,
-                    "excerpt": excerpt.replace("\n", " "),
-                })
+                matches.append(
+                    {
+                        "position": pos,
+                        "excerpt": excerpt.replace("\n", " "),
+                    }
+                )
 
                 start = pos + 1
 

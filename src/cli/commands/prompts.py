@@ -1,6 +1,5 @@
 """Prompt management commands for Tawiza CLI."""
 
-
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -17,7 +16,12 @@ app = typer.Typer(help="Prompt template management")
 
 @app.command("list")
 def list_templates(
-    format_filter: str | None = typer.Option(None, "--format", "-f", help="Filter by format (browser, alpaca, chatml, simple, system_user)"),
+    format_filter: str | None = typer.Option(
+        None,
+        "--format",
+        "-f",
+        help="Filter by format (browser, alpaca, chatml, simple, system_user)",
+    ),
 ):
     """List all prompt templates with visual indicators.
 
@@ -49,9 +53,7 @@ def list_templates(
 
         # Header with gradient
         header = ColorGradient.create_gradient(
-            f"Prompt Templates ({len(templates)})",
-            "#FF1493",
-            "#00CED1"
+            f"Prompt Templates ({len(templates)})", "#FF1493", "#00CED1"
         )
         console.print()
         console.print(header, justify="center")
@@ -148,7 +150,9 @@ def show_template(
 @app.command("create")
 def create_template(
     name: str = typer.Argument(..., help="Template name"),
-    format_type: str = typer.Option(..., "--format", "-f", help="Template format (browser, alpaca, chatml, simple, system_user)"),
+    format_type: str = typer.Option(
+        ..., "--format", "-f", help="Template format (browser, alpaca, chatml, simple, system_user)"
+    ),
     template: str = typer.Option(..., "--template", "-t", help="Template string with {variables}"),
     description: str = typer.Option("", "--description", "-d", help="Template description"),
     version: str = typer.Option("1.0", "--version", "-v", help="Template version"),
@@ -196,7 +200,9 @@ def create_template(
 @app.command("render")
 def render_template(
     name: str = typer.Argument(..., help="Template name"),
-    variables: list[str] = typer.Option([], "--var", "-v", help="Variable in key=value format (can be used multiple times)"),
+    variables: list[str] = typer.Option(
+        [], "--var", "-v", help="Variable in key=value format (can be used multiple times)"
+    ),
 ):
     """Render a template with variables.
 
@@ -231,7 +237,9 @@ def render_template(
 
         # Show rendered prompt
         console.print(f"\n[bold cyan]Template:[/bold cyan] {result['template_name']}")
-        console.print(f"[bold cyan]Variables:[/bold cyan] {', '.join(f'{k}={v}' for k, v in result['variables_used'].items())}\n")
+        console.print(
+            f"[bold cyan]Variables:[/bold cyan] {', '.join(f'{k}={v}' for k, v in result['variables_used'].items())}\n"
+        )
 
         console.print("[bold cyan]Rendered Prompt:[/bold cyan]")
         console.print(Panel(result["rendered_prompt"], border_style="green"))
@@ -309,9 +317,7 @@ def show_stats():
 
             # Sort by renders (descending)
             sorted_renders = sorted(
-                stats["renders_by_template"].items(),
-                key=lambda x: x[1],
-                reverse=True
+                stats["renders_by_template"].items(), key=lambda x: x[1], reverse=True
             )[:10]  # Top 10
 
             for template_name, render_count in sorted_renders:

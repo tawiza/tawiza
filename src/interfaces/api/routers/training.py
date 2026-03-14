@@ -36,7 +36,9 @@ class TrainModelRequest(BaseModel):
 
     name: str = Field(..., description="Model name")
     version: str = Field("1.0.0", description="Model version")
-    base_model: str = Field(..., description="Base model to fine-tune (e.g., 'meta-llama/Llama-2-7b-chat-hf')")
+    base_model: str = Field(
+        ..., description="Base model to fine-tune (e.g., 'meta-llama/Llama-2-7b-chat-hf')"
+    )
     dataset_id: UUID = Field(..., description="Dataset ID to use for training")
     description: str = Field("", description="Model description")
 
@@ -144,9 +146,7 @@ async def train_model(
         # 2. Check if model with same name/version already exists
         existing = await model_repo.get_by_name_and_version(request.name, request.version)
         if existing:
-            raise ValueError(
-                f"Model {request.name} v{request.version} already exists"
-            )
+            raise ValueError(f"Model {request.name} v{request.version} already exists")
 
         # 3. Create model entity
         model_id = uuid4()
@@ -463,7 +463,7 @@ async def trigger_retraining(
         )
 
         return TrainModelResponse(
-            job_id=result.job_id if hasattr(result, 'job_id') else uuid4(),
+            job_id=result.job_id if hasattr(result, "job_id") else uuid4(),
             status="started",
             message="Retraining job started",
         )

@@ -1,4 +1,5 @@
 """Centrality algorithms (PageRank, Betweenness)."""
+
 from dataclasses import dataclass
 
 from loguru import logger
@@ -7,6 +8,7 @@ from loguru import logger
 @dataclass
 class CentralityScore:
     """Centrality score for a company."""
+
     siren: str
     score: float
     rank: int = 0
@@ -25,10 +27,7 @@ class CentralityCalculator:
         self.client = client
 
     async def pagerank(
-        self,
-        territory_code: str,
-        top_k: int = 20,
-        damping_factor: float = 0.85
+        self, territory_code: str, top_k: int = 20, damping_factor: float = 0.85
     ) -> list[CentralityScore]:
         """
         Calculate PageRank for companies in territory.
@@ -55,30 +54,19 @@ class CentralityCalculator:
         """
 
         try:
-            results = await self.client.execute(query, {
-                "code": territory_code,
-                "damping": damping_factor,
-                "limit": top_k
-            })
+            results = await self.client.execute(
+                query, {"code": territory_code, "damping": damping_factor, "limit": top_k}
+            )
         except Exception as e:
             logger.warning(f"PageRank failed, using simple fallback: {e}")
             return await self._simple_centrality(territory_code, top_k)
 
         return [
-            CentralityScore(
-                siren=r["siren"],
-                name=r.get("name", ""),
-                score=r["score"],
-                rank=i + 1
-            )
+            CentralityScore(siren=r["siren"], name=r.get("name", ""), score=r["score"], rank=i + 1)
             for i, r in enumerate(results)
         ]
 
-    async def _simple_centrality(
-        self,
-        territory_code: str,
-        top_k: int
-    ) -> list[CentralityScore]:
+    async def _simple_centrality(self, territory_code: str, top_k: int) -> list[CentralityScore]:
         """Simple degree centrality without GDS."""
         query = """
         MATCH (c:Company)-[:HAS_ESTABLISHMENT]->(:Establishment)-[:LOCATED_IN]->(:Territory {code: $code})
@@ -88,17 +76,11 @@ class CentralityCalculator:
         ORDER BY degree DESC
         LIMIT $limit
         """
-        results = await self.client.execute(query, {
-            "code": territory_code,
-            "limit": top_k
-        })
+        results = await self.client.execute(query, {"code": territory_code, "limit": top_k})
 
         return [
             CentralityScore(
-                siren=r["siren"],
-                name=r.get("name", ""),
-                score=float(r["score"]),
-                rank=i + 1
+                siren=r["siren"], name=r.get("name", ""), score=float(r["score"]), rank=i + 1
             )
             for i, r in enumerate(results)
         ]

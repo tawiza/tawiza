@@ -122,7 +122,6 @@ __all__ = [
     "InteractiveMenu",
     "FilePicker",
     "InteractiveForm",
-
     # Art
     "FractalArt",
     "ProceduralPatterns",
@@ -133,7 +132,6 @@ __all__ = [
     "show_matrix_rain",
     "show_wave_pattern",
     "show_spiral",
-
     # Animations
     "CustomSpinners",
     "TextAnimations",
@@ -144,7 +142,6 @@ __all__ = [
     "BreathingMascot",
     "MascotSpinner",
     "MascotProgressBar",
-
     # Icons
     "Icons",
     "IconManager",
@@ -154,14 +151,12 @@ __all__ = [
     "command_icon",
     "status_icon",
     "get_icon_manager",
-
     # Effects
     "ColorGradient",
     "GlowEffect",
     "BoxDecorations",
     "TextStyling",
     "AnimatedEffects",
-
     # Mascot
     "print_mascot",
     "print_welcome",
@@ -181,7 +176,6 @@ __all__ = [
     "inline_success",
     "inline_error",
     "contextual_mascot",
-
     # Mascot system
     "MascotConfig",
     "MascotStyle",

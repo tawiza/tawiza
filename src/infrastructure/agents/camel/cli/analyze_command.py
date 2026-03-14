@@ -28,12 +28,23 @@ def analyze_command(
     query: str = typer.Argument(..., help="Analysis query (e.g., 'marché conseil IT Lille')"),
     output: str = typer.Option("./outputs/analyses", "--output", "-o", help="Output directory"),
     model: str = typer.Option("qwen3.5:27b", "--model", "-m", help="Ollama model to use"),
-    depth: str = typer.Option("standard", "--depth", "-d", help="Analysis depth: quick, standard, full"),
+    depth: str = typer.Option(
+        "standard", "--depth", "-d", help="Analysis depth: quick, standard, full"
+    ),
     limit: int = typer.Option(20, "--limit", "-l", help="Max enterprises to analyze"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed progress"),
-    use_agents: bool = typer.Option(False, "--use-agents", "-a", help="Use Camel AI multi-agent orchestration"),
-    multi_source: bool = typer.Option(False, "--multi-source", "-M", help="Use parallel multi-source orchestration with validation"),
-    interactive: bool = typer.Option(False, "--interactive", "-i", help="Enter interactive mode after analysis"),
+    use_agents: bool = typer.Option(
+        False, "--use-agents", "-a", help="Use Camel AI multi-agent orchestration"
+    ),
+    multi_source: bool = typer.Option(
+        False,
+        "--multi-source",
+        "-M",
+        help="Use parallel multi-source orchestration with validation",
+    ),
+    interactive: bool = typer.Option(
+        False, "--interactive", "-i", help="Enter interactive mode after analysis"
+    ),
 ):
     """Analyze a territorial market using Camel AI multi-agent system.
 
@@ -61,28 +72,34 @@ def analyze_command(
     output_dir = f"{output}/{timestamp}_{query_slug}"
 
     if multi_source:
-        result = asyncio.run(_orchestrated_analysis(
-            query=query,
-            output_dir=output_dir,
-            limit=limit,
-            verbose=verbose,
-        ))
+        result = asyncio.run(
+            _orchestrated_analysis(
+                query=query,
+                output_dir=output_dir,
+                limit=limit,
+                verbose=verbose,
+            )
+        )
     elif use_agents:
-        result = asyncio.run(_agent_analysis(
-            query=query,
-            output_dir=output_dir,
-            model=model,
-            verbose=verbose,
-        ))
+        result = asyncio.run(
+            _agent_analysis(
+                query=query,
+                output_dir=output_dir,
+                model=model,
+                verbose=verbose,
+            )
+        )
     else:
-        result = asyncio.run(_run_analysis(
-            query=query,
-            output_dir=output_dir,
-            model=model,
-            depth=depth,
-            limit=limit,
-            verbose=verbose,
-        ))
+        result = asyncio.run(
+            _run_analysis(
+                query=query,
+                output_dir=output_dir,
+                model=model,
+                depth=depth,
+                limit=limit,
+                verbose=verbose,
+            )
+        )
 
     # Enter interactive mode if requested
     if interactive and result and result.get("success"):
@@ -113,13 +130,16 @@ async def _run_analysis(
     # Check Ollama availability
     try:
         from src.infrastructure.llm.ollama_client import OllamaClient
+
         ollama = OllamaClient(model=model)
         healthy = await ollama.health_check()
         if not healthy:
-            console.print(msg.error(
-                "Ollama not available",
-                ["Start with: ollama serve", "Or: tawiza pro ollama-start"]
-            ))
+            console.print(
+                msg.error(
+                    "Ollama not available",
+                    ["Start with: ollama serve", "Or: tawiza pro ollama-start"],
+                )
+            )
             return {"success": False}
     except Exception as e:
         console.print(msg.error("Failed to connect to Ollama", [str(e)]))
@@ -153,6 +173,7 @@ async def _run_analysis(
         console.print(msg.error("Analysis failed", [str(e)]))
         if verbose:
             import traceback
+
             console.print(f"  [dim]{traceback.format_exc()}[/]")
         return {"success": False}
 
@@ -169,10 +190,13 @@ async def _quick_analysis(query: str, output_dir: str, limit: int, verbose: bool
 
     console.print("  [cyan]►[/] Searching enterprises...")
 
-    search_result = await registry.execute('sirene.search', {
-        'query': query,
-        'limite': limit,
-    })
+    search_result = await registry.execute(
+        "sirene.search",
+        {
+            "query": query,
+            "limite": limit,
+        },
+    )
     enterprises = search_result.get("enterprises", [])
     results["enterprises"] = enterprises
     results["enterprises_count"] = len(enterprises)
@@ -186,13 +210,21 @@ async def _quick_analysis(query: str, output_dir: str, limit: int, verbose: bool
 
     # Save JSON
     import json
+
     json_file = output_path / "data.json"
-    json_file.write_text(json.dumps({
-        "query": query,
-        "depth": "quick",
-        "enterprises_count": len(enterprises),
-        "enterprises": enterprises,
-    }, ensure_ascii=False, indent=2), encoding='utf-8')
+    json_file.write_text(
+        json.dumps(
+            {
+                "query": query,
+                "depth": "quick",
+                "enterprises_count": len(enterprises),
+                "enterprises": enterprises,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     results["outputs"]["json"] = str(json_file)
 
     results["report_dir"] = str(output_path)
@@ -219,10 +251,13 @@ async def _standard_analysis(query: str, output_dir: str, limit: int, verbose: b
     ) as progress:
         # Step 1: Search
         task = progress.add_task("  [1/3] Searching enterprises...", total=None)
-        search_result = await registry.execute('sirene.search', {
-            'query': query,
-            'limite': limit,
-        })
+        search_result = await registry.execute(
+            "sirene.search",
+            {
+                "query": query,
+                "limite": limit,
+            },
+        )
         enterprises = search_result.get("enterprises", [])
         results["enterprises"] = enterprises
         results["enterprises_count"] = len(enterprises)
@@ -238,27 +273,33 @@ async def _standard_analysis(query: str, output_dir: str, limit: int, verbose: b
         for e in enterprises:
             geo = e.get("geo")
             if geo and geo.get("lat"):
-                locations.append({
-                    "nom": e["nom"],
-                    "lat": geo["lat"],
-                    "lon": geo["lon"],
-                    "type": "entreprise",
-                    "effectif": e.get("effectif"),
-                    "commune": e.get("adresse", {}).get("commune"),
-                })
+                locations.append(
+                    {
+                        "nom": e["nom"],
+                        "lat": geo["lat"],
+                        "lon": geo["lon"],
+                        "type": "entreprise",
+                        "effectif": e.get("effectif"),
+                        "commune": e.get("adresse", {}).get("commune"),
+                    }
+                )
 
         if locations:
             # Save map in the analysis output directory
             from pathlib import Path
+
             map_output_dir = Path(output_dir) / "maps"
             map_output_dir.mkdir(parents=True, exist_ok=True)
             map_output_path = str(map_output_dir / "carte.html")
 
-            map_result = await registry.execute('geo.map', {
-                'locations': locations,
-                'title': f"Analyse: {query[:30]}",
-                'output_path': map_output_path,
-            })
+            map_result = await registry.execute(
+                "geo.map",
+                {
+                    "locations": locations,
+                    "title": f"Analyse: {query[:30]}",
+                    "output_path": map_output_path,
+                },
+            )
             if map_result.get("success"):
                 map_file = map_result.get("file_path")
                 results["outputs"]["map"] = map_file
@@ -271,7 +312,7 @@ async def _standard_analysis(query: str, output_dir: str, limit: int, verbose: b
             query=query,
             output_dir=output_dir,
             map_file=map_file,
-            formats=['csv', 'md'],
+            formats=["csv", "md"],
         )
         results["outputs"].update(outputs)
         progress.update(task, description="  [green]✓[/] Analysis complete")
@@ -308,24 +349,31 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
         parsed = await parser.parse(query)
 
         if verbose:
-            console.print(f"    [dim]Parsed: {len(parsed.keywords)} keywords, {len(parsed.naf_codes)} NAF codes, region={parsed.region}[/]")
+            console.print(
+                f"    [dim]Parsed: {len(parsed.keywords)} keywords, {len(parsed.naf_codes)} NAF codes, region={parsed.region}[/]"
+            )
             if parsed.used_llm:
                 console.print("    [dim]Used LLM fallback[/]")
 
         # Step 1: Search enterprises with multiple strategies
-        search_task = progress.add_task("  [1/5] Searching enterprises...", total=len(parsed.search_strategies) or 1)
+        search_task = progress.add_task(
+            "  [1/5] Searching enterprises...", total=len(parsed.search_strategies) or 1
+        )
 
         all_enterprises = []
         seen_sirets = set()
 
         # Execute each search strategy
         for i, strategy in enumerate(parsed.search_strategies):
-            search_result = await registry.execute('sirene.search', {
-                'query': strategy['query'],
-                'region': parsed.region,
-                'activite': strategy.get('naf'),
-                'limite': max(5, limit // max(len(parsed.search_strategies), 1)),
-            })
+            search_result = await registry.execute(
+                "sirene.search",
+                {
+                    "query": strategy["query"],
+                    "region": parsed.region,
+                    "activite": strategy.get("naf"),
+                    "limite": max(5, limit // max(len(parsed.search_strategies), 1)),
+                },
+            )
 
             for e in search_result.get("enterprises", []):
                 siret = e.get("siret")
@@ -337,10 +385,13 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
 
         # If no strategies, try direct query as fallback
         if not parsed.search_strategies:
-            search_result = await registry.execute('sirene.search', {
-                'query': query,
-                'limite': limit,
-            })
+            search_result = await registry.execute(
+                "sirene.search",
+                {
+                    "query": query,
+                    "limite": limit,
+                },
+            )
             all_enterprises = search_result.get("enterprises", [])
             progress.update(search_task, completed=1)
 
@@ -357,12 +408,14 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
         }
 
         if verbose:
-            console.print(f"    [dim]Found {len(enterprises)} enterprises (from {len(parsed.search_strategies)} strategies)[/]")
+            console.print(
+                f"    [dim]Found {len(enterprises)} enterprises (from {len(parsed.search_strategies)} strategies)[/]"
+            )
 
         # Step 2: Web enrichment (do this BEFORE map so we can include URLs in popups)
         enrich_task = progress.add_task(
             f"  [2/5] Enriching {min(len(enterprises), 10)} enterprises...",
-            total=min(len(enterprises), 10)
+            total=min(len(enterprises), 10),
         )
 
         enrichment_service = SkyvernEnrichmentService(max_concurrent=2, use_playwright=False)
@@ -376,8 +429,7 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
 
         try:
             enrichments = await enrichment_service.enrich_batch(
-                enterprises_to_enrich,
-                progress_callback=progress_callback
+                enterprises_to_enrich, progress_callback=progress_callback
             )
             results["enrichments"] = [e.to_dict() for e in enrichments]
 
@@ -399,7 +451,9 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
         enrichment_by_siret = {e.siret: e for e in enrichments if e.siret}
 
         if verbose:
-            console.print(f"    [dim]Building map with {len(enterprises)} enterprises, {len(enrichment_by_siret)} enriched[/]")
+            console.print(
+                f"    [dim]Building map with {len(enterprises)} enterprises, {len(enrichment_by_siret)} enriched[/]"
+            )
 
         # Build locations with enriched data for rich popups
         locations = []
@@ -436,11 +490,14 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
             map_output_dir.mkdir(parents=True, exist_ok=True)
             map_output_path = str(map_output_dir / "carte.html")
 
-            map_result = await registry.execute('geo.map', {
-                'locations': locations,
-                'title': f"Analyse: {query[:30]}",
-                'output_path': map_output_path,
-            })
+            map_result = await registry.execute(
+                "geo.map",
+                {
+                    "locations": locations,
+                    "title": f"Analyse: {query[:30]}",
+                    "output_path": map_output_path,
+                },
+            )
             if map_result.get("success"):
                 map_file = map_result.get("file_path")
                 results["outputs"]["map"] = map_file
@@ -448,7 +505,9 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
                     console.print(f"    [dim]Map generated: {map_file}[/]")
             else:
                 if verbose:
-                    console.print(f"    [yellow]Map generation failed: {map_result.get('error', 'unknown')}[/]")
+                    console.print(
+                        f"    [yellow]Map generation failed: {map_result.get('error', 'unknown')}[/]"
+                    )
         else:
             if verbose:
                 console.print("    [yellow]No valid locations for map[/]")
@@ -470,7 +529,7 @@ async def _full_analysis(query: str, output_dir: str, limit: int, verbose: bool)
             output_dir=output_dir,
             enrichments=enrichments if enrichments else None,
             map_file=map_file,
-            formats=['csv', 'jsonl', 'md', 'html'],
+            formats=["csv", "jsonl", "md", "html"],
         )
         results["outputs"].update(outputs)
         progress.update(output_task, completed=1)
@@ -539,9 +598,15 @@ async def _orchestrated_analysis(
             )
 
             if verbose:
-                console.print(f"    [dim]Total results: {orch_result.total_results} in {orch_result.total_duration_ms:.0f}ms[/]")
+                console.print(
+                    f"    [dim]Total results: {orch_result.total_results} in {orch_result.total_duration_ms:.0f}ms[/]"
+                )
                 for sr in orch_result.source_results:
-                    status = f"[green]{len(sr.results)}[/]" if sr.results else f"[red]{sr.error or '0'}[/]"
+                    status = (
+                        f"[green]{len(sr.results)}[/]"
+                        if sr.results
+                        else f"[red]{sr.error or '0'}[/]"
+                    )
                     console.print(f"    [dim]  {sr.source}: {status}[/]")
 
             progress.update(search_task, description="  [green]✓[/] Sources queried")
@@ -569,7 +634,9 @@ async def _orchestrated_analysis(
 
             if verbose:
                 for msg_item in debate_result.messages:
-                    icon = {"researcher": "🔍", "critic": "🎯", "verifier": "✅"}.get(msg_item.role, "•")
+                    icon = {"researcher": "🔍", "critic": "🎯", "verifier": "✅"}.get(
+                        msg_item.role, "•"
+                    )
                     console.print(f"    [dim]{icon} {msg_item.agent}: {msg_item.confidence}%[/]")
 
             progress.update(debate_task, description="  [green]✓[/] Validation complete")
@@ -597,15 +664,19 @@ async def _orchestrated_analysis(
 
                 if geo and geo.get("lat"):
                     # Already has coordinates
-                    locations.append({
-                        "nom": name,
-                        "lat": geo["lat"],
-                        "lon": geo["lon"],
-                        "type": "entreprise",
-                        "effectif": item.get("effectif"),
-                        "commune": item.get("adresse", {}).get("commune") if isinstance(item.get("adresse"), dict) else None,
-                        "source": item.get("source", "unknown"),
-                    })
+                    locations.append(
+                        {
+                            "nom": name,
+                            "lat": geo["lat"],
+                            "lon": geo["lon"],
+                            "type": "entreprise",
+                            "effectif": item.get("effectif"),
+                            "commune": item.get("adresse", {}).get("commune")
+                            if isinstance(item.get("adresse"), dict)
+                            else None,
+                            "source": item.get("source", "unknown"),
+                        }
+                    )
                 else:
                     # Try to extract address for geocoding
                     address = None
@@ -633,30 +704,38 @@ async def _orchestrated_analysis(
                         address = item.get("location")
 
                     if address and name != "N/A":
-                        addresses_to_geocode.append({
-                            "address": address,
-                            "name": name,
-                            "item": item,
-                        })
+                        addresses_to_geocode.append(
+                            {
+                                "address": address,
+                                "name": name,
+                                "item": item,
+                            }
+                        )
 
             # Geocode addresses without coordinates (max 30 to avoid slowdown)
             if addresses_to_geocode and verbose:
-                console.print(f"    [dim]Geocoding {min(len(addresses_to_geocode), 30)} addresses...[/]")
+                console.print(
+                    f"    [dim]Geocoding {min(len(addresses_to_geocode), 30)} addresses...[/]"
+                )
 
             for addr_info in addresses_to_geocode[:30]:
                 try:
-                    geo_result = await registry.execute('geo.locate', {'address': addr_info["address"]})
+                    geo_result = await registry.execute(
+                        "geo.locate", {"address": addr_info["address"]}
+                    )
                     if geo_result.get("success") and geo_result.get("lat"):
                         item = addr_info["item"]
-                        locations.append({
-                            "nom": addr_info["name"],
-                            "lat": geo_result["lat"],
-                            "lon": geo_result["lon"],
-                            "type": "entreprise",
-                            "effectif": item.get("effectif"),
-                            "commune": geo_result.get("address_details", {}).get("commune"),
-                            "source": item.get("source", "geocoded"),
-                        })
+                        locations.append(
+                            {
+                                "nom": addr_info["name"],
+                                "lat": geo_result["lat"],
+                                "lon": geo_result["lon"],
+                                "type": "entreprise",
+                                "effectif": item.get("effectif"),
+                                "commune": geo_result.get("address_details", {}).get("commune"),
+                                "source": item.get("source", "geocoded"),
+                            }
+                        )
                 except Exception:
                     pass  # Skip failed geocoding
 
@@ -666,11 +745,14 @@ async def _orchestrated_analysis(
                 map_output_dir.mkdir(parents=True, exist_ok=True)
                 map_output_path = str(map_output_dir / "carte.html")
 
-                map_result = await registry.execute('geo.map', {
-                    'locations': locations,
-                    'title': f"Analyse Multi-Source: {query[:30]}",
-                    'output_path': map_output_path,
-                })
+                map_result = await registry.execute(
+                    "geo.map",
+                    {
+                        "locations": locations,
+                        "title": f"Analyse Multi-Source: {query[:30]}",
+                        "output_path": map_output_path,
+                    },
+                )
                 if map_result.get("success"):
                     map_file = map_result.get("file_path")
                     results["outputs"]["map"] = map_file
@@ -771,6 +853,7 @@ async def _orchestrated_analysis(
         console.print(msg.error("Multi-source analysis failed", [str(e)]))
         if verbose:
             import traceback
+
             console.print(f"  [dim]{traceback.format_exc()}[/]")
         return {"success": False, "error": str(e)}
 
@@ -801,6 +884,7 @@ async def _agent_analysis(query: str, output_dir: str, model: str, verbose: bool
     # Check Ollama
     try:
         from src.infrastructure.llm.ollama_client import OllamaClient
+
         ollama = OllamaClient(model=model)
         healthy = await ollama.health_check()
         if not healthy:
@@ -826,6 +910,7 @@ async def _agent_analysis(query: str, output_dir: str, model: str, verbose: bool
         console.print(msg.error("Failed to initialize workforce", [str(e)]))
         if verbose:
             import traceback
+
             console.print(f"  [dim]{traceback.format_exc()}[/]")
         return {"success": False}
 
@@ -889,6 +974,7 @@ async def _agent_analysis(query: str, output_dir: str, model: str, verbose: bool
         console.print(msg.error("Multi-agent analysis failed", [str(e)]))
         if verbose:
             import traceback
+
             console.print(f"  [dim]{traceback.format_exc()}[/]")
         return {"success": False, "error": str(e)}
 
@@ -911,7 +997,9 @@ def _display_results(result: dict, depth: str):
     if depth == "full" and result.get("enrichments"):
         enrichments = result["enrichments"]
         enriched = sum(1 for e in enrichments if e.get("url_found"))
-        avg_quality = sum(e.get("enrichment_quality", 0) for e in enrichments) / max(len(enrichments), 1)
+        avg_quality = sum(e.get("enrichment_quality", 0) for e in enrichments) / max(
+            len(enrichments), 1
+        )
         table.add_row("Enriched", f"{enriched}/{len(enrichments)} ({avg_quality:.0%} quality)")
 
     console.print(table)
@@ -980,19 +1068,21 @@ async def _interactive_mode(result: dict, output_dir: str, model: str, verbose: 
     enrichment_by_siret = {e.get("siret", ""): e for e in enrichments}
 
     console.print()
-    console.print(Panel(
-        "[bold cyan]Mode Interactif[/]\n\n"
-        "Commandes disponibles:\n"
-        "  [green]list[/]              - Liste des entreprises\n"
-        "  [green]detail <n°|nom>[/]   - Détails d'une entreprise\n"
-        "  [green]enrich <n°|nom>[/]   - Enrichir une entreprise\n"
-        "  [green]filter <critère>[/]  - Filtrer (ex: effectif>50)\n"
-        "  [green]export csv|json[/]   - Exporter les résultats\n"
-        "  [green]ask <question>[/]    - Poser une question\n"
-        "  [green]quit[/]              - Quitter",
-        title="Analyse Interactive",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]Mode Interactif[/]\n\n"
+            "Commandes disponibles:\n"
+            "  [green]list[/]              - Liste des entreprises\n"
+            "  [green]detail <n°|nom>[/]   - Détails d'une entreprise\n"
+            "  [green]enrich <n°|nom>[/]   - Enrichir une entreprise\n"
+            "  [green]filter <critère>[/]  - Filtrer (ex: effectif>50)\n"
+            "  [green]export csv|json[/]   - Exporter les résultats\n"
+            "  [green]ask <question>[/]    - Poser une question\n"
+            "  [green]quit[/]              - Quitter",
+            title="Analyse Interactive",
+            border_style="cyan",
+        )
+    )
 
     while True:
         try:
@@ -1028,7 +1118,9 @@ async def _interactive_mode(result: dict, output_dir: str, model: str, verbose: 
                 await _interactive_ask(arg, enterprises, enrichments, model)
 
             elif cmd == "help":
-                console.print("  [dim]Commandes: list, detail, enrich, filter, export, ask, quit[/]")
+                console.print(
+                    "  [dim]Commandes: list, detail, enrich, filter, export, ask, quit[/]"
+                )
 
             else:
                 console.print(f"  [yellow]Commande inconnue: {cmd}[/]")
@@ -1064,7 +1156,9 @@ def _interactive_list(enterprises: list, enrichment_by_siret: dict):
     console.print(table)
 
 
-def _interactive_detail(arg: str, enterprises: list, enterprise_by_name: dict, enrichment_by_siret: dict):
+def _interactive_detail(
+    arg: str, enterprises: list, enterprise_by_name: dict, enrichment_by_siret: dict
+):
     """Show detailed info for an enterprise."""
     enterprise = None
 
@@ -1089,7 +1183,9 @@ def _interactive_detail(arg: str, enterprises: list, enterprise_by_name: dict, e
     console.print(f"  SIRET: {siret}")
 
     addr = enterprise.get("adresse", {})
-    console.print(f"  Adresse: {addr.get('rue', '')} {addr.get('code_postal', '')} {addr.get('commune', '')}")
+    console.print(
+        f"  Adresse: {addr.get('rue', '')} {addr.get('code_postal', '')} {addr.get('commune', '')}"
+    )
     console.print(f"  Effectif: {enterprise.get('effectif', '?')} salariés")
 
     geo = enterprise.get("geo", {})
@@ -1110,7 +1206,9 @@ def _interactive_detail(arg: str, enterprises: list, enterprise_by_name: dict, e
             console.print(f"  Technologies: {', '.join(enrichment['technologies'])}")
 
 
-async def _interactive_enrich(arg: str, enterprises: list, enterprise_by_name: dict, enrichment_by_siret: dict):
+async def _interactive_enrich(
+    arg: str, enterprises: list, enterprise_by_name: dict, enrichment_by_siret: dict
+):
     """Enrich a specific enterprise."""
     from src.infrastructure.agents.camel.services.skyvern_enrichment import SkyvernEnrichmentService
 
@@ -1153,10 +1251,14 @@ def _interactive_filter(arg: str, enterprises: list, enrichment_by_siret: dict):
     import re
 
     # Parse filter: effectif>50, commune=PARIS, enriched
-    match = re.match(r'(\w+)\s*([><=]+)\s*(\w+)', arg)
+    match = re.match(r"(\w+)\s*([><=]+)\s*(\w+)", arg)
 
     if arg.lower() == "enriched":
-        filtered = [e for e in enterprises if enrichment_by_siret.get(e.get("siret", ""), {}).get("url_found")]
+        filtered = [
+            e
+            for e in enterprises
+            if enrichment_by_siret.get(e.get("siret", ""), {}).get("url_found")
+        ]
     elif match:
         field, op, value = match.groups()
 
@@ -1174,7 +1276,11 @@ def _interactive_filter(arg: str, enterprises: list, enrichment_by_siret: dict):
             except ValueError:
                 filtered = enterprises
         elif field == "commune":
-            filtered = [e for e in enterprises if value.upper() in e.get("adresse", {}).get("commune", "").upper()]
+            filtered = [
+                e
+                for e in enterprises
+                if value.upper() in e.get("adresse", {}).get("commune", "").upper()
+            ]
         else:
             filtered = enterprises
     else:
@@ -1211,6 +1317,7 @@ def _interactive_export(arg: str, enterprises: list, enrichments: list, output_d
 
     elif fmt == "csv":
         import csv
+
         out_file = output_path / "export_interactive.csv"
         with open(out_file, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -1219,13 +1326,15 @@ def _interactive_export(arg: str, enterprises: list, enrichments: list, output_d
             for e in enterprises:
                 siret = e.get("siret", "")
                 enr = enrichment_map.get(siret, {})
-                writer.writerow([
-                    siret,
-                    e.get("nom", ""),
-                    e.get("adresse", {}).get("commune", ""),
-                    e.get("effectif", ""),
-                    enr.get("url_found", ""),
-                ])
+                writer.writerow(
+                    [
+                        siret,
+                        e.get("nom", ""),
+                        e.get("adresse", {}).get("commune", ""),
+                        e.get("effectif", ""),
+                        enr.get("url_found", ""),
+                    ]
+                )
         console.print(f"  [green]✓[/] Exporté: {out_file}")
     else:
         console.print(f"  [yellow]Format non supporté: {fmt}. Utilisez json ou csv[/]")
@@ -1242,15 +1351,20 @@ async def _interactive_ask(question: str, enterprises: list, enrichments: list, 
     console.print("  [dim]Réflexion...[/]")
 
     # Build context
-    enterprise_summary = "\n".join([
-        f"- {e.get('nom')} ({e.get('adresse', {}).get('commune', '')}, {e.get('effectif', '?')} sal.)"
-        for e in enterprises[:15]
-    ])
+    enterprise_summary = "\n".join(
+        [
+            f"- {e.get('nom')} ({e.get('adresse', {}).get('commune', '')}, {e.get('effectif', '?')} sal.)"
+            for e in enterprises[:15]
+        ]
+    )
 
-    enrichment_summary = "\n".join([
-        f"- {e.get('nom')}: {e.get('description', 'N/A')[:100]}"
-        for e in enrichments if e.get("url_found")
-    ][:10])
+    enrichment_summary = "\n".join(
+        [
+            f"- {e.get('nom')}: {e.get('description', 'N/A')[:100]}"
+            for e in enrichments
+            if e.get("url_found")
+        ][:10]
+    )
 
     prompt = f"""Tu es un expert en intelligence économique territoriale française.
 

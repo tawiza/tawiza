@@ -50,9 +50,9 @@ class AnnotationCandidate:
     def priority(self) -> float:
         """Calculate priority score (higher = more important to annotate)."""
         return (
-            self.uncertainty_score * self._uncertainty_weight +
-            self.diversity_score * self._diversity_weight +
-            self.impact_score * self._impact_weight
+            self.uncertainty_score * self._uncertainty_weight
+            + self.diversity_score * self._diversity_weight
+            + self.impact_score * self._impact_weight
         )
 
     def __lt__(self, other: "AnnotationCandidate") -> bool:

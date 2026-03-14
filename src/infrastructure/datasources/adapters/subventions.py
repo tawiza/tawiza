@@ -166,10 +166,12 @@ class SubventionsAdapter(BaseAdapter):
         Returns:
             List of subventions datasets from that organization
         """
-        return await self.search({
-            "keywords": org_name,
-            "limit": limit,
-        })
+        return await self.search(
+            {
+                "keywords": org_name,
+                "limit": limit,
+            }
+        )
 
     async def search_by_territory(
         self,
@@ -185,7 +187,9 @@ class SubventionsAdapter(BaseAdapter):
         Returns:
             List of subventions datasets for that territory
         """
-        return await self.search({
-            "keywords": territory,
-            "limit": limit,
-        })
+        return await self.search(
+            {
+                "keywords": territory,
+                "limit": limit,
+            }
+        )

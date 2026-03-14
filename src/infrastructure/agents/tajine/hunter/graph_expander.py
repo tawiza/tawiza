@@ -1,4 +1,5 @@
 """Graph Expander - Neo4j gap detection for proactive data gathering."""
+
 from __future__ import annotations
 
 import asyncio
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class GapType(Enum):
     """Types of knowledge gaps."""
+
     MISSING_RELATIONSHIP = "missing_relationship"
     STALE_DATA = "stale_data"
     INCOMPLETE_ENTITY = "incomplete_entity"
@@ -21,6 +23,7 @@ class GapType(Enum):
 @dataclass
 class KnowledgeGap:
     """A gap in the knowledge graph to fill."""
+
     gap_type: GapType
     entity_id: str
     description: str
@@ -75,7 +78,7 @@ class GraphExpander:
 
         # Sort by priority and limit
         gaps.sort(key=lambda g: g.priority)
-        return gaps[:self.max_gaps]
+        return gaps[: self.max_gaps]
 
     async def _find_missing_relationships(self, territory: str) -> list[KnowledgeGap]:
         """Find entities missing expected relationships."""
@@ -192,15 +195,10 @@ class GraphExpander:
         """Convert gaps to dict format for HypothesisGenerator."""
         return {
             "missing_fields": [
-                g.description for g in gaps
-                if g.gap_type == GapType.INCOMPLETE_ENTITY
+                g.description for g in gaps if g.gap_type == GapType.INCOMPLETE_ENTITY
             ],
-            "stale_entities": [
-                g.entity_id for g in gaps
-                if g.gap_type == GapType.STALE_DATA
-            ],
+            "stale_entities": [g.entity_id for g in gaps if g.gap_type == GapType.STALE_DATA],
             "missing_relationships": [
-                g.entity_id for g in gaps
-                if g.gap_type == GapType.MISSING_RELATIONSHIP
+                g.entity_id for g in gaps if g.gap_type == GapType.MISSING_RELATIONSHIP
             ],
         }

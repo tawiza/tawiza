@@ -16,6 +16,7 @@ from .dataset_builder import DatasetBuilder, DatasetExample, DatasetFormat
 @dataclass
 class LabelStudioConfig:
     """Configuration for Label Studio integration."""
+
     url: str = "http://localhost:8080"
     api_key: str = ""
     project_id: int | None = None
@@ -38,6 +39,7 @@ class LabelStudioConfig:
 @dataclass
 class LlamaFactoryConfig:
     """Configuration for LLaMA-Factory integration."""
+
     base_model: str = "qwen2.5-coder:7b"
     output_dir: str = "models/uaa-finetuned"
     use_lora: bool = True
@@ -73,6 +75,7 @@ class LabelStudioIntegration:
                 from src.infrastructure.ml.label_studio.label_studio_adapter import (
                     LabelStudioAdapter,
                 )
+
                 settings = get_settings()
                 self._adapter = LabelStudioAdapter(settings)
             except Exception as e:
@@ -136,14 +139,16 @@ class LabelStudioIntegration:
         # Convert to Label Studio tasks
         tasks = []
         for candidate in candidates:
-            tasks.append({
-                "data": {
-                    "instruction": candidate.instruction,
-                    "output": candidate.output,
-                    "task_id": candidate.task_id,
-                    "uncertainty": candidate.uncertainty_score,
-                },
-            })
+            tasks.append(
+                {
+                    "data": {
+                        "instruction": candidate.instruction,
+                        "output": candidate.output,
+                        "task_id": candidate.task_id,
+                        "uncertainty": candidate.uncertainty_score,
+                    },
+                }
+            )
 
         try:
             task_ids = await adapter.import_tasks(
@@ -231,6 +236,7 @@ class LlamaFactoryIntegration:
                 from src.infrastructure.ml.llama_factory.llama_factory_adapter import (
                     LlamaFactoryAdapter,
                 )
+
                 settings = get_settings()
                 self._adapter = LlamaFactoryAdapter(settings)
             except Exception as e:
@@ -259,7 +265,9 @@ class LlamaFactoryIntegration:
         path.parent.mkdir(parents=True, exist_ok=True)
 
         saved_path = self.dataset_builder.save(str(path), format)
-        logger.info(f"Prepared dataset: {saved_path} ({self.dataset_builder.stats.total_examples} examples)")
+        logger.info(
+            f"Prepared dataset: {saved_path} ({self.dataset_builder.stats.total_examples} examples)"
+        )
 
         return saved_path
 

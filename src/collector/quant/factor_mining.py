@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class FactorMining:
     """
     Factor Mining avec LLM pour découvrir de nouveaux facteurs économiques
@@ -29,9 +30,13 @@ class FactorMining:
     puis calcule l'Information Coefficient (IC) sur les données réelles.
     """
 
-    def __init__(self,
-                 db_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza_signals"),
-                 ollama_url: str = "http://localhost:11434"):
+    def __init__(
+        self,
+        db_url: str = os.getenv(
+            "DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza_signals"
+        ),
+        ollama_url: str = "http://localhost:11434",
+    ):
         self.db_url = db_url
         self.ollama_url = ollama_url
         self.engine = create_async_engine(db_url)
@@ -68,32 +73,33 @@ class FactorMining:
             anomaly_rows = result.fetchall()
 
         if not anomaly_rows:
-            logger.warning("Aucune anomalie avec score trouvée, utilisation de métriques alternatives")
+            logger.warning(
+                "Aucune anomalie avec score trouvée, utilisation de métriques alternatives"
+            )
             return await self._get_departments_by_signal_metrics(limit)
 
         # Convertir en DataFrame et extraire les départements
-        df = pd.DataFrame(anomaly_rows, columns=['code_commune', 'score', 'description', 'detected_at'])
+        df = pd.DataFrame(
+            anomaly_rows, columns=["code_commune", "score", "description", "detected_at"]
+        )
 
         # Extraire code_dept depuis code_commune (2 premiers caractères)
-        df['code_dept'] = df['code_commune'].str[:2]
+        df["code_dept"] = df["code_commune"].str[:2]
 
         # Agréger par département (moyenne des scores)
-        dept_scores = df.groupby('code_dept')['score'].agg(['mean', 'count']).reset_index()
-        dept_scores = dept_scores[dept_scores['count'] >= 2]  # Au moins 2 signaux
+        dept_scores = df.groupby("code_dept")["score"].agg(["mean", "count"]).reset_index()
+        dept_scores = dept_scores[dept_scores["count"] >= 2]  # Au moins 2 signaux
 
         # Trier par score moyen
-        dept_scores = dept_scores.sort_values('mean', ascending=False)
+        dept_scores = dept_scores.sort_values("mean", ascending=False)
 
-        top_depts = dept_scores.head(limit)['code_dept'].tolist()
-        bottom_depts = dept_scores.tail(limit)['code_dept'].tolist()
+        top_depts = dept_scores.head(limit)["code_dept"].tolist()
+        bottom_depts = dept_scores.tail(limit)["code_dept"].tolist()
 
         logger.info(f"Top départements (scores élevés): {top_depts}")
         logger.info(f"Bottom départements (scores faibles): {bottom_depts}")
 
-        return {
-            "top": top_depts,
-            "bottom": bottom_depts
-        }
+        return {"top": top_depts, "bottom": bottom_depts}
 
     async def _get_departments_by_signal_metrics(self, limit: int) -> dict[str, list[str]]:
         """Fallback: utiliser les métriques de signaux pour classer les départements"""
@@ -121,22 +127,25 @@ class FactorMining:
             logger.error("Aucune donnée trouvée pour classer les départements")
             return {"top": [], "bottom": []}
 
-        df = pd.DataFrame(rows, columns=['code_dept', 'signal_count', 'avg_metric_value', 'metric_diversity'])
-
-        # Score composite simple
-        df['composite_score'] = (
-            df['signal_count'].rank(pct=True) * 0.4 +
-            df['metric_diversity'].rank(pct=True) * 0.6
+        df = pd.DataFrame(
+            rows, columns=["code_dept", "signal_count", "avg_metric_value", "metric_diversity"]
         )
 
-        df = df.sort_values('composite_score', ascending=False)
+        # Score composite simple
+        df["composite_score"] = (
+            df["signal_count"].rank(pct=True) * 0.4 + df["metric_diversity"].rank(pct=True) * 0.6
+        )
 
-        top_depts = df.head(limit)['code_dept'].tolist()
-        bottom_depts = df.tail(limit)['code_dept'].tolist()
+        df = df.sort_values("composite_score", ascending=False)
+
+        top_depts = df.head(limit)["code_dept"].tolist()
+        bottom_depts = df.tail(limit)["code_dept"].tolist()
 
         return {"top": top_depts, "bottom": bottom_depts}
 
-    async def generate_factor_hypotheses(self, top_bottom_depts: dict[str, list[str]]) -> list[dict[str, str]]:
+    async def generate_factor_hypotheses(
+        self, top_bottom_depts: dict[str, list[str]]
+    ) -> list[dict[str, str]]:
         """
         Générer des hypothèses de facteurs via Ollama
 
@@ -193,11 +202,8 @@ Sois créatif mais réaliste avec les données disponibles."""
                         "model": "qwen3.5:27b",
                         "prompt": prompt,
                         "stream": False,
-                        "options": {
-                            "temperature": 0.7,
-                            "top_p": 0.9
-                        }
-                    }
+                        "options": {"temperature": 0.7, "top_p": 0.9},
+                    },
                 )
 
                 if response.status_code == 200:
@@ -245,10 +251,10 @@ Sois créatif mais réaliste avec les données disponibles."""
         dept_metrics = []
 
         for row in result:
-            if current_dept != row['code_dept']:
+            if current_dept != row["code_dept"]:
                 if current_dept:
                     context_lines.append(f"- Dept {current_dept}: {', '.join(dept_metrics[:5])}")
-                current_dept = row['code_dept']
+                current_dept = row["code_dept"]
                 dept_metrics = []
 
             dept_metrics.append(f"{row['metric_name']} ({row['avg_value']:.1f})")
@@ -272,7 +278,8 @@ Sois créatif mais réaliste avec les données disponibles."""
 
             # Fallback: chercher un JSON direct
             import re
-            json_pattern = r'\[\s*\{.*?\}\s*\]'
+
+            json_pattern = r"\[\s*\{.*?\}\s*\]"
             matches = re.findall(json_pattern, response, re.DOTALL)
             if matches:
                 return json.loads(matches[0])
@@ -289,26 +296,26 @@ Sois créatif mais réaliste avec les données disponibles."""
                 "name": "ratio_dynamisme_economique",
                 "description": "Ratio entre créations d'entreprises et liquidations judiciaires",
                 "calculation_method": "creation_entreprise / (liquidation_judiciaire + 1)",
-                "economic_rationale": "Mesure la santé entrepreneuriale locale"
+                "economic_rationale": "Mesure la santé entrepreneuriale locale",
             },
             {
                 "name": "indicateur_emploi_immobilier",
                 "description": "Corrélation entre offres d'emploi et prix immobilier",
                 "calculation_method": "offres_emploi / (prix_m2_moyen / 1000)",
-                "economic_rationale": "Attractivité économique vs coût de la vie"
+                "economic_rationale": "Attractivité économique vs coût de la vie",
             },
             {
                 "name": "densite_transactionnelle",
                 "description": "Volume de transactions immobilières par habitant équivalent",
                 "calculation_method": "transactions_immobilieres / (offres_emploi / 100)",
-                "economic_rationale": "Fluidité du marché immobilier local"
+                "economic_rationale": "Fluidité du marché immobilier local",
             },
             {
                 "name": "score_resilience_entreprises",
                 "description": "Capacité de résistance aux difficultés économiques",
                 "calculation_method": "vente_fonds_commerce / (liquidation_judiciaire + redressement_judiciaire + 1)",
-                "economic_rationale": "Mesure la résilience du tissu économique"
-            }
+                "economic_rationale": "Mesure la résilience du tissu économique",
+            },
         ]
 
     async def calculate_information_coefficient(self, factor_def: dict[str, str]) -> dict[str, Any]:
@@ -336,7 +343,7 @@ Sois créatif mais réaliste avec les données disponibles."""
                     "p_value_pearson": None,
                     "p_value_spearman": None,
                     "sample_size": 0,
-                    "error": "Données insuffisantes"
+                    "error": "Données insuffisantes",
                 }
 
             # Récupérer les scores de référence (ou proxy)
@@ -348,7 +355,7 @@ Sois créatif mais réaliste avec les données disponibles."""
                     "factor_name": factor_def["name"],
                     "ic_pearson": None,
                     "ic_spearman": None,
-                    "error": "Scores de référence manquants"
+                    "error": "Scores de référence manquants",
                 }
 
             # Aligner les données
@@ -358,11 +365,11 @@ Sois créatif mais réaliste avec les données disponibles."""
                     "factor_name": factor_def["name"],
                     "ic_pearson": None,
                     "ic_spearman": None,
-                    "error": f"Pas assez de départements communs ({len(common_depts)})"
+                    "error": f"Pas assez de départements communs ({len(common_depts)})",
                 }
 
-            factor_values = factor_data.loc[common_depts, 'factor_value']
-            ref_values = reference_scores.loc[common_depts, 'score']
+            factor_values = factor_data.loc[common_depts, "factor_value"]
+            ref_values = reference_scores.loc[common_depts, "score"]
 
             # Supprimer les NaN
             mask = ~(pd.isna(factor_values) | pd.isna(ref_values))
@@ -374,7 +381,7 @@ Sois créatif mais réaliste avec les données disponibles."""
                     "factor_name": factor_def["name"],
                     "ic_pearson": None,
                     "ic_spearman": None,
-                    "error": "Pas assez de valeurs valides après nettoyage"
+                    "error": "Pas assez de valeurs valides après nettoyage",
                 }
 
             # Calculer les corrélations (Information Coefficient)
@@ -394,10 +401,12 @@ Sois créatif mais réaliste avec les données disponibles."""
                 "factor_mean": float(factor_clean.mean()),
                 "factor_std": float(factor_clean.std()),
                 "significant_pearson": p_val_pearson < 0.05,
-                "significant_spearman": p_val_spearman < 0.05
+                "significant_spearman": p_val_spearman < 0.05,
             }
 
-            logger.info(f"IC calculé pour {factor_def['name']}: Pearson={ic_pearson:.3f} (p={p_val_pearson:.3f})")
+            logger.info(
+                f"IC calculé pour {factor_def['name']}: Pearson={ic_pearson:.3f} (p={p_val_pearson:.3f})"
+            )
             return result
 
         except Exception as e:
@@ -406,7 +415,7 @@ Sois créatif mais réaliste avec les données disponibles."""
                 "factor_name": factor_def["name"],
                 "ic_pearson": None,
                 "ic_spearman": None,
-                "error": str(e)
+                "error": str(e),
             }
 
     async def _compute_factor_values(self, factor_def: dict[str, str]) -> pd.DataFrame:
@@ -417,10 +426,15 @@ Sois créatif mais réaliste avec les données disponibles."""
 
         # Identifier les métriques mentionnées
         known_metrics = [
-            'offres_emploi', 'transactions_immobilieres', 'prix_m2_moyen',
-            'liquidation_judiciaire', 'vente_fonds_commerce',
-            'creation_entreprise', 'fermeture_entreprise',
-            'redressement_judiciaire', 'procedure_collective'
+            "offres_emploi",
+            "transactions_immobilieres",
+            "prix_m2_moyen",
+            "liquidation_judiciaire",
+            "vente_fonds_commerce",
+            "creation_entreprise",
+            "fermeture_entreprise",
+            "redressement_judiciaire",
+            "procedure_collective",
         ]
 
         needed_metrics = [metric for metric in known_metrics if metric in calc_method]
@@ -454,8 +468,8 @@ Sois créatif mais réaliste avec les données disponibles."""
             return pd.DataFrame()
 
         # Pivoter en DataFrame
-        df = pd.DataFrame(result, columns=['code_dept', 'metric_name', 'avg_value', 'signal_count'])
-        pivot_df = df.pivot(index='code_dept', columns='metric_name', values='avg_value')
+        df = pd.DataFrame(result, columns=["code_dept", "metric_name", "avg_value", "signal_count"])
+        pivot_df = df.pivot(index="code_dept", columns="metric_name", values="avg_value")
 
         # Remplir les NaN avec 0 ou médiane selon le contexte
         pivot_df = pivot_df.fillna(0)
@@ -470,7 +484,7 @@ Sois créatif mais réaliste avec les données disponibles."""
                 q01 = factor_values.quantile(0.01)
                 factor_values = factor_values.clip(lower=q01, upper=q99)
 
-            return pd.DataFrame({'factor_value': factor_values})
+            return pd.DataFrame({"factor_value": factor_values})
 
         except Exception as e:
             logger.error(f"Erreur calcul facteur: {e}")
@@ -487,18 +501,13 @@ Sois créatif mais réaliste avec les données disponibles."""
 
         # Use np.maximum for safe division instead of string manipulation
         import re
-        safe_formula = re.sub(r'/ \(([^)]+)\)', r'/ np.maximum(\1, 0.001)', safe_formula)
+
+        safe_formula = re.sub(r"/ \(([^)]+)\)", r"/ np.maximum(\1, 0.001)", safe_formula)
 
         # Évaluer la formule
         try:
             # Contexte sécurisé pour eval
-            safe_dict = {
-                'data': data,
-                'np': np,
-                'abs': abs,
-                'max': max,
-                'min': min
-            }
+            safe_dict = {"data": data, "np": np, "abs": abs, "max": max, "min": min}
 
             result = eval(safe_formula, {"__builtins__": {}}, safe_dict)
 
@@ -534,8 +543,8 @@ Sois créatif mais réaliste avec les données disponibles."""
             result = await raw.driver_connection.fetch(anomaly_query, dept_codes)
 
         if result:
-            df = pd.DataFrame(result, columns=['code_dept', 'score'])
-            return df.set_index('code_dept')
+            df = pd.DataFrame(result, columns=["code_dept", "score"])
+            return df.set_index("code_dept")
 
         # Fallback: créer un score composite simple
         logger.info("Aucun score d'anomalie disponible, utilisation d'un score composite")
@@ -558,16 +567,16 @@ Sois créatif mais réaliste avec les données disponibles."""
         if not result:
             return pd.DataFrame()
 
-        df = pd.DataFrame(result, columns=['code_dept', 'emploi', 'liquidations', 'diversity'])
+        df = pd.DataFrame(result, columns=["code_dept", "emploi", "liquidations", "diversity"])
 
         # Score composite simple: emploi positif, liquidations négatif
-        df['score'] = (
-            df['emploi'].rank(pct=True) * 0.4 +
-            (1 - df['liquidations'].rank(pct=True)) * 0.4 +
-            df['diversity'].rank(pct=True) * 0.2
+        df["score"] = (
+            df["emploi"].rank(pct=True) * 0.4
+            + (1 - df["liquidations"].rank(pct=True)) * 0.4
+            + df["diversity"].rank(pct=True) * 0.2
         )
 
-        return df.set_index('code_dept')[['score']]
+        return df.set_index("code_dept")[["score"]]
 
     async def run_factor_mining(self) -> dict[str, Any]:
         """
@@ -582,7 +591,7 @@ Sois créatif mais réaliste avec les données disponibles."""
             "timestamp": datetime.now().isoformat(),
             "top_bottom_departments": {},
             "factor_hypotheses": [],
-            "information_coefficients": []
+            "information_coefficients": [],
         }
 
         try:
@@ -612,7 +621,9 @@ Sois créatif mais réaliste avec les données disponibles."""
 
             results["best_factors"] = valid_ics[:5]  # Top 5
 
-            logger.info(f"Factor Mining terminé: {len(hypotheses)} hypothèses, {len(valid_ics)} ICs valides")
+            logger.info(
+                f"Factor Mining terminé: {len(hypotheses)} hypothèses, {len(valid_ics)} ICs valides"
+            )
 
         except Exception as e:
             logger.error(f"Erreur Factor Mining: {e}")

@@ -59,13 +59,7 @@ class AgentHeader(Static):
             f"[bold]Model:[/] {self.model}"
         )
 
-    def set_agent(
-        self,
-        name: str,
-        task: str,
-        status: str,
-        model: str = "default"
-    ) -> None:
+    def set_agent(self, name: str, task: str, status: str, model: str = "default") -> None:
         """Update agent info."""
         self.agent_name = name
         self.task_description = task
@@ -104,8 +98,7 @@ class CorrectionInput(Vertical):
     def compose(self):
         yield Static("[bold]💬 CORRECTION / MESSAGE TO AGENT[/]", classes="label")
         yield Input(
-            placeholder="Send a correction or guidance to the agent...",
-            id="correction-field"
+            placeholder="Send a correction or guidance to the agent...", id="correction-field"
         )
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -220,10 +213,7 @@ class AgentLiveScreen(Container):
         """Show waiting for agent state."""
         header = self.query_one("#agent-header", AgentHeader)
         header.set_agent(
-            name="No Active Agent",
-            task="Waiting for task...",
-            status="Idle",
-            model="default"
+            name="No Active Agent", task="Waiting for task...", status="Idle", model="default"
         )
 
         thinking = self.query_one("#thinking-panel", ThinkingLog)
@@ -233,20 +223,16 @@ class AgentLiveScreen(Container):
         """Show offline state with instructions."""
         header = self.query_one("#agent-header", AgentHeader)
         header.set_agent(
-            name="Offline Mode",
-            task="Agent server not connected",
-            status="Idle",
-            model="N/A"
+            name="Offline Mode", task="Agent server not connected", status="Idle", model="N/A"
         )
 
         thinking = self.query_one("#thinking-panel", ThinkingLog)
         thinking.add_entry(
             LogEntryType.INFO,
-            "Agent server not connected. Start the server or use the Chat screen for direct Ollama access."
+            "Agent server not connected. Start the server or use the Chat screen for direct Ollama access.",
         )
         thinking.add_entry(
-            LogEntryType.INFO,
-            "To start the agent server: python -m src.interfaces.api.main"
+            LogEntryType.INFO, "To start the agent server: python -m src.interfaces.api.main"
         )
 
     async def _on_agent_thinking(self, data: dict[str, Any]) -> None:
@@ -299,7 +285,7 @@ class AgentLiveScreen(Container):
             name=data.get("agent_name", "Agent"),
             task=data.get("task", ""),
             status=data.get("status", "Running"),
-            model=data.get("model", "default")
+            model=data.get("model", "default"),
         )
         self._current_task_id = data.get("task_id")
 
@@ -334,7 +320,7 @@ class AgentLiveScreen(Container):
             name=task.agent,
             task=task.description,
             status=task.status.value.capitalize(),
-            model=task.model
+            model=task.model,
         )
 
     def handle_correction(self, message: str) -> None:
@@ -377,8 +363,7 @@ class AgentLiveScreen(Container):
 
         thinking = self.query_one("#thinking-panel", ThinkingLog)
         thinking.add_entry(
-            LogEntryType.INFO,
-            "Paused by user" if self._is_paused else "Resumed by user"
+            LogEntryType.INFO, "Paused by user" if self._is_paused else "Resumed by user"
         )
 
     def action_stop_agent(self) -> None:

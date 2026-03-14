@@ -38,10 +38,7 @@ class ToolRegistry:
         self._metadata: dict[str, dict[str, Any]] = {}
 
     def register(
-        self,
-        tool: BaseTool,
-        category: str = "general",
-        metadata: dict[str, Any] | None = None
+        self, tool: BaseTool, category: str = "general", metadata: dict[str, Any] | None = None
     ) -> None:
         """
         Register a native Python tool.
@@ -67,16 +64,11 @@ class ToolRegistry:
         self._metadata[name] = metadata or {}
 
         logger.info(
-            f"Registered tool '{name}' in category '{category}' "
-            f"(sandbox: {tool.requires_sandbox})"
+            f"Registered tool '{name}' in category '{category}' (sandbox: {tool.requires_sandbox})"
         )
 
     def register_mcp(
-        self,
-        server_name: str,
-        tool_name: str,
-        tool_schema: dict[str, Any],
-        executor_fn: Any
+        self, server_name: str, tool_name: str, tool_schema: dict[str, Any], executor_fn: Any
     ) -> None:
         """
         Register an MCP tool from an external server.
@@ -103,9 +95,7 @@ class ToolRegistry:
         }
         self._categories["mcp"].append(tool_name)
 
-        logger.info(
-            f"Registered MCP tool '{tool_name}' from server '{server_name}'"
-        )
+        logger.info(f"Registered MCP tool '{tool_name}' from server '{server_name}'")
 
     def unregister(self, tool_name: str) -> bool:
         """
@@ -169,11 +159,7 @@ class ToolRegistry:
         """
         return name in self._tools or name in self._mcp_tools
 
-    def list_tools(
-        self,
-        category: str | None = None,
-        include_mcp: bool = True
-    ) -> list[str]:
+    def list_tools(self, category: str | None = None, include_mcp: bool = True) -> list[str]:
         """
         List all registered tool names.
 
@@ -194,9 +180,7 @@ class ToolRegistry:
         return sorted(tools)
 
     def get_all_schemas(
-        self,
-        category: str | None = None,
-        include_mcp: bool = True
+        self, category: str | None = None, include_mcp: bool = True
     ) -> list[dict[str, Any]]:
         """
         Get OpenAI-compatible schemas for all tools.
@@ -222,11 +206,7 @@ class ToolRegistry:
 
         return schemas
 
-    async def execute(
-        self,
-        tool_name: str,
-        arguments: dict[str, Any]
-    ) -> ToolResult:
+    async def execute(self, tool_name: str, arguments: dict[str, Any]) -> ToolResult:
         """
         Execute a tool by name with given arguments.
 
@@ -242,7 +222,7 @@ class ToolRegistry:
             return ToolResult(
                 success=False,
                 error=f"Tool '{tool_name}' not found in registry. "
-                      f"Available tools: {', '.join(self.list_tools())}"
+                f"Available tools: {', '.join(self.list_tools())}",
             )
 
         try:
@@ -254,8 +234,7 @@ class ToolRegistry:
                 validation_error = tool.validate_input(**arguments)
                 if validation_error:
                     return ToolResult(
-                        success=False,
-                        error=f"Input validation failed: {validation_error}"
+                        success=False, error=f"Input validation failed: {validation_error}"
                     )
 
                 # Execute
@@ -276,7 +255,7 @@ class ToolRegistry:
             return ToolResult(
                 success=False,
                 error=f"Execution error: {str(e)}",
-                metadata={"exception_type": type(e).__name__}
+                metadata={"exception_type": type(e).__name__},
             )
 
     def get_categories(self) -> list[str]:

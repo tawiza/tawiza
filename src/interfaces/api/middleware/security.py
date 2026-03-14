@@ -51,9 +51,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # HSTS (only for HTTPS)
         if request.url.scheme == "https":
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains"
-            )
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
         # Content Security Policy
         response.headers["Content-Security-Policy"] = (
@@ -69,9 +67,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
         # Permissions Policy (disable dangerous features)
-        response.headers["Permissions-Policy"] = (
-            "geolocation=(), microphone=(), camera=()"
-        )
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
 
         # Remove server header to avoid information disclosure
         if "server" in response.headers:
@@ -118,20 +114,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         )
 
         # Global rate limit state
-        self.global_bucket: tuple[float, float] = (
-            float(global_limit_per_minute),
-            time.time()
-        )
+        self.global_bucket: tuple[float, float] = (float(global_limit_per_minute), time.time())
 
         # Cleanup old buckets every 1000 requests
         self.request_count = 0
 
     def _refill_bucket(
-        self,
-        current_tokens: float,
-        last_refill: float,
-        rate: float,
-        max_tokens: float
+        self, current_tokens: float, last_refill: float, rate: float, max_tokens: float
     ) -> tuple[float, float]:
         """Refill token bucket based on elapsed time.
 
@@ -163,10 +152,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         global_tokens, global_last = self.global_bucket
         global_rate = self.global_limit_per_minute / 60.0  # tokens per second
         global_tokens, now = self._refill_bucket(
-            global_tokens,
-            global_last,
-            global_rate,
-            float(self.global_limit_per_minute)
+            global_tokens, global_last, global_rate, float(self.global_limit_per_minute)
         )
 
         if global_tokens < 1:
@@ -178,12 +164,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Check per-IP rate limit
         tokens, last_refill = self.buckets[ip]
         rate = self.requests_per_minute / 60.0  # tokens per second
-        tokens, now = self._refill_bucket(
-            tokens,
-            last_refill,
-            rate,
-            float(self.burst_size)
-        )
+        tokens, now = self._refill_bucket(tokens, last_refill, rate, float(self.burst_size))
 
         if tokens < 1:
             logger.warning(f"Rate limit exceeded for IP: {ip}")
@@ -200,7 +181,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         inactive_threshold = 300
 
         to_remove = [
-            ip for ip, (_, last_refill) in self.buckets.items()
+            ip
+            for ip, (_, last_refill) in self.buckets.items()
             if now - last_refill > inactive_threshold
         ]
 
@@ -230,9 +212,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 content={
                     "error": "Rate limit exceeded",
                     "detail": "Too many requests. Please try again later.",
-                    "retry_after": 60  # seconds
+                    "retry_after": 60,  # seconds
                 },
-                headers={"Retry-After": "60"}
+                headers={"Retry-After": "60"},
             )
 
         # Periodic cleanup
@@ -292,15 +274,12 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
                             "error": "Request too large",
                             "detail": f"Maximum request size is {self.max_request_size} bytes",
                             "max_size": self.max_request_size,
-                        }
+                        },
                     )
             except ValueError:
                 return JSONResponse(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    content={
-                        "error": "Bad Request",
-                        "detail": "Invalid Content-Length header"
-                    }
+                    content={"error": "Bad Request", "detail": "Invalid Content-Length header"},
                 )
 
         # Validate Content-Type for POST/PUT/PATCH
@@ -315,10 +294,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
             }
 
             # Check if content-type starts with any allowed type
-            is_allowed = any(
-                content_type.startswith(allowed)
-                for allowed in allowed_types
-            )
+            is_allowed = any(content_type.startswith(allowed) for allowed in allowed_types)
 
             if not is_allowed and content_length and int(content_length) > 0:
                 logger.warning(f"Invalid Content-Type: {content_type}")
@@ -328,7 +304,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
                         "error": "Unsupported Media Type",
                         "detail": f"Content-Type '{content_type}' not supported",
                         "allowed_types": list(allowed_types),
-                    }
+                    },
                 )
 
         response = await call_next(request)

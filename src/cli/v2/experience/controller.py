@@ -14,6 +14,7 @@ from .smart_prompt import SmartPrompt
 @dataclass
 class ExecutionResult:
     """Result of task execution."""
+
     success: bool
     output: Any
     mode_used: InteractionMode

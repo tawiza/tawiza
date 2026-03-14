@@ -28,23 +28,27 @@ def get_api_url(endpoint: str) -> str:
 def handle_api_error(e: Exception, action: str = "operation"):
     """Handle API errors with helpful messages."""
     if isinstance(e, httpx.ConnectError):
-        console.print(Panel(
-            "[red]❌ Impossible de se connecter au backend API[/red]\n\n"
-            "[cyan]Solutions:[/cyan]\n"
-            "  1. Démarrer le backend: [green]tawiza system start[/green]\n"
-            "  2. Vérifier Label Studio: http://localhost:8082",
-            title="🔌 Backend Non Disponible",
-            border_style="red"
-        ))
+        console.print(
+            Panel(
+                "[red]❌ Impossible de se connecter au backend API[/red]\n\n"
+                "[cyan]Solutions:[/cyan]\n"
+                "  1. Démarrer le backend: [green]tawiza system start[/green]\n"
+                "  2. Vérifier Label Studio: http://localhost:8082",
+                title="🔌 Backend Non Disponible",
+                border_style="red",
+            )
+        )
     elif isinstance(e, httpx.HTTPStatusError):
         if e.response.status_code == 404:
-            console.print(Panel(
-                "[yellow]⚠️ Endpoint non disponible[/yellow]\n\n"
-                "[cyan]Label Studio n'est pas configuré ou accessible.[/cyan]\n"
-                "URL: http://localhost:8082",
-                title="📡 Service Non Trouvé",
-                border_style="yellow"
-            ))
+            console.print(
+                Panel(
+                    "[yellow]⚠️ Endpoint non disponible[/yellow]\n\n"
+                    "[cyan]Label Studio n'est pas configuré ou accessible.[/cyan]\n"
+                    "URL: http://localhost:8082",
+                    title="📡 Service Non Trouvé",
+                    border_style="yellow",
+                )
+            )
         else:
             console.print(f"[red]❌ API Error: {e.response.status_code}[/red]")
             console.print(f"[red]{e.response.text}[/red]")
@@ -65,10 +69,9 @@ def create(
         tawiza annotate create --name "Product Reviews" --desc "Classify product sentiment" --type classification
         tawiza annotate create -n "Named Entities" -d "Extract entities" -t ner
     """
-    console.print(Panel.fit(
-        "[bold cyan]📝 Create Annotation Project[/bold cyan]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel.fit("[bold cyan]📝 Create Annotation Project[/bold cyan]", border_style="cyan")
+    )
 
     request_data = {
         "name": name,
@@ -79,11 +82,7 @@ def create(
     console.print(f"\n[cyan]Creating project '{name}'...[/cyan]")
 
     try:
-        response = httpx.post(
-            get_api_url("/annotations/projects"),
-            json=request_data,
-            timeout=30.0
-        )
+        response = httpx.post(get_api_url("/annotations/projects"), json=request_data, timeout=30.0)
         response.raise_for_status()
         project = response.json()
 
@@ -122,9 +121,7 @@ def list_projects(
 
     try:
         response = httpx.get(
-            get_api_url("/annotations/projects"),
-            params={"limit": limit},
-            timeout=10.0
+            get_api_url("/annotations/projects"), params={"limit": limit}, timeout=10.0
         )
         response.raise_for_status()
         projects = response.json()
@@ -186,7 +183,7 @@ def export(
         response = httpx.get(
             get_api_url(f"/annotations/projects/{project_id}/export"),
             params={"format": format},
-            timeout=30.0
+            timeout=30.0,
         )
         response.raise_for_status()
         data = response.json()
@@ -223,10 +220,7 @@ def stats(
 
     try:
         # Get project info
-        response = httpx.get(
-            get_api_url(f"/annotations/projects/{project_id}"),
-            timeout=10.0
-        )
+        response = httpx.get(get_api_url(f"/annotations/projects/{project_id}"), timeout=10.0)
         response.raise_for_status()
         project = response.json()
 
@@ -294,12 +288,14 @@ def upload(
         response = httpx.post(
             get_api_url(f"/annotations/projects/{project_id}/tasks"),
             json={"tasks": tasks},
-            timeout=60.0
+            timeout=60.0,
         )
         response.raise_for_status()
         result = response.json()
 
-        console.print(f"[green]✅ Uploaded {result.get('imported', len(tasks))} tasks successfully[/green]")
+        console.print(
+            f"[green]✅ Uploaded {result.get('imported', len(tasks))} tasks successfully[/green]"
+        )
 
         # Show summary
         table = Table(title="Upload Summary", border_style="green")
@@ -347,10 +343,7 @@ def delete(
     console.print(f"[cyan]Deleting project {project_id}...[/cyan]")
 
     try:
-        response = httpx.delete(
-            get_api_url(f"/annotations/projects/{project_id}"),
-            timeout=10.0
-        )
+        response = httpx.delete(get_api_url(f"/annotations/projects/{project_id}"), timeout=10.0)
         response.raise_for_status()
 
         console.print(f"[green]✅ Project {project_id} deleted successfully[/green]")

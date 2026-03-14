@@ -16,10 +16,6 @@ from typing import Any
 
 import numpy as np
 from loguru import logger
-from src.infrastructure.persistence.models.territorial_timeseries import (
-    GranularityType,
-    IndicatorType,
-)
 
 from src.application.services.correlation_engine import (
     AnomalyResult,
@@ -28,6 +24,10 @@ from src.application.services.correlation_engine import (
     get_correlation_engine,
 )
 from src.infrastructure.data_ingestion.dvf_ingester import DVFIngester
+from src.infrastructure.persistence.models.territorial_timeseries import (
+    GranularityType,
+    IndicatorType,
+)
 
 
 @dataclass
@@ -86,7 +86,9 @@ class HistoricalDataLoader:
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
         self._timeseries: dict[tuple[IndicatorType, str], tuple[np.ndarray, list[datetime]]] = {}
-        self._stats_by_period: dict[tuple[str, str], TerritoryStats] = {}  # (dept, YYYY-MM) -> stats
+        self._stats_by_period: dict[
+            tuple[str, str], TerritoryStats
+        ] = {}  # (dept, YYYY-MM) -> stats
 
     async def load_dvf(
         self,
@@ -161,7 +163,7 @@ class HistoricalDataLoader:
 
         logger.info(
             f"Loaded {stats['total_transactions']:,} DVF transactions, "
-            f"{stats['total_volume']/1e9:.2f}B€"
+            f"{stats['total_volume'] / 1e9:.2f}B€"
         )
 
         return stats
@@ -213,15 +215,11 @@ class HistoricalDataLoader:
 
         for (indicator, territory), (values, dates) in self._timeseries.items():
             # Z-score anomalies
-            anoms = engine.detect_anomalies(
-                values, indicator, territory, dates
-            )
+            anoms = engine.detect_anomalies(values, indicator, territory, dates)
             anomalies.extend(anoms)
 
             # Trend breaks
-            breaks = engine.detect_trend_break(
-                values, indicator, territory, dates
-            )
+            breaks = engine.detect_trend_break(values, indicator, territory, dates)
             anomalies.extend(breaks)
 
         logger.info(f"Detected {len(anomalies)} anomalies")
@@ -244,14 +242,14 @@ class HistoricalDataLoader:
             "indicators": list({k[0].value for k in self._timeseries}),
             "date_range": {
                 "start": min(
-                    (dates[0] for _, (_, dates) in self._timeseries.items() if dates),
-                    default=None
+                    (dates[0] for _, (_, dates) in self._timeseries.items() if dates), default=None
                 ),
                 "end": max(
-                    (dates[-1] for _, (_, dates) in self._timeseries.items() if dates),
-                    default=None
+                    (dates[-1] for _, (_, dates) in self._timeseries.items() if dates), default=None
                 ),
-            } if self._timeseries else None,
+            }
+            if self._timeseries
+            else None,
         }
 
 
@@ -301,9 +299,9 @@ if __name__ == "__main__":
 
     print(f"\nSummary: {results['summary']}")
     print("\nTop Correlations:")
-    for c in results['correlations'][:5]:
+    for c in results["correlations"][:5]:
         print(f"  {c['source']} → {c['target']}: r={c['correlation']:.2f}, lag={c['lag_months']}m")
 
     print("\nTop Insights:")
-    for i in results['insights'][:5]:
+    for i in results["insights"][:5]:
         print(f"  [{i['type']}] {i['message']}")

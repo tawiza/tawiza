@@ -11,6 +11,7 @@ from typing import Any
 
 class ActionType(Enum):
     """Type of recorded action."""
+
     THINKING = "thinking"
     TOOL_CALL = "tool_call"
     TOOL_RESULT = "tool_result"
@@ -23,6 +24,7 @@ class ActionType(Enum):
 @dataclass
 class RecordedAction:
     """A single recorded action."""
+
     action_id: str
     timestamp: datetime
     action_type: ActionType
@@ -57,6 +59,7 @@ class RecordedAction:
 @dataclass
 class SessionRecording:
     """A complete session recording."""
+
     session_id: str
     agent_name: str
     task_description: str
@@ -90,7 +93,9 @@ class SessionRecording:
             task_description=data["task_description"],
             model=data["model"],
             started_at=datetime.fromisoformat(data["started_at"]),
-            completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
+            completed_at=datetime.fromisoformat(data["completed_at"])
+            if data.get("completed_at")
+            else None,
             actions=[RecordedAction.from_dict(a) for a in data["actions"]],
             final_status=data["final_status"],
             parent_session_id=data.get("parent_session_id"),
@@ -112,7 +117,7 @@ class ReplayEngine:
         agent_name: str,
         task_description: str,
         model: str,
-        parent_session_id: str | None = None
+        parent_session_id: str | None = None,
     ) -> SessionRecording:
         """Start recording a new session."""
         recording = SessionRecording(
@@ -135,7 +140,7 @@ class ReplayEngine:
         action_type: ActionType,
         content: str,
         details: dict[str, Any] | None = None,
-        screenshot_path: str | None = None
+        screenshot_path: str | None = None,
     ) -> RecordedAction | None:
         """Record an action for a session."""
         recording = self._active_recordings.get(session_id)
@@ -158,31 +163,22 @@ class ReplayEngine:
         return self.record_action(session_id, ActionType.THINKING, content)
 
     def record_tool_call(
-        self,
-        session_id: str,
-        tool_name: str,
-        params: dict | None = None
+        self, session_id: str, tool_name: str, params: dict | None = None
     ) -> RecordedAction | None:
         """Record a tool call."""
         return self.record_action(
             session_id,
             ActionType.TOOL_CALL,
             f"Call: {tool_name}",
-            details={"tool": tool_name, "params": params}
+            details={"tool": tool_name, "params": params},
         )
 
     def record_tool_result(
-        self,
-        session_id: str,
-        result: str,
-        success: bool = True
+        self, session_id: str, result: str, success: bool = True
     ) -> RecordedAction | None:
         """Record a tool result."""
         return self.record_action(
-            session_id,
-            ActionType.TOOL_RESULT,
-            result,
-            details={"success": success}
+            session_id, ActionType.TOOL_RESULT, result, details={"success": success}
         )
 
     def record_user_message(self, session_id: str, message: str) -> RecordedAction | None:
@@ -194,17 +190,11 @@ class ReplayEngine:
         return self.record_action(session_id, ActionType.ERROR, error)
 
     def record_screenshot(
-        self,
-        session_id: str,
-        screenshot_path: str,
-        description: str = "Screenshot"
+        self, session_id: str, screenshot_path: str, description: str = "Screenshot"
     ) -> RecordedAction | None:
         """Record a screenshot."""
         return self.record_action(
-            session_id,
-            ActionType.SCREENSHOT,
-            description,
-            screenshot_path=screenshot_path
+            session_id, ActionType.SCREENSHOT, description, screenshot_path=screenshot_path
         )
 
     def stop_recording(self, session_id: str, final_status: str) -> SessionRecording | None:
@@ -243,20 +233,24 @@ class ReplayEngine:
     def list_recordings(self, limit: int = 50) -> list[dict]:
         """List available recordings."""
         recordings = []
-        files = sorted(self._storage_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        files = sorted(
+            self._storage_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+        )
 
         for filepath in files[:limit]:
             try:
                 with open(filepath) as f:
                     data = json.load(f)
-                recordings.append({
-                    "session_id": data["session_id"],
-                    "agent_name": data["agent_name"],
-                    "task_description": data["task_description"][:50],
-                    "started_at": data["started_at"],
-                    "final_status": data["final_status"],
-                    "action_count": len(data["actions"]),
-                })
+                recordings.append(
+                    {
+                        "session_id": data["session_id"],
+                        "agent_name": data["agent_name"],
+                        "task_description": data["task_description"][:50],
+                        "started_at": data["started_at"],
+                        "final_status": data["final_status"],
+                        "action_count": len(data["actions"]),
+                    }
+                )
             except Exception:
                 continue
 
@@ -278,30 +272,20 @@ class ReplayEngine:
             self._current_replay_index = 0
         return recording
 
-    def get_replay_action(
-        self,
-        recording: SessionRecording,
-        index: int
-    ) -> RecordedAction | None:
+    def get_replay_action(self, recording: SessionRecording, index: int) -> RecordedAction | None:
         """Get a specific action from a recording."""
         if 0 <= index < len(recording.actions):
             return recording.actions[index]
         return None
 
-    def get_next_replay_action(
-        self,
-        recording: SessionRecording
-    ) -> RecordedAction | None:
+    def get_next_replay_action(self, recording: SessionRecording) -> RecordedAction | None:
         """Get the next action in replay."""
         action = self.get_replay_action(recording, self._current_replay_index)
         if action:
             self._current_replay_index += 1
         return action
 
-    def get_previous_replay_action(
-        self,
-        recording: SessionRecording
-    ) -> RecordedAction | None:
+    def get_previous_replay_action(self, recording: SessionRecording) -> RecordedAction | None:
         """Get the previous action in replay."""
         if self._current_replay_index > 0:
             self._current_replay_index -= 1

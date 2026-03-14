@@ -148,7 +148,11 @@ def format_health_status(services: dict[str, dict[str, Any]]) -> Panel:
         )
 
     border_style = "green" if all_healthy else "red"
-    title = "[bold green]All Services Healthy[/bold green]" if all_healthy else "[bold red]Some Services Unhealthy[/bold red]"
+    title = (
+        "[bold green]All Services Healthy[/bold green]"
+        if all_healthy
+        else "[bold red]Some Services Unhealthy[/bold red]"
+    )
 
     return Panel(table, title=title, border_style=border_style)
 

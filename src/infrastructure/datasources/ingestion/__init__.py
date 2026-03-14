@@ -1,4 +1,5 @@
 """Document ingestion module."""
+
 from .chunker import TextChunker
 from .pipeline import IngestionConfig, IngestionPipeline
 

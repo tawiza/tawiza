@@ -15,16 +15,18 @@ from ..dashboard import Alert
 
 class AlertPriority(StrEnum):
     """Priority levels for alerts."""
-    CRITICAL = "critical"    # Score 80-100: Action immediate requise
-    HIGH = "high"            # Score 60-79: Important, a traiter rapidement
-    MEDIUM = "medium"        # Score 40-59: Interessant, a surveiller
-    LOW = "low"              # Score 20-39: Information de fond
-    NOISE = "noise"          # Score 0-19: Non pertinent
+
+    CRITICAL = "critical"  # Score 80-100: Action immediate requise
+    HIGH = "high"  # Score 60-79: Important, a traiter rapidement
+    MEDIUM = "medium"  # Score 40-59: Interessant, a surveiller
+    LOW = "low"  # Score 20-39: Information de fond
+    NOISE = "noise"  # Score 0-19: Non pertinent
 
 
 @dataclass
 class ScoredAlert:
     """Alert with relevance score and analysis."""
+
     alert: Alert
     score: float  # 0-100
     priority: AlertPriority
@@ -89,6 +91,7 @@ class AlertFilter:
         """Lazy load Ollama client."""
         if self._client is None:
             from ..llm import OllamaClient
+
             self._client = OllamaClient(model=self.model)
         return self._client
 
@@ -124,8 +127,8 @@ class AlertFilter:
 
             prompt = FILTER_PROMPT.format(
                 keywords=", ".join(keywords) if keywords else "aucun specifie",
-                source=alert.source.value if hasattr(alert.source, 'value') else alert.source,
-                type=alert.type.value if hasattr(alert.type, 'value') else alert.type,
+                source=alert.source.value if hasattr(alert.source, "value") else alert.source,
+                type=alert.type.value if hasattr(alert.type, "value") else alert.type,
                 title=alert.title,
                 content=alert.content[:500] if alert.content else "N/A",
             )
@@ -174,7 +177,7 @@ class AlertFilter:
         score += matches * 15
 
         # Boost for certain alert types
-        type_str = alert.type.value if hasattr(alert.type, 'value') else str(alert.type)
+        type_str = alert.type.value if hasattr(alert.type, "value") else str(alert.type)
         if type_str in ["creation", "marche", "attribution"]:
             score += 10
 
@@ -222,7 +225,7 @@ class AlertFilter:
 
         # Process in batches to avoid overwhelming Ollama
         for i in range(0, len(alerts), batch_size):
-            batch = alerts[i:i + batch_size]
+            batch = alerts[i : i + batch_size]
             tasks = [self.score_alert(alert, keywords) for alert in batch]
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -265,18 +268,22 @@ class AlertFilter:
             total_score += sa.score
 
             if sa.priority == AlertPriority.CRITICAL:
-                summary["critical_alerts"].append({
-                    "title": sa.alert.title,
-                    "score": sa.score,
-                    "reason": sa.relevance_reason,
-                    "action": sa.recommended_action,
-                })
+                summary["critical_alerts"].append(
+                    {
+                        "title": sa.alert.title,
+                        "score": sa.score,
+                        "reason": sa.relevance_reason,
+                        "action": sa.recommended_action,
+                    }
+                )
             elif sa.priority == AlertPriority.HIGH:
-                summary["high_alerts"].append({
-                    "title": sa.alert.title,
-                    "score": sa.score,
-                    "reason": sa.relevance_reason,
-                })
+                summary["high_alerts"].append(
+                    {
+                        "title": sa.alert.title,
+                        "score": sa.score,
+                        "reason": sa.relevance_reason,
+                    }
+                )
 
         summary["avg_score"] = round(total_score / len(scored_alerts), 1)
         return summary

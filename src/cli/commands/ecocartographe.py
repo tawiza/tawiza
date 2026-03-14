@@ -34,7 +34,7 @@ app = typer.Typer(
     name="cartographie",
     help="🗺️  Cartographie d'écosystèmes territoriaux d'innovation",
     rich_markup_mode="rich",
-    no_args_is_help=True
+    no_args_is_help=True,
 )
 
 # Instance globale de l'adapter
@@ -46,6 +46,7 @@ def get_adapter():
     global _adapter
     if _adapter is None:
         from src.infrastructure.agents.ecocartographe import EcoCartographeAdapter
+
         _adapter = EcoCartographeAdapter()
     return _adapter
 
@@ -64,11 +65,19 @@ def show_header():
 def nouveau_projet(
     nom: str = typer.Argument(..., help="Nom du projet de cartographie"),
     description: str | None = typer.Option(None, "--desc", "-d", help="Description du projet"),
-    territoire: str | None = typer.Option(None, "--territoire", "-t", help="Territoire ciblé (ex: Nouvelle-Aquitaine)"),
-    thematique: str | None = typer.Option(None, "--thematique", help="Thématique (ex: AgriTech, HealthTech)"),
+    territoire: str | None = typer.Option(
+        None, "--territoire", "-t", help="Territoire ciblé (ex: Nouvelle-Aquitaine)"
+    ),
+    thematique: str | None = typer.Option(
+        None, "--thematique", help="Thématique (ex: AgriTech, HealthTech)"
+    ),
     modele_spacy: str = typer.Option("fr_core_news_lg", "--spacy", help="Modèle spaCy à utiliser"),
-    seuil_proximite: float = typer.Option(50.0, "--proximite", help="Seuil de proximité géographique en km"),
-    seuil_similarite: float = typer.Option(0.7, "--similarite", help="Seuil de similarité thématique (0-1)")
+    seuil_proximite: float = typer.Option(
+        50.0, "--proximite", help="Seuil de proximité géographique en km"
+    ),
+    seuil_similarite: float = typer.Option(
+        0.7, "--similarite", help="Seuil de similarité thématique (0-1)"
+    ),
 ):
     """
     🆕 Crée un nouveau projet de cartographie
@@ -81,22 +90,22 @@ def nouveau_projet(
 
     async def _creer():
         adapter = get_adapter()
-        result = await adapter.execute_task({
-            'action': 'creer_projet',
-            'nom': nom,
-            'description': description,
-            'territoire': territoire,
-            'thematique': thematique,
-            'modele_spacy': modele_spacy,
-            'seuil_proximite_km': seuil_proximite,
-            'seuil_similarite': seuil_similarite
-        })
+        result = await adapter.execute_task(
+            {
+                "action": "creer_projet",
+                "nom": nom,
+                "description": description,
+                "territoire": territoire,
+                "thematique": thematique,
+                "modele_spacy": modele_spacy,
+                "seuil_proximite_km": seuil_proximite,
+                "seuil_similarite": seuil_similarite,
+            }
+        )
         return result
 
     with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
     ) as progress:
         task = progress.add_task("Création du projet...", total=None)
         result = run_async(_creer())
@@ -107,15 +116,15 @@ def nouveau_projet(
     panel = Panel(
         f"""[bold green]✅ Projet créé avec succès![/]
 
-[bold]ID:[/] {result['projet_id']}
-[bold]Nom:[/] {result['nom']}
-[bold]Statut:[/] {result['statut']}
+[bold]ID:[/] {result["projet_id"]}
+[bold]Nom:[/] {result["nom"]}
+[bold]Statut:[/] {result["statut"]}
 
 [dim]Prochaine étape: Ajoutez des sources de données avec:[/]
-[bold cyan]tawiza cartographie ingerer {result['projet_id']} --csv votre_fichier.csv[/]
+[bold cyan]tawiza cartographie ingerer {result["projet_id"]} --csv votre_fichier.csv[/]
         """,
         title="🗺️ Nouveau Projet",
-        border_style=THEME['success_color']
+        border_style=THEME["success_color"],
     )
     console.print(panel)
 
@@ -126,7 +135,7 @@ def ingerer_sources(
     csv: list[str] | None = typer.Option(None, "--csv", help="Fichier(s) CSV à ingérer"),
     excel: list[str] | None = typer.Option(None, "--excel", help="Fichier(s) Excel à ingérer"),
     json_file: list[str] | None = typer.Option(None, "--json", help="Fichier(s) JSON à ingérer"),
-    texte: list[str] | None = typer.Option(None, "--texte", help="Fichier(s) texte à analyser")
+    texte: list[str] | None = typer.Option(None, "--texte", help="Fichier(s) texte à analyser"),
 ):
     """
     📥 Ingère des sources de données dans un projet
@@ -139,14 +148,14 @@ def ingerer_sources(
 
     # Construire la liste des sources
     sources = []
-    for f in (csv or []):
-        sources.append({'type': 'csv', 'chemin': f})
-    for f in (excel or []):
-        sources.append({'type': 'excel', 'chemin': f})
-    for f in (json_file or []):
-        sources.append({'type': 'json', 'chemin': f})
-    for f in (texte or []):
-        sources.append({'type': 'texte', 'chemin': f})
+    for f in csv or []:
+        sources.append({"type": "csv", "chemin": f})
+    for f in excel or []:
+        sources.append({"type": "excel", "chemin": f})
+    for f in json_file or []:
+        sources.append({"type": "json", "chemin": f})
+    for f in texte or []:
+        sources.append({"type": "texte", "chemin": f})
 
     if not sources:
         console.print(f"[bold {THEME['error_color']}]❌ Aucune source spécifiée![/]")
@@ -155,23 +164,21 @@ def ingerer_sources(
 
     # Vérifier que les fichiers existent
     for src in sources:
-        if not Path(src['chemin']).exists():
+        if not Path(src["chemin"]).exists():
             console.print(f"[bold {THEME['error_color']}]❌ Fichier non trouvé: {src['chemin']}[/]")
             raise typer.Exit(1)
 
     async def _ingerer():
         adapter = get_adapter()
-        return await adapter.execute_task({
-            'action': 'ingerer',
-            'projet_id': projet_id,
-            'sources': sources
-        })
+        return await adapter.execute_task(
+            {"action": "ingerer", "projet_id": projet_id, "sources": sources}
+        )
 
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
-        console=console
+        console=console,
     ) as progress:
         task = progress.add_task(f"Ingestion de {len(sources)} source(s)...", total=len(sources))
         result = run_async(_ingerer())
@@ -183,19 +190,19 @@ def ingerer_sources(
     table.add_column("Fichier", style="white")
     table.add_column("Statut", style="green")
 
-    for src in result.get('sources', []):
-        table.add_row(src['type'], src['chemin'], "✅")
+    for src in result.get("sources", []):
+        table.add_row(src["type"], src["chemin"], "✅")
 
     console.print()
     console.print(table)
     console.print()
-    console.print(f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie extraire {projet_id}")
+    console.print(
+        f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie extraire {projet_id}"
+    )
 
 
 @app.command("extraire")
-def extraire_entites(
-    projet_id: str = typer.Argument(..., help="ID du projet")
-):
+def extraire_entites(projet_id: str = typer.Argument(..., help="ID du projet")):
     """
     🔍 Extrait les entités (acteurs) des sources avec spaCy
 
@@ -208,37 +215,36 @@ def extraire_entites(
 
     async def _extraire():
         adapter = get_adapter()
-        return await adapter.execute_task({
-            'action': 'extraire',
-            'projet_id': projet_id
-        })
+        return await adapter.execute_task({"action": "extraire", "projet_id": projet_id})
 
     with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
     ) as progress:
         progress.add_task("Extraction des entités avec spaCy...", total=None)
         result = run_async(_extraire())
 
     # Afficher les résultats
     console.print()
-    console.print(Panel(
-        f"[bold green]✅ Extraction terminée![/]\n\n"
-        f"[bold]Acteurs trouvés:[/] {result['nb_acteurs']}",
-        title="🔍 Résultat de l'Extraction",
-        border_style=THEME['success_color']
-    ))
+    console.print(
+        Panel(
+            f"[bold green]✅ Extraction terminée![/]\n\n"
+            f"[bold]Acteurs trouvés:[/] {result['nb_acteurs']}",
+            title="🔍 Résultat de l'Extraction",
+            border_style=THEME["success_color"],
+        )
+    )
 
     # Table par type
-    if result.get('acteurs_par_type'):
+    if result.get("acteurs_par_type"):
         table = Table(title="📊 Distribution par Type", box=box.ROUNDED)
         table.add_column("Type d'Acteur", style="cyan")
         table.add_column("Nombre", style="white", justify="right")
         table.add_column("Proportion", style="dim")
 
-        total = sum(result['acteurs_par_type'].values())
-        for type_acteur, count in sorted(result['acteurs_par_type'].items(), key=lambda x: x[1], reverse=True):
+        total = sum(result["acteurs_par_type"].values())
+        for type_acteur, count in sorted(
+            result["acteurs_par_type"].items(), key=lambda x: x[1], reverse=True
+        ):
             pct = count * 100 / total if total > 0 else 0
             bar = "█" * int(pct / 5) + "░" * (20 - int(pct / 5))
             table.add_row(type_acteur, str(count), f"{bar} {pct:.1f}%")
@@ -246,13 +252,13 @@ def extraire_entites(
         console.print(table)
 
     console.print()
-    console.print(f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie analyser {projet_id}")
+    console.print(
+        f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie analyser {projet_id}"
+    )
 
 
 @app.command("analyser")
-def analyser_reseau(
-    projet_id: str = typer.Argument(..., help="ID du projet")
-):
+def analyser_reseau(projet_id: str = typer.Argument(..., help="ID du projet")):
     """
     🔬 Analyse le réseau et détecte les communautés avec NetworkX
 
@@ -266,53 +272,52 @@ def analyser_reseau(
 
     async def _analyser():
         adapter = get_adapter()
-        return await adapter.execute_task({
-            'action': 'analyser',
-            'projet_id': projet_id
-        })
+        return await adapter.execute_task({"action": "analyser", "projet_id": projet_id})
 
     with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
     ) as progress:
         progress.add_task("Analyse du réseau avec NetworkX...", total=None)
         result = run_async(_analyser())
 
-    analyse = result.get('analyse', {})
+    analyse = result.get("analyse", {})
 
     # Panneau principal
     console.print()
-    console.print(Panel(
-        f"""[bold green]✅ Analyse terminée![/]
+    console.print(
+        Panel(
+            f"""[bold green]✅ Analyse terminée![/]
 
-[bold]Relations détectées:[/] {result.get('nb_relations', 0)}
-[bold]Densité du réseau:[/] {analyse.get('densite', 0):.3f}
-[bold]Communautés:[/] {analyse.get('nb_communautes', 0)}
-[bold]Modularité:[/] {analyse.get('modularite', 0):.3f}
+[bold]Relations détectées:[/] {result.get("nb_relations", 0)}
+[bold]Densité du réseau:[/] {analyse.get("densite", 0):.3f}
+[bold]Communautés:[/] {analyse.get("nb_communautes", 0)}
+[bold]Modularité:[/] {analyse.get("modularite", 0):.3f}
 
 [dim]Fichier GEXF exporté pour Gephi:[/]
-{result.get('fichier_gexf', 'N/A')}
+{result.get("fichier_gexf", "N/A")}
         """,
-        title="🔬 Analyse du Réseau",
-        border_style=THEME['success_color']
-    ))
+            title="🔬 Analyse du Réseau",
+            border_style=THEME["success_color"],
+        )
+    )
 
     # Top acteurs centraux
-    if analyse.get('acteurs_centraux'):
+    if analyse.get("acteurs_centraux"):
         console.print()
         console.print(f"[bold {THEME['accent_color']}]🏆 Acteurs les Plus Centraux[/]")
-        for i, acteur_id in enumerate(analyse['acteurs_centraux'][:5], 1):
+        for i, acteur_id in enumerate(analyse["acteurs_centraux"][:5], 1):
             console.print(f"  {i}. {acteur_id[:20]}...")
 
     console.print()
-    console.print(f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie visualiser {projet_id}")
+    console.print(
+        f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie visualiser {projet_id}"
+    )
 
 
 @app.command("visualiser")
 def generer_visualisations(
     projet_id: str = typer.Argument(..., help="ID du projet"),
-    ouvrir: bool = typer.Option(True, "--ouvrir/--no-ouvrir", help="Ouvrir les fichiers générés")
+    ouvrir: bool = typer.Option(True, "--ouvrir/--no-ouvrir", help="Ouvrir les fichiers générés"),
 ):
     """
     🎨 Génère les visualisations (carte et graphe interactif)
@@ -326,51 +331,49 @@ def generer_visualisations(
 
     async def _visualiser():
         adapter = get_adapter()
-        return await adapter.execute_task({
-            'action': 'visualiser',
-            'projet_id': projet_id
-        })
+        return await adapter.execute_task({"action": "visualiser", "projet_id": projet_id})
 
     with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
     ) as progress:
         progress.add_task("Génération des visualisations...", total=None)
         result = run_async(_visualiser())
 
-    fichiers = result.get('fichiers', {})
-    resume = result.get('resume', {})
+    fichiers = result.get("fichiers", {})
+    resume = result.get("resume", {})
 
     # Résultat
     console.print()
     tree = Tree(f"[bold {THEME['success_color']}]🎨 Visualisations Générées[/]")
 
-    if fichiers.get('carte'):
+    if fichiers.get("carte"):
         tree.add(f"[cyan]🗺️  Carte:[/] {fichiers['carte']}")
-    if fichiers.get('graphe'):
+    if fichiers.get("graphe"):
         tree.add(f"[cyan]🕸️  Graphe:[/] {fichiers['graphe']}")
-    if fichiers.get('rapport'):
+    if fichiers.get("rapport"):
         tree.add(f"[cyan]📄 Rapport:[/] {fichiers['rapport']}")
 
     console.print(tree)
 
     # Résumé
     console.print()
-    console.print(Panel(
-        f"""[bold]Résumé de la Cartographie[/]
+    console.print(
+        Panel(
+            f"""[bold]Résumé de la Cartographie[/]
 
-• Acteurs cartographiés: {resume.get('nb_acteurs', 0)}
-• Relations identifiées: {resume.get('nb_relations', 0)}
-• Communautés détectées: {resume.get('nb_communautes', 0)}
+• Acteurs cartographiés: {resume.get("nb_acteurs", 0)}
+• Relations identifiées: {resume.get("nb_relations", 0)}
+• Communautés détectées: {resume.get("nb_communautes", 0)}
         """,
-        title="📊 Statistiques",
-        border_style=THEME['info_color']
-    ))
+            title="📊 Statistiques",
+            border_style=THEME["info_color"],
+        )
+    )
 
     # Ouvrir les fichiers
-    if ouvrir and fichiers.get('carte'):
+    if ouvrir and fichiers.get("carte"):
         import webbrowser
+
         try:
             webbrowser.open(f"file://{Path(fichiers['carte']).absolute()}")
             console.print("\n[dim]Carte ouverte dans le navigateur[/]")
@@ -380,11 +383,15 @@ def generer_visualisations(
 
 @app.command("collecter")
 def collecter_donnees(
-    territoire: str = typer.Argument(..., help="Territoire à cartographier (ex: Nouvelle-Aquitaine, Bordeaux)"),
-    thematique: str | None = typer.Option(None, "--thematique", "-t", help="Secteur/thématique (ex: AgriTech, HealthTech)"),
+    territoire: str = typer.Argument(
+        ..., help="Territoire à cartographier (ex: Nouvelle-Aquitaine, Bordeaux)"
+    ),
+    thematique: str | None = typer.Option(
+        None, "--thematique", "-t", help="Secteur/thématique (ex: AgriTech, HealthTech)"
+    ),
     limite: int = typer.Option(100, "--limite", "-l", help="Nombre maximum d'acteurs à collecter"),
     nom: str | None = typer.Option(None, "--nom", "-n", help="Nom du projet"),
-    output: str | None = typer.Option(None, "--output", "-o", help="Répertoire de sortie")
+    output: str | None = typer.Option(None, "--output", "-o", help="Répertoire de sortie"),
 ):
     """
     🔎 Collecte automatique de données sur les acteurs d'innovation
@@ -407,13 +414,15 @@ def collecter_donnees(
             adapter.output_dir = Path(output)
             adapter.output_dir.mkdir(parents=True, exist_ok=True)
 
-        return await adapter.execute_task({
-            'action': 'collecter',
-            'nom': nom or f"Collecte {territoire} {thematique or ''}",
-            'territoire': territoire,
-            'thematique': thematique,
-            'limite': limite
-        })
+        return await adapter.execute_task(
+            {
+                "action": "collecter",
+                "nom": nom or f"Collecte {territoire} {thematique or ''}",
+                "territoire": territoire,
+                "thematique": thematique,
+                "limite": limite,
+            }
+        )
 
     console.print(f"\n[bold {THEME['info_color']}]🔎 Collecte automatique de données...[/]\n")
     console.print(f"  📍 Territoire: [bold]{territoire}[/]")
@@ -425,7 +434,7 @@ def collecter_donnees(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
-        console=console
+        console=console,
     ) as progress:
         task = progress.add_task("Recherche en cours...", total=100)
         result = run_async(_collecter())
@@ -433,39 +442,45 @@ def collecter_donnees(
 
     # Afficher le résultat
     console.print()
-    console.print(Panel(
-        f"""[bold green]✅ Collecte terminée![/]
+    console.print(
+        Panel(
+            f"""[bold green]✅ Collecte terminée![/]
 
-[bold]Projet ID:[/] {result['projet_id']}
-[bold]Acteurs trouvés:[/] {result['nb_acteurs']}
-[bold]Dataset:[/] {result.get('fichier_dataset', 'N/A')}
+[bold]Projet ID:[/] {result["projet_id"]}
+[bold]Acteurs trouvés:[/] {result["nb_acteurs"]}
+[bold]Dataset:[/] {result.get("fichier_dataset", "N/A")}
 
 [bold cyan]Sources utilisées:[/]
-{chr(10).join(f'  • {s}' for s in result.get('sources_utilisees', []))}
+{chr(10).join(f"  • {s}" for s in result.get("sources_utilisees", []))}
         """,
-        title="🔎 Résultat de la Collecte",
-        border_style=THEME['success_color']
-    ))
+            title="🔎 Résultat de la Collecte",
+            border_style=THEME["success_color"],
+        )
+    )
 
     # Distribution par type
-    if result.get('acteurs_par_type'):
+    if result.get("acteurs_par_type"):
         table = Table(title="📊 Distribution par Type", box=box.ROUNDED)
         table.add_column("Type", style="cyan")
         table.add_column("Nombre", style="white", justify="right")
 
-        for type_acteur, count in sorted(result['acteurs_par_type'].items(), key=lambda x: x[1], reverse=True):
+        for type_acteur, count in sorted(
+            result["acteurs_par_type"].items(), key=lambda x: x[1], reverse=True
+        ):
             table.add_row(type_acteur, str(count))
 
         console.print(table)
 
     # Erreurs éventuelles
-    if result.get('erreurs'):
+    if result.get("erreurs"):
         console.print(f"\n[{THEME['warning_color']}]⚠️  Avertissements:[/]")
-        for err in result['erreurs']:
+        for err in result["erreurs"]:
             console.print(f"  • {err}")
 
     console.print()
-    console.print(f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie analyser {result['projet_id']}")
+    console.print(
+        f"[bold {THEME['info_color']}]💡 Prochaine étape:[/] tawiza cartographie analyser {result['projet_id']}"
+    )
 
 
 @app.command("auto")
@@ -475,7 +490,7 @@ def pipeline_auto(
     limite: int = typer.Option(100, "--limite", "-l", help="Nombre d'acteurs à collecter"),
     nom: str | None = typer.Option(None, "--nom", "-n", help="Nom du projet"),
     output: str | None = typer.Option(None, "--output", "-o", help="Répertoire de sortie"),
-    ouvrir: bool = typer.Option(True, "--ouvrir/--no-ouvrir", help="Ouvrir les résultats")
+    ouvrir: bool = typer.Option(True, "--ouvrir/--no-ouvrir", help="Ouvrir les résultats"),
 ):
     """
     🤖 Pipeline 100% automatique: collecte + analyse + visualisation
@@ -500,13 +515,15 @@ def pipeline_auto(
             adapter.output_dir = Path(output)
             adapter.output_dir.mkdir(parents=True, exist_ok=True)
 
-        return await adapter.execute_task({
-            'action': 'pipeline_auto',
-            'nom': nom or f"Cartographie {territoire} {thematique or ''}",
-            'territoire': territoire,
-            'thematique': thematique,
-            'limite': limite
-        })
+        return await adapter.execute_task(
+            {
+                "action": "pipeline_auto",
+                "nom": nom or f"Cartographie {territoire} {thematique or ''}",
+                "territoire": territoire,
+                "thematique": thematique,
+                "limite": limite,
+            }
+        )
 
     console.print(f"\n[bold {THEME['info_color']}]🤖 Pipeline Automatique...[/]\n")
     console.print(f"  📍 Territoire: [bold]{territoire}[/]")
@@ -520,46 +537,48 @@ def pipeline_auto(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        console=console
+        console=console,
     ) as progress:
         task = progress.add_task("Pipeline en cours...", total=100)
         result = run_async(_auto())
         progress.update(task, completed=100)
 
-    fichiers = result.get('fichiers', {})
-    resume = result.get('resume', {})
-    analyse = result.get('analyse', {})
+    fichiers = result.get("fichiers", {})
+    resume = result.get("resume", {})
+    analyse = result.get("analyse", {})
 
     # Résultat final
     console.print()
-    console.print(Panel(
-        f"""[bold green]✅ Cartographie terminée![/]
+    console.print(
+        Panel(
+            f"""[bold green]✅ Cartographie terminée![/]
 
-[bold]Projet ID:[/] {result['projet_id']}
-[bold]Mode:[/] {result.get('mode', 'auto').upper()}
+[bold]Projet ID:[/] {result["projet_id"]}
+[bold]Mode:[/] {result.get("mode", "auto").upper()}
 
 [bold cyan]📊 Statistiques:[/]
-  • Acteurs: {resume.get('nb_acteurs', 0)}
-  • Relations: {resume.get('nb_relations', 0)}
-  • Communautés: {resume.get('nb_communautes', 0)}
+  • Acteurs: {resume.get("nb_acteurs", 0)}
+  • Relations: {resume.get("nb_relations", 0)}
+  • Communautés: {resume.get("nb_communautes", 0)}
 
 [bold cyan]📈 Métriques Réseau:[/]
-  • Densité: {analyse.get('densite', 0):.3f}
-  • Modularité: {analyse.get('modularite', 0):.3f}
+  • Densité: {analyse.get("densite", 0):.3f}
+  • Modularité: {analyse.get("modularite", 0):.3f}
 
 [bold cyan]📁 Fichiers:[/]
-  🗺️  {fichiers.get('carte', 'N/A')}
-  🕸️  {fichiers.get('graphe', 'N/A')}
-  📄 {fichiers.get('rapport', 'N/A')}
+  🗺️  {fichiers.get("carte", "N/A")}
+  🕸️  {fichiers.get("graphe", "N/A")}
+  📄 {fichiers.get("rapport", "N/A")}
         """,
-        title="🤖 Cartographie Automatique",
-        border_style=THEME['success_color'],
-        box=box.DOUBLE
-    ))
+            title="🤖 Cartographie Automatique",
+            border_style=THEME["success_color"],
+            box=box.DOUBLE,
+        )
+    )
 
     # Afficher les liens d'accès
-    if fichiers.get('carte'):
-        carte_path = Path(fichiers['carte'])
+    if fichiers.get("carte"):
+        carte_path = Path(fichiers["carte"])
         console.print("\n[bold green]📍 Accès aux visualisations:[/]")
         console.print("\n[cyan]Serveur HTTP:[/] Lancez d'abord:")
         console.print("  [yellow]python3 scripts/serve_cartographies.py[/]")
@@ -575,7 +594,7 @@ def pipeline_complet(
     nom: str = typer.Option("Cartographie", "--nom", "-n", help="Nom du projet"),
     territoire: str | None = typer.Option(None, "--territoire", "-t", help="Territoire"),
     thematique: str | None = typer.Option(None, "--thematique", help="Thématique"),
-    output: str | None = typer.Option(None, "--output", "-o", help="Répertoire de sortie")
+    output: str | None = typer.Option(None, "--output", "-o", help="Répertoire de sortie"),
 ):
     """
     🚀 Exécute le pipeline complet en une seule commande
@@ -594,21 +613,21 @@ def pipeline_complet(
 
     # Construire les sources
     sources = []
-    for f in (csv or []):
+    for f in csv or []:
         if not Path(f).exists():
             console.print(f"[bold {THEME['error_color']}]❌ Fichier non trouvé: {f}[/]")
             raise typer.Exit(1)
-        sources.append({'type': 'csv', 'chemin': f})
-    for f in (excel or []):
+        sources.append({"type": "csv", "chemin": f})
+    for f in excel or []:
         if not Path(f).exists():
             console.print(f"[bold {THEME['error_color']}]❌ Fichier non trouvé: {f}[/]")
             raise typer.Exit(1)
-        sources.append({'type': 'excel', 'chemin': f})
-    for f in (json_file or []):
+        sources.append({"type": "excel", "chemin": f})
+    for f in json_file or []:
         if not Path(f).exists():
             console.print(f"[bold {THEME['error_color']}]❌ Fichier non trouvé: {f}[/]")
             raise typer.Exit(1)
-        sources.append({'type': 'json', 'chemin': f})
+        sources.append({"type": "json", "chemin": f})
 
     if not sources:
         console.print(f"[bold {THEME['error_color']}]❌ Aucune source spécifiée![/]")
@@ -621,13 +640,15 @@ def pipeline_complet(
             adapter.output_dir = Path(output)
             adapter.output_dir.mkdir(parents=True, exist_ok=True)
 
-        return await adapter.execute_task({
-            'action': 'pipeline_complet',
-            'nom': nom,
-            'territoire': territoire,
-            'thematique': thematique,
-            'sources': sources
-        })
+        return await adapter.execute_task(
+            {
+                "action": "pipeline_complet",
+                "nom": nom,
+                "territoire": territoire,
+                "thematique": thematique,
+                "sources": sources,
+            }
+        )
 
     console.print(f"\n[bold {THEME['info_color']}]🚀 Lancement du pipeline complet...[/]\n")
 
@@ -636,7 +657,7 @@ def pipeline_complet(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        console=console
+        console=console,
     ) as progress:
         task = progress.add_task("Pipeline de cartographie...", total=100)
 
@@ -649,13 +670,15 @@ def pipeline_complet(
 
             # Simuler les étapes avec mise à jour de la progress bar
 
-            result = await adapter.execute_task({
-                'action': 'pipeline_complet',
-                'nom': nom,
-                'territoire': territoire,
-                'thematique': thematique,
-                'sources': sources
-            })
+            result = await adapter.execute_task(
+                {
+                    "action": "pipeline_complet",
+                    "nom": nom,
+                    "territoire": territoire,
+                    "thematique": thematique,
+                    "sources": sources,
+                }
+            )
 
             return result
 
@@ -663,39 +686,42 @@ def pipeline_complet(
         progress.update(task, completed=100)
 
     # Afficher le résultat final
-    fichiers = result.get('fichiers', {})
-    resume = result.get('resume', {})
-    analyse = result.get('analyse', {})
+    fichiers = result.get("fichiers", {})
+    resume = result.get("resume", {})
+    analyse = result.get("analyse", {})
 
     console.print()
-    console.print(Panel(
-        f"""[bold green]✅ Pipeline terminé avec succès![/]
+    console.print(
+        Panel(
+            f"""[bold green]✅ Pipeline terminé avec succès![/]
 
-[bold]Projet ID:[/] {result['projet_id']}
+[bold]Projet ID:[/] {result["projet_id"]}
 
 [bold cyan]📊 Statistiques:[/]
-  • Acteurs extraits: {resume.get('nb_acteurs', 0)}
-  • Relations détectées: {resume.get('nb_relations', 0)}
-  • Communautés identifiées: {resume.get('nb_communautes', 0)}
+  • Acteurs extraits: {resume.get("nb_acteurs", 0)}
+  • Relations détectées: {resume.get("nb_relations", 0)}
+  • Communautés identifiées: {resume.get("nb_communautes", 0)}
 
 [bold cyan]📈 Métriques du Réseau:[/]
-  • Densité: {analyse.get('densite', 0):.3f}
-  • Modularité: {analyse.get('modularite', 0):.3f}
-  • Composantes connexes: {analyse.get('nb_composantes', 'N/A')}
+  • Densité: {analyse.get("densite", 0):.3f}
+  • Modularité: {analyse.get("modularite", 0):.3f}
+  • Composantes connexes: {analyse.get("nb_composantes", "N/A")}
 
 [bold cyan]📁 Fichiers Générés:[/]
-  🗺️  Carte: {fichiers.get('carte', 'N/A')}
-  🕸️  Graphe: {fichiers.get('graphe', 'N/A')}
-  📄 Rapport: {fichiers.get('rapport', 'N/A')}
+  🗺️  Carte: {fichiers.get("carte", "N/A")}
+  🕸️  Graphe: {fichiers.get("graphe", "N/A")}
+  📄 Rapport: {fichiers.get("rapport", "N/A")}
         """,
-        title="🗺️ Cartographie Terminée",
-        border_style=THEME['success_color'],
-        box=box.DOUBLE
-    ))
+            title="🗺️ Cartographie Terminée",
+            border_style=THEME["success_color"],
+            box=box.DOUBLE,
+        )
+    )
 
     # Ouvrir la carte automatiquement
-    if fichiers.get('carte'):
+    if fichiers.get("carte"):
         import webbrowser
+
         with contextlib.suppress(Exception):
             webbrowser.open(f"file://{Path(fichiers['carte']).absolute()}")
 
@@ -715,7 +741,7 @@ def lister_projets():
 
     if not projets:
         console.print(f"\n[{THEME['warning_color']}]Aucun projet trouvé.[/]")
-        console.print("Créez un nouveau projet avec: tawiza cartographie nouveau \"Mon Projet\"")
+        console.print('Créez un nouveau projet avec: tawiza cartographie nouveau "Mon Projet"')
         return
 
     table = Table(title="📋 Projets de Cartographie", box=box.ROUNDED)
@@ -728,22 +754,22 @@ def lister_projets():
 
     for p in projets:
         statut_emoji = {
-            'brouillon': '📝',
-            'en_cours': '⏳',
-            'extraction': '🔍',
-            'analyse': '🔬',
-            'visualisation': '🎨',
-            'termine': '✅',
-            'erreur': '❌'
-        }.get(p['statut'], '❓')
+            "brouillon": "📝",
+            "en_cours": "⏳",
+            "extraction": "🔍",
+            "analyse": "🔬",
+            "visualisation": "🎨",
+            "termine": "✅",
+            "erreur": "❌",
+        }.get(p["statut"], "❓")
 
         table.add_row(
-            p['id'][:10] + "...",
-            p['nom'],
-            p.get('territoire', '-'),
+            p["id"][:10] + "...",
+            p["nom"],
+            p.get("territoire", "-"),
             f"{statut_emoji} {p['statut']}",
-            str(p.get('nb_acteurs', 0)),
-            str(p.get('nb_relations', 0))
+            str(p.get("nb_acteurs", 0)),
+            str(p.get("nb_relations", 0)),
         )
 
     console.print()
@@ -751,9 +777,7 @@ def lister_projets():
 
 
 @app.command("statut")
-def statut_projet(
-    projet_id: str = typer.Argument(..., help="ID du projet")
-):
+def statut_projet(projet_id: str = typer.Argument(..., help="ID du projet")):
     """
     📊 Affiche le statut détaillé d'un projet
     """
@@ -770,39 +794,39 @@ def statut_projet(
         raise typer.Exit(1)
 
     console.print()
-    console.print(Panel(
-        f"""[bold]ID:[/] {projet['id']}
-[bold]Nom:[/] {projet['nom']}
-[bold]Description:[/] {projet.get('description', '-')}
-[bold]Territoire:[/] {projet.get('territoire', '-')}
-[bold]Thématique:[/] {projet.get('thematique', '-')}
-[bold]Statut:[/] {projet['statut']}
-[bold]Progression:[/] {projet['progression']}%
-[bold]Étape:[/] {projet['etape_courante']}
+    console.print(
+        Panel(
+            f"""[bold]ID:[/] {projet["id"]}
+[bold]Nom:[/] {projet["nom"]}
+[bold]Description:[/] {projet.get("description", "-")}
+[bold]Territoire:[/] {projet.get("territoire", "-")}
+[bold]Thématique:[/] {projet.get("thematique", "-")}
+[bold]Statut:[/] {projet["statut"]}
+[bold]Progression:[/] {projet["progression"]}%
+[bold]Étape:[/] {projet["etape_courante"]}
 
-[bold]Sources:[/] {projet.get('nb_sources', 0)}
-[bold]Acteurs:[/] {projet.get('nb_acteurs', 0)}
-[bold]Relations:[/] {projet.get('nb_relations', 0)}
+[bold]Sources:[/] {projet.get("nb_sources", 0)}
+[bold]Acteurs:[/] {projet.get("nb_acteurs", 0)}
+[bold]Relations:[/] {projet.get("nb_relations", 0)}
 
-[bold]Créé le:[/] {projet['date_creation']}
-[bold]Modifié le:[/] {projet['date_modification']}
+[bold]Créé le:[/] {projet["date_creation"]}
+[bold]Modifié le:[/] {projet["date_modification"]}
         """,
-        title=f"📊 Projet: {projet['nom']}",
-        border_style=THEME['info_color']
-    ))
+            title=f"📊 Projet: {projet['nom']}",
+            border_style=THEME["info_color"],
+        )
+    )
 
-    if projet.get('erreur'):
-        console.print(Panel(
-            f"[bold red]{projet['erreur']}[/]",
-            title="❌ Erreur",
-            border_style="red"
-        ))
+    if projet.get("erreur"):
+        console.print(
+            Panel(f"[bold red]{projet['erreur']}[/]", title="❌ Erreur", border_style="red")
+        )
 
 
 @app.command("supprimer")
 def supprimer_projet(
     projet_id: str = typer.Argument(..., help="ID du projet à supprimer"),
-    force: bool = typer.Option(False, "--force", "-f", help="Supprimer sans confirmation")
+    force: bool = typer.Option(False, "--force", "-f", help="Supprimer sans confirmation"),
 ):
     """
     🗑️  Supprime un projet de cartographie

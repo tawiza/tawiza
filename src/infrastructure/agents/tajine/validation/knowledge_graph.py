@@ -20,6 +20,7 @@ from loguru import logger
 @dataclass
 class Triple:
     """RDF-style triple: subject-predicate-object."""
+
     subject: str
     predicate: str
     obj: Any  # 'object' is reserved in Python
@@ -33,12 +34,17 @@ class Triple:
     def __eq__(self, other):
         if not isinstance(other, Triple):
             return False
-        return (self.subject, self.predicate, self.obj) == (other.subject, other.predicate, other.obj)
+        return (self.subject, self.predicate, self.obj) == (
+            other.subject,
+            other.predicate,
+            other.obj,
+        )
 
 
 @dataclass
 class ValidationMatch:
     """Result of KG validation."""
+
     found: bool
     matching_triples: list[Triple]
     confidence: float
@@ -71,25 +77,25 @@ class KnowledgeGraph:
 
     # Common predicates for normalization
     PREDICATES = {
-        'siren': 'has_siren',
-        'siret': 'has_siret',
-        'name': 'has_name',
-        'denomination': 'has_name',
-        'address': 'has_address',
-        'adresse': 'has_address',
-        'postal_code': 'has_postal_code',
-        'code_postal': 'has_postal_code',
-        'city': 'has_city',
-        'ville': 'has_city',
-        'naf': 'has_naf_code',
-        'ape': 'has_naf_code',
-        'legal_form': 'has_legal_form',
-        'forme_juridique': 'has_legal_form',
-        'creation_date': 'has_creation_date',
-        'date_creation': 'has_creation_date',
-        'capital': 'has_capital',
-        'employees': 'has_employee_count',
-        'effectif': 'has_employee_count',
+        "siren": "has_siren",
+        "siret": "has_siret",
+        "name": "has_name",
+        "denomination": "has_name",
+        "address": "has_address",
+        "adresse": "has_address",
+        "postal_code": "has_postal_code",
+        "code_postal": "has_postal_code",
+        "city": "has_city",
+        "ville": "has_city",
+        "naf": "has_naf_code",
+        "ape": "has_naf_code",
+        "legal_form": "has_legal_form",
+        "forme_juridique": "has_legal_form",
+        "creation_date": "has_creation_date",
+        "date_creation": "has_creation_date",
+        "capital": "has_capital",
+        "employees": "has_employee_count",
+        "effectif": "has_employee_count",
     }
 
     def __init__(self):
@@ -111,7 +117,7 @@ class KnowledgeGraph:
         predicate: str,
         obj: Any,
         source: str | None = None,
-        confidence: float = 1.0
+        confidence: float = 1.0,
     ) -> Triple:
         """
         Add a triple to the graph.
@@ -130,11 +136,7 @@ class KnowledgeGraph:
         predicate = self.PREDICATES.get(predicate.lower(), predicate)
 
         triple = Triple(
-            subject=subject,
-            predicate=predicate,
-            obj=obj,
-            source=source,
-            confidence=confidence
+            subject=subject, predicate=predicate, obj=obj, source=source, confidence=confidence
         )
 
         self._triples.add(triple)
@@ -150,7 +152,7 @@ class KnowledgeGraph:
         entity_id: str,
         properties: dict[str, Any],
         source: str | None = None,
-        confidence: float = 1.0
+        confidence: float = 1.0,
     ) -> list[Triple]:
         """
         Add an entity with multiple properties.
@@ -169,13 +171,9 @@ class KnowledgeGraph:
         triples = []
 
         for prop, value in properties.items():
-            if value is not None and value != '':
+            if value is not None and value != "":
                 triple = self.add_triple(
-                    subject=subject,
-                    predicate=prop,
-                    obj=value,
-                    source=source,
-                    confidence=confidence
+                    subject=subject, predicate=prop, obj=value, source=source, confidence=confidence
                 )
                 triples.append(triple)
 
@@ -183,10 +181,7 @@ class KnowledgeGraph:
         return triples
 
     def query(
-        self,
-        subject: str | None = None,
-        predicate: str | None = None,
-        obj: Any | None = None
+        self, subject: str | None = None, predicate: str | None = None, obj: Any | None = None
     ) -> list[Triple]:
         """
         Query triples by pattern.
@@ -254,11 +249,7 @@ class KnowledgeGraph:
         return result
 
     def validate_claim(
-        self,
-        subject: str,
-        predicate: str,
-        claimed_value: Any,
-        tolerance: float = 0.0
+        self, subject: str, predicate: str, claimed_value: Any, tolerance: float = 0.0
     ) -> ValidationMatch:
         """
         Validate a claim against stored knowledge.
@@ -285,7 +276,7 @@ class KnowledgeGraph:
                 matching_triples=[],
                 confidence=0.0,
                 conflicts=[],
-                message=f"No knowledge about {subject}.{predicate}"
+                message=f"No knowledge about {subject}.{predicate}",
             )
 
         # Check for matches and conflicts
@@ -306,7 +297,7 @@ class KnowledgeGraph:
                 matching_triples=matches,
                 confidence=avg_confidence,
                 conflicts=conflicts,
-                message=f"Claim verified by {len(matches)} source(s)"
+                message=f"Claim verified by {len(matches)} source(s)",
             )
         else:
             # Claim conflicts with stored knowledge
@@ -315,15 +306,10 @@ class KnowledgeGraph:
                 matching_triples=[],
                 confidence=0.0,
                 conflicts=conflicts,
-                message=f"Claim conflicts with {len(conflicts)} known fact(s)"
+                message=f"Claim conflicts with {len(conflicts)} known fact(s)",
             )
 
-    def _values_match(
-        self,
-        known: Any,
-        claimed: Any,
-        tolerance: float = 0.0
-    ) -> bool:
+    def _values_match(self, known: Any, claimed: Any, tolerance: float = 0.0) -> bool:
         """
         Compare two values with optional tolerance.
 
@@ -351,13 +337,10 @@ class KnowledgeGraph:
 
     def _normalize_string(self, s: str) -> str:
         """Normalize string for comparison."""
-        return s.lower().strip().replace('-', ' ').replace('_', ' ')
+        return s.lower().strip().replace("-", " ").replace("_", " ")
 
     def cross_reference(
-        self,
-        claims: dict[str, Any],
-        entity_type: str,
-        entity_id: str
+        self, claims: dict[str, Any], entity_type: str, entity_id: str
     ) -> dict[str, ValidationMatch]:
         """
         Cross-reference multiple claims against stored knowledge.
@@ -376,9 +359,7 @@ class KnowledgeGraph:
         for predicate, value in claims.items():
             if value is not None:
                 results[predicate] = self.validate_claim(
-                    subject=subject,
-                    predicate=predicate,
-                    claimed_value=value
+                    subject=subject, predicate=predicate, claimed_value=value
                 )
 
         return results
@@ -386,10 +367,10 @@ class KnowledgeGraph:
     def get_stats(self) -> dict[str, int]:
         """Get graph statistics."""
         return {
-            'total_triples': len(self._triples),
-            'unique_subjects': len(self._by_subject),
-            'unique_predicates': len(self._by_predicate),
-            'unique_objects': len(self._by_object)
+            "total_triples": len(self._triples),
+            "unique_subjects": len(self._by_subject),
+            "unique_predicates": len(self._by_predicate),
+            "unique_objects": len(self._by_object),
         }
 
     def clear(self):
@@ -413,37 +394,41 @@ class KnowledgeGraph:
         triples = []
 
         # Handle company (unite_legale)
-        unite_legale = sirene_data.get('unite_legale', sirene_data)
-        siren = unite_legale.get('siren')
+        unite_legale = sirene_data.get("unite_legale", sirene_data)
+        siren = unite_legale.get("siren")
 
         if siren:
             company_props = {
-                'siren': siren,
-                'name': unite_legale.get('denomination') or unite_legale.get('nom_complet'),
-                'legal_form': unite_legale.get('categorie_juridique'),
-                'creation_date': unite_legale.get('date_creation'),
-                'naf': unite_legale.get('activite_principale'),
-                'employees': unite_legale.get('tranche_effectifs'),
+                "siren": siren,
+                "name": unite_legale.get("denomination") or unite_legale.get("nom_complet"),
+                "legal_form": unite_legale.get("categorie_juridique"),
+                "creation_date": unite_legale.get("date_creation"),
+                "naf": unite_legale.get("activite_principale"),
+                "employees": unite_legale.get("tranche_effectifs"),
             }
             triples.extend(
-                self.add_entity('company', siren, company_props, source='sirene_api', confidence=0.95)
+                self.add_entity(
+                    "company", siren, company_props, source="sirene_api", confidence=0.95
+                )
             )
 
         # Handle establishments (etablissements)
-        etablissements = sirene_data.get('etablissements', [])
+        etablissements = sirene_data.get("etablissements", [])
         for etab in etablissements:
-            siret = etab.get('siret')
+            siret = etab.get("siret")
             if siret:
                 etab_props = {
-                    'siret': siret,
-                    'siren': etab.get('siren'),
-                    'address': etab.get('adresse', {}).get('libelle_voie'),
-                    'postal_code': etab.get('adresse', {}).get('code_postal'),
-                    'city': etab.get('adresse', {}).get('libelle_commune'),
-                    'naf': etab.get('activite_principale'),
+                    "siret": siret,
+                    "siren": etab.get("siren"),
+                    "address": etab.get("adresse", {}).get("libelle_voie"),
+                    "postal_code": etab.get("adresse", {}).get("code_postal"),
+                    "city": etab.get("adresse", {}).get("libelle_commune"),
+                    "naf": etab.get("activite_principale"),
                 }
                 triples.extend(
-                    self.add_entity('establishment', siret, etab_props, source='sirene_api', confidence=0.95)
+                    self.add_entity(
+                        "establishment", siret, etab_props, source="sirene_api", confidence=0.95
+                    )
                 )
 
         logger.info(f"Populated KG from SIRENE: {len(triples)} triples")

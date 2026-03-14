@@ -1,4 +1,5 @@
 """Cypher query builder for Neo4j sync."""
+
 from typing import Any
 
 from .queue import SyncItem
@@ -85,10 +86,7 @@ class CypherBuilder:
         return query, params
 
     @classmethod
-    def build_with_relationship(
-        cls,
-        item: SyncItem
-    ) -> tuple[str, dict[str, Any]]:
+    def build_with_relationship(cls, item: SyncItem) -> tuple[str, dict[str, Any]]:
         """
         Build query with relationship.
 
@@ -116,9 +114,5 @@ class CypherBuilder:
         RETURN n, r, t
         """
 
-        params = {
-            key: key_value,
-            "props": item.data,
-            "target_value": rel["target_value"]
-        }
+        params = {key: key_value, "props": item.data, "target_value": rel["target_value"]}
         return query, params

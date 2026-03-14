@@ -95,7 +95,9 @@ class SAFLAMemoryAdapter:
         self._ollama_client = None
         self._ollama_available = False
 
-        logger.info(f"SAFLAMemoryAdapter initialized (storage: {self.storage_path}, embeddings: {embedding_model})")
+        logger.info(
+            f"SAFLAMemoryAdapter initialized (storage: {self.storage_path}, embeddings: {embedding_model})"
+        )
 
     async def initialize(self) -> None:
         """Initialize the SAFLA memory system and Ollama embeddings."""
@@ -105,6 +107,7 @@ class SAFLAMemoryAdapter:
         # Initialize Ollama client for embeddings
         try:
             from src.infrastructure.llm.ollama_client import OllamaClient
+
             self._ollama_client = OllamaClient(base_url=self.ollama_url)
             self._ollama_available = await self._ollama_client.is_available()
             if self._ollama_available:
@@ -167,7 +170,10 @@ class SAFLAMemoryAdapter:
             territory=territory,
             sector=sector,
             confidence=result.get("confidence", 0.5) if isinstance(result, dict) else 0.5,
-            metadata={"success": success, "result_keys": list(result.keys()) if isinstance(result, dict) else []},
+            metadata={
+                "success": success,
+                "result_keys": list(result.keys()) if isinstance(result, dict) else [],
+            },
         )
 
         return await self._store_item(item)

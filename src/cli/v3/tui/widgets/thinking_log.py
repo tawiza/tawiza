@@ -11,6 +11,7 @@ from textual.widgets import RichLog, Static
 
 class LogEntryType(Enum):
     """Type of log entry."""
+
     THINKING = "thinking"
     TOOL_CALL = "tool_call"
     TOOL_RESULT = "tool_result"
@@ -22,6 +23,7 @@ class LogEntryType(Enum):
 @dataclass
 class LogEntry:
     """A single log entry."""
+
     timestamp: datetime
     entry_type: LogEntryType
     content: str
@@ -76,16 +78,13 @@ class ThinkingLog(Vertical):
         yield Static(
             f"[dim][auto-scroll {'✓' if self.auto_scroll else '✗'}][/]",
             classes="auto-scroll-indicator",
-            id="auto-scroll-indicator"
+            id="auto-scroll-indicator",
         )
 
     def add_entry(self, entry_type: LogEntryType, content: str, details: str | None = None) -> None:
         """Add a new log entry."""
         entry = LogEntry(
-            timestamp=datetime.now(),
-            entry_type=entry_type,
-            content=content,
-            details=details
+            timestamp=datetime.now(), entry_type=entry_type, content=content, details=details
         )
         self._entries.append(entry)
         self._render_entry(entry)

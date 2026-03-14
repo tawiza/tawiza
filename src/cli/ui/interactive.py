@@ -14,21 +14,24 @@ from questionary import Style
 
 # ===== STYLES PERSONNALISÉS =====
 
-CUSTOM_STYLE = Style([
-    ('qmark', 'fg:#FF6B35 bold'),           # Question mark
-    ('question', 'bold'),                    # Question text
-    ('answer', 'fg:#FFD93D bold'),          # Selected answer
-    ('pointer', 'fg:#FF6B35 bold'),         # Pointer
-    ('highlighted', 'fg:#FF6B35 bold'),     # Highlighted choice
-    ('selected', 'fg:#FFD93D'),             # Selected item
-    ('separator', 'fg:#6C6C6C'),            # Separator
-    ('instruction', 'fg:#858585'),          # Instructions
-    ('text', ''),                            # Plain text
-    ('disabled', 'fg:#858585 italic'),      # Disabled choices
-])
+CUSTOM_STYLE = Style(
+    [
+        ("qmark", "fg:#FF6B35 bold"),  # Question mark
+        ("question", "bold"),  # Question text
+        ("answer", "fg:#FFD93D bold"),  # Selected answer
+        ("pointer", "fg:#FF6B35 bold"),  # Pointer
+        ("highlighted", "fg:#FF6B35 bold"),  # Highlighted choice
+        ("selected", "fg:#FFD93D"),  # Selected item
+        ("separator", "fg:#6C6C6C"),  # Separator
+        ("instruction", "fg:#858585"),  # Instructions
+        ("text", ""),  # Plain text
+        ("disabled", "fg:#858585 italic"),  # Disabled choices
+    ]
+)
 
 
 # ===== MENUS INTERACTIFS =====
+
 
 class InteractiveMenu:
     """Menu de sélection interactif avec recherche"""
@@ -39,7 +42,7 @@ class InteractiveMenu:
         choices: list[str],
         default: str | None = None,
         instruction: str = "(Use arrow keys)",
-        style: Style | None = None
+        style: Style | None = None,
     ) -> str:
         """Menu de sélection simple"""
         return questionary.select(
@@ -49,7 +52,7 @@ class InteractiveMenu:
             instruction=instruction,
             style=style or CUSTOM_STYLE,
             use_shortcuts=True,
-            use_arrow_keys=True
+            use_arrow_keys=True,
         ).ask()
 
     @staticmethod
@@ -57,15 +60,11 @@ class InteractiveMenu:
         question: str,
         choices: list[str],
         default: list[str] | None = None,
-        instruction: str = "(Space to select, Enter to confirm)"
+        instruction: str = "(Space to select, Enter to confirm)",
     ) -> list[str]:
         """Menu de sélection multiple"""
         return questionary.checkbox(
-            question,
-            choices=choices,
-            default=default,
-            instruction=instruction,
-            style=CUSTOM_STYLE
+            question, choices=choices, default=default, instruction=instruction, style=CUSTOM_STYLE
         ).ask()
 
     @staticmethod
@@ -73,7 +72,7 @@ class InteractiveMenu:
         question: str,
         choices: list[str],
         default: str = "",
-        meta_information: dict[str, str] | None = None
+        meta_information: dict[str, str] | None = None,
     ) -> str:
         """Menu avec auto-complétion"""
         return questionary.autocomplete(
@@ -81,20 +80,23 @@ class InteractiveMenu:
             choices=choices,
             default=default,
             meta_information=meta_information,
-            style=CUSTOM_STYLE
+            style=CUSTOM_STYLE,
         ).ask()
 
 
 # ===== PROMPTS ET VALIDATION =====
 
+
 class ValidationError(Exception):
     """Erreur de validation"""
+
     pass
 
 
 @dataclass
 class ValidationRule:
     """Règle de validation"""
+
     validator: Callable[[str], bool]
     error_message: str
 
@@ -107,9 +109,10 @@ class InteractivePrompt:
         question: str,
         default: str = "",
         validate: ValidationRule | None = None,
-        multiline: bool = False
+        multiline: bool = False,
     ) -> str:
         """Prompt texte avec validation"""
+
         def validation_func(text):
             if validate and not validate.validator(text):
                 return validate.error_message
@@ -120,24 +123,20 @@ class InteractivePrompt:
             default=default,
             validate=validation_func if validate else None,
             multiline=multiline,
-            style=CUSTOM_STYLE
+            style=CUSTOM_STYLE,
         ).ask()
 
     @staticmethod
-    def password(
-        question: str,
-        validate: ValidationRule | None = None
-    ) -> str:
+    def password(question: str, validate: ValidationRule | None = None) -> str:
         """Prompt password masqué"""
+
         def validation_func(pwd):
             if validate and not validate.validator(pwd):
                 return validate.error_message
             return True
 
         return questionary.password(
-            question,
-            validate=validation_func if validate else None,
-            style=CUSTOM_STYLE
+            question, validate=validation_func if validate else None, style=CUSTOM_STYLE
         ).ask()
 
     @staticmethod
@@ -145,9 +144,10 @@ class InteractivePrompt:
         question: str,
         default: float | None = None,
         min_value: float | None = None,
-        max_value: float | None = None
+        max_value: float | None = None,
     ) -> float:
         """Prompt nombre avec validation de range"""
+
         def validate_number(text):
             try:
                 value = float(text)
@@ -163,7 +163,7 @@ class InteractivePrompt:
             question,
             default=str(default) if default is not None else "",
             validate=validate_number,
-            style=CUSTOM_STYLE
+            style=CUSTOM_STYLE,
         ).ask()
 
         return float(result)
@@ -173,9 +173,10 @@ class InteractivePrompt:
         question: str,
         default: int | None = None,
         min_value: int | None = None,
-        max_value: int | None = None
+        max_value: int | None = None,
     ) -> int:
         """Prompt entier avec validation"""
+
         def validate_int(text):
             try:
                 value = int(text)
@@ -191,36 +192,28 @@ class InteractivePrompt:
             question,
             default=str(default) if default is not None else "",
             validate=validate_int,
-            style=CUSTOM_STYLE
+            style=CUSTOM_STYLE,
         ).ask()
 
         return int(result)
 
     @staticmethod
-    def confirm(
-        question: str,
-        default: bool = False,
-        auto_enter: bool = True
-    ) -> bool:
+    def confirm(question: str, default: bool = False, auto_enter: bool = True) -> bool:
         """Prompt confirmation (yes/no)"""
         return questionary.confirm(
-            question,
-            default=default,
-            auto_enter=auto_enter,
-            style=CUSTOM_STYLE
+            question, default=default, auto_enter=auto_enter, style=CUSTOM_STYLE
         ).ask()
 
 
 # ===== FILE/DIRECTORY PICKER =====
+
 
 class FilePicker:
     """Sélecteur de fichiers et répertoires"""
 
     @staticmethod
     def select_file(
-        question: str = "Select a file:",
-        directory: Path | None = None,
-        pattern: str = "*"
+        question: str = "Select a file:", directory: Path | None = None, pattern: str = "*"
     ) -> Path | None:
         """Sélectionner un fichier"""
         search_dir = directory or Path.cwd()
@@ -241,9 +234,7 @@ class FilePicker:
         choices.append("❌ Cancel")
 
         selected = InteractiveMenu.select(
-            question,
-            choices=choices,
-            instruction="(Use arrow keys to navigate)"
+            question, choices=choices, instruction="(Use arrow keys to navigate)"
         )
 
         if selected == "❌ Cancel":
@@ -253,15 +244,16 @@ class FilePicker:
 
     @staticmethod
     def select_directory(
-        question: str = "Select a directory:",
-        start_dir: Path | None = None
+        question: str = "Select a directory:", start_dir: Path | None = None
     ) -> Path | None:
         """Sélectionner un répertoire"""
         current_dir = start_dir or Path.cwd()
 
         while True:
             # List directories
-            dirs = sorted([d for d in current_dir.iterdir() if d.is_dir() and not d.name.startswith('.')])
+            dirs = sorted(
+                [d for d in current_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]
+            )
 
             choices = ["📁 <Current Directory>"]
             if current_dir.parent != current_dir:
@@ -269,10 +261,7 @@ class FilePicker:
             choices.extend([f"📁 {d.name}" for d in dirs])
             choices.append("❌ Cancel")
 
-            selected = InteractiveMenu.select(
-                f"{question}\n[{current_dir}]",
-                choices=choices
-            )
+            selected = InteractiveMenu.select(f"{question}\n[{current_dir}]", choices=choices)
 
             if selected == "❌ Cancel":
                 return None
@@ -287,9 +276,11 @@ class FilePicker:
 
 # ===== FORMULAIRES MULTI-CHAMPS =====
 
+
 @dataclass
 class FormField:
     """Champ de formulaire"""
+
     name: str
     question: str
     field_type: str  # "text", "number", "password", "select", "confirm"
@@ -304,20 +295,13 @@ class InteractiveForm:
     """Formulaire interactif multi-champs"""
 
     @staticmethod
-    def create(
-        title: str,
-        fields: list[FormField],
-        confirm_submit: bool = True
-    ) -> dict[str, Any]:
+    def create(title: str, fields: list[FormField], confirm_submit: bool = True) -> dict[str, Any]:
         """Créer et afficher un formulaire"""
         from rich.console import Console
         from rich.panel import Panel
 
         console = Console()
-        console.print(Panel(
-            f"[bold cyan]{title}[/]",
-            border_style="cyan"
-        ))
+        console.print(Panel(f"[bold cyan]{title}[/]", border_style="cyan"))
         console.print()
 
         results = {}
@@ -325,15 +309,12 @@ class InteractiveForm:
         for field in fields:
             if field.field_type == "text":
                 results[field.name] = InteractivePrompt.text(
-                    field.question,
-                    default=str(field.default or ""),
-                    validate=field.validate
+                    field.question, default=str(field.default or ""), validate=field.validate
                 )
 
             elif field.field_type == "password":
                 results[field.name] = InteractivePrompt.password(
-                    field.question,
-                    validate=field.validate
+                    field.question, validate=field.validate
                 )
 
             elif field.field_type == "number":
@@ -341,7 +322,7 @@ class InteractiveForm:
                     field.question,
                     default=field.default,
                     min_value=field.min_value,
-                    max_value=field.max_value
+                    max_value=field.max_value,
                 )
 
             elif field.field_type == "integer":
@@ -349,27 +330,22 @@ class InteractiveForm:
                     field.question,
                     default=field.default,
                     min_value=field.min_value,
-                    max_value=field.max_value
+                    max_value=field.max_value,
                 )
 
             elif field.field_type == "select":
                 results[field.name] = InteractiveMenu.select(
-                    field.question,
-                    choices=field.choices or [],
-                    default=field.default
+                    field.question, choices=field.choices or [], default=field.default
                 )
 
             elif field.field_type == "multi_select":
                 results[field.name] = InteractiveMenu.multi_select(
-                    field.question,
-                    choices=field.choices or [],
-                    default=field.default
+                    field.question, choices=field.choices or [], default=field.default
                 )
 
             elif field.field_type == "confirm":
                 results[field.name] = InteractivePrompt.confirm(
-                    field.question,
-                    default=field.default or False
+                    field.question, default=field.default or False
                 )
 
         # Confirm submission
@@ -395,10 +371,7 @@ if __name__ == "__main__":
     console = Console()
     console.clear()
 
-    console.print(Panel(
-        "[bold cyan]Interactive Components Demo[/]",
-        border_style="cyan"
-    ))
+    console.print(Panel("[bold cyan]Interactive Components Demo[/]", border_style="cyan"))
     console.print()
 
     # 1. Simple select
@@ -406,7 +379,7 @@ if __name__ == "__main__":
     theme = InteractiveMenu.select(
         "Choose a theme:",
         choices=["🌅 Sunset", "🌊 Ocean", "🌲 Forest", "⚡ Neon"],
-        instruction="Use arrow keys"
+        instruction="Use arrow keys",
     )
     console.print(f"[green]✓ Selected: {theme}[/]\n")
 
@@ -415,7 +388,7 @@ if __name__ == "__main__":
     features = InteractiveMenu.multi_select(
         "Select features to enable:",
         choices=["GPU Optimization", "Smart Cache", "Auto-retry", "Logging"],
-        instruction="Space to select, Enter to confirm"
+        instruction="Space to select, Enter to confirm",
     )
     console.print(f"[green]✓ Selected: {', '.join(features)}[/]\n")
 
@@ -424,20 +397,14 @@ if __name__ == "__main__":
     name = InteractivePrompt.text(
         "Enter your name:",
         validate=ValidationRule(
-            validator=lambda x: len(x) >= 3,
-            error_message="Name must be at least 3 characters"
-        )
+            validator=lambda x: len(x) >= 3, error_message="Name must be at least 3 characters"
+        ),
     )
     console.print(f"[green]✓ Name: {name}[/]\n")
 
     # 4. Number prompt
     console.print("[bold]4. Number Prompt:[/]")
-    workers = InteractivePrompt.integer(
-        "Number of workers:",
-        default=4,
-        min_value=1,
-        max_value=16
-    )
+    workers = InteractivePrompt.integer("Number of workers:", default=4, min_value=1, max_value=16)
     console.print(f"[green]✓ Workers: {workers}[/]\n")
 
     # 5. Confirmation
@@ -448,7 +415,4 @@ if __name__ == "__main__":
         console.print("[yellow]✗ Cancelled[/]")
 
     console.print()
-    console.print(Panel(
-        "[bold green]Demo Complete![/]",
-        border_style="green"
-    ))
+    console.print(Panel("[bold green]Demo Complete![/]", border_style="green"))

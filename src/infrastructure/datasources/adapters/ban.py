@@ -60,10 +60,7 @@ class BanAdapter(BaseAdapter):
             response.raise_for_status()
             data = response.json()
 
-            return [
-                self._transform_feature(f)
-                for f in data.get("features", [])
-            ]
+            return [self._transform_feature(f) for f in data.get("features", [])]
 
         except httpx.HTTPError as e:
             logger.error(f"BAN search failed: {e}")

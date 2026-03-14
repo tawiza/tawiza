@@ -68,17 +68,13 @@ class UncertaintySamplingStrategy(ISamplingStrategy):
         # Get feedback for this model (unlabeled predictions)
         # In practice, we'd query predictions without feedback
         # For now, we use feedback with prediction metadata
-        feedbacks = await self._feedback_repo.get_by_model_id(
-            model.id, skip=0, limit=1000
-        )
+        feedbacks = await self._feedback_repo.get_by_model_id(model.id, skip=0, limit=1000)
 
         # Extract confidence scores from metadata
         candidates: list[SampleScore] = []
         for fb in feedbacks:
             # Get confidence from output_data or metadata
-            confidence = fb.output_data.get("confidence") or fb.metadata.get(
-                "confidence"
-            )
+            confidence = fb.output_data.get("confidence") or fb.metadata.get("confidence")
             if confidence is not None:
                 # Calculate uncertainty score (lower confidence = higher uncertainty)
                 uncertainty_score = 1.0 - confidence
@@ -174,17 +170,13 @@ class MarginSamplingStrategy(ISamplingStrategy):
             raise ValueError(f"Model {model_name}:{model_version} not found")
 
         # Get feedback
-        feedbacks = await self._feedback_repo.get_by_model_id(
-            model.id, skip=0, limit=1000
-        )
+        feedbacks = await self._feedback_repo.get_by_model_id(model.id, skip=0, limit=1000)
 
         # Calculate margins
         candidates: list[SampleScore] = []
         for fb in feedbacks:
             # Get prediction probabilities
-            probabilities = fb.output_data.get("probabilities") or fb.metadata.get(
-                "probabilities"
-            )
+            probabilities = fb.output_data.get("probabilities") or fb.metadata.get("probabilities")
             if probabilities and isinstance(probabilities, (list, np.ndarray)):
                 probs = sorted(probabilities, reverse=True)
                 if len(probs) >= 2:
@@ -301,16 +293,12 @@ class EntropySamplingStrategy(ISamplingStrategy):
             raise ValueError(f"Model {model_name}:{model_version} not found")
 
         # Get feedback
-        feedbacks = await self._feedback_repo.get_by_model_id(
-            model.id, skip=0, limit=1000
-        )
+        feedbacks = await self._feedback_repo.get_by_model_id(model.id, skip=0, limit=1000)
 
         # Calculate entropy
         candidates: list[SampleScore] = []
         for fb in feedbacks:
-            probabilities = fb.output_data.get("probabilities") or fb.metadata.get(
-                "probabilities"
-            )
+            probabilities = fb.output_data.get("probabilities") or fb.metadata.get("probabilities")
             if probabilities and isinstance(probabilities, (list, np.ndarray)):
                 entropy = self._calculate_entropy(probabilities)
                 confidence = max(probabilities) if probabilities else 0.0
@@ -379,9 +367,7 @@ class DiversitySamplingStrategy(ISamplingStrategy):
         self._feedback_repo = feedback_repository
         self._model_repo = model_repository
 
-    def _get_distance_matrix(
-        self, embeddings: np.ndarray, metric: str = "cosine"
-    ) -> np.ndarray:
+    def _get_distance_matrix(self, embeddings: np.ndarray, metric: str = "cosine") -> np.ndarray:
         """Calculate pairwise distances.
 
         Args:
@@ -425,9 +411,7 @@ class DiversitySamplingStrategy(ISamplingStrategy):
             raise ValueError(f"Model {model_name}:{model_version} not found")
 
         # Get feedback
-        feedbacks = await self._feedback_repo.get_by_model_id(
-            model.id, skip=0, limit=1000
-        )
+        feedbacks = await self._feedback_repo.get_by_model_id(model.id, skip=0, limit=1000)
 
         # Extract embeddings
         embeddings_list = []
@@ -475,9 +459,7 @@ class DiversitySamplingStrategy(ISamplingStrategy):
             closest_idx = cluster_indices[np.argmin(distances)]
 
             fb = feedback_map[closest_idx]
-            confidence = fb.output_data.get("confidence") or fb.metadata.get(
-                "confidence", 0.5
-            )
+            confidence = fb.output_data.get("confidence") or fb.metadata.get("confidence", 0.5)
 
             # Diversity score based on cluster size and distance to center
             diversity_score = 1.0 / (1.0 + np.min(distances))

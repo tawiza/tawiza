@@ -1,6 +1,5 @@
 """Service Status widget."""
 
-
 from textual.widgets import Static
 
 

@@ -8,6 +8,7 @@ Fournit des validateurs sécurisés pour:
 - Chaînes de caractères (longueur, caractères autorisés)
 - URLs et adresses
 """
+
 from __future__ import annotations
 
 import re
@@ -29,27 +30,50 @@ DEFAULT_MAX_STRING_LENGTH = 1000
 DEFAULT_MAX_PATH_LENGTH = 4096
 
 # Patterns autorisés
-SAFE_FILENAME_PATTERN = re.compile(r'^[a-zA-Z0-9_\-\.]+$')
-SAFE_PATH_CHARS = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./\\:')
+SAFE_FILENAME_PATTERN = re.compile(r"^[a-zA-Z0-9_\-\.]+$")
+SAFE_PATH_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./\\:")
 
 # Extensions de fichiers dangereuses
 DANGEROUS_EXTENSIONS: set[str] = {
-    '.exe', '.bat', '.cmd', '.com', '.msi', '.scr',
-    '.vbs', '.vbe', '.js', '.jse', '.ws', '.wsf',
-    '.sh', '.bash', '.zsh', '.ps1', '.psm1'
+    ".exe",
+    ".bat",
+    ".cmd",
+    ".com",
+    ".msi",
+    ".scr",
+    ".vbs",
+    ".vbe",
+    ".js",
+    ".jse",
+    ".ws",
+    ".wsf",
+    ".sh",
+    ".bash",
+    ".zsh",
+    ".ps1",
+    ".psm1",
 }
 
 # Répertoires protégés
 PROTECTED_PATHS: set[str] = {
-    '/etc', '/bin', '/sbin', '/usr/bin', '/usr/sbin',
-    '/root', '/var/log', '/var/run', '/boot',
-    'C:\\Windows', 'C:\\Program Files'
+    "/etc",
+    "/bin",
+    "/sbin",
+    "/usr/bin",
+    "/usr/sbin",
+    "/root",
+    "/var/log",
+    "/var/run",
+    "/boot",
+    "C:\\Windows",
+    "C:\\Program Files",
 }
 
 
 # ==============================================================================
 # EXCEPTIONS
 # ==============================================================================
+
 
 class ValidationError(Exception):
     """Exception de base pour les erreurs de validation"""
@@ -62,16 +86,19 @@ class ValidationError(Exception):
 
 class PathValidationError(ValidationError):
     """Erreur de validation de chemin"""
+
     pass
 
 
 class IntegerValidationError(ValidationError):
     """Erreur de validation d'entier"""
+
     pass
 
 
 class StringValidationError(ValidationError):
     """Erreur de validation de chaîne"""
+
     pass
 
 
@@ -79,9 +106,11 @@ class StringValidationError(ValidationError):
 # RÉSULTATS DE VALIDATION
 # ==============================================================================
 
+
 @dataclass
 class ValidationResult:
     """Résultat d'une validation"""
+
     is_valid: bool
     value: Any = None
     error: str | None = None
@@ -102,6 +131,7 @@ class ValidationResult:
 # VALIDATEURS DE CHEMINS
 # ==============================================================================
 
+
 class PathValidator:
     """Validateur de chemins de fichiers sécurisé"""
 
@@ -112,7 +142,7 @@ class PathValidator:
         allow_relative: bool = True,
         max_length: int = DEFAULT_MAX_PATH_LENGTH,
         allowed_extensions: set[str] | None = None,
-        blocked_extensions: set[str] | None = None
+        blocked_extensions: set[str] | None = None,
     ):
         self.allowed_directories = allowed_directories or self._default_allowed_dirs()
         self.allow_absolute = allow_absolute
@@ -125,6 +155,7 @@ class PathValidator:
     def _default_allowed_dirs() -> list[Path]:
         """Répertoires autorisés par défaut"""
         from src.cli.constants import PROJECT_ROOT
+
         return [
             Path.cwd(),
             Path.home(),
@@ -148,12 +179,12 @@ class PathValidator:
         try:
             path_str = path_str.strip()
             # Supprimer les caractères nuls et de contrôle
-            path_str = ''.join(c for c in path_str if c.isprintable() or c in '/\\')
+            path_str = "".join(c for c in path_str if c.isprintable() or c in "/\\")
         except Exception as e:
             return ValidationResult.failure(f"Erreur de nettoyage du chemin: {e}")
 
         # Vérifier les caractères dangereux
-        if '..' in path_str:
+        if ".." in path_str:
             # Vérifier si c'est un path traversal
             try:
                 resolved = Path(path_str).resolve()
@@ -189,15 +220,11 @@ class PathValidator:
 
             # Vérifier si dans les répertoires autorisés
             if not self._is_within_allowed(resolved_path):
-                return ValidationResult.failure(
-                    "Le chemin n'est pas dans un répertoire autorisé"
-                )
+                return ValidationResult.failure("Le chemin n'est pas dans un répertoire autorisé")
 
             # Vérifier les chemins protégés
             if self._is_protected(resolved_path):
-                return ValidationResult.failure(
-                    "Accès interdit: répertoire système protégé"
-                )
+                return ValidationResult.failure("Accès interdit: répertoire système protégé")
 
             return ValidationResult.success(str(path), str(resolved_path))
 
@@ -209,19 +236,17 @@ class PathValidator:
         """Vérifier si le chemin est dans un répertoire autorisé"""
         path_str = str(path.resolve())
         return any(
-            path_str.startswith(str(allowed.resolve()))
-            for allowed in self.allowed_directories
+            path_str.startswith(str(allowed.resolve())) for allowed in self.allowed_directories
         )
 
     def _is_protected(self, path: Path) -> bool:
         """Vérifier si le chemin est protégé"""
         path_str = str(path)
-        return any(
-            path_str.startswith(protected)
-            for protected in PROTECTED_PATHS
-        )
+        return any(path_str.startswith(protected) for protected in PROTECTED_PATHS)
 
-    def validate_exists(self, path_str: str, must_be_file: bool = False, must_be_dir: bool = False) -> ValidationResult:
+    def validate_exists(
+        self, path_str: str, must_be_file: bool = False, must_be_dir: bool = False
+    ) -> ValidationResult:
         """Valider qu'un chemin existe"""
         result = self.validate(path_str)
         if not result.is_valid:
@@ -245,6 +270,7 @@ class PathValidator:
 # VALIDATEURS D'ENTRÉES
 # ==============================================================================
 
+
 class InputValidator:
     """Validateur d'entrées génériques"""
 
@@ -253,7 +279,7 @@ class InputValidator:
         value: str,
         min_value: int = DEFAULT_MIN_INT,
         max_value: int = DEFAULT_MAX_INT,
-        field_name: str = "valeur"
+        field_name: str = "valeur",
     ) -> ValidationResult:
         """Valider un entier avec bounds checking"""
         if not value:
@@ -263,7 +289,7 @@ class InputValidator:
         value = value.strip()
 
         # Vérifier le format
-        if not value.lstrip('-').isdigit():
+        if not value.lstrip("-").isdigit():
             return ValidationResult.failure(f"{field_name} doit être un nombre entier")
 
         try:
@@ -289,8 +315,8 @@ class InputValidator:
     def validate_float(
         value: str,
         min_value: float = 0.0,
-        max_value: float = float('inf'),
-        field_name: str = "valeur"
+        max_value: float = float("inf"),
+        field_name: str = "valeur",
     ) -> ValidationResult:
         """Valider un nombre flottant"""
         if not value:
@@ -318,14 +344,14 @@ class InputValidator:
         max_length: int = DEFAULT_MAX_STRING_LENGTH,
         pattern: re.Pattern | None = None,
         allowed_chars: str | None = None,
-        field_name: str = "valeur"
+        field_name: str = "valeur",
     ) -> ValidationResult:
         """Valider une chaîne de caractères"""
         if value is None:
             return ValidationResult.failure(f"{field_name} ne peut pas être null")
 
         # Nettoyer les caractères de contrôle
-        cleaned = ''.join(c for c in value if c.isprintable() or c in '\n\t')
+        cleaned = "".join(c for c in value if c.isprintable() or c in "\n\t")
 
         if len(cleaned) < min_length:
             return ValidationResult.failure(
@@ -345,18 +371,13 @@ class InputValidator:
                 )
 
         if pattern and not pattern.match(cleaned):
-            return ValidationResult.failure(
-                f"{field_name} ne correspond pas au format attendu"
-            )
+            return ValidationResult.failure(f"{field_name} ne correspond pas au format attendu")
 
         return ValidationResult.success(value, cleaned)
 
     @staticmethod
     def validate_choice(
-        value: str,
-        choices: list[str],
-        case_sensitive: bool = False,
-        field_name: str = "valeur"
+        value: str, choices: list[str], case_sensitive: bool = False, field_name: str = "valeur"
     ) -> ValidationResult:
         """Valider qu'une valeur est dans une liste de choix"""
         if not value:
@@ -390,10 +411,10 @@ class InputValidator:
             if not parsed.scheme:
                 return ValidationResult.failure("URL doit avoir un schéma (http/https)")
 
-            if require_https and parsed.scheme != 'https':
+            if require_https and parsed.scheme != "https":
                 return ValidationResult.failure("URL doit utiliser HTTPS")
 
-            if parsed.scheme not in ('http', 'https'):
+            if parsed.scheme not in ("http", "https"):
                 return ValidationResult.failure("Schéma URL invalide")
 
             if not parsed.netloc:
@@ -411,9 +432,7 @@ class InputValidator:
             return ValidationResult.failure("Email ne peut pas être vide")
 
         # Pattern email simple mais efficace
-        email_pattern = re.compile(
-            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        )
+        email_pattern = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
         if not email_pattern.match(value):
             return ValidationResult.failure("Format email invalide")
@@ -424,6 +443,7 @@ class InputValidator:
 # ==============================================================================
 # SERVICE DE VALIDATION PRINCIPAL
 # ==============================================================================
+
 
 class ValidationService:
     """Service centralisé de validation"""
@@ -451,15 +471,15 @@ class ValidationService:
     def validate_dataset_path(self, path: str) -> ValidationResult:
         """Valider un chemin de dataset"""
         validator = PathValidator(
-            allowed_extensions={'.csv', '.json', '.jsonl', '.parquet', '.xlsx', '.tsv'},
-            blocked_extensions=DANGEROUS_EXTENSIONS
+            allowed_extensions={".csv", ".json", ".jsonl", ".parquet", ".xlsx", ".tsv"},
+            blocked_extensions=DANGEROUS_EXTENSIONS,
         )
         return validator.validate_exists(path, must_be_file=True)
 
     def validate_output_path(self, path: str) -> ValidationResult:
         """Valider un chemin de sortie"""
         validator = PathValidator(
-            allowed_extensions={'.json', '.html', '.pdf', '.md', '.txt', '.csv'}
+            allowed_extensions={".json", ".html", ".pdf", ".md", ".txt", ".csv"}
         )
         result = validator.validate(path)
 
@@ -467,9 +487,7 @@ class ValidationService:
             # Vérifier que le répertoire parent existe
             parent = Path(result.sanitized_value).parent
             if not parent.exists():
-                return ValidationResult.failure(
-                    f"Répertoire parent n'existe pas: {parent}"
-                )
+                return ValidationResult.failure(f"Répertoire parent n'existe pas: {parent}")
 
         return result
 
@@ -479,44 +497,32 @@ class ValidationService:
             name,
             min_length=1,
             max_length=100,
-            pattern=re.compile(r'^[a-zA-Z0-9_\-:\.]+$'),
-            field_name="nom du modèle"
+            pattern=re.compile(r"^[a-zA-Z0-9_\-:\.]+$"),
+            field_name="nom du modèle",
         )
 
     def validate_max_tasks(self, value: str) -> ValidationResult:
         """Valider le nombre max de tâches concurrentes"""
         return self._input_validator.validate_integer(
-            value,
-            min_value=1,
-            max_value=100,
-            field_name="nombre de tâches"
+            value, min_value=1, max_value=100, field_name="nombre de tâches"
         )
 
     def validate_epochs(self, value: str) -> ValidationResult:
         """Valider le nombre d'époques d'entraînement"""
         return self._input_validator.validate_integer(
-            value,
-            min_value=1,
-            max_value=1000,
-            field_name="nombre d'époques"
+            value, min_value=1, max_value=1000, field_name="nombre d'époques"
         )
 
     def validate_batch_size(self, value: str) -> ValidationResult:
         """Valider la taille du batch"""
         return self._input_validator.validate_integer(
-            value,
-            min_value=1,
-            max_value=512,
-            field_name="batch size"
+            value, min_value=1, max_value=512, field_name="batch size"
         )
 
     def validate_learning_rate(self, value: str) -> ValidationResult:
         """Valider le learning rate"""
         result = self._input_validator.validate_float(
-            value,
-            min_value=1e-8,
-            max_value=1.0,
-            field_name="learning rate"
+            value, min_value=1e-8, max_value=1.0, field_name="learning rate"
         )
 
         if result.is_valid and result.value > 0.1:
@@ -531,7 +537,7 @@ class ValidationService:
             value,
             choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
             case_sensitive=False,
-            field_name="niveau de log"
+            field_name="niveau de log",
         )
 
 

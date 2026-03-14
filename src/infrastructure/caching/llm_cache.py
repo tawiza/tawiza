@@ -64,39 +64,35 @@ DEFAULT_CACHE_CONFIGS = {
     # Embedding models - highly deterministic
     "embedding": CacheConfig(
         strategy=CacheStrategy.AGGRESSIVE,
-        l1_ttl=3600,      # 1 hour
-        l2_ttl=86400,     # 24 hours
-        l3_ttl=604800,    # 1 week
+        l1_ttl=3600,  # 1 hour
+        l2_ttl=86400,  # 24 hours
+        l3_ttl=604800,  # 1 week
         max_cacheable_temperature=1.0,  # Always cache
     ),
-
     # Code models - semi-deterministic at low temperature
     "code": CacheConfig(
         strategy=CacheStrategy.MODERATE,
-        l1_ttl=600,       # 10 minutes
-        l2_ttl=3600,      # 1 hour
-        l3_ttl=86400,     # 24 hours
+        l1_ttl=600,  # 10 minutes
+        l2_ttl=3600,  # 1 hour
+        l3_ttl=86400,  # 24 hours
         max_cacheable_temperature=0.3,
     ),
-
     # Chat models - cache only at very low temperature
     "chat": CacheConfig(
         strategy=CacheStrategy.MODERATE,
-        l1_ttl=300,       # 5 minutes
-        l2_ttl=1800,      # 30 minutes
-        l3_ttl=7200,      # 2 hours
+        l1_ttl=300,  # 5 minutes
+        l2_ttl=1800,  # 30 minutes
+        l3_ttl=7200,  # 2 hours
         max_cacheable_temperature=0.1,
     ),
-
     # Vision models - semi-deterministic
     "vision": CacheConfig(
         strategy=CacheStrategy.MODERATE,
-        l1_ttl=600,       # 10 minutes
-        l2_ttl=3600,      # 1 hour
-        l3_ttl=14400,     # 4 hours
+        l1_ttl=600,  # 10 minutes
+        l2_ttl=3600,  # 1 hour
+        l3_ttl=14400,  # 4 hours
         max_cacheable_temperature=0.3,
     ),
-
     # Default for unknown model types
     "default": CacheConfig(
         strategy=CacheStrategy.MODERATE,
@@ -175,7 +171,7 @@ class LLMCache:
             "cache_hits": 0,
             "cache_misses": 0,
             "cache_skipped": 0,  # Skipped due to high temperature
-            "tokens_saved": 0,   # Estimated tokens saved by caching
+            "tokens_saved": 0,  # Estimated tokens saved by caching
         }
 
         logger.info(
@@ -441,11 +437,7 @@ class LLMCache:
             Dictionary with cache metrics
         """
         total = self._stats["cache_hits"] + self._stats["cache_misses"]
-        hit_rate = (
-            (self._stats["cache_hits"] / total * 100)
-            if total > 0
-            else 0.0
-        )
+        hit_rate = (self._stats["cache_hits"] / total * 100) if total > 0 else 0.0
 
         return {
             **self._stats,

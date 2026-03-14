@@ -5,10 +5,10 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.drift_report_model import DriftReportDB
 
 from src.domain.entities.drift_report import DriftReport, DriftSeverity, DriftType
 from src.domain.repositories.ml_repositories import IDriftReportRepository
+from src.infrastructure.persistence.models.drift_report_model import DriftReportDB
 
 
 class SQLAlchemyDriftReportRepository(IDriftReportRepository):
@@ -123,9 +123,7 @@ class SQLAlchemyDriftReportRepository(IDriftReportRepository):
     async def exists(self, entity_id: UUID) -> bool:
         """Check if drift report exists."""
         async with self._session_factory() as session:
-            query = select(func.count(DriftReportDB.id)).where(
-                DriftReportDB.id == entity_id
-            )
+            query = select(func.count(DriftReportDB.id)).where(DriftReportDB.id == entity_id)
             result = await session.execute(query)
             count = result.scalar() or 0
             return count > 0
@@ -182,17 +180,13 @@ class SQLAlchemyDriftReportRepository(IDriftReportRepository):
             if model_name:
                 query = query.where(DriftReportDB.model_name == model_name)
 
-            query = query.order_by(DriftReportDB.created_at.desc()).offset(skip).limit(
-                limit
-            )
+            query = query.order_by(DriftReportDB.created_at.desc()).offset(skip).limit(limit)
 
             result = await session.execute(query)
             db_models = result.scalars().all()
             return [self._to_domain(db_model) for db_model in db_models]
 
-    async def get_latest_by_model(
-        self, model_name: str, model_version: str
-    ) -> DriftReport | None:
+    async def get_latest_by_model(self, model_name: str, model_version: str) -> DriftReport | None:
         """Get the latest drift report for a model."""
         async with self._session_factory() as session:
             query = (

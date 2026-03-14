@@ -1,6 +1,5 @@
 """Config commands for Tawiza CLI v2 pro."""
 
-
 import typer
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
@@ -59,10 +58,11 @@ def register(app: typer.Typer) -> None:
         old_value = CONFIG.get(key)
         if old_value is None:
             msg = MessageBox()
-            console.print(msg.error(
-                f"Unknown key: {key}",
-                [f"Available keys: {', '.join(DEFAULT_CONFIG.keys())}"]
-            ))
+            console.print(
+                msg.error(
+                    f"Unknown key: {key}", [f"Available keys: {', '.join(DEFAULT_CONFIG.keys())}"]
+                )
+            )
             console.print(footer(40))
             return
 
@@ -133,17 +133,11 @@ def register(app: typer.Typer) -> None:
 
             if isinstance(default, bool):
                 # Boolean prompt
-                new_value = Confirm.ask(
-                    f"  {key}",
-                    default=current
-                )
+                new_value = Confirm.ask(f"  {key}", default=current)
             else:
                 # Text prompt
                 prompt_text = f"  {key} [{value_type}]"
-                new_value = Prompt.ask(
-                    prompt_text,
-                    default=str(current)
-                )
+                new_value = Prompt.ask(prompt_text, default=str(current))
 
             if str(new_value) != str(current):
                 CONFIG.set(key, new_value)

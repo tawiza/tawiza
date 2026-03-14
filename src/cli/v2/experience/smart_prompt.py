@@ -9,6 +9,7 @@ from src.cli.v2.ui.mascot import MASCOT
 @dataclass
 class ProjectContext:
     """Detected project context."""
+
     project_type: str = "unknown"
     data_files: list[Path] = field(default_factory=list)
     has_git: bool = False
@@ -44,7 +45,7 @@ class SmartPrompt:
         if self._recent_tasks:
             lines.append("   Recent:")
             for task in self._recent_tasks[-3:]:
-                lines.append(f"     \"{task[:40]}...\"" if len(task) > 40 else f"     \"{task}\"")
+                lines.append(f'     "{task[:40]}..."' if len(task) > 40 else f'     "{task}"')
             lines.append("")
 
         lines.append("   What would you like to do?")

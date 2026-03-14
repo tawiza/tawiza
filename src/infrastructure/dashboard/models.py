@@ -10,6 +10,7 @@ from enum import Enum, StrEnum
 
 class AlertSource(StrEnum):
     """Sources that can generate alerts."""
+
     BODACC = "bodacc"
     BOAMP = "boamp"
     GDELT = "gdelt"
@@ -17,6 +18,7 @@ class AlertSource(StrEnum):
 
 class AlertType(StrEnum):
     """Types of alerts."""
+
     # BODACC types
     CREATION = "creation"
     RADIATION = "radiation"
@@ -31,6 +33,7 @@ class AlertType(StrEnum):
 
 class SourceStatus(StrEnum):
     """Status of a data source."""
+
     OK = "ok"
     ERROR = "error"
     UNKNOWN = "unknown"
@@ -39,6 +42,7 @@ class SourceStatus(StrEnum):
 @dataclass
 class Alert:
     """An alert from the watcher system."""
+
     id: int | None = None
     source: AlertSource = AlertSource.BODACC
     type: AlertType = AlertType.CREATION
@@ -73,7 +77,9 @@ class Alert:
             title=data.get("title", ""),
             content=data.get("content"),
             url=data.get("url"),
-            detected_at=datetime.fromisoformat(data["detected_at"]) if data.get("detected_at") else None,
+            detected_at=datetime.fromisoformat(data["detected_at"])
+            if data.get("detected_at")
+            else None,
             read=data.get("read", False),
             data=data.get("data"),
         )
@@ -82,6 +88,7 @@ class Alert:
 @dataclass
 class Analysis:
     """A recorded analysis."""
+
     id: int | None = None
     query: str = ""
     timestamp: datetime | None = None
@@ -151,6 +158,7 @@ class Analysis:
 @dataclass
 class WatchItem:
     """A watchlist item for monitoring."""
+
     id: int | None = None
     keywords: list[str] = field(default_factory=list)
     sources: list[str] = field(default_factory=lambda: ["bodacc", "boamp", "gdelt"])
@@ -175,13 +183,16 @@ class WatchItem:
             keywords=data.get("keywords", []),
             sources=data.get("sources", ["bodacc", "boamp", "gdelt"]),
             active=data.get("active", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None,
         )
 
 
 @dataclass
 class PollStatus:
     """Status of a poller for a source."""
+
     source: str = ""
     last_poll: datetime | None = None
     next_poll: datetime | None = None
@@ -226,6 +237,7 @@ class PollStatus:
 @dataclass
 class DashboardStatus:
     """Complete dashboard status."""
+
     sources: dict = field(default_factory=dict)
     watcher: dict = field(default_factory=dict)
     database: dict = field(default_factory=dict)
@@ -244,6 +256,7 @@ class DashboardStatus:
 @dataclass
 class DashboardStats:
     """Dashboard statistics."""
+
     period: str = "last_7_days"
     analyses_count: int = 0
     companies_found: int = 0

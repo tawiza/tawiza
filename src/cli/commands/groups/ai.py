@@ -7,9 +7,7 @@ from src.cli.commands.chat import app as chat_app
 from src.cli.commands.models import app as models_app
 
 app = typer.Typer(
-    name="ai",
-    help="Intelligence Artificielle - Chat, Agents et Modeles",
-    rich_markup_mode="rich"
+    name="ai", help="Intelligence Artificielle - Chat, Agents et Modeles", rich_markup_mode="rich"
 )
 
 # Ajouter les sous-commandes

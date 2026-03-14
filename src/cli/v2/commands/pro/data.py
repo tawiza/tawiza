@@ -46,14 +46,17 @@ def register(app: typer.Typer) -> None:
             try:
                 if format == "csv":
                     import pandas as pd
+
                     df = pd.read_csv(file)
                     rows, cols = df.shape
                 elif format == "json":
                     import pandas as pd
+
                     df = pd.read_json(file)
                     rows, cols = df.shape
                 elif format == "parquet":
                     import pandas as pd
+
                     df = pd.read_parquet(file)
                     rows, cols = df.shape
                 else:
@@ -64,14 +67,12 @@ def register(app: typer.Typer) -> None:
 
                 # Save to cache
                 from src.cli.v2.utils.config import get_cache_dir
+
                 cache_path = get_cache_dir() / f"{dataset_name}.parquet"
                 df.to_parquet(cache_path)
 
                 msg = MessageBox()
-                console.print(msg.success(
-                    "Dataset imported!",
-                    f"{rows} rows, {cols} columns"
-                ))
+                console.print(msg.success("Dataset imported!", f"{rows} rows, {cols} columns"))
 
             except Exception as e:
                 msg = MessageBox()
@@ -89,6 +90,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("data export", 40))
 
         from src.cli.v2.utils.config import get_cache_dir
+
         cache_path = get_cache_dir() / f"{name}.parquet"
 
         if not cache_path.exists():
@@ -104,6 +106,7 @@ def register(app: typer.Typer) -> None:
         with create_spinner(f"Exporting to {output}...", "dots"):
             try:
                 import pandas as pd
+
                 df = pd.read_parquet(cache_path)
 
                 if format == "csv":
@@ -133,6 +136,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("datasets", 40))
 
         from src.cli.v2.utils.config import get_cache_dir
+
         cache_dir = get_cache_dir()
 
         datasets = list(cache_dir.glob("*.parquet"))
@@ -163,6 +167,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("data delete", 40))
 
         from src.cli.v2.utils.config import get_cache_dir
+
         cache_path = get_cache_dir() / f"{name}.parquet"
 
         if not cache_path.exists():
@@ -173,6 +178,7 @@ def register(app: typer.Typer) -> None:
 
         if not force:
             from rich.prompt import Confirm
+
             if not Confirm.ask(f"  Delete dataset '{name}'?"):
                 console.print("  [dim]Cancelled.[/]")
                 console.print(footer(40))

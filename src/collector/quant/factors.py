@@ -98,7 +98,7 @@ class AlphaFactorsCalculator:
                 "avg": row.avg_value,
                 "sum": row.sum_value,
                 "min": row.min_value,
-                "max": row.max_value
+                "max": row.max_value,
             }
 
         logger.info(f"Collected data for {len(dept_data)} departments")
@@ -126,7 +126,9 @@ class AlphaFactorsCalculator:
             return None
 
         factor = creations / (liquidations + 1)
-        logger.debug(f"Sante entreprises: {creations} creations / ({liquidations} + 1) = {factor:.3f}")
+        logger.debug(
+            f"Sante entreprises: {creations} creations / ({liquidations} + 1) = {factor:.3f}"
+        )
         return factor
 
     def _calculate_tension_emploi(self, dept_data: dict[str, Any]) -> float | None:
@@ -178,7 +180,9 @@ class AlphaFactorsCalculator:
         # Volume factor (price * transactions)
         volume = prix_m2_moyen * nb_transactions
 
-        logger.debug(f"Dynamisme immo: prix_moyen={prix_m2_moyen:.0f}, transactions={nb_transactions}, volume={volume:.0f}")
+        logger.debug(
+            f"Dynamisme immo: prix_moyen={prix_m2_moyen:.0f}, transactions={nb_transactions}, volume={volume:.0f}"
+        )
         return volume  # Will be normalized by population later
 
     def _calculate_construction(self, dept_data: dict[str, Any]) -> float | None:
@@ -222,7 +226,9 @@ class AlphaFactorsCalculator:
             return 0.0  # No decline if no liquidations
 
         factor = liquidations / (creations + 1)
-        logger.debug(f"Decline ratio: {liquidations} liquidations / ({creations} + 1) = {factor:.3f}")
+        logger.debug(
+            f"Decline ratio: {liquidations} liquidations / ({creations} + 1) = {factor:.3f}"
+        )
         return factor
 
     def _calculate_presse_sentiment(self, dept_data: dict[str, Any]) -> float | None:
@@ -291,10 +297,13 @@ async def compute_normalized_factors(database_url: str) -> dict[str, dict[str, f
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1:
         database_url = sys.argv[1]
     else:
-        database_url = os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza_signals")
+        database_url = os.getenv(
+            "DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza_signals"
+        )
 
     # Test the factors calculation
     factors = asyncio.run(compute_normalized_factors(database_url))
@@ -302,8 +311,9 @@ if __name__ == "__main__":
     print(f"Computed factors for {len(factors)} departments")
 
     # Show top 5 departments by number of factors available
-    dept_scores = [(dept, sum(1 for v in data.values() if v is not None))
-                   for dept, data in factors.items()]
+    dept_scores = [
+        (dept, sum(1 for v in data.values() if v is not None)) for dept, data in factors.items()
+    ]
     dept_scores.sort(key=lambda x: x[1], reverse=True)
 
     print("\nTop departments by data availability:")

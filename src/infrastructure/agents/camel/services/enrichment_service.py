@@ -63,6 +63,7 @@ class EnrichmentResult:
     def to_jsonl(self) -> str:
         """Convert to JSONL format for annotation/fine-tuning."""
         import json
+
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
 
@@ -110,22 +111,32 @@ class EnrichmentService:
         query += " site officiel"
 
         try:
-            result = await registry.execute('browser.search', {
-                'query': query,
-            })
+            result = await registry.execute(
+                "browser.search",
+                {
+                    "query": query,
+                },
+            )
 
-            results = result.get('results', [])
+            results = result.get("results", [])
             if results:
                 # Filter out aggregator sites
                 excluded_domains = [
-                    'societe.com', 'pappers.fr', 'infogreffe.fr',
-                    'verif.com', 'manageo.fr', 'linkedin.com',
-                    'facebook.com', 'twitter.com', 'youtube.com',
-                    'wikipedia.org', 'pagesjaunes.fr'
+                    "societe.com",
+                    "pappers.fr",
+                    "infogreffe.fr",
+                    "verif.com",
+                    "manageo.fr",
+                    "linkedin.com",
+                    "facebook.com",
+                    "twitter.com",
+                    "youtube.com",
+                    "wikipedia.org",
+                    "pagesjaunes.fr",
                 ]
 
                 for r in results:
-                    url = r.get('url', '')
+                    url = r.get("url", "")
                     domain = urlparse(url).netloc.lower()
 
                     # Skip excluded domains
@@ -133,12 +144,12 @@ class EnrichmentService:
                         continue
 
                     # Prefer .fr domains for French companies
-                    if '.fr' in domain or company_name.lower().replace(' ', '') in domain:
+                    if ".fr" in domain or company_name.lower().replace(" ", "") in domain:
                         return url
 
                 # Fallback to first non-excluded result
                 for r in results:
-                    url = r.get('url', '')
+                    url = r.get("url", "")
                     domain = urlparse(url).netloc.lower()
                     if not any(excl in domain for excl in excluded_domains):
                         return url
@@ -179,17 +190,20 @@ class EnrichmentService:
 
         try:
             # Extract main page content using browser.navigate
-            result = await registry.execute('browser.navigate', {
-                'url': url,
-            })
+            result = await registry.execute(
+                "browser.navigate",
+                {
+                    "url": url,
+                },
+            )
 
-            if not result.get('success'):
+            if not result.get("success"):
                 logger.warning(f"Failed to navigate to {url}: {result.get('error')}")
                 return data
 
-            page_text = result.get('text_content', '')
-            result.get('title', '')
-            links = result.get('links', [])
+            page_text = result.get("text_content", "")
+            result.get("title", "")
+            links = result.get("links", [])
 
             # Extract description from first paragraphs
             if page_text:
@@ -198,51 +212,67 @@ class EnrichmentService:
 
             # Extract social media links
             social_patterns = {
-                'linkedin': r'linkedin\.com/company/[\w-]+',
-                'twitter': r'twitter\.com/[\w]+',
-                'facebook': r'facebook\.com/[\w.]+',
-                'youtube': r'youtube\.com/(?:channel|c)/[\w-]+',
+                "linkedin": r"linkedin\.com/company/[\w-]+",
+                "twitter": r"twitter\.com/[\w]+",
+                "facebook": r"facebook\.com/[\w.]+",
+                "youtube": r"youtube\.com/(?:channel|c)/[\w-]+",
             }
 
             for platform, pattern in social_patterns.items():
                 for link in links:
-                    href = link.get('url', '') or link.get('href', '')
+                    href = link.get("url", "") or link.get("href", "")
                     match = re.search(pattern, href, re.I)
                     if match:
                         data["social_media"][platform] = f"https://{match.group()}"
                         break
 
             # Extract contact info from text
-            email_match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', page_text)
+            email_match = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", page_text)
             if email_match:
                 data["contact"]["email"] = email_match.group()
 
-            phone_match = re.search(r'(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4}', page_text)
+            phone_match = re.search(r"(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4}", page_text)
             if phone_match:
                 data["contact"]["phone"] = phone_match.group()
 
             # Try to find services/about page
-            service_keywords = ['services', 'solutions', 'expertise', 'offres', 'about', 'a-propos']
+            service_keywords = ["services", "solutions", "expertise", "offres", "about", "a-propos"]
             for link in links[:20]:
-                href = (link.get('url', '') or link.get('href', '')).lower()
-                text = link.get('text', '').lower()
+                href = (link.get("url", "") or link.get("href", "")).lower()
+                text = link.get("text", "").lower()
 
                 if any(kw in href or kw in text for kw in service_keywords):
                     try:
-                        service_url = href if href.startswith('http') else f"{url.rstrip('/')}/{href.lstrip('/')}"
-                        service_result = await registry.execute('browser.navigate', {
-                            'url': service_url,
-                        })
-                        service_text = service_result.get('text_content', '')
+                        service_url = (
+                            href
+                            if href.startswith("http")
+                            else f"{url.rstrip('/')}/{href.lstrip('/')}"
+                        )
+                        service_result = await registry.execute(
+                            "browser.navigate",
+                            {
+                                "url": service_url,
+                            },
+                        )
+                        service_text = service_result.get("text_content", "")
 
                         # Extract bullet points as services
-                        lines = service_text.split('\n')
+                        lines = service_text.split("\n")
                         for line in lines:
                             line = line.strip()
                             if len(line) > 10 and len(line) < 100:
-                                if line.startswith(('-', '•', '✓', '→')):
-                                    data["services"].append(line.lstrip('-•✓→ '))
-                                elif any(kw in line.lower() for kw in ['conseil', 'développement', 'audit', 'formation', 'accompagnement']):
+                                if line.startswith(("-", "•", "✓", "→")):
+                                    data["services"].append(line.lstrip("-•✓→ "))
+                                elif any(
+                                    kw in line.lower()
+                                    for kw in [
+                                        "conseil",
+                                        "développement",
+                                        "audit",
+                                        "formation",
+                                        "accompagnement",
+                                    ]
+                                ):
                                     data["services"].append(line)
 
                         # Limit to 10 services
@@ -253,31 +283,46 @@ class EnrichmentService:
                         logger.debug(f"Failed to extract services from {service_url}: {e}")
 
             # Try to find team/about page for team members
-            team_keywords = ['equipe', 'team', 'qui-sommes-nous', 'about']
+            team_keywords = ["equipe", "team", "qui-sommes-nous", "about"]
             for link in links[:20]:
-                href = (link.get('url', '') or link.get('href', '')).lower()
-                text = link.get('text', '').lower()
+                href = (link.get("url", "") or link.get("href", "")).lower()
+                text = link.get("text", "").lower()
 
                 if any(kw in href or kw in text for kw in team_keywords):
                     try:
-                        team_url = href if href.startswith('http') else f"{url.rstrip('/')}/{href.lstrip('/')}"
-                        team_result = await registry.execute('browser.navigate', {
-                            'url': team_url,
-                        })
-                        team_text = team_result.get('text_content', '')
+                        team_url = (
+                            href
+                            if href.startswith("http")
+                            else f"{url.rstrip('/')}/{href.lstrip('/')}"
+                        )
+                        team_result = await registry.execute(
+                            "browser.navigate",
+                            {
+                                "url": team_url,
+                            },
+                        )
+                        team_text = team_result.get("text_content", "")
 
                         # Simple pattern for names with titles
                         name_patterns = [
-                            r'([\w\s]+)\s*[-–]\s*(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)',
-                            r'(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)\s*[-–:]\s*([\w\s]+)',
+                            r"([\w\s]+)\s*[-–]\s*(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)",
+                            r"(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)\s*[-–:]\s*([\w\s]+)",
                         ]
 
                         for pattern in name_patterns:
                             matches = re.findall(pattern, team_text, re.I)
                             for match in matches[:5]:
                                 if isinstance(match, tuple):
-                                    name = match[0].strip() if 'CEO' not in match[0] else match[1].strip()
-                                    role = match[1].strip() if 'CEO' not in match[0] else match[0].strip()
+                                    name = (
+                                        match[0].strip()
+                                        if "CEO" not in match[0]
+                                        else match[1].strip()
+                                    )
+                                    role = (
+                                        match[1].strip()
+                                        if "CEO" not in match[0]
+                                        else match[0].strip()
+                                    )
                                     if len(name) < 50 and len(role) < 50:
                                         data["team_members"].append({"name": name, "role": role})
                         break
@@ -286,18 +331,25 @@ class EnrichmentService:
                         logger.debug(f"Failed to extract team members from {team_url}: {e}")
 
             # Try to find clients/references
-            ref_keywords = ['clients', 'references', 'partenaires', 'ils-nous-font-confiance']
+            ref_keywords = ["clients", "references", "partenaires", "ils-nous-font-confiance"]
             for link in links[:20]:
-                href = (link.get('url', '') or link.get('href', '')).lower()
-                text = link.get('text', '').lower()
+                href = (link.get("url", "") or link.get("href", "")).lower()
+                text = link.get("text", "").lower()
 
                 if any(kw in href or kw in text for kw in ref_keywords):
                     try:
-                        ref_url = href if href.startswith('http') else f"{url.rstrip('/')}/{href.lstrip('/')}"
-                        ref_result = await registry.execute('browser.navigate', {
-                            'url': ref_url,
-                        })
-                        ref_text = ref_result.get('text_content', '')
+                        ref_url = (
+                            href
+                            if href.startswith("http")
+                            else f"{url.rstrip('/')}/{href.lstrip('/')}"
+                        )
+                        ref_result = await registry.execute(
+                            "browser.navigate",
+                            {
+                                "url": ref_url,
+                            },
+                        )
+                        ref_text = ref_result.get("text_content", "")
 
                         # Look for company names (capitalized words)
                         words = ref_text.split()
@@ -327,17 +379,16 @@ class EnrichmentService:
             EnrichmentResult with extracted data
         """
         async with self._semaphore:
-            siret = enterprise.get('siret', '')
-            nom = enterprise.get('nom', '')
-            city = enterprise.get('adresse', {}).get('commune', '')
+            siret = enterprise.get("siret", "")
+            nom = enterprise.get("nom", "")
+            city = enterprise.get("adresse", {}).get("commune", "")
 
             result = EnrichmentResult(siret=siret, nom=nom)
 
             try:
                 # Try to find company website
                 url = await asyncio.wait_for(
-                    self.find_company_website(nom, city),
-                    timeout=self.timeout_per_site
+                    self.find_company_website(nom, city), timeout=self.timeout_per_site
                 )
 
                 if url:
@@ -346,8 +397,7 @@ class EnrichmentService:
 
                     # Extract data from website
                     data = await asyncio.wait_for(
-                        self.extract_company_data(url, nom),
-                        timeout=self.timeout_per_site * 2
+                        self.extract_company_data(url, nom), timeout=self.timeout_per_site * 2
                     )
 
                     result.description = data.get("description")
@@ -362,12 +412,18 @@ class EnrichmentService:
 
                     # Calculate quality score
                     score = 0
-                    if result.description: score += 0.2
-                    if result.services: score += 0.2
-                    if result.contact: score += 0.15
-                    if result.social_media: score += 0.15
-                    if result.clients_references: score += 0.15
-                    if result.team_members: score += 0.15
+                    if result.description:
+                        score += 0.2
+                    if result.services:
+                        score += 0.2
+                    if result.contact:
+                        score += 0.15
+                    if result.social_media:
+                        score += 0.15
+                    if result.clients_references:
+                        score += 0.15
+                    if result.team_members:
+                        score += 0.15
                     result.enrichment_quality = score
 
                 else:

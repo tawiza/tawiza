@@ -6,8 +6,9 @@ from enum import Enum
 
 class ProgressStyle(Enum):
     """Progress display styles."""
-    MINIMAL = "minimal"    # Single line, quick tasks
-    SUMMARY = "summary"    # Step counter + current action
+
+    MINIMAL = "minimal"  # Single line, quick tasks
+    SUMMARY = "summary"  # Step counter + current action
     DETAILED = "detailed"  # Full reasoning + results
 
 

@@ -13,11 +13,13 @@ router = APIRouter(prefix="/crawler", tags=["crawler"])
 
 class CrawlRequest(BaseModel):
     """Request to trigger a crawl."""
+
     source_id: str | None = None
 
 
 class CrawlResponse(BaseModel):
     """Response from crawl operation."""
+
     success: bool
     results_count: int
     results: list[dict[str, Any]]
@@ -25,6 +27,7 @@ class CrawlResponse(BaseModel):
 
 class StatsResponse(BaseModel):
     """Crawler statistics."""
+
     total_sources: int
     results_cached: int
     is_running: bool
@@ -32,6 +35,7 @@ class StatsResponse(BaseModel):
 
 class RelevanceFeedback(BaseModel):
     """Feedback on source relevance."""
+
     source_id: str
     was_useful: bool
 

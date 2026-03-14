@@ -18,9 +18,11 @@ from loguru import logger
 
 # Configuration du logging
 
+
 @dataclass
 class CodeGenerationRequest:
     """Requête de génération de code"""
+
     request_id: str
     language: str
     framework: str | None = None
@@ -32,9 +34,11 @@ class CodeGenerationRequest:
     performance_requirements: dict[str, Any] | None = None
     security_requirements: list[str] = None
 
+
 @dataclass
 class GeneratedCode:
     """Code généré"""
+
     request_id: str
     language: str
     code: str
@@ -50,9 +54,11 @@ class GeneratedCode:
     security_analysis: dict[str, Any]
     timestamp: str
 
+
 @dataclass
 class CodeAnalysis:
     """Analyse de code"""
+
     complexity_score: float
     maintainability_score: float
     security_score: float
@@ -61,6 +67,7 @@ class CodeAnalysis:
     code_quality: float
     issues: list[dict[str, Any]]
     recommendations: list[str]
+
 
 class CodeGeneratorAgent:
     """Agent de génération de code intelligent"""
@@ -73,7 +80,7 @@ class CodeGeneratorAgent:
             "code_analysis",
             "code_refactoring",
             "test_generation",
-            "documentation_generation"
+            "documentation_generation",
         ]
         self.is_initialized = False
         self.templates = {}
@@ -148,7 +155,7 @@ def test_{{ function_name }}():
 
     # Assert
     {{ assert_code }}
-""")
+"""),
         }
 
         # Templates JavaScript
@@ -173,7 +180,7 @@ class {{ class_name }} {
 function {{ function_name }}({% for param in params %}{{ param }}{% if not loop.last %}, {% endif %}{% endfor %}) {
     {{ body }}
 }
-""")
+"""),
         }
 
         logger.info("✅ Templates chargés")
@@ -218,7 +225,7 @@ class Subject:
     def notify(self):
         for observer in self._observers:
             observer.update(self)
-"""
+""",
             },
             "javascript": {
                 "singleton": """
@@ -244,8 +251,8 @@ class Factory {
         }
     }
 }
-"""
-            }
+""",
+            },
         }
 
         logger.info("✅ Patterns de code chargés")
@@ -265,7 +272,7 @@ class Factory {
                 "Utilisez des context managers pour les ressources",
                 "Préférez la composition à l'héritage",
                 "Gardez les fonctions petites et focalisées",
-                "Utilisez des constantes pour les valeurs magiques"
+                "Utilisez des constantes pour les valeurs magiques",
             ],
             "javascript": [
                 "Utilisez const et let au lieu de var",
@@ -277,8 +284,8 @@ class Factory {
                 "Écrivez des tests unitaires",
                 "Utilisez un linter comme ESLint",
                 "Documentez votre code",
-                "Utilisez des patterns de conception appropriés"
-            ]
+                "Utilisez des patterns de conception appropriés",
+            ],
         }
 
         logger.info("✅ Meilleures pratiques chargées")
@@ -298,7 +305,7 @@ class Factory {
                 "Gérez les erreurs sans exposer d'informations sensibles",
                 "Utilisez des bibliothèques de cryptographie éprouvées",
                 "Gardez les dépendances à jour",
-                "Effectuez des audits de sécurité réguliers"
+                "Effectuez des audits de sécurité réguliers",
             ],
             "javascript": [
                 "Évitez l'injection de HTML non échappé",
@@ -310,8 +317,8 @@ class Factory {
                 "Évitez les évaluations de code dynamique",
                 "Protégez contre les attaques XSS",
                 "Gardez les dépendances à jour",
-                "Utilisez des bibliothèques de cryptographie sécurisées"
-            ]
+                "Utilisez des bibliothèques de cryptographie sécurisées",
+            ],
         }
 
         logger.info("✅ Règles de sécurité chargées")
@@ -331,7 +338,7 @@ class Factory {
                 "Profilez votre code pour identifier les goulots d'étranglement",
                 "Utilisez des bibliothèques optimisées comme NumPy",
                 "Mettez en cache les résultats coûteux",
-                "Utilisez des structures de données appropriées"
+                "Utilisez des structures de données appropriées",
             ],
             "javascript": [
                 "Minimisez les reflows et repaints du DOM",
@@ -343,8 +350,8 @@ class Factory {
                 "Minifiez et compressez votre code",
                 "Utilisez des CDN pour les bibliothèques",
                 "Implémentez un cache approprié",
-                "Utilisez des techniques de debouncing et throttling"
-            ]
+                "Utilisez des techniques de debouncing et throttling",
+            ],
         }
 
         logger.info("✅ Conseils de performance chargés")
@@ -383,7 +390,9 @@ class Factory {
             )
 
             # Calculer le score de qualité global
-            quality_score = self._calculate_quality_score(quality_analysis, performance_analysis, security_analysis)
+            quality_score = self._calculate_quality_score(
+                quality_analysis, performance_analysis, security_analysis
+            )
 
             generated_code = GeneratedCode(
                 request_id=request.request_id,
@@ -399,7 +408,7 @@ class Factory {
                 quality_score=quality_score,
                 performance_analysis=performance_analysis,
                 security_analysis=security_analysis,
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
             # Ajouter à l'historique
@@ -423,7 +432,7 @@ class Factory {
             "functions": [],
             "classes": [],
             "dependencies": [],
-            "estimated_lines": 50
+            "estimated_lines": 50,
         }
 
         # Analyser la description
@@ -468,7 +477,9 @@ class Factory {
         logger.info(f"📊 Analyse complétée: complexité={analysis['complexity']}")
         return analysis
 
-    async def _generate_main_code(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    async def _generate_main_code(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Générer le code principal"""
         logger.info("💻 Génération du code principal...")
 
@@ -511,7 +522,9 @@ class Factory {
         logger.info("✅ Code principal généré")
         return formatted_code
 
-    async def _generate_python_code(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    async def _generate_python_code(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Générer du code Python"""
         description = request.description
 
@@ -532,50 +545,53 @@ class Factory {
 
         for _i, req in enumerate(request.requirements or []):
             method_name = self._generate_method_name(req)
-            methods.append({
-                "name": method_name,
-                "description": req,
-                "params": ["self", "*args", "**kwargs"],
-                "body": f"        \"\"\"{req}\"\"\"\n        pass  # TODO: Implémenter la méthode"
-            })
+            methods.append(
+                {
+                    "name": method_name,
+                    "description": req,
+                    "params": ["self", "*args", "**kwargs"],
+                    "body": f'        """{req}"""\n        pass  # TODO: Implémenter la méthode',
+                }
+            )
 
         # Ajouter des méthodes standards
-        methods.extend([
-            {
-                "name": "__init__",
-                "description": "Initialise l'instance",
-                "params": ["self"],
-                "body": "        \"\"\"Initialise l'instance\"\"\"\n        pass"
-            },
-            {
-                "name": "__str__",
-                "description": "Représentation string de l'objet",
-                "params": ["self"],
-                "body": f"        \"\"\"Représentation string\"\"\"\n        return f'{class_name}()'"
-            }
-        ])
+        methods.extend(
+            [
+                {
+                    "name": "__init__",
+                    "description": "Initialise l'instance",
+                    "params": ["self"],
+                    "body": '        """Initialise l\'instance"""\n        pass',
+                },
+                {
+                    "name": "__str__",
+                    "description": "Représentation string de l'objet",
+                    "params": ["self"],
+                    "body": f'        """Représentation string"""\n        return f\'{class_name}()\'',
+                },
+            ]
+        )
 
         # Générer avec le template
         template = self.templates["python"]["class"]
         return template.render(
-            class_name=class_name,
-            description=request.description,
-            init_params=[],
-            methods=methods
+            class_name=class_name, description=request.description, init_params=[], methods=methods
         )
 
-    def _create_python_function(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    def _create_python_function(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Créer une fonction Python"""
         function_name = self._extract_function_name(request.description) or "generated_function"
 
         # Créer la fonction avec les exigences
         params = []
         for i, _req in enumerate(request.requirements or []):
-            param_name = f"param_{i+1}"
+            param_name = f"param_{i + 1}"
             params.append(param_name)
 
         # Générer le corps de la fonction
-        body = f"    \"\"\"{request.description}\"\"\"\n"
+        body = f'    """{request.description}"""\n'
         body += "    try:\n"
         body += "        # TODO: Implémenter la fonction\n"
         body += "        result = None\n"
@@ -587,13 +603,12 @@ class Factory {
         # Générer avec le template
         template = self.templates["python"]["function"]
         return template.render(
-            function_name=function_name,
-            description=request.description,
-            params=params,
-            body=body
+            function_name=function_name, description=request.description, params=params, body=body
         )
 
-    def _create_python_module(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    def _create_python_module(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Créer un module Python complet"""
         code_parts = []
 
@@ -618,7 +633,9 @@ class Factory {
 
         return "\n".join(code_parts)
 
-    async def _generate_javascript_code(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    async def _generate_javascript_code(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Générer du code JavaScript"""
         # Similar à Python mais adapté pour JavaScript
         description = request.description
@@ -630,42 +647,47 @@ class Factory {
         else:
             return self._create_javascript_module(request, analysis)
 
-    def _create_javascript_class(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    def _create_javascript_class(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Créer une classe JavaScript"""
         class_name = self._extract_class_name(request.description) or "GeneratedClass"
 
         methods = []
         for _i, req in enumerate(request.requirements or []):
             method_name = self._generate_method_name(req)
-            methods.append({
-                "name": method_name,
-                "description": req,
-                "params": [],
-                "body": f"// {req}\n// TODO: Implémenter la méthode"
-            })
+            methods.append(
+                {
+                    "name": method_name,
+                    "description": req,
+                    "params": [],
+                    "body": f"// {req}\n// TODO: Implémenter la méthode",
+                }
+            )
 
         # Ajouter le constructeur
-        methods.insert(0, {
-            "name": "constructor",
-            "description": "Constructeur de la classe",
-            "params": [],
-            "body": "// Initialisation\nthis.createdAt = new Date();"
-        })
-
-        template = self.templates["javascript"]["class"]
-        return template.render(
-            class_name=class_name,
-            init_params=[],
-            methods=methods
+        methods.insert(
+            0,
+            {
+                "name": "constructor",
+                "description": "Constructeur de la classe",
+                "params": [],
+                "body": "// Initialisation\nthis.createdAt = new Date();",
+            },
         )
 
-    def _create_javascript_function(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+        template = self.templates["javascript"]["class"]
+        return template.render(class_name=class_name, init_params=[], methods=methods)
+
+    def _create_javascript_function(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Créer une fonction JavaScript"""
         function_name = self._extract_function_name(request.description) or "generatedFunction"
 
         params = []
         for i, _req in enumerate(request.requirements or []):
-            param_name = f"param{i+1}"
+            param_name = f"param{i + 1}"
             params.append(param_name)
 
         body = f"// {request.description}\n"
@@ -679,13 +701,11 @@ class Factory {
         body += "}"
 
         template = self.templates["javascript"]["function"]
-        return template.render(
-            function_name=function_name,
-            params=params,
-            body=body
-        )
+        return template.render(function_name=function_name, params=params, body=body)
 
-    def _create_javascript_module(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    def _create_javascript_module(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Créer un module JavaScript complet"""
         code_parts = []
 
@@ -718,7 +738,9 @@ class Factory {
 
         return "\n".join(code_parts)
 
-    async def _generate_tests(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> list[str]:
+    async def _generate_tests(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> list[str]:
         """Générer des tests"""
         logger.info("🧪 Génération des tests...")
 
@@ -752,17 +774,19 @@ class TestGeneratedCode:
         for i, req in enumerate(request.test_cases or []):
             test_template = self.templates["python"]["test"]
             test_code = test_template.render(
-                function_name=f"requirement_{i+1}",
+                function_name=f"requirement_{i + 1}",
                 arrange_code="# Configuration du test",
                 act_code=f"# Exécuter: {req}",
-                assert_code="# Vérifier le résultat"
+                assert_code="# Vérifier le résultat",
             )
             tests.append(test_code)
 
         logger.info(f"✅ {len(tests)} tests générés")
         return tests
 
-    async def _generate_documentation(self, request: CodeGenerationRequest, analysis: dict[str, Any]) -> str:
+    async def _generate_documentation(
+        self, request: CodeGenerationRequest, analysis: dict[str, Any]
+    ) -> str:
         """Générer la documentation"""
         logger.info("📚 Génération de la documentation...")
 
@@ -822,7 +846,7 @@ class TestGeneratedCode:
             "complexity_score": 0.0,
             "maintainability_score": 0.0,
             "issues": [],
-            "recommendations": []
+            "recommendations": [],
         }
 
         try:
@@ -832,7 +856,9 @@ class TestGeneratedCode:
                     tree = ast.parse(code)
 
                     # Compter les fonctions et classes
-                    functions = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+                    functions = [
+                        node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
+                    ]
                     classes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
 
                     analysis["functions_count"] = len(functions)
@@ -848,16 +874,12 @@ class TestGeneratedCode:
                             missing_docs.append(func.name)
 
                     if missing_docs:
-                        analysis["issues"].append({
-                            "type": "missing_documentation",
-                            "functions": missing_docs
-                        })
+                        analysis["issues"].append(
+                            {"type": "missing_documentation", "functions": missing_docs}
+                        )
 
                 except SyntaxError as e:
-                    analysis["issues"].append({
-                        "type": "syntax_error",
-                        "message": str(e)
-                    })
+                    analysis["issues"].append({"type": "syntax_error", "message": str(e)})
 
             # Analyser avec des outils externes si disponibles
             try:
@@ -879,23 +901,25 @@ class TestGeneratedCode:
         """Analyser les performances du code"""
         logger.info("⚡ Analyse des performances...")
 
-        analysis = {
-            "performance_score": 0.0,
-            "bottlenecks": [],
-            "recommendations": []
-        }
+        analysis = {"performance_score": 0.0, "bottlenecks": [], "recommendations": []}
 
         try:
             if language == "python":
                 # Rechercher des patterns de performance
                 if "for " in code and "range" in code:
-                    analysis["recommendations"].append("Considérez l'utilisation de compréhensions de liste")
+                    analysis["recommendations"].append(
+                        "Considérez l'utilisation de compréhensions de liste"
+                    )
 
                 if "import" in code and "requests" in code:
-                    analysis["recommendations"].append("Utilisez httpx pour les requêtes asynchrones")
+                    analysis["recommendations"].append(
+                        "Utilisez httpx pour les requêtes asynchrones"
+                    )
 
                 if "open(" in code and "close()" not in code:
-                    analysis["recommendations"].append("Utilisez des context managers pour les fichiers")
+                    analysis["recommendations"].append(
+                        "Utilisez des context managers pour les fichiers"
+                    )
 
                 # Score de performance basique
                 analysis["performance_score"] = 75.0  # Score par défaut
@@ -910,35 +934,37 @@ class TestGeneratedCode:
         """Analyser la sécurité du code"""
         logger.info("🔒 Analyse de la sécurité...")
 
-        analysis = {
-            "security_score": 0.0,
-            "vulnerabilities": [],
-            "recommendations": []
-        }
+        analysis = {"security_score": 0.0, "vulnerabilities": [], "recommendations": []}
 
         try:
             # Rechercher des vulnérabilités communes
             if language == "python":
                 if "eval(" in code or "exec(" in code:
-                    analysis["vulnerabilities"].append({
-                        "type": "code_injection",
-                        "severity": "high",
-                        "message": "Utilisation d'eval() ou exec() détectée"
-                    })
+                    analysis["vulnerabilities"].append(
+                        {
+                            "type": "code_injection",
+                            "severity": "high",
+                            "message": "Utilisation d'eval() ou exec() détectée",
+                        }
+                    )
 
                 if "subprocess.call" in code and "shell=True" in code:
-                    analysis["vulnerabilities"].append({
-                        "type": "command_injection",
-                        "severity": "high",
-                        "message": "Injection de commande possible"
-                    })
+                    analysis["vulnerabilities"].append(
+                        {
+                            "type": "command_injection",
+                            "severity": "high",
+                            "message": "Injection de commande possible",
+                        }
+                    )
 
-                if "sqlite3" in code and "f\"" in code:
-                    analysis["vulnerabilities"].append({
-                        "type": "sql_injection",
-                        "severity": "medium",
-                        "message": "Risque d'injection SQL avec f-strings"
-                    })
+                if "sqlite3" in code and 'f"' in code:
+                    analysis["vulnerabilities"].append(
+                        {
+                            "type": "sql_injection",
+                            "severity": "medium",
+                            "message": "Risque d'injection SQL avec f-strings",
+                        }
+                    )
 
             # Score de sécurité
             analysis["security_score"] = max(0, 100 - len(analysis["vulnerabilities"]) * 20)
@@ -966,9 +992,12 @@ class TestGeneratedCode:
             logger.error(f"❌ Erreur lors du formatage: {e}")
             return code
 
-    def _calculate_quality_score(self, quality_analysis: dict[str, Any],
-                                performance_analysis: dict[str, Any],
-                                security_analysis: dict[str, Any]) -> float:
+    def _calculate_quality_score(
+        self,
+        quality_analysis: dict[str, Any],
+        performance_analysis: dict[str, Any],
+        security_analysis: dict[str, Any],
+    ) -> float:
         """Calculer le score de qualité global"""
         try:
             quality_score = quality_analysis.get("complexity_score", 0) * 0.3
@@ -1043,31 +1072,28 @@ testpaths = ["tests"]
 
     def _generate_package_json(self, request: CodeGenerationRequest) -> str:
         """Générer package.json"""
-        return json.dumps({
-            "name": f"generated-code-{request.request_id}",
-            "version": "1.0.0",
-            "description": request.description,
-            "main": "generated_code.js",
-            "scripts": {
-                "test": "jest",
-                "lint": "eslint ."
+        return json.dumps(
+            {
+                "name": f"generated-code-{request.request_id}",
+                "version": "1.0.0",
+                "description": request.description,
+                "main": "generated_code.js",
+                "scripts": {"test": "jest", "lint": "eslint ."},
+                "dependencies": {},
+                "devDependencies": {"jest": "^29.0.0", "eslint": "^8.0.0"},
             },
-            "dependencies": {},
-            "devDependencies": {
-                "jest": "^29.0.0",
-                "eslint": "^8.0.0"
-            }
-        }, indent=2)
+            indent=2,
+        )
 
     # Méthodes utilitaires
     def _extract_class_name(self, description: str) -> str | None:
         """Extraire le nom de la classe de la description"""
         # Rechercher des patterns comme "class MyClass" ou "MyClass class"
         patterns = [
-            r'class\s+(\w+)',
-            r'(\w+)\s+class',
-            r'créer\s+une?\s+classe\s+(\w+)',
-            r'create\s+a?\s+class\s+(\w+)'
+            r"class\s+(\w+)",
+            r"(\w+)\s+class",
+            r"créer\s+une?\s+classe\s+(\w+)",
+            r"create\s+a?\s+class\s+(\w+)",
         ]
 
         for pattern in patterns:
@@ -1080,10 +1106,10 @@ testpaths = ["tests"]
     def _extract_function_name(self, description: str) -> str | None:
         """Extraire le nom de la fonction de la description"""
         patterns = [
-            r'function\s+(\w+)',
-            r'(\w+)\s+function',
-            r'créer\s+une?\s+fonction\s+(\w+)',
-            r'create\s+a?\s+function\s+(\w+)'
+            r"function\s+(\w+)",
+            r"(\w+)\s+function",
+            r"créer\s+une?\s+fonction\s+(\w+)",
+            r"create\s+a?\s+function\s+(\w+)",
         ]
 
         for pattern in patterns:
@@ -1097,7 +1123,9 @@ testpaths = ["tests"]
         """Générer un nom de méthode à partir d'une exigence"""
         # Simplification: prendre les premiers mots importants
         words = requirement.lower().split()
-        important_words = [w for w in words if len(w) > 3 and w not in ["pour", "avec", "dans", "sur"]]
+        important_words = [
+            w for w in words if len(w) > 3 and w not in ["pour", "avec", "dans", "sur"]
+        ]
 
         if important_words:
             method_name = "_".join(important_words[:3])
@@ -1150,19 +1178,20 @@ testpaths = ["tests"]
 
         # Extract requirements (sentences after "requirements:" or bulleted items)
         requirements = []
-        req_match = re.search(r'requirements?:?\s*(.+?)(?:\.|$)', prompt, re.IGNORECASE)
+        req_match = re.search(r"requirements?:?\s*(.+?)(?:\.|$)", prompt, re.IGNORECASE)
         if req_match:
             req_text = req_match.group(1)
-            requirements = [r.strip() for r in re.split(r'[,;]', req_text) if r.strip()]
+            requirements = [r.strip() for r in re.split(r"[,;]", req_text) if r.strip()]
 
         # Create request
         import time
+
         request = CodeGenerationRequest(
             request_id=f"prompt_{int(time.time())}",
             language=language,
             framework=framework,
             description=prompt,
-            requirements=requirements or None
+            requirements=requirements or None,
         )
 
         try:
@@ -1181,16 +1210,12 @@ testpaths = ["tests"]
                 "functions_count": len(result.functions),
                 "classes_count": len(result.classes),
                 "performance_analysis": result.performance_analysis,
-                "security_analysis": result.security_analysis
+                "security_analysis": result.security_analysis,
             }
 
         except Exception as e:
             logger.error(f"Code generation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "prompt": prompt
-            }
+            return {"success": False, "error": str(e), "prompt": prompt}
 
 
 # Fonctions utilitaires
@@ -1198,7 +1223,10 @@ def create_code_generator_agent() -> CodeGeneratorAgent:
     """Créer et initialiser l'agent de génération de code"""
     return CodeGeneratorAgent()
 
-async def generate_code_simple(description: str, language: str = "python", **kwargs) -> GeneratedCode:
+
+async def generate_code_simple(
+    description: str, language: str = "python", **kwargs
+) -> GeneratedCode:
     """Générer du code de manière simple"""
     agent = create_code_generator_agent()
 
@@ -1211,7 +1239,7 @@ async def generate_code_simple(description: str, language: str = "python", **kwa
             language=language,
             description=description,
             requirements=kwargs.get("requirements", []),
-            **kwargs
+            **kwargs,
         )
 
         # Générer le code
@@ -1225,10 +1253,10 @@ async def generate_code_simple(description: str, language: str = "python", **kwa
 
 # Export
 __all__ = [
-    'CodeGeneratorAgent',
-    'CodeGenerationRequest',
-    'GeneratedCode',
-    'CodeAnalysis',
-    'create_code_generator_agent',
-    'generate_code_simple'
+    "CodeGeneratorAgent",
+    "CodeGenerationRequest",
+    "GeneratedCode",
+    "CodeAnalysis",
+    "create_code_generator_agent",
+    "generate_code_simple",
 ]

@@ -54,11 +54,12 @@ def status_command() -> None:
     # Ollama check
     try:
         import httpx
+
         response = httpx.get(f"{config.ollama_host}/api/tags", timeout=5)
         if response.status_code == 200:
             console.print("  [green]✓[/] Ollama: Connected")
-            models = response.json().get('models', [])
-            if any(m.get('name', '').startswith(config.ollama_model.split(':')[0]) for m in models):
+            models = response.json().get("models", [])
+            if any(m.get("name", "").startswith(config.ollama_model.split(":")[0]) for m in models):
                 console.print(f"    [green]✓[/] Model '{config.ollama_model}' available")
             else:
                 console.print(f"    [yellow]![/] Model '{config.ollama_model}' not found")
@@ -70,6 +71,7 @@ def status_command() -> None:
     # Neo4j check (basic - just check if we can create URI)
     try:
         from neo4j import GraphDatabase
+
         console.print("  [green]✓[/] Neo4j: Client library available")
         console.print(f"    [dim]Configured URI: {config.neo4j_uri}[/]")
     except ImportError:
@@ -82,11 +84,19 @@ def status_command() -> None:
 @app.command("analyze")
 def analyze_command(
     query: str = typer.Argument(None, help="Query for territorial intelligence analysis"),
-    territory: str | None = typer.Option(None, "--territory", "-t", help="Territory code (e.g., 34, 75)"),
-    sector: str | None = typer.Option(None, "--sector", "-s", help="Sector (tech, biotech, commerce, industrie)"),
-    model: str | None = typer.Option(None, "--model", "-m", help="LLM model for reasoning (overrides config)"),
+    territory: str | None = typer.Option(
+        None, "--territory", "-t", help="Territory code (e.g., 34, 75)"
+    ),
+    sector: str | None = typer.Option(
+        None, "--sector", "-s", help="Sector (tech, biotech, commerce, industrie)"
+    ),
+    model: str | None = typer.Option(
+        None, "--model", "-m", help="LLM model for reasoning (overrides config)"
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed progress"),
-    real_api: bool = typer.Option(False, "--real-api", help="Use real SIRENE API instead of simulation"),
+    real_api: bool = typer.Option(
+        False, "--real-api", help="Use real SIRENE API instead of simulation"
+    ),
     output: str = typer.Option("./output", "--output", "-o", help="Output directory for results"),
     json_output: bool = typer.Option(False, "--json", "-j", help="Output results as JSON"),
 ) -> None:
@@ -107,7 +117,7 @@ def analyze_command(
     """
     if not query and not territory:
         console.print("[yellow]Provide a query or use --territory[/]")
-        console.print("[dim]Example: tawiza tajine analyze \"Analyse tech sector in 34\"[/]")
+        console.print('[dim]Example: tawiza tajine analyze "Analyse tech sector in 34"[/]')
         return
 
     # Build query from options if not provided
@@ -125,26 +135,34 @@ def analyze_command(
     # Use model from CLI option or config
     model_to_use = model or config.ollama_model
 
-    asyncio.run(_run_tajine(
-        query=query,
-        territory=territory,
-        sector=sector,
-        model=model_to_use,
-        verbose=verbose,
-        real_api=real_api,
-        output=output,
-        json_output=json_output,
-    ))
+    asyncio.run(
+        _run_tajine(
+            query=query,
+            territory=territory,
+            sector=sector,
+            model=model_to_use,
+            verbose=verbose,
+            real_api=real_api,
+            output=output,
+            json_output=json_output,
+        )
+    )
 
 
 # Legacy function for backwards compatibility (if called directly from other code)
 def tajine_command(
     query: str = typer.Argument(None, help="Query for territorial intelligence analysis"),
-    territory: str | None = typer.Option(None, "--territory", "-t", help="Territory code (e.g., 34, 75)"),
-    sector: str | None = typer.Option(None, "--sector", "-s", help="Sector (tech, biotech, commerce, industrie)"),
+    territory: str | None = typer.Option(
+        None, "--territory", "-t", help="Territory code (e.g., 34, 75)"
+    ),
+    sector: str | None = typer.Option(
+        None, "--sector", "-s", help="Sector (tech, biotech, commerce, industrie)"
+    ),
     model: str = typer.Option("qwen3.5:27b", "--model", "-m", help="LLM model for reasoning"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed progress"),
-    real_api: bool = typer.Option(False, "--real-api", help="Use real SIRENE API instead of simulation"),
+    real_api: bool = typer.Option(
+        False, "--real-api", help="Use real SIRENE API instead of simulation"
+    ),
     output: str = typer.Option("./output", "--output", "-o", help="Output directory for results"),
     json_output: bool = typer.Option(False, "--json", "-j", help="Output results as JSON"),
 ) -> None:
@@ -216,8 +234,8 @@ async def _run_tajine(
 
     # Build task config
     task_config = {
-        'prompt': query,
-        'use_real_api': real_api,
+        "prompt": query,
+        "use_real_api": real_api,
     }
 
     # Run with progress display
@@ -229,11 +247,11 @@ async def _run_tajine(
     else:
         # Progress display
         phase_icons = {
-            'perceive': '👁️',
-            'plan': '📋',
-            'delegate': '🔧',
-            'synthesize': '🧠',
-            'learn': '📚',
+            "perceive": "👁️",
+            "plan": "📋",
+            "delegate": "🔧",
+            "synthesize": "🧠",
+            "learn": "📚",
         }
 
         with Progress(
@@ -249,12 +267,12 @@ async def _run_tajine(
             # Custom event handler for progress bar
             def progress_handler(cb: TAJINECallback) -> None:
                 """Update progress bar with PPDSL phase information."""
-                icon = phase_icons.get(cb.phase, '⚙️')
+                icon = phase_icons.get(cb.phase, "⚙️")
                 desc = f"[cyan]{icon} {cb.phase or 'starting'}[/]: {cb.message[:40]}"
                 progress.update(task, completed=cb.progress, description=desc)
 
                 if verbose and cb.event == TAJINEEvent.DELEGATE_TOOL:
-                    tool = cb.data.get('tool', 'unknown')
+                    tool = cb.data.get("tool", "unknown")
                     console.print(f"    [dim]🔧 Executing: {tool}[/]")
 
             agent.on_event(progress_handler)
@@ -268,16 +286,18 @@ async def _run_tajine(
 
     console.print()
 
-    if result.get('status') == 'completed':
+    if result.get("status") == "completed":
         # Success panel
-        confidence = result.get('confidence', 0)
+        confidence = result.get("confidence", 0)
         confidence_color = "green" if confidence > 0.7 else "yellow" if confidence > 0.4 else "red"
 
-        console.print(Panel(
-            _format_result(result),
-            title="[bold green]Analysis Complete[/]",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                _format_result(result),
+                title="[bold green]Analysis Complete[/]",
+                border_style="green",
+            )
+        )
 
         # Metadata table
         console.print()
@@ -285,17 +305,17 @@ async def _run_tajine(
         table.add_column("Key", style="dim")
         table.add_column("Value")
 
-        table.add_row("Task ID", result.get('task_id', 'unknown'))
+        table.add_row("Task ID", result.get("task_id", "unknown"))
         table.add_row("Confidence", f"[{confidence_color}]{confidence:.1%}[/]")
-        table.add_row("Subtasks", str(result.get('metadata', {}).get('subtask_count', 0)))
+        table.add_row("Subtasks", str(result.get("metadata", {}).get("subtask_count", 0)))
         table.add_row("Trust Score", f"{result.get('metadata', {}).get('trust_score', 0):.2f}")
 
-        if perception := result.get('metadata', {}).get('perception'):
-            table.add_row("Intent", perception.get('intent', 'unknown'))
-            if perception.get('territory'):
-                table.add_row("Territory", perception.get('territory'))
-            if perception.get('sector'):
-                table.add_row("Sector", perception.get('sector'))
+        if perception := result.get("metadata", {}).get("perception"):
+            table.add_row("Intent", perception.get("intent", "unknown"))
+            if perception.get("territory"):
+                table.add_row("Territory", perception.get("territory"))
+            if perception.get("sector"):
+                table.add_row("Sector", perception.get("sector"))
 
         console.print(table)
 
@@ -312,32 +332,34 @@ async def _run_tajine(
             console.print()
             console.print("[bold]Event Log:[/]")
             for ev in events_log[-10:]:
-                icon = phase_icons.get(ev.phase, '⚙️')
+                icon = phase_icons.get(ev.phase, "⚙️")
                 console.print(f"  {icon} [{ev.phase or 'init'}] {ev.message[:60]}")
 
     else:
         # Error panel
-        console.print(Panel(
-            f"[red]{result.get('error', 'Unknown error')}[/]",
-            title="[bold red]Task Failed[/]",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"[red]{result.get('error', 'Unknown error')}[/]",
+                title="[bold red]Task Failed[/]",
+                border_style="red",
+            )
+        )
 
 
 def _format_result(result: dict) -> str:
     """Format result analysis for display."""
-    analysis = result.get('result', {})
+    analysis = result.get("result", {})
 
     if isinstance(analysis, dict):
         lines = []
 
         # Summary
-        if summary := analysis.get('summary'):
+        if summary := analysis.get("summary"):
             lines.append(f"[bold]Summary:[/] {summary}")
             lines.append("")
 
         # Key findings
-        if findings := analysis.get('findings'):
+        if findings := analysis.get("findings"):
             lines.append("[bold]Findings:[/]")
             for finding in findings[:5]:
                 if isinstance(finding, dict):
@@ -347,23 +369,23 @@ def _format_result(result: dict) -> str:
             lines.append("")
 
         # Recommendations
-        if recommendations := analysis.get('recommendations'):
+        if recommendations := analysis.get("recommendations"):
             lines.append("[bold]Recommendations:[/]")
             for rec in recommendations[:3]:
                 lines.append(f"  → {rec}")
 
         # Cognitive levels
-        if levels := result.get('cognitive_levels'):
+        if levels := result.get("cognitive_levels"):
             lines.append("")
             lines.append("[bold]Cognitive Analysis:[/]")
             for level, data in levels.items():
-                if isinstance(data, dict) and data.get('summary'):
-                    summary = data['summary']
+                if isinstance(data, dict) and data.get("summary"):
+                    summary = data["summary"]
                     if isinstance(summary, str):
                         lines.append(f"  [{level}] {summary[:60]}...")
                     elif isinstance(summary, dict):
                         # Handle structured summaries (e.g., theoretical level)
-                        strategy = summary.get('primary_strategy', '')
+                        strategy = summary.get("primary_strategy", "")
                         if strategy:
                             lines.append(f"  [{level}] Strategy: {strategy}")
                         else:

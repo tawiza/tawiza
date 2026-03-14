@@ -10,6 +10,7 @@ def complete_models(incomplete: str) -> list[tuple[str, str]]:
 
     try:
         import httpx
+
         response = httpx.get("http://localhost:11434/api/tags", timeout=2)
         if response.status_code == 200:
             data = response.json()
@@ -72,7 +73,11 @@ def complete_datasets(incomplete: str) -> list[tuple[str, str]]:
             for f in data_dir.iterdir():
                 if f.is_file() and f.suffix in [".csv", ".json", ".jsonl", ".parquet"]:
                     size = f.stat().st_size
-                    size_str = f"{size / 1024:.1f}KB" if size < 1024*1024 else f"{size / (1024*1024):.1f}MB"
+                    size_str = (
+                        f"{size / 1024:.1f}KB"
+                        if size < 1024 * 1024
+                        else f"{size / (1024 * 1024):.1f}MB"
+                    )
                     if incomplete.lower() in f.name.lower():
                         datasets.append((f.name, size_str))
     except Exception:
@@ -117,10 +122,8 @@ def complete_gpu_pci(incomplete: str) -> list[tuple[str, str]]:
 
     try:
         import subprocess
-        result = subprocess.run(
-            ["lspci", "-nn"],
-            capture_output=True, text=True, timeout=5
-        )
+
+        result = subprocess.run(["lspci", "-nn"], capture_output=True, text=True, timeout=5)
         if result.returncode == 0:
             for line in result.stdout.split("\n"):
                 if "VGA" in line or "3D" in line:

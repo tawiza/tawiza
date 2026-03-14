@@ -43,9 +43,7 @@ class EducationNationaleCollector(BaseCollector):
 
         for metric_key, dataset_id in DATASETS.items():
             try:
-                new_signals = await self._fetch_dataset(
-                    dataset_id, metric_key, code_dept
-                )
+                new_signals = await self._fetch_dataset(dataset_id, metric_key, code_dept)
                 signals.extend(new_signals)
             except Exception as e:
                 logger.warning(f"[education_nationale] Failed to fetch {metric_key}: {e}")

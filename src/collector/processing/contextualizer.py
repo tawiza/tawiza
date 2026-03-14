@@ -26,8 +26,13 @@ Règles:
 - Pas de jargon technique sur les z-scores"""
 
 
-def _build_prompt(signal_type: str, code_dept: str, sources: list[str],
-                  metrics: dict[str, float], extra_context: str = "") -> str:
+def _build_prompt(
+    signal_type: str,
+    code_dept: str,
+    sources: list[str],
+    metrics: dict[str, float],
+    extra_context: str = "",
+) -> str:
     """Build a contextualisation prompt from detection data."""
 
     source_names = {
@@ -59,7 +64,7 @@ SOURCES CONVERGENTES: {sources_text}
 MÉTRIQUES:
 {metrics_text}
 
-{f'CONTEXTE SUPPLÉMENTAIRE: {extra_context}' if extra_context else ''}
+{f"CONTEXTE SUPPLÉMENTAIRE: {extra_context}" if extra_context else ""}
 
 Produis une analyse concise (3 phrases max) pour un décideur territorial."""
 
@@ -106,6 +111,7 @@ async def contextualize_signal(
             # Clean up thinking tags if present (qwen3)
             if "<think>" in text:
                 import re
+
                 text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
             logger.info(

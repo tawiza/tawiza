@@ -6,9 +6,7 @@ from src.cli.commands.annotate import app as annotate_app
 from src.cli.commands.data import app as data_core_app
 
 app = typer.Typer(
-    name="data",
-    help="Gestion des Donnees - Import, Annotation, Export",
-    rich_markup_mode="rich"
+    name="data", help="Gestion des Donnees - Import, Annotation, Export", rich_markup_mode="rich"
 )
 
 # Ajouter les sous-commandes

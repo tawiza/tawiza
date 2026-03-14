@@ -18,6 +18,7 @@ from src.infrastructure.datasources.adapters.sirene import SireneAdapter
 @dataclass
 class DepartmentStats:
     """Statistics for a single department."""
+
     code: str
     name: str
     enterprises: int
@@ -29,44 +30,138 @@ class DepartmentStats:
 
 # French department names (metropolitan + overseas)
 DEPARTMENT_NAMES = {
-    "01": "Ain", "02": "Aisne", "03": "Allier", "04": "Alpes-de-Haute-Provence",
-    "05": "Hautes-Alpes", "06": "Alpes-Maritimes", "07": "Ardèche", "08": "Ardennes",
-    "09": "Ariège", "10": "Aube", "11": "Aude", "12": "Aveyron",
-    "13": "Bouches-du-Rhône", "14": "Calvados", "15": "Cantal", "16": "Charente",
-    "17": "Charente-Maritime", "18": "Cher", "19": "Corrèze", "2A": "Corse-du-Sud",
-    "2B": "Haute-Corse", "21": "Côte-d'Or", "22": "Côtes-d'Armor", "23": "Creuse",
-    "24": "Dordogne", "25": "Doubs", "26": "Drôme", "27": "Eure",
-    "28": "Eure-et-Loir", "29": "Finistère", "30": "Gard", "31": "Haute-Garonne",
-    "32": "Gers", "33": "Gironde", "34": "Hérault", "35": "Ille-et-Vilaine",
-    "36": "Indre", "37": "Indre-et-Loire", "38": "Isère", "39": "Jura",
-    "40": "Landes", "41": "Loir-et-Cher", "42": "Loire", "43": "Haute-Loire",
-    "44": "Loire-Atlantique", "45": "Loiret", "46": "Lot", "47": "Lot-et-Garonne",
-    "48": "Lozère", "49": "Maine-et-Loire", "50": "Manche", "51": "Marne",
-    "52": "Haute-Marne", "53": "Mayenne", "54": "Meurthe-et-Moselle", "55": "Meuse",
-    "56": "Morbihan", "57": "Moselle", "58": "Nièvre", "59": "Nord",
-    "60": "Oise", "61": "Orne", "62": "Pas-de-Calais", "63": "Puy-de-Dôme",
-    "64": "Pyrénées-Atlantiques", "65": "Hautes-Pyrénées", "66": "Pyrénées-Orientales",
-    "67": "Bas-Rhin", "68": "Haut-Rhin", "69": "Rhône", "70": "Haute-Saône",
-    "71": "Saône-et-Loire", "72": "Sarthe", "73": "Savoie", "74": "Haute-Savoie",
-    "75": "Paris", "76": "Seine-Maritime", "77": "Seine-et-Marne", "78": "Yvelines",
-    "79": "Deux-Sèvres", "80": "Somme", "81": "Tarn", "82": "Tarn-et-Garonne",
-    "83": "Var", "84": "Vaucluse", "85": "Vendée", "86": "Vienne",
-    "87": "Haute-Vienne", "88": "Vosges", "89": "Yonne", "90": "Territoire de Belfort",
-    "91": "Essonne", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
-    "94": "Val-de-Marne", "95": "Val-d'Oise",
+    "01": "Ain",
+    "02": "Aisne",
+    "03": "Allier",
+    "04": "Alpes-de-Haute-Provence",
+    "05": "Hautes-Alpes",
+    "06": "Alpes-Maritimes",
+    "07": "Ardèche",
+    "08": "Ardennes",
+    "09": "Ariège",
+    "10": "Aube",
+    "11": "Aude",
+    "12": "Aveyron",
+    "13": "Bouches-du-Rhône",
+    "14": "Calvados",
+    "15": "Cantal",
+    "16": "Charente",
+    "17": "Charente-Maritime",
+    "18": "Cher",
+    "19": "Corrèze",
+    "2A": "Corse-du-Sud",
+    "2B": "Haute-Corse",
+    "21": "Côte-d'Or",
+    "22": "Côtes-d'Armor",
+    "23": "Creuse",
+    "24": "Dordogne",
+    "25": "Doubs",
+    "26": "Drôme",
+    "27": "Eure",
+    "28": "Eure-et-Loir",
+    "29": "Finistère",
+    "30": "Gard",
+    "31": "Haute-Garonne",
+    "32": "Gers",
+    "33": "Gironde",
+    "34": "Hérault",
+    "35": "Ille-et-Vilaine",
+    "36": "Indre",
+    "37": "Indre-et-Loire",
+    "38": "Isère",
+    "39": "Jura",
+    "40": "Landes",
+    "41": "Loir-et-Cher",
+    "42": "Loire",
+    "43": "Haute-Loire",
+    "44": "Loire-Atlantique",
+    "45": "Loiret",
+    "46": "Lot",
+    "47": "Lot-et-Garonne",
+    "48": "Lozère",
+    "49": "Maine-et-Loire",
+    "50": "Manche",
+    "51": "Marne",
+    "52": "Haute-Marne",
+    "53": "Mayenne",
+    "54": "Meurthe-et-Moselle",
+    "55": "Meuse",
+    "56": "Morbihan",
+    "57": "Moselle",
+    "58": "Nièvre",
+    "59": "Nord",
+    "60": "Oise",
+    "61": "Orne",
+    "62": "Pas-de-Calais",
+    "63": "Puy-de-Dôme",
+    "64": "Pyrénées-Atlantiques",
+    "65": "Hautes-Pyrénées",
+    "66": "Pyrénées-Orientales",
+    "67": "Bas-Rhin",
+    "68": "Haut-Rhin",
+    "69": "Rhône",
+    "70": "Haute-Saône",
+    "71": "Saône-et-Loire",
+    "72": "Sarthe",
+    "73": "Savoie",
+    "74": "Haute-Savoie",
+    "75": "Paris",
+    "76": "Seine-Maritime",
+    "77": "Seine-et-Marne",
+    "78": "Yvelines",
+    "79": "Deux-Sèvres",
+    "80": "Somme",
+    "81": "Tarn",
+    "82": "Tarn-et-Garonne",
+    "83": "Var",
+    "84": "Vaucluse",
+    "85": "Vendée",
+    "86": "Vienne",
+    "87": "Haute-Vienne",
+    "88": "Vosges",
+    "89": "Yonne",
+    "90": "Territoire de Belfort",
+    "91": "Essonne",
+    "92": "Hauts-de-Seine",
+    "93": "Seine-Saint-Denis",
+    "94": "Val-de-Marne",
+    "95": "Val-d'Oise",
     # DOM-TOM
-    "971": "Guadeloupe", "972": "Martinique", "973": "Guyane",
-    "974": "La Réunion", "976": "Mayotte",
+    "971": "Guadeloupe",
+    "972": "Martinique",
+    "973": "Guyane",
+    "974": "La Réunion",
+    "976": "Mayotte",
 }
 
 # Approximate enterprise counts per department (based on INSEE 2023 data)
 # Source: https://www.insee.fr/fr/statistiques/2011101
 BASELINE_ENTERPRISES = {
-    "75": 450000, "92": 180000, "93": 95000, "94": 85000, "69": 120000,
-    "13": 95000, "59": 110000, "33": 85000, "31": 75000, "44": 65000,
-    "06": 70000, "34": 55000, "67": 50000, "76": 55000, "78": 65000,
-    "91": 60000, "77": 55000, "95": 50000, "38": 55000, "35": 45000,
-    "971": 12000, "972": 11000, "973": 4500, "974": 28000, "976": 3200,
+    "75": 450000,
+    "92": 180000,
+    "93": 95000,
+    "94": 85000,
+    "69": 120000,
+    "13": 95000,
+    "59": 110000,
+    "33": 85000,
+    "31": 75000,
+    "44": 65000,
+    "06": 70000,
+    "34": 55000,
+    "67": 50000,
+    "76": 55000,
+    "78": 65000,
+    "91": 60000,
+    "77": 55000,
+    "95": 50000,
+    "38": 55000,
+    "35": 45000,
+    "971": 12000,
+    "972": 11000,
+    "973": 4500,
+    "974": 28000,
+    "976": 3200,
 }
 
 # NAF section to sector name mapping
@@ -155,13 +250,15 @@ class DepartmentStatsService:
             if code in self._cache:
                 cached = self._cache[code]
                 if datetime.utcnow() - cached.updated_at < self._cache_ttl:
-                    departments.append({
-                        "code": cached.code,
-                        "name": cached.name,
-                        "enterprises": cached.enterprises,
-                        "growth": cached.growth,
-                        "analyses": cached.new_enterprises // 10,
-                    })
+                    departments.append(
+                        {
+                            "code": cached.code,
+                            "name": cached.name,
+                            "enterprises": cached.enterprises,
+                            "growth": cached.growth,
+                            "analyses": cached.new_enterprises // 10,
+                        }
+                    )
                     continue
 
             # Generate from baseline for speed (avoid 101 API calls)
@@ -190,17 +287,41 @@ class DepartmentStatsService:
         # Realistic growth rates based on INSEE 2023 data
         growth_rates = {
             # Île-de-France
-            "75": 4.8, "92": 4.5, "93": 4.2, "94": 4.0, "91": 3.8,
-            "77": 3.5, "78": 3.6, "95": 3.7,
+            "75": 4.8,
+            "92": 4.5,
+            "93": 4.2,
+            "94": 4.0,
+            "91": 3.8,
+            "77": 3.5,
+            "78": 3.6,
+            "95": 3.7,
             # Métropoles dynamiques
-            "69": 3.8, "13": 3.5, "31": 4.2, "33": 3.6, "59": 3.0,
-            "44": 3.9, "34": 4.0, "06": 3.2, "67": 3.0, "35": 3.5,
+            "69": 3.8,
+            "13": 3.5,
+            "31": 4.2,
+            "33": 3.6,
+            "59": 3.0,
+            "44": 3.9,
+            "34": 4.0,
+            "06": 3.2,
+            "67": 3.0,
+            "35": 3.5,
             # Côte atlantique
-            "17": 3.2, "85": 3.4, "56": 3.1, "29": 2.8,
+            "17": 3.2,
+            "85": 3.4,
+            "56": 3.1,
+            "29": 2.8,
             # Sud
-            "83": 3.3, "30": 3.1, "66": 2.9, "11": 2.7,
+            "83": 3.3,
+            "30": 3.1,
+            "66": 2.9,
+            "11": 2.7,
             # DOM-TOM
-            "971": 2.8, "972": 2.5, "973": 3.2, "974": 3.0, "976": 4.5,
+            "971": 2.8,
+            "972": 2.5,
+            "973": 3.2,
+            "974": 3.0,
+            "976": 4.5,
         }
         growth = growth_rates.get(dept_code, 2.5)
 
@@ -255,11 +376,13 @@ class DepartmentStatsService:
                     elif count > 100:
                         growth = 1.5
 
-                    sectors.append({
-                        "sector": sector_name,
-                        "count": count,
-                        "growth": growth,
-                    })
+                    sectors.append(
+                        {
+                            "sector": sector_name,
+                            "count": count,
+                            "growth": growth,
+                        }
+                    )
 
                 except Exception as e:
                     logger.warning(f"Failed to get sector {naf_section}: {e}")
@@ -305,13 +428,31 @@ class DepartmentStatsService:
         # Source: INSEE - Démographie des entreprises (2023)
         growth_rates = {
             # Île-de-France (high activity)
-            "75": 4.8, "92": 4.5, "93": 4.2, "94": 4.0, "91": 3.8,
-            "77": 3.5, "78": 3.6, "95": 3.7,
+            "75": 4.8,
+            "92": 4.5,
+            "93": 4.2,
+            "94": 4.0,
+            "91": 3.8,
+            "77": 3.5,
+            "78": 3.6,
+            "95": 3.7,
             # Major metropolises
-            "69": 3.8, "13": 3.5, "31": 4.2, "33": 3.6, "59": 3.0,
-            "44": 3.9, "34": 4.0, "06": 3.2, "67": 3.0, "35": 3.5,
+            "69": 3.8,
+            "13": 3.5,
+            "31": 4.2,
+            "33": 3.6,
+            "59": 3.0,
+            "44": 3.9,
+            "34": 4.0,
+            "06": 3.2,
+            "67": 3.0,
+            "35": 3.5,
             # DOM-TOM (variable)
-            "971": 2.8, "972": 2.5, "973": 3.2, "974": 3.0, "976": 4.5,
+            "971": 2.8,
+            "972": 2.5,
+            "973": 3.2,
+            "974": 3.0,
+            "976": 4.5,
         }
 
         # Get growth rate (default 2.5% for rural areas)

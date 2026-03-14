@@ -70,10 +70,7 @@ class PredictUseCase:
             if not model:
                 raise ValueError("No deployed model available")
 
-        logger.info(
-            f"Making prediction with model {model.name} v{model.version} "
-            f"(ID: {model.id})"
-        )
+        logger.info(f"Making prediction with model {model.name} v{model.version} (ID: {model.id})")
 
         # 2. Prepare inference parameters
         inference_params = {
@@ -94,8 +91,7 @@ class PredictUseCase:
             latency_ms = (time.time() - start_time) * 1000
 
             logger.info(
-                f"Prediction completed in {latency_ms:.2f}ms "
-                f"(prediction_id: {prediction_id})"
+                f"Prediction completed in {latency_ms:.2f}ms (prediction_id: {prediction_id})"
             )
 
             # Extract confidence if available
@@ -121,7 +117,9 @@ class PredictUseCase:
                     feedback = Feedback(
                         model_id=model.id,
                         prediction_id=prediction_id,
-                        input_data=json.dumps(request.input_data) if isinstance(request.input_data, dict) else str(request.input_data),
+                        input_data=json.dumps(request.input_data)
+                        if isinstance(request.input_data, dict)
+                        else str(request.input_data),
                         output_data=json.dumps(output) if isinstance(output, dict) else str(output),
                         feedback_type=FeedbackType.IMPLICIT,
                         metadata={

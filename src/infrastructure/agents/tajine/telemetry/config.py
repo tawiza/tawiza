@@ -26,9 +26,7 @@ class TelemetryConfig:
     prometheus_enabled: bool = field(
         default_factory=lambda: os.getenv("PROMETHEUS_ENABLED", "true").lower() == "true"
     )
-    prometheus_port: int = field(
-        default_factory=lambda: int(os.getenv("PROMETHEUS_PORT", "8000"))
-    )
+    prometheus_port: int = field(default_factory=lambda: int(os.getenv("PROMETHEUS_PORT", "8000")))
 
     # Loki
     loki_enabled: bool = field(
@@ -42,9 +40,7 @@ class TelemetryConfig:
     service_name: str = field(
         default_factory=lambda: os.getenv("OTEL_SERVICE_NAME", "tajine-agent")
     )
-    environment: str = field(
-        default_factory=lambda: os.getenv("ENVIRONMENT", "development")
-    )
+    environment: str = field(default_factory=lambda: os.getenv("ENVIRONMENT", "development"))
 
     @classmethod
     def from_env(cls) -> "TelemetryConfig":

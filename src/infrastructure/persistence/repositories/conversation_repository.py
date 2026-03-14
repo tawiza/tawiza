@@ -7,6 +7,7 @@ from loguru import logger
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
 from src.infrastructure.persistence.models.conversation_model import (
     AnalysisResultDB,
     ConversationDB,
@@ -182,10 +183,7 @@ class ConversationRepository:
         )
 
         # Get total count
-        count_query = (
-            select(func.count())
-            .select_from(query_obj.subquery())
-        )
+        count_query = select(func.count()).select_from(query_obj.subquery())
         count_result = await self._session.execute(count_query)
         total = count_result.scalar() or 0
 
@@ -335,11 +333,7 @@ class AnalysisResultRepository:
         limit: int = 20,
     ) -> list[AnalysisResultDB]:
         """List recent analysis results."""
-        query = (
-            select(AnalysisResultDB)
-            .order_by(AnalysisResultDB.created_at.desc())
-            .limit(limit)
-        )
+        query = select(AnalysisResultDB).order_by(AnalysisResultDB.created_at.desc()).limit(limit)
 
         if user_id:
             query = query.where(AnalysisResultDB.user_id == user_id)

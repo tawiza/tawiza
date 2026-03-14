@@ -22,7 +22,7 @@ from src.infrastructure.agents.tajine.cognitive.scenario.models import (
 def generate_correlated_samples(
     n_samples: int,
     distributions: list[DistributionParams],
-    correlation_matrix: np.ndarray | None = None
+    correlation_matrix: np.ndarray | None = None,
 ) -> np.ndarray:
     """Generate correlated samples using Cholesky decomposition.
 
@@ -78,7 +78,7 @@ def _transform_to_distribution(z: np.ndarray, dist: DistributionParams) -> np.nd
             return dist.mean + dist.std * z
         # Adjust parameters so E[X] = mean, Var[X] matches std
         sigma = np.sqrt(np.log(1 + (dist.std / dist.mean) ** 2))
-        mu = np.log(dist.mean) - sigma ** 2 / 2
+        mu = np.log(dist.mean) - sigma**2 / 2
         return np.exp(mu + sigma * z)
 
     elif dist.type == "triangular":
@@ -112,7 +112,7 @@ def _triangular_ppf(u: np.ndarray, left: float, mode: float, right: float) -> np
     result = np.where(
         u < fc,
         left + np.sqrt(u * (right - left) * (mode - left)),
-        right - np.sqrt((1 - u) * (right - left) * (right - mode))
+        right - np.sqrt((1 - u) * (right - left) * (right - mode)),
     )
     return result
 
@@ -136,11 +136,7 @@ class MonteCarloEngine:
         if self.config.random_seed is not None:
             np.random.seed(self.config.random_seed)
 
-    def simulate(
-        self,
-        causes: list[dict[str, Any]],
-        base_value: float = 0.0
-    ) -> ScenarioOutput:
+    def simulate(self, causes: list[dict[str, Any]], base_value: float = 0.0) -> ScenarioOutput:
         """Run Monte Carlo simulation from causal factors.
 
         Args:
@@ -163,7 +159,7 @@ class MonteCarloEngine:
             dist = DistributionParams.from_causal_factor(
                 contribution=cause.get("contribution", 0.1),
                 confidence=cause.get("confidence", 0.5),
-                direction=cause.get("direction", "positive")
+                direction=cause.get("direction", "positive"),
             )
             distributions.append(dist)
             lags.append(cause.get("lag_months", 0))
@@ -174,14 +170,10 @@ class MonteCarloEngine:
 
         # Generate correlated samples
         correlation_matrix = self._build_correlation_matrix(causes)
-        factor_samples = generate_correlated_samples(
-            n_sim, distributions, correlation_matrix
-        )
+        factor_samples = generate_correlated_samples(n_sim, distributions, correlation_matrix)
 
         # Project time series with lag effects
-        paths = self._project_time_series(
-            factor_samples, lags, horizon, base_value
-        )
+        paths = self._project_time_series(factor_samples, lags, horizon, base_value)
 
         # Compute statistics on final values
         final_values = paths[:, -1]
@@ -206,13 +198,10 @@ class MonteCarloEngine:
             pessimistic=pessimistic,
             n_simulations=n_sim,
             method="monte_carlo",
-            confidence=confidence
+            confidence=confidence,
         )
 
-    def _build_correlation_matrix(
-        self,
-        causes: list[dict[str, Any]]
-    ) -> np.ndarray | None:
+    def _build_correlation_matrix(self, causes: list[dict[str, Any]]) -> np.ndarray | None:
         """Build correlation matrix from causal factors.
 
         Uses simple heuristic: factors from same source are correlated.
@@ -239,11 +228,7 @@ class MonteCarloEngine:
         return corr
 
     def _project_time_series(
-        self,
-        factor_samples: np.ndarray,
-        lags: list[int],
-        horizon: int,
-        base_value: float
+        self, factor_samples: np.ndarray, lags: list[int], horizon: int, base_value: float
     ) -> np.ndarray:
         """Project factor effects over time with lag ramp-up.
 
@@ -303,10 +288,7 @@ class MonteCarloEngine:
         skewness = float(np.mean(((values - mean) / std) ** 3)) if std > 0 else 0.0
 
         # Percentiles
-        percentiles = {
-            p: float(np.percentile(values, p))
-            for p in self.config.percentiles
-        }
+        percentiles = {p: float(np.percentile(values, p)) for p in self.config.percentiles}
 
         # Histogram (30 bins for visualization)
         counts, bins = np.histogram(values, bins=30)
@@ -319,13 +301,10 @@ class MonteCarloEngine:
             skewness=skewness,
             percentiles=percentiles,
             histogram_bins=histogram_bins,
-            histogram_counts=histogram_counts
+            histogram_counts=histogram_counts,
         )
 
-    def _build_time_series_projection(
-        self,
-        paths: np.ndarray
-    ) -> TimeSeriesProjection:
+    def _build_time_series_projection(self, paths: np.ndarray) -> TimeSeriesProjection:
         """Build time series projection from simulation paths."""
         horizon = paths.shape[1]
 
@@ -337,14 +316,11 @@ class MonteCarloEngine:
             months=list(range(1, horizon + 1)),
             mean_path=mean_path,
             lower_bound=lower_bound,
-            upper_bound=upper_bound
+            upper_bound=upper_bound,
         )
 
     def _build_scenario(
-        self,
-        percentile: int,
-        stats: DistributionStats,
-        causes: list[dict[str, Any]]
+        self, percentile: int, stats: DistributionStats, causes: list[dict[str, Any]]
     ) -> dict[str, Any]:
         """Build scenario dict for backward compatibility."""
         value = stats.percentiles.get(percentile, stats.mean)
@@ -365,7 +341,7 @@ class MonteCarloEngine:
             "probability": probability,
             "percentile": percentile,
             "key_assumptions": assumptions,
-            "contributing_factors": [c.get("factor", "unknown") for c in causes]
+            "contributing_factors": [c.get("factor", "unknown") for c in causes],
         }
 
     def _compute_confidence(self, stats: DistributionStats) -> float:
@@ -401,14 +377,14 @@ class MonteCarloEngine:
             skewness=0.0,
             percentiles=dict.fromkeys(self.config.percentiles, base_value),
             histogram_bins=[base_value],
-            histogram_counts=[self.config.n_simulations]
+            histogram_counts=[self.config.n_simulations],
         )
 
         ts = TimeSeriesProjection(
             months=list(range(1, self.config.horizon_months + 1)),
             mean_path=[base_value] * self.config.horizon_months,
             lower_bound=[base_value] * self.config.horizon_months,
-            upper_bound=[base_value] * self.config.horizon_months
+            upper_bound=[base_value] * self.config.horizon_months,
         )
 
         scenario_base = {
@@ -416,7 +392,7 @@ class MonteCarloEngine:
             "probability": 1.0,
             "percentile": 50,
             "key_assumptions": ["No causal factors identified"],
-            "contributing_factors": []
+            "contributing_factors": [],
         }
 
         return ScenarioOutput(
@@ -427,5 +403,5 @@ class MonteCarloEngine:
             pessimistic=scenario_base,
             n_simulations=0,
             method="baseline",
-            confidence=0.3
+            confidence=0.3,
         )

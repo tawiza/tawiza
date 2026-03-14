@@ -51,9 +51,19 @@ def build_signal_text(row: asyncpg.Record) -> str:
     elif row.get("raw_data"):
         # Extract key fields from raw_data JSON
         import json
+
         try:
-            raw = json.loads(row["raw_data"]) if isinstance(row["raw_data"], str) else row["raw_data"]
-            for key in ["denomination", "nom_raison_sociale", "intitule", "titre", "description", "libelle"]:
+            raw = (
+                json.loads(row["raw_data"]) if isinstance(row["raw_data"], str) else row["raw_data"]
+            )
+            for key in [
+                "denomination",
+                "nom_raison_sociale",
+                "intitule",
+                "titre",
+                "description",
+                "libelle",
+            ]:
                 if key in raw and raw[key]:
                     parts.append(f"{key}: {str(raw[key])[:200]}")
                     break
@@ -108,7 +118,8 @@ async def run_embedding(limit: int = 50000):
         async with httpx.AsyncClient() as client:
             while processed < limit:
                 # Get unembedded signals
-                rows = await conn.fetch("""
+                rows = await conn.fetch(
+                    """
                     SELECT s.id, s.source, s.code_dept, s.metric_name, s.metric_value,
                            s.signal_type, s.event_date, s.extracted_text, s.raw_data
                     FROM signals s
@@ -116,7 +127,9 @@ async def run_embedding(limit: int = 50000):
                     WHERE se.id IS NULL
                     ORDER BY s.id
                     LIMIT $1
-                """, BATCH_SIZE)
+                """,
+                    BATCH_SIZE,
+                )
 
                 if not rows:
                     break
@@ -141,11 +154,16 @@ async def run_embedding(limit: int = 50000):
                 for sid, text, emb in zip(signal_ids, texts, embeddings):
                     if emb is not None:
                         try:
-                            await conn.execute("""
+                            await conn.execute(
+                                """
                                 INSERT INTO signal_embeddings (signal_id, embedding, text_content)
                                 VALUES ($1, $2, $3)
                                 ON CONFLICT (signal_id) DO NOTHING
-                            """, sid, str(emb), text)
+                            """,
+                                sid,
+                                str(emb),
+                                text,
+                            )
                             inserted += 1
                         except Exception as e:
                             logger.warning(f"Insert error for signal {sid}: {e}")
@@ -174,7 +192,8 @@ async def search_similar(query: str, limit: int = 10) -> list[dict]:
 
     conn = await asyncpg.connect(DB_URL)
     try:
-        rows = await conn.fetch("""
+        rows = await conn.fetch(
+            """
             SELECT se.signal_id, se.text_content,
                    1 - (se.embedding <=> $1::vector) as similarity,
                    s.source, s.code_dept, s.event_date, s.metric_name, s.metric_value
@@ -182,7 +201,10 @@ async def search_similar(query: str, limit: int = 10) -> list[dict]:
             JOIN signals s ON s.id = se.signal_id
             ORDER BY se.embedding <=> $1::vector
             LIMIT $2
-        """, str(query_emb), limit)
+        """,
+            str(query_emb),
+            limit,
+        )
 
         return [dict(r) for r in rows]
     finally:
@@ -191,6 +213,7 @@ async def search_similar(query: str, limit: int = 10) -> list[dict]:
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=50000)
     parser.add_argument("--search", type=str, default=None)
@@ -199,7 +222,9 @@ if __name__ == "__main__":
     if args.search:
         results = asyncio.run(search_similar(args.search))
         for r in results:
-            print(f"[{r['similarity']:.3f}] {r['source']} dept={r['code_dept']} "
-                  f"{r['event_date']} | {r['text_content'][:100]}")
+            print(
+                f"[{r['similarity']:.3f}] {r['source']} dept={r['code_dept']} "
+                f"{r['event_date']} | {r['text_content'][:100]}"
+            )
     else:
         asyncio.run(run_embedding(limit=args.limit))

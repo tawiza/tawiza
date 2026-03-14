@@ -64,9 +64,7 @@ class AutomationSession(ABC):
             True if headless mode should be used, False otherwise
         """
         if not requested_headless and not os.environ.get("DISPLAY"):
-            console.print(
-                "[yellow]⚠️  No display detected. Forcing headless mode.[/yellow]"
-            )
+            console.print("[yellow]⚠️  No display detected. Forcing headless mode.[/yellow]")
             return True
         return requested_headless
 
@@ -93,9 +91,7 @@ class AutomationSession(ABC):
         console.print("[green]✅ Ollama ready[/green]\n")
 
         # Initialize agent
-        self.agent = OpenManusAdapter(
-            headless=self.headless, llm_client=self.ollama
-        )
+        self.agent = OpenManusAdapter(headless=self.headless, llm_client=self.ollama)
 
         # Navigate to starting URL if provided
         if self.url:

@@ -8,6 +8,7 @@ Gère la configuration système avec:
 - Application des configurations
 - Rollback en cas d'erreur
 """
+
 from __future__ import annotations
 
 import json
@@ -38,6 +39,7 @@ DEFAULT_CACHE_TTL = 300  # 5 minutes
 # EXCEPTIONS
 # ==============================================================================
 
+
 class ConfigValidationError(Exception):
     """Erreur de validation de configuration"""
 
@@ -50,6 +52,7 @@ class ConfigValidationError(Exception):
 
 class ConfigPersistenceError(Exception):
     """Erreur de persistance de configuration"""
+
     pass
 
 
@@ -57,9 +60,11 @@ class ConfigPersistenceError(Exception):
 # MODÈLES DE CONFIGURATION
 # ==============================================================================
 
+
 @dataclass
 class GPUConfig:
     """Configuration GPU"""
+
     enabled: bool = True
     device_id: int = 0
     memory_limit: float | None = None  # Pourcentage (0-100)
@@ -81,6 +86,7 @@ class GPUConfig:
 @dataclass
 class MonitoringConfig:
     """Configuration du monitoring"""
+
     enabled: bool = True
     interval: float = 1.0  # secondes
     metrics: list[str] = field(default_factory=lambda: ["cpu", "memory", "gpu"])
@@ -104,6 +110,7 @@ class MonitoringConfig:
 @dataclass
 class AgentConfig:
     """Configuration d'un agent"""
+
     name: str
     enabled: bool = True
     priority: int = 5  # 1-10
@@ -133,6 +140,7 @@ class AgentConfig:
 @dataclass
 class SystemConfig:
     """Configuration système complète"""
+
     # Général
     log_level: str = DEFAULT_LOG_LEVEL
     max_concurrent_tasks: int = DEFAULT_MAX_TASKS
@@ -145,11 +153,9 @@ class SystemConfig:
     monitoring: MonitoringConfig = field(default_factory=MonitoringConfig)
 
     # Agents activés
-    enabled_agents: list[str] = field(default_factory=lambda: [
-        "data_analyst",
-        "ml_engineer",
-        "code_generator"
-    ])
+    enabled_agents: list[str] = field(
+        default_factory=lambda: ["data_analyst", "ml_engineer", "code_generator"]
+    )
 
     # Modèle LLM par défaut
     default_model: str = "qwen3.5:27b"
@@ -216,13 +222,14 @@ class SystemConfig:
             return result
 
         merged = deep_merge(current, other)
-        merged['updated_at'] = datetime.now().isoformat()
+        merged["updated_at"] = datetime.now().isoformat()
         return SystemConfig.from_dict(merged)
 
 
 # ==============================================================================
 # SERVICE DE CONFIGURATION
 # ==============================================================================
+
 
 class ConfigService:
     """Service de gestion de configuration"""
@@ -263,7 +270,7 @@ class ConfigService:
         self,
         config: SystemConfig | None = None,
         config_file: Path | None = None,
-        create_backup: bool = True
+        create_backup: bool = True,
     ) -> None:
         """Sauvegarder la configuration"""
         config = config or self._current_config
@@ -280,7 +287,7 @@ class ConfigService:
             # Mettre à jour le timestamp
             config.updated_at = datetime.now().isoformat()
 
-            with open(config_file, 'w') as f:
+            with open(config_file, "w") as f:
                 json.dump(config.to_dict(), f, indent=2)
 
             logger.info(f"Configuration sauvegardée dans {config_file}")
@@ -315,10 +322,7 @@ class ConfigService:
         # Valider d'abord
         errors = self.validate_config(config)
         if errors:
-            raise ConfigValidationError(
-                "Configuration invalide",
-                details={"errors": errors}
-            )
+            raise ConfigValidationError("Configuration invalide", details={"errors": errors})
 
         try:
             # Sauvegarder l'ancienne config pour rollback potentiel
@@ -359,17 +363,14 @@ class ConfigService:
         # (GPU, monitoring, agents, etc.)
 
     def get_quick_start_config(
-        self,
-        gpu: bool = True,
-        monitoring: bool = True,
-        autoscale: bool = True
+        self, gpu: bool = True, monitoring: bool = True, autoscale: bool = True
     ) -> SystemConfig:
         """Créer une configuration quick start"""
         return SystemConfig(
             gpu=GPUConfig(enabled=gpu),
             monitoring=MonitoringConfig(enabled=monitoring),
             max_concurrent_tasks=10 if autoscale else 5,
-            log_level="INFO"
+            log_level="INFO",
         )
 
     def update_config(self, updates: dict[str, Any]) -> SystemConfig:
@@ -380,10 +381,7 @@ class ConfigService:
         # Valider
         errors = self.validate_config(new_config)
         if errors:
-            raise ConfigValidationError(
-                "Mise à jour invalide",
-                details={"errors": errors}
-            )
+            raise ConfigValidationError("Mise à jour invalide", details={"errors": errors})
 
         self._current_config = new_config
         return new_config
@@ -398,12 +396,14 @@ class ConfigService:
         backups = []
         for backup_file in sorted(self._backup_dir.glob("*.json"), reverse=True):
             stat = backup_file.stat()
-            backups.append({
-                "name": backup_file.name,
-                "path": str(backup_file),
-                "size": stat.st_size,
-                "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
-            })
+            backups.append(
+                {
+                    "name": backup_file.name,
+                    "path": str(backup_file),
+                    "size": stat.st_size,
+                    "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                }
+            )
         return backups
 
     def restore_backup(self, backup_name: str) -> SystemConfig:
@@ -418,10 +418,7 @@ class ConfigService:
         errors = self.validate_config(config)
 
         if errors:
-            raise ConfigValidationError(
-                "Backup invalide",
-                details={"errors": errors}
-            )
+            raise ConfigValidationError("Backup invalide", details={"errors": errors})
 
         # Sauvegarder la config actuelle puis restaurer
         self.save_config()  # Backup la config actuelle

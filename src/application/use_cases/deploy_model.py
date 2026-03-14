@@ -47,8 +47,7 @@ class DeployModelUseCase:
             ValueError: If model doesn't exist or isn't ready for deployment
         """
         logger.info(
-            f"Starting deployment for model {request.model_id} "
-            f"with strategy {request.strategy}"
+            f"Starting deployment for model {request.model_id} with strategy {request.strategy}"
         )
 
         # 1. Get the model
@@ -66,10 +65,7 @@ class DeployModelUseCase:
         if not model.model_path:
             raise ValueError(f"Model {model.name} has no model path set")
 
-        logger.info(
-            f"Deploying model {model.name} v{model.version} "
-            f"from path: {model.model_path}"
-        )
+        logger.info(f"Deploying model {model.name} v{model.version} from path: {model.model_path}")
 
         # 3. Map strategy string to enum
         try:
@@ -128,9 +124,7 @@ class DeployModelUseCase:
 
             # 7. If auto-promote and canary, schedule traffic increase
             if request.auto_promote and strategy_enum == DeploymentStrategy.CANARY:
-                logger.info(
-                    "Auto-promote enabled. Traffic will be increased gradually."
-                )
+                logger.info("Auto-promote enabled. Traffic will be increased gradually.")
                 # TODO: Schedule traffic increase (could be done with Prefect workflow)
 
         except Exception as e:

@@ -18,6 +18,7 @@ from src.infrastructure.crawler.events import CrawlerCallback, CrawlerEvent
 # Import alert service
 try:
     from src.application.services.alert_service import AlertType, get_alert_service
+
     ALERTS_ENABLED = True
 except ImportError:
     ALERTS_ENABLED = False
@@ -202,9 +203,7 @@ class CrawlerScheduler:
         self._scheduler.start()
         self._is_running = True
 
-        logger.info(
-            f"CrawlerScheduler started with {len(FRENCH_DATA_SOURCES)} sources"
-        )
+        logger.info(f"CrawlerScheduler started with {len(FRENCH_DATA_SOURCES)} sources")
 
     async def stop(self) -> None:
         """Arrêter le crawler scheduler."""
@@ -220,26 +219,24 @@ class CrawlerScheduler:
     def _handle_crawler_event(self, callback: CrawlerCallback) -> None:
         """Handler pour les events du crawler."""
         if callback.event == CrawlerEvent.SOURCE_CHANGED:
-            logger.info(
-                f"Source {callback.source_id} changed - new data available"
-            )
+            logger.info(f"Source {callback.source_id} changed - new data available")
             # Stocker pour TAJINE
-            self._crawl_results.append({
-                "source_id": callback.source_id,
-                "url": callback.url,
-                "data": callback.data,
-                "quality_score": callback.quality_score,
-                "timestamp": datetime.now().isoformat(),
-            })
+            self._crawl_results.append(
+                {
+                    "source_id": callback.source_id,
+                    "url": callback.url,
+                    "data": callback.data,
+                    "quality_score": callback.quality_score,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
             # Déclencher les alertes
             if ALERTS_ENABLED and callback.data:
                 self._process_alerts(callback.source_id, callback.data)
 
         elif callback.event == CrawlerEvent.SOURCE_ERROR:
-            logger.warning(
-                f"Source {callback.source_id} error: {callback.error}"
-            )
+            logger.warning(f"Source {callback.source_id} error: {callback.error}")
 
     def _process_alerts(self, source_id: str, data: Any) -> None:
         """Traiter les données pour les alertes."""
@@ -285,9 +282,7 @@ class CrawlerScheduler:
         logger.info("Starting high priority crawl")
 
         high_priority_ids = [
-            s["source_id"]
-            for s in FRENCH_DATA_SOURCES
-            if s.get("priority") == "high"
+            s["source_id"] for s in FRENCH_DATA_SOURCES if s.get("priority") == "high"
         ]
 
         for source_id in high_priority_ids:

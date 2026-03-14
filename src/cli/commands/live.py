@@ -56,15 +56,9 @@ class LiveAutomationSession:
         self.ollama = OllamaClient(model=model, vision_model=vision_model)
 
         if agent_type == "skyvern":
-            self.agent = SkyvernAdapter(
-                headless=self.headless,
-                llm_client=self.ollama
-            )
+            self.agent = SkyvernAdapter(headless=self.headless, llm_client=self.ollama)
         else:
-            self.agent = OpenManusAdapter(
-                headless=self.headless,
-                llm_client=self.ollama
-            )
+            self.agent = OpenManusAdapter(headless=self.headless, llm_client=self.ollama)
 
         # Session state
         self.actions_taken = []
@@ -106,9 +100,7 @@ class LiveAutomationSession:
         header_text.append("🔴 LIVE ", style="bold red")
         header_text.append(f"Browser Automation with {self.agent_type.upper()} ", style="bold cyan")
         header_text.append("(=^･ω･^=)🌐", style="bold magenta")  # Browser mascot inline
-        layout["header"].update(
-            Panel(header_text, border_style="red")
-        )
+        layout["header"].update(Panel(header_text, border_style="red"))
 
         with Live(layout, console=console, refresh_per_second=4):
             try:
@@ -123,7 +115,10 @@ class LiveAutomationSession:
                 if not healthy:
                     mascot_err = live_mascot_status("error")
                     layout["footer"].update(
-                        Panel(f"{mascot_err} Ollama not available! Start with: ollama serve", border_style="red")
+                        Panel(
+                            f"{mascot_err} Ollama not available! Start with: ollama serve",
+                            border_style="red",
+                        )
                     )
                     return
 
@@ -139,7 +134,10 @@ class LiveAutomationSession:
                 # Complete with happy mascot
                 mascot_done = live_mascot_status("success")
                 layout["footer"].update(
-                    Panel(f"{mascot_done} Task completed! Actions taken: {len(self.actions_taken)}", border_style="green")
+                    Panel(
+                        f"{mascot_done} Task completed! Actions taken: {len(self.actions_taken)}",
+                        border_style="green",
+                    )
                 )
 
                 await asyncio.sleep(2)  # Let user see final state
@@ -151,17 +149,10 @@ class LiveAutomationSession:
                 )
             except Exception as e:
                 mascot_err = live_mascot_status("error")
-                layout["footer"].update(
-                    Panel(f"{mascot_err} Error: {str(e)}", border_style="red")
-                )
+                layout["footer"].update(Panel(f"{mascot_err} Error: {str(e)}", border_style="red"))
                 raise
 
-    async def _execute_with_live_updates(
-        self,
-        task: str,
-        starting_url: str | None,
-        layout: Layout
-    ):
+    async def _execute_with_live_updates(self, task: str, starting_url: str | None, layout: Layout):
         """Execute task with live UI updates."""
         max_actions = 10
         action_count = 0
@@ -173,10 +164,7 @@ class LiveAutomationSession:
                 Panel(f"{mascot_nav} Navigating to {starting_url}...", title="Current Action")
             )
 
-            await self.agent.execute_task({
-                "url": starting_url,
-                "action": "navigate"
-            })
+            await self.agent.execute_task({"url": starting_url, "action": "navigate"})
 
             self.current_url = starting_url
             action_count += 1
@@ -190,7 +178,11 @@ class LiveAutomationSession:
             # Show AI thinking with mascot
             mascot_thinking = live_mascot_status("thinking")
             layout["right"].update(
-                Panel(f"{mascot_thinking} Analyzing page with AI...", title="LLM Guidance", border_style="cyan")
+                Panel(
+                    f"{mascot_thinking} Analyzing page with AI...",
+                    title="LLM Guidance",
+                    border_style="cyan",
+                )
             )
 
             try:
@@ -240,7 +232,11 @@ class LiveAutomationSession:
 
                     # Execute the action with mascot
                     layout["left"].update(
-                        Panel(f"{mascot_action} Executing: {action_to_take['description']}", title="Current Action", border_style="yellow")
+                        Panel(
+                            f"{mascot_action} Executing: {action_to_take['description']}",
+                            title="Current Action",
+                            border_style="yellow",
+                        )
                     )
 
                     await self.agent.execute_task(action_to_take)
@@ -268,9 +264,7 @@ class LiveAutomationSession:
             except Exception as e:
                 logger.error(f"Error in automation loop: {e}")
                 mascot_err = live_mascot_status("error")
-                layout["footer"].update(
-                    Panel(f"{mascot_err} Error: {str(e)}", border_style="red")
-                )
+                layout["footer"].update(Panel(f"{mascot_err} Error: {str(e)}", border_style="red"))
                 break
 
         # Update final actions list
@@ -290,9 +284,7 @@ class LiveAutomationSession:
         progress_table.add_row("Agent", self.agent_type.upper())
         progress_table.add_row("Model", self.model)
 
-        layout["left"].update(
-            Panel(progress_table, title="📊 Status", border_style="green")
-        )
+        layout["left"].update(Panel(progress_table, title="📊 Status", border_style="green"))
 
     def _update_actions_table(self, layout: Layout):
         """Update actions history table."""
@@ -303,9 +295,7 @@ class LiveAutomationSession:
         for i, action in enumerate(self.actions_taken, 1):
             table.add_row(str(i), action)
 
-        layout["left"].update(
-            Panel(table, border_style="green")
-        )
+        layout["left"].update(Panel(table, border_style="green"))
 
     async def _get_page_info(self) -> dict[str, Any]:
         """Get current page information from agent."""
@@ -318,24 +308,20 @@ class LiveAutomationSession:
             return {
                 "url": self.current_url or "unknown",
                 "title": "Unknown",
-                "content": "Page content not available"
+                "content": "Page content not available",
             }
         except Exception as e:
             logger.error(f"Error getting page info: {e}")
-            return {
-                "url": self.current_url or "unknown",
-                "title": "Error",
-                "content": str(e)
-            }
+            return {"url": self.current_url or "unknown", "title": "Error", "content": str(e)}
 
     def _build_ai_prompt(self, task: str, page_info: dict[str, Any], action_count: int) -> str:
         """Build prompt for AI to determine next action."""
         prompt = f"""You are an intelligent web automation agent. Your task is to: {task}
 
 Current page information:
-- URL: {page_info.get('url', 'unknown')}
-- Title: {page_info.get('title', 'unknown')}
-- Content preview: {page_info.get('content', 'No content')[:500]}...
+- URL: {page_info.get("url", "unknown")}
+- Title: {page_info.get("title", "unknown")}
+- Content preview: {page_info.get("content", "No content")[:500]}...
 
 Actions taken so far ({action_count}):
 {chr(10).join(f"- {action}" for action in self.actions_taken[-3:])}
@@ -358,10 +344,10 @@ REASON: [why the task is complete]
         """Parse AI response to extract action."""
         try:
             # Simple parsing - look for ACTION, ELEMENT, VALUE
-            action_match = re.search(r'ACTION:\s*(.+)', response)
-            element_match = re.search(r'ELEMENT:\s*(.+)', response)
-            value_match = re.search(r'VALUE:\s*(.+)', response)
-            reason_match = re.search(r'REASON:\s*(.+)', response)
+            action_match = re.search(r"ACTION:\s*(.+)", response)
+            element_match = re.search(r"ELEMENT:\s*(.+)", response)
+            value_match = re.search(r"VALUE:\s*(.+)", response)
+            reason_match = re.search(r"REASON:\s*(.+)", response)
 
             if action_match:
                 action = action_match.group(1).strip()
@@ -397,7 +383,9 @@ def openmanus(
     task: str = typer.Argument(..., help="Task to accomplish"),
     url: str | None = typer.Option(None, help="Starting URL"),
     model: str = typer.Option("qwen3-coder:30b", help="Ollama model"),
-    headless: bool = typer.Option(True, "--headless/--headed", help="Run browser in headless mode (no GUI)"),
+    headless: bool = typer.Option(
+        True, "--headless/--headed", help="Run browser in headless mode (no GUI)"
+    ),
     vnc: bool = typer.Option(False, "--vnc", help="Start VNC server for remote browser viewing"),
 ):
     """
@@ -421,40 +409,46 @@ def openmanus(
     """
     # Welcome mascot for browser automation
     show_agent_mascot("browser", "Démarrage session OpenManus...", console)
-    console.print(get_sunset_banner("\n[bold cyan]🔴 Starting LIVE OpenManus session...[/bold cyan]\n"))
+    console.print(
+        get_sunset_banner("\n[bold cyan]🔴 Starting LIVE OpenManus session...[/bold cyan]\n")
+    )
 
     import os
 
     # VNC mode for remote browser viewing
     if vnc:
-        console.print(Panel(
-            "[cyan]🖥️ Mode VNC activé pour voir le navigateur à distance[/cyan]\n\n"
-            "[yellow]Configuration:[/yellow]\n"
-            "  1. Installer: [green]apt install x11vnc xvfb[/green]\n"
-            "  2. Démarrer Xvfb: [green]Xvfb :99 -screen 0 1920x1080x24 &[/green]\n"
-            "  3. Démarrer VNC: [green]x11vnc -display :99 -forever -nopw &[/green]\n"
-            "  4. Connecter: [green]vnc://localhost:5900[/green]\n\n"
-            "[dim]Le navigateur sera visible via le client VNC[/dim]",
-            title="📺 VNC Remote Display",
-            border_style="cyan"
-        ))
+        console.print(
+            Panel(
+                "[cyan]🖥️ Mode VNC activé pour voir le navigateur à distance[/cyan]\n\n"
+                "[yellow]Configuration:[/yellow]\n"
+                "  1. Installer: [green]apt install x11vnc xvfb[/green]\n"
+                "  2. Démarrer Xvfb: [green]Xvfb :99 -screen 0 1920x1080x24 &[/green]\n"
+                "  3. Démarrer VNC: [green]x11vnc -display :99 -forever -nopw &[/green]\n"
+                "  4. Connecter: [green]vnc://localhost:5900[/green]\n\n"
+                "[dim]Le navigateur sera visible via le client VNC[/dim]",
+                title="📺 VNC Remote Display",
+                border_style="cyan",
+            )
+        )
         # Set display for VNC
-        if not os.environ.get('DISPLAY'):
-            os.environ['DISPLAY'] = ':99'
+        if not os.environ.get("DISPLAY"):
+            os.environ["DISPLAY"] = ":99"
         headless = False
 
     # Auto-detect if running on server without display
-    if not headless and not os.environ.get('DISPLAY'):
-        console.print(Panel(
-            "[yellow]⚠️ Pas d'affichage détecté (DISPLAY non défini)[/yellow]\n\n"
-            "[cyan]Options pour voir le navigateur:[/cyan]\n"
-            "  • [green]--vnc[/green] : Démarrer un serveur VNC\n"
-            "  • [green]ssh -X user@server[/green] : X11 forwarding\n"
-            "  • [green]export DISPLAY=:0[/green] : Si X est disponible\n\n"
-            "[dim]Mode headless activé par défaut[/dim]",
-            title="🖥️ Mode Headless",
-            border_style="yellow"
-        ))
+    if not headless and not os.environ.get("DISPLAY"):
+        console.print(
+            Panel(
+                "[yellow]⚠️ Pas d'affichage détecté (DISPLAY non défini)[/yellow]\n\n"
+                "[cyan]Options pour voir le navigateur:[/cyan]\n"
+                "  • [green]--vnc[/green] : Démarrer un serveur VNC\n"
+                "  • [green]ssh -X user@server[/green] : X11 forwarding\n"
+                "  • [green]export DISPLAY=:0[/green] : Si X est disponible\n\n"
+                "[dim]Mode headless activé par défaut[/dim]",
+                title="🖥️ Mode Headless",
+                border_style="yellow",
+            )
+        )
         headless = True
 
     session = LiveAutomationSession(
@@ -480,7 +474,9 @@ def skyvern(
     url: str | None = typer.Option(None, help="Starting URL"),
     model: str = typer.Option("qwen3-coder:30b", help="Ollama model"),
     vision: bool = typer.Option(True, help="Use vision model"),
-    headless: bool = typer.Option(True, "--headless/--headed", help="Run browser in headless mode (no GUI)"),
+    headless: bool = typer.Option(
+        True, "--headless/--headed", help="Run browser in headless mode (no GUI)"
+    ),
     vnc: bool = typer.Option(False, "--vnc", help="Start VNC server for remote browser viewing"),
 ):
     """
@@ -502,31 +498,39 @@ def skyvern(
     """
     # Welcome mascot for browser/scraper automation
     show_agent_mascot("scraper", "Démarrage session Skyvern (Vision-AI)...", console)
-    console.print(get_sunset_banner("\n[bold magenta]🔴 Starting LIVE Skyvern session (Vision-powered)...[/bold magenta]\n"))
+    console.print(
+        get_sunset_banner(
+            "\n[bold magenta]🔴 Starting LIVE Skyvern session (Vision-powered)...[/bold magenta]\n"
+        )
+    )
 
     import os
 
     # VNC mode for remote browser viewing
     if vnc:
-        console.print(Panel(
-            "[cyan]🖥️ Mode VNC activé pour voir le navigateur à distance[/cyan]\n\n"
-            "[yellow]Connectez-vous via VNC pour voir le navigateur[/yellow]\n"
-            "[dim]Adresse: vnc://localhost:5900 (ou votre IP)[/dim]",
-            title="📺 VNC Remote Display",
-            border_style="cyan"
-        ))
-        if not os.environ.get('DISPLAY'):
-            os.environ['DISPLAY'] = ':99'
+        console.print(
+            Panel(
+                "[cyan]🖥️ Mode VNC activé pour voir le navigateur à distance[/cyan]\n\n"
+                "[yellow]Connectez-vous via VNC pour voir le navigateur[/yellow]\n"
+                "[dim]Adresse: vnc://localhost:5900 (ou votre IP)[/dim]",
+                title="📺 VNC Remote Display",
+                border_style="cyan",
+            )
+        )
+        if not os.environ.get("DISPLAY"):
+            os.environ["DISPLAY"] = ":99"
         headless = False
 
     # Auto-detect if running on server without display
-    if not headless and not os.environ.get('DISPLAY'):
-        console.print(Panel(
-            "[yellow]⚠️ Pas d'affichage détecté[/yellow]\n\n"
-            "[cyan]Utilisez --vnc pour activer le mode VNC[/cyan]",
-            title="🖥️ Mode Headless",
-            border_style="yellow"
-        ))
+    if not headless and not os.environ.get("DISPLAY"):
+        console.print(
+            Panel(
+                "[yellow]⚠️ Pas d'affichage détecté[/yellow]\n\n"
+                "[cyan]Utilisez --vnc pour activer le mode VNC[/cyan]",
+                title="🖥️ Mode Headless",
+                border_style="yellow",
+            )
+        )
         headless = True
 
     session = LiveAutomationSession(
@@ -558,6 +562,7 @@ def stream_test(
     Example:
         tawiza live stream-test "Explain Playwright vs Selenium"
     """
+
     async def run_stream():
         console.print(f"\n[cyan]🤖 Model: {model}[/cyan]")
         console.print(f"[dim]Prompt: {prompt}[/dim]\n")
@@ -610,10 +615,12 @@ def vnc_setup(
     import os
     import subprocess
 
-    console.print(Panel(
-        "[bold cyan]🖥️ Configuration VNC pour Tawiza Browser Automation[/bold cyan]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]🖥️ Configuration VNC pour Tawiza Browser Automation[/bold cyan]",
+            border_style="cyan",
+        )
+    )
 
     # Check if packages are installed
     packages_ok = True
@@ -626,12 +633,14 @@ def vnc_setup(
             console.print(f"[green]✅ {pkg} installé[/green]")
 
     if not packages_ok:
-        console.print(Panel(
-            "[yellow]Installation requise:[/yellow]\n\n"
-            "[green]apt update && apt install -y xvfb x11vnc[/green]",
-            title="📦 Packages manquants",
-            border_style="yellow"
-        ))
+        console.print(
+            Panel(
+                "[yellow]Installation requise:[/yellow]\n\n"
+                "[green]apt update && apt install -y xvfb x11vnc[/green]",
+                title="📦 Packages manquants",
+                border_style="yellow",
+            )
+        )
         if not start:
             return
 
@@ -648,6 +657,7 @@ def vnc_setup(
 
         # Wait for Xvfb
         import time
+
         time.sleep(1)
 
         # Start x11vnc
@@ -656,34 +666,38 @@ def vnc_setup(
         subprocess.run(vnc_cmd, shell=True)
 
         # Set DISPLAY
-        os.environ['DISPLAY'] = ':99'
+        os.environ["DISPLAY"] = ":99"
 
-        console.print(Panel(
-            f"[green]✅ Serveur VNC démarré![/green]\n\n"
-            f"[cyan]Connexion:[/cyan] vnc://localhost:{port}\n"
-            f"[cyan]Display:[/cyan] :99\n"
-            f"[cyan]Résolution:[/cyan] {resolution}\n\n"
-            "[yellow]Pour utiliser avec le navigateur:[/yellow]\n"
-            "  tawiza live openmanus 'task' --headed\n"
-            "  tawiza live skyvern 'task' --headed",
-            title="📺 VNC Actif",
-            border_style="green"
-        ))
+        console.print(
+            Panel(
+                f"[green]✅ Serveur VNC démarré![/green]\n\n"
+                f"[cyan]Connexion:[/cyan] vnc://localhost:{port}\n"
+                f"[cyan]Display:[/cyan] :99\n"
+                f"[cyan]Résolution:[/cyan] {resolution}\n\n"
+                "[yellow]Pour utiliser avec le navigateur:[/yellow]\n"
+                "  tawiza live openmanus 'task' --headed\n"
+                "  tawiza live skyvern 'task' --headed",
+                title="📺 VNC Actif",
+                border_style="green",
+            )
+        )
     else:
-        console.print(Panel(
-            f"[yellow]Instructions de démarrage manuel:[/yellow]\n\n"
-            f"[dim]# Démarrer le framebuffer virtuel[/dim]\n"
-            f"[green]Xvfb :99 -screen 0 {resolution} &[/green]\n\n"
-            f"[dim]# Démarrer le serveur VNC[/dim]\n"
-            f"[green]x11vnc -display :99 -forever -nopw -rfbport {port} &[/green]\n\n"
-            f"[dim]# Définir DISPLAY pour le navigateur[/dim]\n"
-            f"[green]export DISPLAY=:99[/green]\n\n"
-            f"[dim]# Lancer l'automatisation en mode headed[/dim]\n"
-            f"[green]tawiza live openmanus 'task' --headed[/green]\n\n"
-            f"[cyan]Ou utilisez: tawiza live vnc-setup --start[/cyan]",
-            title="📖 Setup Manuel",
-            border_style="cyan"
-        ))
+        console.print(
+            Panel(
+                f"[yellow]Instructions de démarrage manuel:[/yellow]\n\n"
+                f"[dim]# Démarrer le framebuffer virtuel[/dim]\n"
+                f"[green]Xvfb :99 -screen 0 {resolution} &[/green]\n\n"
+                f"[dim]# Démarrer le serveur VNC[/dim]\n"
+                f"[green]x11vnc -display :99 -forever -nopw -rfbport {port} &[/green]\n\n"
+                f"[dim]# Définir DISPLAY pour le navigateur[/dim]\n"
+                f"[green]export DISPLAY=:99[/green]\n\n"
+                f"[dim]# Lancer l'automatisation en mode headed[/dim]\n"
+                f"[green]tawiza live openmanus 'task' --headed[/green]\n\n"
+                f"[cyan]Ou utilisez: tawiza live vnc-setup --start[/cyan]",
+                title="📖 Setup Manuel",
+                border_style="cyan",
+            )
+        )
 
 
 @app.command()
@@ -702,10 +716,9 @@ def gpu_check():
     # Utiliser le theme unifie
     from src.cli.ui.theme import DARK_THEME, get_sunset_banner
 
-    console.print(get_sunset_banner(
-        "Tawiza-V2 GPU Status Check",
-        "Comprehensive GPU and Ollama Analysis"
-    ))
+    console.print(
+        get_sunset_banner("Tawiza-V2 GPU Status Check", "Comprehensive GPU and Ollama Analysis")
+    )
 
     # Utiliser les couleurs du theme dark
     SUNSET_YELLOW = DARK_THEME.warning_color
@@ -741,10 +754,13 @@ def gpu_check():
     # Check environment
     console.print(get_animated_status("loading", "🔍 Variables d'environnement..."))
     import os
+
     rocm_vars = ["ROCM_PATH", "HIP_PLATFORM", "HSA_OVERRIDE_GFX_VERSION"]
     for var in rocm_vars:
         value = os.environ.get(var, "Non définie")
-        console.print(f"  [{SUNSET_YELLOW}]{var}: [{SUNSET_ORANGE}]{value}[/{SUNSET_ORANGE}][/{SUNSET_YELLOW}]")
+        console.print(
+            f"  [{SUNSET_YELLOW}]{var}: [{SUNSET_ORANGE}]{value}[/{SUNSET_ORANGE}][/{SUNSET_YELLOW}]"
+        )
 
     console.print(get_animated_status("success", "✅ Vérification GPU terminée!"))
 

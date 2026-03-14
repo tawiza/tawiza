@@ -6,6 +6,7 @@ This module provides security functions to prevent common vulnerabilities:
 - Hardcoded secrets
 - Input validation
 """
+
 import os
 import re
 import secrets
@@ -29,6 +30,7 @@ from src.core.exceptions import (
 # ============================================================================
 # Secret Management
 # ============================================================================
+
 
 class SecretManager:
     """Secure secret key management.
@@ -60,8 +62,7 @@ class SecretManager:
                 )
             if len(key) < SECRET_KEY_MIN_LENGTH:
                 raise InsecureConfigurationError(
-                    f"{SECRET_KEY_ENV_VAR} must be at least "
-                    f"{SECRET_KEY_MIN_LENGTH} characters"
+                    f"{SECRET_KEY_ENV_VAR} must be at least {SECRET_KEY_MIN_LENGTH} characters"
                 )
 
         # In development, generate a secure random key if not set
@@ -117,6 +118,7 @@ class SecretManager:
 # Path Sanitization
 # ============================================================================
 
+
 def sanitize_path(user_input: str, base_dir: Path | str) -> Path:
     """Sanitize user-provided paths to prevent traversal attacks.
 
@@ -150,10 +152,8 @@ def sanitize_path(user_input: str, base_dir: Path | str) -> Path:
 
     # Remove any potentially dangerous characters
     # Allow: alphanumeric, underscore, hyphen, dot, forward slash
-    if not re.match(r'^[a-zA-Z0-9_\-./]+$', user_input):
-        raise PathTraversalError(
-            f"Path contains invalid characters: {user_input}"
-        )
+    if not re.match(r"^[a-zA-Z0-9_\-./]+$", user_input):
+        raise PathTraversalError(f"Path contains invalid characters: {user_input}")
 
     # Construct the full path
     requested_path = (base_dir / user_input).resolve()
@@ -198,11 +198,11 @@ def validate_filename(filename: str) -> str:
     filename = os.path.basename(filename)
 
     # Allow only safe characters: alphanumeric, underscore, hyphen, dot
-    if not re.match(r'^[a-zA-Z0-9_\-. ]+$', filename):
+    if not re.match(r"^[a-zA-Z0-9_\-. ]+$", filename):
         raise ValueError(f"Filename contains invalid characters: {filename}")
 
     # Prevent hidden files
-    if filename.startswith('.'):
+    if filename.startswith("."):
         raise ValueError(f"Hidden files not allowed: {filename}")
 
     # Prevent excessively long filenames
@@ -215,6 +215,7 @@ def validate_filename(filename: str) -> str:
 # ============================================================================
 # Command Injection Prevention
 # ============================================================================
+
 
 def sanitize_command_arg(arg: str, allow_special_chars: bool = False) -> str:
     """Sanitize command-line argument to prevent injection.
@@ -241,20 +242,16 @@ def sanitize_command_arg(arg: str, allow_special_chars: bool = False) -> str:
         return arg
 
     # Detect dangerous characters
-    dangerous_chars = [';', '|', '&', '$', '`', '\n', '\r', '>', '<']
+    dangerous_chars = [";", "|", "&", "$", "`", "\n", "\r", ">", "<"]
 
     if not allow_special_chars:
         for char in dangerous_chars:
             if char in arg:
-                raise CommandInjectionError(
-                    f"Dangerous character '{char}' detected in: {arg}"
-                )
+                raise CommandInjectionError(f"Dangerous character '{char}' detected in: {arg}")
 
     # Detect command substitution attempts
-    if '$(' in arg or '`' in arg:
-        raise CommandInjectionError(
-            f"Command substitution detected in: {arg}"
-        )
+    if "$(" in arg or "`" in arg:
+        raise CommandInjectionError(f"Command substitution detected in: {arg}")
 
     return arg
 
@@ -284,11 +281,9 @@ def validate_subprocess_command(command: list[str]) -> list[str]:
         raise ValueError("Command cannot be empty")
 
     # Disallow shell execution
-    shell_commands = ['sh', 'bash', 'zsh', 'fish', 'cmd', 'powershell']
+    shell_commands = ["sh", "bash", "zsh", "fish", "cmd", "powershell"]
     if command[0] in shell_commands:
-        raise CommandInjectionError(
-            f"Shell execution not allowed: {command[0]}"
-        )
+        raise CommandInjectionError(f"Shell execution not allowed: {command[0]}")
 
     # Validate each argument
     for arg in command:
@@ -300,6 +295,7 @@ def validate_subprocess_command(command: list[str]) -> list[str]:
 # ============================================================================
 # Input Validation
 # ============================================================================
+
 
 def validate_port(port: Any) -> int:
     """Validate port number.
@@ -378,7 +374,7 @@ def sanitize_log_message(message: str, max_length: int = 1000) -> str:
         return ""
 
     # Remove newlines to prevent log injection
-    message = message.replace('\n', ' ').replace('\r', ' ')
+    message = message.replace("\n", " ").replace("\r", " ")
 
     # Truncate if too long
     if len(message) > max_length:
@@ -391,6 +387,7 @@ def sanitize_log_message(message: str, max_length: int = 1000) -> str:
 # Security Headers
 # ============================================================================
 
+
 def get_security_headers() -> dict[str, str]:
     """Get recommended security headers for web responses.
 
@@ -402,11 +399,11 @@ def get_security_headers() -> dict[str, str]:
         >>> assert 'X-Content-Type-Options' in headers
     """
     return {
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'X-XSS-Protection': '1; mode=block',
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-        'Content-Security-Policy': "default-src 'self'",
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Content-Security-Policy": "default-src 'self'",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
     }

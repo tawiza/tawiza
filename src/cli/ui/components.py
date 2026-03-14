@@ -7,7 +7,6 @@ Provides reusable UI components:
 - Spinner: Loading animations
 """
 
-
 from rich.console import Console
 from rich.panel import Panel as RichPanel
 from rich.progress import (

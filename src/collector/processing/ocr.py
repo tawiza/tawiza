@@ -178,9 +178,7 @@ async def ocr_screenshot(
         return {"text": "", "success": False, "error": str(e), "source_url": url}
 
 
-async def _call_ollama_vision(
-    model: str, prompt: str, image_b64: str
-) -> dict[str, Any]:
+async def _call_ollama_vision(model: str, prompt: str, image_b64: str) -> dict[str, Any]:
     """Call Ollama vision API."""
     async with httpx.AsyncClient(timeout=120.0) as client:
         resp = await client.post(

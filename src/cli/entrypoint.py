@@ -14,7 +14,9 @@ def main():
 
     # Import and run the app
     from src.cli.main import app
+
     app()
+
 
 if __name__ == "__main__":
     main()

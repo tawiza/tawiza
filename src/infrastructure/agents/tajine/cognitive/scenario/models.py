@@ -21,18 +21,11 @@ class DistributionParams:
     # For uniform: low=mean-std, high=mean+std
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "type": self.type,
-            "mean": self.mean,
-            "std": self.std
-        }
+        return {"type": self.type, "mean": self.mean, "std": self.std}
 
     @classmethod
     def from_causal_factor(
-        cls,
-        contribution: float,
-        confidence: float,
-        direction: str = "positive"
+        cls, contribution: float, confidence: float, direction: str = "positive"
     ) -> "DistributionParams":
         """Create distribution from causal factor.
 
@@ -72,7 +65,7 @@ class SimulationConfig:
             "horizon_months": self.horizon_months,
             "random_seed": self.random_seed,
             "use_correlation": self.use_correlation,
-            "percentiles": self.percentiles
+            "percentiles": self.percentiles,
         }
 
 
@@ -94,7 +87,7 @@ class DistributionStats:
             "skewness": round(self.skewness, 4),
             "percentiles": {k: round(v, 4) for k, v in self.percentiles.items()},
             "histogram_bins": [round(b, 4) for b in self.histogram_bins],
-            "histogram_counts": self.histogram_counts
+            "histogram_counts": self.histogram_counts,
         }
 
 
@@ -112,7 +105,7 @@ class TimeSeriesProjection:
             "months": self.months,
             "mean_path": [round(v, 4) for v in self.mean_path],
             "lower_bound": [round(v, 4) for v in self.lower_bound],
-            "upper_bound": [round(v, 4) for v in self.upper_bound]
+            "upper_bound": [round(v, 4) for v in self.upper_bound],
         }
 
 
@@ -128,7 +121,7 @@ class ScenarioOutput:
 
     # Scenario summaries (compatible with existing format)
     optimistic: dict[str, Any]  # 90th percentile scenario
-    median: dict[str, Any]      # 50th percentile scenario
+    median: dict[str, Any]  # 50th percentile scenario
     pessimistic: dict[str, Any]  # 10th percentile scenario
 
     # Metadata
@@ -145,5 +138,5 @@ class ScenarioOutput:
             "time_series": self.time_series.to_dict(),
             "n_simulations": self.n_simulations,
             "method": self.method,
-            "confidence": self.confidence
+            "confidence": self.confidence,
         }

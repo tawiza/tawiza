@@ -193,8 +193,8 @@ class DashboardScreen(Container):
                 name="dashboard_metrics",
                 callback=self._refresh_data,
                 priority=RefreshPriority.HIGH,
-                active_interval=2.0,   # 2s when dashboard is active
-                idle_interval=5.0,     # 5s when idle
+                active_interval=2.0,  # 2s when dashboard is active
+                idle_interval=5.0,  # 5s when idle
                 background_interval=30.0,  # 30s when not visible
             )
             refresh_manager.start_timer("dashboard_metrics")
@@ -222,13 +222,15 @@ class DashboardScreen(Container):
         """Initialize with demo data."""
         # Demo services
         services = self.query_one("#services-widget", ServiceStatusWidget)
-        services.update_services({
-            "Ollama": "checking",
-            "Tawiza API": "checking",
-            "LLaMA-Factory": "checking",
-            "Browser": "ready",
-            "Label Studio": "checking",
-        })
+        services.update_services(
+            {
+                "Ollama": "checking",
+                "Tawiza API": "checking",
+                "LLaMA-Factory": "checking",
+                "Browser": "ready",
+                "Label Studio": "checking",
+            }
+        )
 
         # Demo activity
         activity = self.query_one("#activity-panel", ActivityLog)
@@ -279,7 +281,9 @@ class DashboardScreen(Container):
         # Check Ollama (VM 300)
         try:
             async with httpx.AsyncClient(timeout=2.0) as client:
-                response = await client.get(f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/tags")
+                response = await client.get(
+                    f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/tags"
+                )
                 if response.status_code == 200:
                     data = response.json()
                     model_count = len(data.get("models", []))
@@ -302,6 +306,7 @@ class DashboardScreen(Container):
             import os
 
             import redis
+
             redis_password = os.environ.get("REDIS_PASSWORD", "")
             r = redis.Redis(host="localhost", port=6379, password=redis_password, socket_timeout=1)
             r.ping()
@@ -376,11 +381,7 @@ class DashboardScreen(Container):
                     return
 
             # Create task via WebSocket
-            success = await client.create_task(
-                agent="general",
-                prompt=command,
-                context={}
-            )
+            success = await client.create_task(agent="general", prompt=command, context={})
 
             if success:
                 activity = self.query_one("#activity-panel", ActivityLog)
@@ -408,11 +409,14 @@ class DashboardScreen(Container):
                     json={
                         "model": "qwen3.5:27b",
                         "messages": [
-                            {"role": "system", "content": "You are a helpful assistant. Be concise."},
-                            {"role": "user", "content": command}
+                            {
+                                "role": "system",
+                                "content": "You are a helpful assistant. Be concise.",
+                            },
+                            {"role": "user", "content": command},
                         ],
-                        "stream": False
-                    }
+                        "stream": False,
+                    },
                 )
                 result = response.json()
                 answer = result.get("message", {}).get("content", "No response")
@@ -473,12 +477,14 @@ class DashboardScreen(Container):
 
         # Add to task list
         task_list = self.query_one("#agents-panel", TaskList)
-        task_list.add_task(TaskInfo(
-            id=task_id,
-            name=data.get("prompt", "Task")[:30],
-            agent=agent,
-            status=TaskStatus.IN_PROGRESS,
-        ))
+        task_list.add_task(
+            TaskInfo(
+                id=task_id,
+                name=data.get("prompt", "Task")[:30],
+                agent=agent,
+                status=TaskStatus.IN_PROGRESS,
+            )
+        )
 
     async def _on_task_progress(self, data: dict) -> None:
         """Handle task progress event."""

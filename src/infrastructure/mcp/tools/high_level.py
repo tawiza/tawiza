@@ -75,7 +75,10 @@ def register_high_level_tools(mcp: FastMCP) -> None:
                 status = f"{len(sr.results)} results" if sr.results else sr.error or "0 results"
                 ctx.info(f"[Source] {sr.source}: {status} ({sr.duration_ms:.0f}ms)")
 
-        report(1, f"[1/4] ✓ {orch_result.total_results} résultats de {len(orch_result.source_results)} sources")
+        report(
+            1,
+            f"[1/4] ✓ {orch_result.total_results} résultats de {len(orch_result.source_results)} sources",
+        )
 
         # Step 2: Debate validation
         report(1, "[2/4] Validation multi-agents LLM...")
@@ -95,6 +98,7 @@ def register_high_level_tools(mcp: FastMCP) -> None:
 
         # Custom callback for agent progress
         agent_count = 0
+
         async def on_agent_message(agent_name: str, confidence: float):
             nonlocal agent_count
             agent_count += 1
@@ -134,24 +138,30 @@ def register_high_level_tools(mcp: FastMCP) -> None:
                 geo = item.get("geo")
                 name = item.get("nom") or item.get("name") or item.get("title", "N/A")
                 if geo and geo.get("lat"):
-                    locations.append({
-                        "nom": name,
-                        "lat": geo["lat"],
-                        "lon": geo["lon"],
-                        "type": "entreprise",
-                        "source": item.get("source", "unknown"),
-                    })
+                    locations.append(
+                        {
+                            "nom": name,
+                            "lat": geo["lat"],
+                            "lon": geo["lon"],
+                            "type": "entreprise",
+                            "source": item.get("source", "unknown"),
+                        }
+                    )
 
             if locations:
                 import tempfile
+
                 with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
                     map_path = f.name
 
-                map_result = await registry.execute('geo.map', {
-                    'locations': locations,
-                    'title': f"Analyse: {query[:30]}",
-                    'output_path': map_path,
-                })
+                map_result = await registry.execute(
+                    "geo.map",
+                    {
+                        "locations": locations,
+                        "title": f"Analyse: {query[:30]}",
+                        "output_path": map_path,
+                    },
+                )
                 if map_result.get("success"):
                     with open(map_path) as f:
                         map_html = f.read()
@@ -162,7 +172,7 @@ def register_high_level_tools(mcp: FastMCP) -> None:
 
         # Step 4: Build report
         step_num = 3 if with_map else 2
-        report(step_num, f"[{step_num+1}/{total_steps}] Génération du rapport...")
+        report(step_num, f"[{step_num + 1}/{total_steps}] Génération du rapport...")
 
         rapport_md = f"""# Analyse: {query}
 
@@ -190,7 +200,7 @@ def register_high_level_tools(mcp: FastMCP) -> None:
             name = item.get("nom") or item.get("name") or item.get("title", "N/A")
             siret = item.get("siret", "")
             source = item.get("source", "")
-            rapport_md += f"{i+1}. **{name}** ({siret}) - _{source}_\n"
+            rapport_md += f"{i + 1}. **{name}** ({siret}) - _{source}_\n"
 
         result = {
             "success": True,
@@ -209,7 +219,9 @@ def register_high_level_tools(mcp: FastMCP) -> None:
 
         report(total_steps, "✓ Analyse terminée!")
         if ctx:
-            ctx.info(f"Analysis complete: {debate_result.final_confidence:.0f}% confidence, {len(all_results)} results")
+            ctx.info(
+                f"Analysis complete: {debate_result.final_confidence:.0f}% confidence, {len(all_results)} results"
+            )
 
         return json.dumps(result, ensure_ascii=False, indent=2, default=str)
 
@@ -369,7 +381,9 @@ def register_high_level_tools(mcp: FastMCP) -> None:
         }
 
         if ctx:
-            ctx.report_progress(100, 100, f"✓ Validation complete: {debate_result.final_confidence:.0f}%")
+            ctx.report_progress(
+                100, 100, f"✓ Validation complete: {debate_result.final_confidence:.0f}%"
+            )
 
         return json.dumps(result, ensure_ascii=False, indent=2)
 
@@ -427,32 +441,42 @@ def register_high_level_tools(mcp: FastMCP) -> None:
         if ctx:
             ctx.report_progress(50, 100, "Generating map...")
 
-        map_result = await registry.execute('geo.map', {
-            'locations': locs,
-            'title': title,
-            'output_path': str(map_path),
-        })
+        map_result = await registry.execute(
+            "geo.map",
+            {
+                "locations": locs,
+                "title": title,
+                "output_path": str(map_path),
+            },
+        )
 
         if map_result.get("success"):
             if ctx:
-                ctx.report_progress(100, 100, f"✓ Map generated: {map_result.get('markers', len(locs))} markers")
+                ctx.report_progress(
+                    100, 100, f"✓ Map generated: {map_result.get('markers', len(locs))} markers"
+                )
                 ctx.info(f"Map saved with {map_result.get('markers', len(locs))} markers")
 
             # Return URL for file server (port = MCP port + 1)
             map_url = f"http://localhost:8766/maps/{map_filename}"
 
-            return json.dumps({
-                "success": True,
-                "map_url": map_url,
-                "map_path": str(map_path),
-                "markers_count": map_result.get("markers", len(locs)),
-                "message": f"Carte interactive disponible: {map_url}"
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "map_url": map_url,
+                    "map_path": str(map_path),
+                    "markers_count": map_result.get("markers", len(locs)),
+                    "message": f"Carte interactive disponible: {map_url}",
+                },
+                ensure_ascii=False,
+            )
         else:
-            return json.dumps({
-                "success": False,
-                "error": map_result.get("error", "Map generation failed"),
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": map_result.get("error", "Map generation failed"),
+                }
+            )
 
     @mcp.tool()
     async def tawiza_chat(
@@ -484,7 +508,16 @@ def register_high_level_tools(mcp: FastMCP) -> None:
             ctx.report_progress(0, 100, "Analyzing message...")
 
         # Detect intent from message
-        keywords_search = ["cherche", "trouve", "liste", "quelles", "quels", "entreprises", "startups", "sociétés"]
+        keywords_search = [
+            "cherche",
+            "trouve",
+            "liste",
+            "quelles",
+            "quels",
+            "entreprises",
+            "startups",
+            "sociétés",
+        ]
         keywords_compare = ["compare", "différence", "versus", "vs", "entre"]
         keywords_analyze = ["analyse", "évalue", "examine", "détail"]
 
@@ -522,7 +555,9 @@ def register_high_level_tools(mcp: FastMCP) -> None:
             }
 
             if ctx:
-                ctx.info(f"Found {len(all_results)} results from {len(result['sources_used'])} sources")
+                ctx.info(
+                    f"Found {len(all_results)} results from {len(result['sources_used'])} sources"
+                )
 
             # Run debate if analyst mode
             if needs_analyze or mode == "analyst":
@@ -561,7 +596,9 @@ def register_high_level_tools(mcp: FastMCP) -> None:
                 context_str = ""
                 if result["data"]:
                     enterprises = result["data"].get("entreprises", [])[:5]
-                    context_str = f"\n\nDonnées trouvées ({result['data'].get('total', 0)} résultats):\n"
+                    context_str = (
+                        f"\n\nDonnées trouvées ({result['data'].get('total', 0)} résultats):\n"
+                    )
                     for e in enterprises:
                         name = e.get("nom") or e.get("name", "N/A")
                         context_str += f"- {name}\n"

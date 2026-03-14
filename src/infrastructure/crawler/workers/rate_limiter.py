@@ -1,4 +1,5 @@
 """Rate limiter for respectful crawling."""
+
 import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -9,6 +10,7 @@ from loguru import logger
 @dataclass
 class RateLimit:
     """Rate limit configuration for a domain."""
+
     requests: int = 10
     period: int = 60
 
@@ -16,6 +18,7 @@ class RateLimit:
 @dataclass
 class DomainState:
     """Track state for a specific domain."""
+
     tokens: float = 10.0
     last_update: datetime = field(default_factory=datetime.now)
     blocked_until: datetime | None = None

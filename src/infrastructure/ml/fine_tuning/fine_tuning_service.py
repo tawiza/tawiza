@@ -59,7 +59,9 @@ class FineTuningService:
                     mlflow.create_experiment("ollama-fine-tuning")
                     logger.info("Created MLflow experiment: ollama-fine-tuning")
                 else:
-                    logger.debug(f"Using existing MLflow experiment: ollama-fine-tuning (ID: {experiment.experiment_id})")
+                    logger.debug(
+                        f"Using existing MLflow experiment: ollama-fine-tuning (ID: {experiment.experiment_id})"
+                    )
             except Exception as e:
                 logger.debug(f"MLflow not available (optional): {type(e).__name__}")
         else:
@@ -174,9 +176,7 @@ class FineTuningService:
 
         return self.training_jobs[job_id]
 
-    async def _run_fine_tuning(
-        self, job_id: str, model_name: str, modelfile_path: Path
-    ) -> None:
+    async def _run_fine_tuning(self, job_id: str, model_name: str, modelfile_path: Path) -> None:
         """
         Exécute le fine-tuning en arrière-plan.
 
@@ -197,9 +197,7 @@ class FineTuningService:
 
             # Validate modelfile path (prevent path traversal)
             validated_path = validate_path(
-                str(modelfile_path),
-                base_dir="/tmp",
-                must_be_within_base=True
+                str(modelfile_path), base_dir="/tmp", must_be_within_base=True
             )
 
             # Créer le modèle avec Ollama
@@ -260,11 +258,17 @@ class FineTuningService:
                         if test_result.get("status") == "success":
                             mlflow.log_metric("test_success", 1.0)
                             if "tokens_generated" in test_result:
-                                mlflow.log_metric("test_tokens_generated", test_result["tokens_generated"])
+                                mlflow.log_metric(
+                                    "test_tokens_generated", test_result["tokens_generated"]
+                                )
 
                         # Log training duration
-                        started_at = datetime.fromisoformat(self.training_jobs[job_id]["started_at"])
-                        completed_at = datetime.fromisoformat(self.training_jobs[job_id]["completed_at"])
+                        started_at = datetime.fromisoformat(
+                            self.training_jobs[job_id]["started_at"]
+                        )
+                        completed_at = datetime.fromisoformat(
+                            self.training_jobs[job_id]["completed_at"]
+                        )
                         duration_seconds = (completed_at - started_at).total_seconds()
                         mlflow.log_metric("training_duration_seconds", duration_seconds)
 
@@ -342,9 +346,7 @@ class FineTuningService:
         """
         return self.training_jobs.get(job_id)
 
-    async def list_jobs(
-        self, project_id: str | None = None
-    ) -> list[dict[str, Any]]:
+    async def list_jobs(self, project_id: str | None = None) -> list[dict[str, Any]]:
         """
         Liste les jobs de fine-tuning.
 
@@ -456,7 +458,9 @@ class FineTuningService:
             ]
 
             if run.info.end_time:
-                log_lines.append(f"End Time: {datetime.fromtimestamp(run.info.end_time / 1000).isoformat()}")
+                log_lines.append(
+                    f"End Time: {datetime.fromtimestamp(run.info.end_time / 1000).isoformat()}"
+                )
 
             log_lines.append("\n--- Parameters ---")
             for key, value in params.items():
@@ -540,9 +544,7 @@ class FineTuningService:
                 if response.status_code == 200:
                     all_models = response.json().get("models", [])
                     # Filtrer les modèles fine-tunés (contiennent "finetuned" dans le nom)
-                    fine_tuned = [
-                        m for m in all_models if "finetuned" in m.get("name", "").lower()
-                    ]
+                    fine_tuned = [m for m in all_models if "finetuned" in m.get("name", "").lower()]
                     return fine_tuned
                 else:
                     logger.error(f"Failed to list models: HTTP {response.status_code}")
@@ -552,9 +554,7 @@ class FineTuningService:
             logger.error(f"Failed to list fine-tuned models: {e}")
             return []
 
-    async def export_model(
-        self, model_name: str, export_path: Path
-    ) -> dict[str, Any]:
+    async def export_model(self, model_name: str, export_path: Path) -> dict[str, Any]:
         """
         Exporte un modèle fine-tuné.
 
@@ -573,7 +573,7 @@ class FineTuningService:
             # Note: export_path is a Path object, convert to string for validation
             validated_export_path = validate_path(
                 str(export_path),
-                must_be_within_base=False  # Allow any path for exports
+                must_be_within_base=False,  # Allow any path for exports
             )
 
             validated_export_path.parent.mkdir(parents=True, exist_ok=True)
@@ -813,12 +813,7 @@ class FineTuningService:
         # Start training in background
         asyncio.create_task(
             self._run_lora_training(
-                job_id,
-                model_name,
-                train_data,
-                eval_data,
-                lora_config,
-                training_config
+                job_id, model_name, train_data, eval_data, lora_config, training_config
             )
         )
 
@@ -837,7 +832,7 @@ class FineTuningService:
         train_data: list[dict[str, str]],
         eval_data: list[dict[str, str]] | None,
         lora_config: LoRAConfig,
-        training_config: TrainingConfig
+        training_config: TrainingConfig,
     ):
         """
         Run LoRA training (internal background task).
@@ -866,9 +861,7 @@ class FineTuningService:
             # Train
             logger.info(f"Training model for job {job_id}...")
             result = await tuner.train(
-                train_data=train_data,
-                eval_data=eval_data,
-                experiment_name="lora-fine-tuning"
+                train_data=train_data, eval_data=eval_data, experiment_name="lora-fine-tuning"
             )
 
             # Save model
@@ -877,19 +870,23 @@ class FineTuningService:
             saved_path = await tuner.save_model(output_path, save_method="merged")
 
             # Update job status
-            self.training_jobs[job_id].update({
-                "status": "completed",
-                "completed_at": datetime.now().isoformat(),
-                "metrics": result.get("metrics", {}),
-                "model_path": saved_path,
-            })
+            self.training_jobs[job_id].update(
+                {
+                    "status": "completed",
+                    "completed_at": datetime.now().isoformat(),
+                    "metrics": result.get("metrics", {}),
+                    "model_path": saved_path,
+                }
+            )
 
             logger.info(f"LoRA fine-tuning job {job_id} completed successfully")
 
         except Exception as e:
             logger.error(f"LoRA fine-tuning job {job_id} failed: {e}")
-            self.training_jobs[job_id].update({
-                "status": "failed",
-                "error": str(e),
-                "failed_at": datetime.now().isoformat(),
-            })
+            self.training_jobs[job_id].update(
+                {
+                    "status": "failed",
+                    "error": str(e),
+                    "failed_at": datetime.now().isoformat(),
+                }
+            )

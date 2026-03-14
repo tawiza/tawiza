@@ -41,13 +41,13 @@ class Theory:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
-            'key': self.key,
-            'name': self.name,
-            'author': self.author,
-            'category': self.category,
-            'description': self.description,
-            'indicators': self.indicators,
-            'strategy_alignment': self.strategy_alignment,
+            "key": self.key,
+            "name": self.name,
+            "author": self.author,
+            "category": self.category,
+            "description": self.description,
+            "indicators": self.indicators,
+            "strategy_alignment": self.strategy_alignment,
         }
 
 
@@ -80,18 +80,18 @@ class TheoryBank:
     def _load_theories(self, path: Path) -> None:
         """Load theories from JSON file."""
         try:
-            with open(path, encoding='utf-8') as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
 
             for key, theory_data in data.items():
                 theory = Theory(
                     key=key,
-                    name=theory_data['name'],
-                    author=theory_data['author'],
-                    category=theory_data['category'],
-                    description=theory_data['description'],
-                    indicators=theory_data['indicators'],
-                    strategy_alignment=theory_data['strategy_alignment'],
+                    name=theory_data["name"],
+                    author=theory_data["author"],
+                    category=theory_data["category"],
+                    description=theory_data["description"],
+                    indicators=theory_data["indicators"],
+                    strategy_alignment=theory_data["strategy_alignment"],
                 )
                 self._theories[key] = theory
 
@@ -123,9 +123,7 @@ class TheoryBank:
         return list(self._categories.keys())
 
     def find_relevant(
-        self,
-        signals: list[str],
-        min_relevance: float = 0.3
+        self, signals: list[str], min_relevance: float = 0.3
     ) -> list[tuple[Theory, float]]:
         """
         Find theories relevant to observed signals.
@@ -147,10 +145,7 @@ class TheoryBank:
         return sorted(results, key=lambda x: x[1], reverse=True)
 
     def validate_strategy(
-        self,
-        strategy_type: str,
-        signals: list[str],
-        top_n: int = 5
+        self, strategy_type: str, signals: list[str], top_n: int = 5
     ) -> dict[str, Any]:
         """
         Validate a strategy type against relevant theories.
@@ -167,10 +162,10 @@ class TheoryBank:
 
         if not relevant:
             return {
-                'alignment_score': 0.5,
-                'supporting': [],
-                'conflicting': [],
-                'neutral': [],
+                "alignment_score": 0.5,
+                "supporting": [],
+                "conflicting": [],
+                "neutral": [],
             }
 
         supporting = []
@@ -184,10 +179,10 @@ class TheoryBank:
             total_alignment += weighted
 
             entry = {
-                'theory': theory.name,
-                'author': theory.author,
-                'alignment': round(alignment, 2),
-                'relevance': round(relevance, 2),
+                "theory": theory.name,
+                "author": theory.author,
+                "alignment": round(alignment, 2),
+                "relevance": round(relevance, 2),
             }
 
             if alignment >= 0.7:
@@ -200,20 +195,18 @@ class TheoryBank:
         avg_alignment = total_alignment / len(relevant) if relevant else 0.5
 
         return {
-            'alignment_score': round(avg_alignment, 2),
-            'supporting': supporting,
-            'conflicting': conflicting,
-            'neutral': neutral,
+            "alignment_score": round(avg_alignment, 2),
+            "supporting": supporting,
+            "conflicting": conflicting,
+            "neutral": neutral,
         }
 
     def get_stats(self) -> dict[str, Any]:
         """Get statistics about the theory bank."""
         return {
-            'total_theories': len(self._theories),
-            'categories': len(self._categories),
-            'theories_by_category': {
-                cat: len(keys) for cat, keys in self._categories.items()
-            },
+            "total_theories": len(self._theories),
+            "categories": len(self._categories),
+            "theories_by_category": {cat: len(keys) for cat, keys in self._categories.items()},
         }
 
 
@@ -280,7 +273,7 @@ class _LazyTheories:
     def _load(self) -> dict[str, dict[str, Any]]:
         """Load theories from JSON file."""
         path = Path(__file__).parent / "theories.json"
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
 
 

@@ -59,10 +59,10 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
 
 | Tranche | Nombre | Part |
 |---------|--------|------|
-| < 10 salaries | {effectif_distribution["<10"]} | {effectif_distribution["<10"]/max(total_count,1)*100:.1f}% |
-| 10-50 salaries | {effectif_distribution["10-50"]} | {effectif_distribution["10-50"]/max(total_count,1)*100:.1f}% |
-| 50-250 salaries | {effectif_distribution["50-250"]} | {effectif_distribution["50-250"]/max(total_count,1)*100:.1f}% |
-| > 250 salaries | {effectif_distribution[">250"]} | {effectif_distribution[">250"]/max(total_count,1)*100:.1f}% |
+| < 10 salaries | {effectif_distribution["<10"]} | {effectif_distribution["<10"] / max(total_count, 1) * 100:.1f}% |
+| 10-50 salaries | {effectif_distribution["10-50"]} | {effectif_distribution["10-50"] / max(total_count, 1) * 100:.1f}% |
+| 50-250 salaries | {effectif_distribution["50-250"]} | {effectif_distribution["50-250"] / max(total_count, 1) * 100:.1f}% |
+| > 250 salaries | {effectif_distribution[">250"]} | {effectif_distribution[">250"] / max(total_count, 1) * 100:.1f}% |
 
 ## Top 5 Communes
 
@@ -95,7 +95,7 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
 3. **Veille**: Surveiller les startups innovantes
 
 ---
-*Rapport genere par Tawiza Workforce - {datetime.now().strftime('%d/%m/%Y %H:%M')}*
+*Rapport genere par Tawiza Workforce - {datetime.now().strftime("%d/%m/%Y %H:%M")}*
 """
     return rapport_md
 
@@ -217,7 +217,9 @@ Analyse les resultats et structure-les."""
                                 result = tool_call["result"]
                                 if isinstance(result, dict) and result.get("enterprises"):
                                     collected_data["entreprises"] = result["enterprises"]
-                                    collected_data["stats"]["sirene_count"] = len(result["enterprises"])
+                                    collected_data["stats"]["sirene_count"] = len(
+                                        result["enterprises"]
+                                    )
                 except Exception as e:
                     logger.warning(f"DataAgent step failed: {e}, using direct tool call")
                     # Fallback to direct tool call
@@ -244,25 +246,31 @@ Analyse les resultats et structure-les."""
                     for ent in collected_data["entreprises"][:limit]:
                         geo = ent.get("geo")
                         if geo and geo.get("lat"):
-                            locations.append({
-                                "nom": ent.get("nom") or ent.get("name", "N/A"),
-                                "lat": geo["lat"],
-                                "lon": geo["lon"],
-                                "type": "entreprise",
-                                "siret": ent.get("siret", ""),
-                            })
+                            locations.append(
+                                {
+                                    "nom": ent.get("nom") or ent.get("name", "N/A"),
+                                    "lat": geo["lat"],
+                                    "lon": geo["lon"],
+                                    "type": "entreprise",
+                                    "siret": ent.get("siret", ""),
+                                }
+                            )
                         elif ent.get("adresse"):
                             try:
                                 geo_result = geo_locate(ent["adresse"])
                                 if geo_result.get("lat"):
-                                    locations.append({
-                                        "nom": ent.get("nom") or ent.get("name", "N/A"),
-                                        "lat": geo_result["lat"],
-                                        "lon": geo_result["lon"],
-                                        "type": "entreprise",
-                                    })
+                                    locations.append(
+                                        {
+                                            "nom": ent.get("nom") or ent.get("name", "N/A"),
+                                            "lat": geo_result["lat"],
+                                            "lon": geo_result["lon"],
+                                            "type": "entreprise",
+                                        }
+                                    )
                             except Exception as e:
-                                logger.debug(f"Geocoding failed for {ent.get('nom', 'unknown')}: {e}")
+                                logger.debug(
+                                    f"Geocoding failed for {ent.get('nom', 'unknown')}: {e}"
+                                )
                                 pass
 
                     collected_data["locations"] = locations
@@ -278,6 +286,7 @@ Analyse les resultats et structure-les."""
                             )
                             if map_result.get("success"):
                                 import shutil
+
                                 shutil.copy(map_result["file_path"], map_path)
                                 collected_data["stats"]["map_file"] = map_path
                         except Exception as e:
@@ -347,7 +356,8 @@ Genere un rapport d'intelligence territoriale complet avec:
                     "timestamp": start_time.isoformat(),
                     "duration_seconds": duration,
                     "mode": "camel_agents",
-                    "agents_used": ["DataAgent", "GeoAgent", "AnalystAgent"] + (["WebAgent"] if with_web else []),
+                    "agents_used": ["DataAgent", "GeoAgent", "AnalystAgent"]
+                    + (["WebAgent"] if with_web else []),
                     "stats": collected_data["stats"],
                 }
 
@@ -442,28 +452,32 @@ Genere un rapport d'intelligence territoriale complet avec:
                 # Check if already has geo data
                 geo = ent.get("geo")
                 if geo and geo.get("lat"):
-                    locations.append({
-                        "nom": ent.get("nom") or ent.get("name") or ent.get("title", "N/A"),
-                        "lat": geo["lat"],
-                        "lon": geo["lon"],
-                        "type": "entreprise",
-                        "siret": ent.get("siret", ""),
-                        "commune": ent.get("commune", ""),
-                    })
+                    locations.append(
+                        {
+                            "nom": ent.get("nom") or ent.get("name") or ent.get("title", "N/A"),
+                            "lat": geo["lat"],
+                            "lon": geo["lon"],
+                            "type": "entreprise",
+                            "siret": ent.get("siret", ""),
+                            "commune": ent.get("commune", ""),
+                        }
+                    )
                     geocoded_count += 1
                 elif ent.get("adresse"):
                     # Geocode the address
                     try:
                         geo_result = geo_locate(ent["adresse"])
                         if geo_result.get("lat"):
-                            locations.append({
-                                "nom": ent.get("nom") or ent.get("name", "N/A"),
-                                "lat": geo_result["lat"],
-                                "lon": geo_result["lon"],
-                                "type": "entreprise",
-                                "siret": ent.get("siret", ""),
-                                "commune": geo_result.get("city", ""),
-                            })
+                            locations.append(
+                                {
+                                    "nom": ent.get("nom") or ent.get("name", "N/A"),
+                                    "lat": geo_result["lat"],
+                                    "lon": geo_result["lon"],
+                                    "type": "entreprise",
+                                    "siret": ent.get("siret", ""),
+                                    "commune": geo_result.get("city", ""),
+                                }
+                            )
                             geocoded_count += 1
                     except Exception as e:
                         logger.debug(f"Geocoding failed for {ent.get('nom', 'unknown')}: {e}")
@@ -488,6 +502,7 @@ Genere un rapport d'intelligence territoriale complet avec:
                     if map_result.get("success") and map_result.get("file_path"):
                         # Copy to analysis dir
                         import shutil
+
                         shutil.copy(map_result["file_path"], map_path)
                         collected_data["stats"]["map_file"] = map_path
                         collected_data["stats"]["map_markers"] = len(locations)
@@ -572,8 +587,8 @@ Genere un rapport d'intelligence territoriale complet avec:
 ## Executive Summary
 
 Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
-{'Cartographie interactive generee avec ' + str(collected_data["stats"].get("map_markers", 0)) + ' points.' if with_map else ''}
-{'Enrichissement web effectue sur ' + str(collected_data["stats"].get("web_enriched", 0)) + ' entreprises.' if with_web else ''}
+{"Cartographie interactive generee avec " + str(collected_data["stats"].get("map_markers", 0)) + " points." if with_map else ""}
+{"Enrichissement web effectue sur " + str(collected_data["stats"].get("web_enriched", 0)) + " entreprises." if with_web else ""}
 
 ## Chiffres Cles
 
@@ -587,10 +602,10 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
 
 | Tranche | Nombre | Part |
 |---------|--------|------|
-| < 10 salaries | {effectif_distribution["<10"]} | {effectif_distribution["<10"]/total_count*100:.1f}% |
-| 10-50 salaries | {effectif_distribution["10-50"]} | {effectif_distribution["10-50"]/total_count*100:.1f}% |
-| 50-250 salaries | {effectif_distribution["50-250"]} | {effectif_distribution["50-250"]/total_count*100:.1f}% |
-| > 250 salaries | {effectif_distribution[">250"]} | {effectif_distribution[">250"]/total_count*100:.1f}% |
+| < 10 salaries | {effectif_distribution["<10"]} | {effectif_distribution["<10"] / total_count * 100:.1f}% |
+| 10-50 salaries | {effectif_distribution["10-50"]} | {effectif_distribution["10-50"] / total_count * 100:.1f}% |
+| 50-250 salaries | {effectif_distribution["50-250"]} | {effectif_distribution["50-250"] / total_count * 100:.1f}% |
+| > 250 salaries | {effectif_distribution[">250"]} | {effectif_distribution[">250"] / total_count * 100:.1f}% |
 
 ## Top 5 Communes
 
@@ -665,17 +680,25 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
             "stats": collected_data["stats"],
             "effectif_distribution": effectif_distribution,
             "top_communes": dict(top_communes),
-            "agents_used": ["DataAgent", "GeoAgent"] + (["WebAgent"] if with_web else []) + ["AnalystAgent"],
+            "agents_used": ["DataAgent", "GeoAgent"]
+            + (["WebAgent"] if with_web else [])
+            + ["AnalystAgent"],
         }
 
         metadata_path = analysis_dir / "metadata.json"
-        metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+        metadata_path.write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
 
         notify(f"[AnalystAgent] Fichiers sauvegardes dans {analysis_dir}", 95)
 
         # Build response with HTTP URLs for file access
         # Get relative path for URL (analyses/timestamp_query)
-        relative_dir = str(analysis_dir).split("/outputs/")[-1] if "/outputs/" in str(analysis_dir) else analysis_dir.name
+        relative_dir = (
+            str(analysis_dir).split("/outputs/")[-1]
+            if "/outputs/" in str(analysis_dir)
+            else analysis_dir.name
+        )
         base_url = "http://localhost:8766"
 
         result = {
@@ -738,6 +761,7 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
         # Test Ollama
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
             response = await client.generate("Test", max_tokens=10)
             status["ollama"] = bool(response)
@@ -779,7 +803,9 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
             status["agents"]["data"] = workforce.data_agent is not None
             status["agents"]["geo"] = workforce.geo_agent is not None
             status["agents"]["analyst"] = workforce.analyst_agent is not None
-            status["agents"]["web"] = workforce.web_agent is not None if workforce.enable_web_enrichment else True
+            status["agents"]["web"] = (
+                workforce.web_agent is not None if workforce.enable_web_enrichment else True
+            )
             if ctx:
                 ctx.info("Workforce: OK")
         except Exception as e:

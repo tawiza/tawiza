@@ -1,4 +1,5 @@
 """Playwright-based worker for JavaScript-heavy sites."""
+
 import asyncio
 import hashlib
 from urllib.parse import urlparse
@@ -303,9 +304,7 @@ class PlaywrightWorker(BaseWorker):
         page = await context.new_page()
 
         try:
-            response = await page.goto(
-                url, wait_until=self.wait_until, timeout=self.timeout
-            )
+            response = await page.goto(url, wait_until=self.wait_until, timeout=self.timeout)
 
             if response is None or response.status >= 400:
                 status = response.status if response else None

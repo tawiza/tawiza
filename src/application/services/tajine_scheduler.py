@@ -14,12 +14,12 @@ from apscheduler.triggers.date import DateTrigger
 from loguru import logger
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.infrastructure.persistence.database import get_session
 from src.infrastructure.persistence.models.scheduled_analysis_model import (
     ScheduledAnalysisDB,
     ScheduleFrequency,
 )
-
-from src.infrastructure.persistence.database import get_session
 
 
 class TAJINEScheduler:
@@ -279,9 +279,7 @@ class TAJINEScheduler:
 
         return None
 
-    async def _send_notifications(
-        self, analysis: ScheduledAnalysisDB, response: str
-    ) -> None:
+    async def _send_notifications(self, analysis: ScheduledAnalysisDB, response: str) -> None:
         """Send notifications for completed analysis."""
         # Email notification
         if analysis.notify_email:
@@ -417,7 +415,9 @@ class TAJINEScheduler:
                 setattr(analysis, key, value)
 
         # Recalculate next run if schedule changed
-        if any(k in updates for k in ["frequency", "scheduled_time", "day_of_week", "day_of_month"]):
+        if any(
+            k in updates for k in ["frequency", "scheduled_time", "day_of_week", "day_of_month"]
+        ):
             analysis.next_run = self._calculate_next_run(analysis)
 
         await session.flush()
@@ -428,9 +428,7 @@ class TAJINEScheduler:
 
         return analysis
 
-    async def delete_schedule(
-        self, session: AsyncSession, schedule_id: UUID
-    ) -> bool:
+    async def delete_schedule(self, session: AsyncSession, schedule_id: UUID) -> bool:
         """Delete a scheduled analysis."""
         analysis = await self.get_schedule(session, schedule_id)
         if not analysis:

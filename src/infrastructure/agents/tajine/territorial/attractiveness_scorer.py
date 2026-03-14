@@ -215,9 +215,7 @@ class AttractivenessScorer:
                 axes[axis] = result
 
         # Compute weighted global score
-        global_score = sum(
-            AXIS_WEIGHTS[axis] * axes[axis].score for axis in AttractiveAxis
-        )
+        global_score = sum(AXIS_WEIGHTS[axis] * axes[axis].score for axis in AttractiveAxis)
 
         # Get territory name
         territory_name = await self._get_territory_name(territory_code)
@@ -256,9 +254,7 @@ class AttractivenessScorer:
 
             # Densité entreprises comme proxy transport/activité
             sirene = await self._get_sirene()
-            companies = await sirene.search(
-                {"departement": territory_code, "per_page": 1}
-            )
+            companies = await sirene.search({"departement": territory_code, "per_page": 1})
             total_count = companies.get("total_results", 0) if companies else 0
             densite_etab = total_count / max(1, pop_data.get("population", 100000)) * 1000
 
@@ -346,9 +342,7 @@ class AttractivenessScorer:
 
             # Taux de chômage estimé (inverse de la densité économique)
             sirene = await self._get_sirene()
-            companies = await sirene.search(
-                {"departement": territory_code, "per_page": 1}
-            )
+            companies = await sirene.search({"departement": territory_code, "per_page": 1})
             total_count = companies.get("total_results", 0) if companies else 0
             ratio_emploi = total_count / population * 100
             taux_chomage_estimate = max(4, 12 - ratio_emploi * 2)
@@ -360,9 +354,7 @@ class AttractivenessScorer:
                     raw_value=taux_chomage_estimate,
                     source="Estimation France Travail",
                     weight=0.25,
-                    normalized=self._normalize(
-                        taux_chomage_estimate, "taux_chomage", inverse=True
-                    ),
+                    normalized=self._normalize(taux_chomage_estimate, "taux_chomage", inverse=True),
                 )
             )
 
@@ -421,9 +413,7 @@ class AttractivenessScorer:
             sirene = await self._get_sirene()
 
             # Densité entreprises
-            companies = await sirene.search(
-                {"departement": territory_code, "per_page": 1}
-            )
+            companies = await sirene.search({"departement": territory_code, "per_page": 1})
             total_count = companies.get("total_results", 0) if companies else 0
 
             insee = await self._get_insee()
@@ -473,9 +463,7 @@ class AttractivenessScorer:
                     raw_value=taxe_estimate,
                     source="Estimation DGFIP",
                     weight=0.25,
-                    normalized=self._normalize(
-                        taxe_estimate, "taux_taxe_fonciere", inverse=True
-                    ),
+                    normalized=self._normalize(taxe_estimate, "taux_taxe_fonciere", inverse=True),
                 )
             )
 
@@ -558,9 +546,7 @@ class AttractivenessScorer:
                     raw_value=prix_m2,
                     source="Estimation DVF",
                     weight=0.25,
-                    normalized=self._normalize(
-                        prix_m2, "prix_m2_logement", inverse=True
-                    ),
+                    normalized=self._normalize(prix_m2, "prix_m2_logement", inverse=True),
                 )
             )
 
@@ -621,9 +607,7 @@ class AttractivenessScorer:
                 "default": {"tgv": 0, "aeroport": 0, "temps_paris": 300},
             }
 
-            access = DEPT_ACCESSIBILITE.get(
-                territory_code, DEPT_ACCESSIBILITE["default"]
-            )
+            access = DEPT_ACCESSIBILITE.get(territory_code, DEPT_ACCESSIBILITE["default"])
 
             # Gares TGV
             gares_tgv = access["tgv"]
@@ -647,9 +631,7 @@ class AttractivenessScorer:
                     raw_value=temps_paris,
                     source="SNCF/Mappy",
                     weight=0.30,
-                    normalized=self._normalize(
-                        temps_paris, "temps_paris_min", inverse=True
-                    ),
+                    normalized=self._normalize(temps_paris, "temps_paris_min", inverse=True),
                 )
             )
 
@@ -721,9 +703,7 @@ class AttractivenessScorer:
             )
             tech_count = tech.get("total_results", 0) if tech else 0
 
-            total = await sirene.search(
-                {"departement": territory_code, "per_page": 1}
-            )
+            total = await sirene.search({"departement": territory_code, "per_page": 1})
             total_count = total.get("total_results", 1) if total else 1
 
             startup_pct = tech_count / max(1, total_count) * 100
@@ -802,9 +782,7 @@ class AttractivenessScorer:
             trend=self._estimate_trend(territory_code, "innovation"),
         )
 
-    def _normalize(
-        self, value: float, indicator: str, inverse: bool = False
-    ) -> float:
+    def _normalize(self, value: float, indicator: str, inverse: bool = False) -> float:
         """Normalize value to 0-100 scale using national references."""
         ref = NATIONAL_REFERENCES.get(indicator)
         if not ref:

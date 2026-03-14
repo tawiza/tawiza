@@ -1,6 +1,5 @@
 """API Router for Code Execution."""
 
-
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -46,11 +45,7 @@ def get_execution_router() -> ExecutionRouter:
                 ws_manager = get_ws_manager()
                 # Broadcast to all for now, as task_id isn't always known at this level
                 # In production, we'd use session_id from context
-                message = TerminalOutputMessage(
-                    task_id="live-exec",
-                    content=content,
-                    stream=stream
-                )
+                message = TerminalOutputMessage(task_id="live-exec", content=content, stream=stream)
                 await ws_manager.broadcast(message)
             except Exception as e:
                 logger.debug(f"Terminal callback failed: {e}")
@@ -59,7 +54,7 @@ def get_execution_router() -> ExecutionRouter:
             e2b_api_key=settings.code_execution.e2b_api_key,
             default_backend=ExecutionBackend.AUTO,
             prefer_cloud=settings.code_execution.prefer_cloud,
-            output_callback=terminal_callback
+            output_callback=terminal_callback,
         )
     return _execution_router
 

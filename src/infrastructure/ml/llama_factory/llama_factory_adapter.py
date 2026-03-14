@@ -50,8 +50,7 @@ class LlamaFactoryAdapter(IModelTrainer):
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info(
-            f"Initialized LLaMA-Factory adapter "
-            f"(models: {self.models_dir}, data: {self.data_dir})"
+            f"Initialized LLaMA-Factory adapter (models: {self.models_dir}, data: {self.data_dir})"
         )
 
     async def train(
@@ -81,6 +80,7 @@ class LlamaFactoryAdapter(IModelTrainer):
 
         # Generate unique run ID
         import uuid
+
         mlflow_run_id = str(uuid.uuid4())
 
         # Prepare training config
@@ -98,8 +98,7 @@ class LlamaFactoryAdapter(IModelTrainer):
                 await self._train_with_api(config, mlflow_run_id)
 
             logger.info(
-                f"Training completed successfully for {model_name} "
-                f"(run_id: {mlflow_run_id})"
+                f"Training completed successfully for {model_name} (run_id: {mlflow_run_id})"
             )
             return mlflow_run_id
 
@@ -134,6 +133,7 @@ class LlamaFactoryAdapter(IModelTrainer):
 
         # Generate unique run ID
         import uuid
+
         mlflow_run_id = str(uuid.uuid4())
 
         # Prepare PPO config
@@ -208,46 +208,36 @@ class LlamaFactoryAdapter(IModelTrainer):
             # Model
             "model_name_or_path": base_model,
             "output_dir": output_dir,
-
             # Dataset
             "dataset": "custom",
             "dataset_dir": str(self.data_dir),
             "train_file": dataset_path,
-
             # Training
             "stage": "sft",  # Supervised Fine-Tuning
             "do_train": True,
             "finetuning_type": "lora",  # Use LoRA by default
-
             # Hyperparameters
             "per_device_train_batch_size": hyperparameters.get("batch_size", 4),
-            "gradient_accumulation_steps": hyperparameters.get(
-                "gradient_accumulation_steps", 4
-            ),
+            "gradient_accumulation_steps": hyperparameters.get("gradient_accumulation_steps", 4),
             "learning_rate": hyperparameters.get("learning_rate", 2e-5),
             "num_train_epochs": hyperparameters.get("num_epochs", 3),
             "max_seq_length": hyperparameters.get("max_seq_length", 2048),
-
             # LoRA config
             "lora_rank": hyperparameters.get("lora_rank", 8),
             "lora_alpha": hyperparameters.get("lora_alpha", 16),
             "lora_dropout": hyperparameters.get("lora_dropout", 0.1),
             "lora_target": "q_proj,v_proj",
-
             # Optimization
             "lr_scheduler_type": "cosine",
             "warmup_steps": hyperparameters.get("warmup_steps", 100),
             "optim": "adamw_torch",
-
             # Precision
             "fp16": hyperparameters.get("fp16", True),
             "bf16": hyperparameters.get("bf16", False),
-
             # Logging
             "logging_steps": 10,
             "save_steps": hyperparameters.get("save_steps", 500),
             "eval_steps": hyperparameters.get("eval_steps", 500),
-
             # Misc
             "seed": 42,
             "report_to": "none",  # We use MLflow separately
@@ -280,17 +270,14 @@ class LlamaFactoryAdapter(IModelTrainer):
             "model_name_or_path": model_path,
             "reward_model": reward_model_path,
             "output_dir": output_dir,
-
             # Dataset
             "dataset": "custom",
             "train_file": dataset_path,
-
             # PPO config
             "stage": "ppo",
             "ppo_epochs": 4,
             "ppo_score_norm": True,
             "ppo_whiten_rewards": True,
-
             # Other params from base config
             **self._prepare_training_config(
                 base_model=model_path,
@@ -346,10 +333,7 @@ class LlamaFactoryAdapter(IModelTrainer):
 
         if process.returncode != 0:
             stderr = await process.stderr.read()
-            raise RuntimeError(
-                f"Training failed with code {process.returncode}: "
-                f"{stderr.decode()}"
-            )
+            raise RuntimeError(f"Training failed with code {process.returncode}: {stderr.decode()}")
 
     async def _train_with_api(
         self,

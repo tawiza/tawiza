@@ -67,9 +67,7 @@ class DetectDriftRequest(BaseModel):
     window_start: datetime | None = Field(
         None, description="Start of monitoring window (ISO format)"
     )
-    window_end: datetime | None = Field(
-        None, description="End of monitoring window (ISO format)"
-    )
+    window_end: datetime | None = Field(None, description="End of monitoring window (ISO format)")
 
 
 class DriftReportResponse(BaseModel):
@@ -102,11 +100,10 @@ class TriggerRetrainingRequest(BaseModel):
     model_name: str = Field(..., description="Name of the model")
     model_version: str = Field(..., description="Version of the model")
     trigger_reason: str = Field(
-        ..., description="Reason for triggering retraining (drift_detected, error_threshold, manual, etc.)"
+        ...,
+        description="Reason for triggering retraining (drift_detected, error_threshold, manual, etc.)",
     )
-    config: dict[str, Any] | None = Field(
-        None, description="Optional training configuration"
-    )
+    config: dict[str, Any] | None = Field(None, description="Optional training configuration")
 
 
 class RetrainingJobResponse(BaseModel):

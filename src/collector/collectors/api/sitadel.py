@@ -75,7 +75,9 @@ class SitadelCollector(BaseCollector):
                 event_date=s.get("event_date"),
                 code_dept=s.get("code_dept"),
                 metric_name=s.get("metric_name", ""),
-                metric_value=float(s["metric_value"]) if s.get("metric_value") is not None else None,
+                metric_value=float(s["metric_value"])
+                if s.get("metric_value") is not None
+                else None,
                 signal_type="neutre",
                 confidence=0.8,
                 raw_data=s.get("raw_data"),
@@ -119,37 +121,41 @@ class SitadelCollector(BaseCollector):
                 # Logements autorisés
                 log_aut = self._parse_int(row.get("LOG_AUT", ""))
                 if log_aut is not None and log_aut > 0:
-                    signals.append({
-                        "source": self.source_name,
-                        "source_url": f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/logements/{dept}/{year}-{month:02d}",
-                        "metric_name": f"logements_autorises_{type_lgt.lower().replace(' ', '_')}",
-                        "metric_value": log_aut,
-                        "code_dept": dept,
-                        "event_date": ev_date,
-                        "raw_data": {
-                            "type_logement": type_lgt,
-                            "dept_libelle": row.get("DEPARTEMENT_LIBELLE", "").strip('"'),
-                            "log_commences": self._parse_int(row.get("LOG_COM", "")),
-                            "sdp_autorisee": self._parse_int(row.get("SDP_AUT", "")),
-                            "sdp_commencee": self._parse_int(row.get("SDP_COM", "")),
-                        },
-                    })
+                    signals.append(
+                        {
+                            "source": self.source_name,
+                            "source_url": f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/logements/{dept}/{year}-{month:02d}",
+                            "metric_name": f"logements_autorises_{type_lgt.lower().replace(' ', '_')}",
+                            "metric_value": log_aut,
+                            "code_dept": dept,
+                            "event_date": ev_date,
+                            "raw_data": {
+                                "type_logement": type_lgt,
+                                "dept_libelle": row.get("DEPARTEMENT_LIBELLE", "").strip('"'),
+                                "log_commences": self._parse_int(row.get("LOG_COM", "")),
+                                "sdp_autorisee": self._parse_int(row.get("SDP_AUT", "")),
+                                "sdp_commencee": self._parse_int(row.get("SDP_COM", "")),
+                            },
+                        }
+                    )
 
                 # Logements commencés
                 log_com = self._parse_int(row.get("LOG_COM", ""))
                 if log_com is not None and log_com > 0:
-                    signals.append({
-                        "source": self.source_name,
-                        "source_url": f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/chantiers/{dept}/{year}-{month:02d}",
-                        "metric_name": f"logements_commences_{type_lgt.lower().replace(' ', '_')}",
-                        "metric_value": log_com,
-                        "code_dept": dept,
-                        "event_date": ev_date,
-                        "raw_data": {
-                            "type_logement": type_lgt,
-                            "dept_libelle": row.get("DEPARTEMENT_LIBELLE", "").strip('"'),
-                        },
-                    })
+                    signals.append(
+                        {
+                            "source": self.source_name,
+                            "source_url": f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/chantiers/{dept}/{year}-{month:02d}",
+                            "metric_name": f"logements_commences_{type_lgt.lower().replace(' ', '_')}",
+                            "metric_value": log_com,
+                            "code_dept": dept,
+                            "event_date": ev_date,
+                            "raw_data": {
+                                "type_logement": type_lgt,
+                                "dept_libelle": row.get("DEPARTEMENT_LIBELLE", "").strip('"'),
+                            },
+                        }
+                    )
 
             except (ValueError, KeyError):
                 continue
@@ -180,19 +186,23 @@ class SitadelCollector(BaseCollector):
                 # Surfaces autorisées
                 surf_aut = self._parse_int(row.get("SDP_AUT", row.get("SURFACE_AUT", "")))
                 if surf_aut is not None and surf_aut > 0:
-                    metric_suffix = dest.lower().replace(" ", "_").replace("'", "") if dest else "total"
-                    signals.append({
-                        "source": self.source_name,
-                        "source_url": f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/locaux/{dept}/{year}-{month:02d}/{metric_suffix}",
-                        "metric_name": f"locaux_autorises_m2_{metric_suffix}",
-                        "metric_value": surf_aut,
-                        "code_dept": dept,
-                        "event_date": ev_date,
-                        "raw_data": {
-                            "destination": dest,
-                            "dept_libelle": row.get("DEPARTEMENT_LIBELLE", "").strip('"'),
-                        },
-                    })
+                    metric_suffix = (
+                        dest.lower().replace(" ", "_").replace("'", "") if dest else "total"
+                    )
+                    signals.append(
+                        {
+                            "source": self.source_name,
+                            "source_url": f"https://data.statistiques.developpement-durable.gouv.fr/sitadel/locaux/{dept}/{year}-{month:02d}/{metric_suffix}",
+                            "metric_name": f"locaux_autorises_m2_{metric_suffix}",
+                            "metric_value": surf_aut,
+                            "code_dept": dept,
+                            "event_date": ev_date,
+                            "raw_data": {
+                                "destination": dest,
+                                "dept_libelle": row.get("DEPARTEMENT_LIBELLE", "").strip('"'),
+                            },
+                        }
+                    )
 
             except (ValueError, KeyError):
                 continue

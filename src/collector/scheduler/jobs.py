@@ -174,8 +174,14 @@ class CollectorScheduler:
         """Run all API collectors for all departments."""
         total = 0
         api_collectors = [
-            "france_travail", "sirene", "sitadel", "caf",
-            "dgfip", "dvf", "urssaf", "education_nationale",
+            "france_travail",
+            "sirene",
+            "sitadel",
+            "caf",
+            "dgfip",
+            "dvf",
+            "urssaf",
+            "education_nationale",
             "google_trends",
         ]
         for dept in self._departments:
@@ -216,6 +222,7 @@ class CollectorScheduler:
         """
         # Rotate: pick 3 departments per run (covers all 18 in ~6 weeks)
         import hashlib
+
         week_num = date.today().isocalendar()[1]
         start_idx = (week_num * 3) % len(self._departments)
         target_depts = []
@@ -232,9 +239,7 @@ class CollectorScheduler:
                     batch = [s.to_dict() for s in signals]
                     count = await self._repo.insert_signals_batch(batch)
                     total += count
-                    logger.info(
-                        f"[scheduler] CrawlIntel dept={dept}: {count} signals stored"
-                    )
+                    logger.info(f"[scheduler] CrawlIntel dept={dept}: {count} signals stored")
             except Exception as e:
                 logger.error(f"[scheduler] CrawlIntel dept={dept} failed: {e}")
 

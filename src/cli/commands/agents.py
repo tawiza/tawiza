@@ -36,7 +36,7 @@ app = typer.Typer(
     name="agents",
     help="Systeme d'agents IA unifie avec optimisation GPU et cache intelligent",
     add_completion=False,
-    rich_markup_mode="rich"
+    rich_markup_mode="rich",
 )
 
 # Variable globale pour l'integration
@@ -50,12 +50,14 @@ def show_agents_header(agent_type: str = None):
     header_text.append("Tawiza Agents System", style=f"bold {SUNSET_THEME['header_color']}")
     header_text.append(" 🤖", style=SUNSET_THEME["header_color"])
 
-    console.print(Panel(
-        Align.center(header_text),
-        style=f"{SUNSET_THEME['header_color']}",
-        box=box.DOUBLE,
-        padding=1
-    ))
+    console.print(
+        Panel(
+            Align.center(header_text),
+            style=f"{SUNSET_THEME['header_color']}",
+            box=box.DOUBLE,
+            padding=1,
+        )
+    )
 
     # Afficher mascotte spécifique à l'agent
     if agent_type:
@@ -77,12 +79,12 @@ async def ensure_initialized():
             create_optimized_agent_integration,
         )
 
-        console.print(f"[bold {SUNSET_THEME['info_color']}]Initialisation automatique du systeme...[/]")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]Initialisation automatique du systeme...[/]"
+        )
 
         config = OptimizedSystemConfig(
-            num_workers=4,
-            enable_gpu_optimization=True,
-            enable_smart_cache=True
+            num_workers=4, enable_gpu_optimization=True, enable_smart_cache=True
         )
 
         _integration = await create_optimized_agent_integration(config)
@@ -102,24 +104,27 @@ async def ensure_initialized():
 # COMMANDES PRINCIPALES
 # =============================================================================
 
+
 @app.command("init")
 def init_agents(
     workers: int = typer.Option(4, "--workers", "-w", help="Nombre de workers paralleles"),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="Activer l'optimisation GPU"),
     cache: bool = typer.Option(True, "--cache/--no-cache", help="Activer le cache intelligent"),
     cache_size: int = typer.Option(1000, "--cache-size", help="Taille maximale du cache"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Mode verbeux")
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Mode verbeux"),
 ):
     """Initialiser le systeme d'agents IA unifie"""
     global _integration
 
     show_agents_header()
 
-    console.print(Panel.fit(
-        "[bold]Systeme d'Agents IA Unifie[/bold]\n"
-        "Task queue, cache intelligent, optimisation GPU",
-        border_style=SUNSET_THEME["info_color"]
-    ))
+    console.print(
+        Panel.fit(
+            "[bold]Systeme d'Agents IA Unifie[/bold]\n"
+            "Task queue, cache intelligent, optimisation GPU",
+            border_style=SUNSET_THEME["info_color"],
+        )
+    )
 
     async def init():
         global _integration
@@ -134,7 +139,7 @@ def init_agents(
                 num_workers=workers,
                 cache_max_size=cache_size,
                 enable_gpu_optimization=gpu,
-                enable_smart_cache=cache
+                enable_smart_cache=cache,
             )
 
             with Progress(
@@ -146,7 +151,9 @@ def init_agents(
                 _integration = await create_optimized_agent_integration(config)
                 progress.update(task, completed=True)
 
-            console.print(f"\n[bold {SUNSET_THEME['success_color']}]Systeme initialise avec succes![/]\n")
+            console.print(
+                f"\n[bold {SUNSET_THEME['success_color']}]Systeme initialise avec succes![/]\n"
+            )
 
             # Afficher la configuration
             table = Table(title="Configuration", box=box.ROUNDED)
@@ -160,7 +167,7 @@ def init_agents(
 
             console.print(table)
 
-            if hasattr(_integration, 'show_system_stats'):
+            if hasattr(_integration, "show_system_stats"):
                 console.print()
                 await _integration.show_system_stats()
 
@@ -186,12 +193,15 @@ def show_status():
 
         # Display GPU status first
         from src.cli.ui.gpu_monitor import get_gpu_status
+
         gpu_status = get_gpu_status()
         if gpu_status.available:
             location = "Host" if gpu_status.location.value == "host" else "VM 400"
-            console.print(f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire | {gpu_status.temperature}°C[/dim]\n")
+            console.print(
+                f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire | {gpu_status.temperature}°C[/dim]\n"
+            )
 
-        if hasattr(integration, 'show_system_stats'):
+        if hasattr(integration, "show_system_stats"):
             await integration.show_system_stats()
         else:
             # Fallback: afficher les infos basiques
@@ -200,8 +210,12 @@ def show_status():
             table.add_column("Statut", style="green")
 
             table.add_row("Systeme", " Operationnel")
-            table.add_row("GPU", " Actif" if hasattr(integration, 'gpu_optimizer') else " Non disponible")
-            table.add_row("Cache", " Actif" if hasattr(integration, 'cache_manager') else " Non disponible")
+            table.add_row(
+                "GPU", " Actif" if hasattr(integration, "gpu_optimizer") else " Non disponible"
+            )
+            table.add_row(
+                "Cache", " Actif" if hasattr(integration, "cache_manager") else " Non disponible"
+            )
 
             console.print(table)
 
@@ -214,9 +228,10 @@ def shutdown_system():
     global _integration
 
     if _integration:
+
         async def stop():
             global _integration
-            if hasattr(_integration, 'shutdown'):
+            if hasattr(_integration, "shutdown"):
                 await _integration.shutdown()
             _integration = None
             console.print("[green]Systeme arrete proprement[/]")
@@ -230,16 +245,17 @@ def shutdown_system():
 # GESTION DU CACHE
 # =============================================================================
 
+
 @app.command("cache")
 def cache_commands(
     action: str = typer.Argument("stats", help="Action: stats, clear, enable, disable"),
-    agent_type: str | None = typer.Option(None, "--agent", help="Type d'agent (pour clear)")
+    agent_type: str | None = typer.Option(None, "--agent", help="Type d'agent (pour clear)"),
 ):
     """Gerer le cache du systeme"""
 
     async def manage_cache():
         integration = await ensure_initialized()
-        if integration is None or not hasattr(integration, 'cache_manager'):
+        if integration is None or not hasattr(integration, "cache_manager"):
             console.print(f"[bold {SUNSET_THEME['error_color']}]Cache non disponible[/]")
             return
 
@@ -264,7 +280,7 @@ def cache_commands(
                 console.print(f"[red]Erreur: {e}[/]")
 
         elif action == "clear":
-            if hasattr(integration, 'invalidate_cache'):
+            if hasattr(integration, "invalidate_cache"):
                 await integration.invalidate_cache(agent_type)
                 msg = f"pour {agent_type}" if agent_type else "completement"
                 console.print(f"[green]Cache vide {msg}[/]")
@@ -272,12 +288,12 @@ def cache_commands(
                 console.print("[yellow]Fonction non disponible[/]")
 
         elif action == "enable":
-            if hasattr(integration.cache_manager, 'enable'):
+            if hasattr(integration.cache_manager, "enable"):
                 await integration.cache_manager.enable()
                 console.print("[green]Cache active[/]")
 
         elif action == "disable":
-            if hasattr(integration.cache_manager, 'disable'):
+            if hasattr(integration.cache_manager, "disable"):
                 await integration.cache_manager.disable()
                 console.print("[yellow]Cache desactive[/]")
 
@@ -292,22 +308,27 @@ def cache_commands(
 # OPTIMISATION GPU
 # =============================================================================
 
+
 @app.command("gpu-optimize")
 def gpu_optimize(
     model: str = typer.Option("qwen3.5:27b", "--model", "-m", help="Modele a optimiser"),
-    benchmark: bool = typer.Option(True, "--benchmark/--no-benchmark", help="Executer un benchmark")
+    benchmark: bool = typer.Option(
+        True, "--benchmark/--no-benchmark", help="Executer un benchmark"
+    ),
 ):
     """Optimiser les performances GPU pour l'inference"""
     show_agents_header("optimizer")
 
-    console.print(f"{agent_mascot_inline('optimizer', 'starting')} [bold {SUNSET_THEME['info_color']}]Optimisation GPU pour: {model}[/]\n")
+    console.print(
+        f"{agent_mascot_inline('optimizer', 'starting')} [bold {SUNSET_THEME['info_color']}]Optimisation GPU pour: {model}[/]\n"
+    )
 
     async def optimize():
         integration = await ensure_initialized()
         if integration is None:
             return
 
-        if not hasattr(integration, 'gpu_optimizer'):
+        if not hasattr(integration, "gpu_optimizer"):
             console.print(f"[bold {SUNSET_THEME['warning_color']}]GPU optimizer non disponible[/]")
             return
 
@@ -330,12 +351,12 @@ def gpu_optimize(
             table.add_column("Apres", style=SUNSET_THEME["success_color"])
             table.add_column("Amelioration", style=SUNSET_THEME["accent_color"])
 
-            if hasattr(result, 'original_performance'):
+            if hasattr(result, "original_performance"):
                 table.add_row(
                     "Performance (tokens/sec)",
                     f"{result.original_performance:.1f}",
                     f"{result.optimized_performance:.1f}",
-                    f"+{result.improvement_percentage:.1f}%"
+                    f"+{result.improvement_percentage:.1f}%",
                 )
 
             console.print(table)
@@ -367,19 +388,23 @@ def gpu_optimize(
 # TACHES D'AGENTS
 # =============================================================================
 
+
 @app.command("analyze-data")
 def analyze_data(
     dataset: str = typer.Argument(..., help="Chemin vers le dataset a analyser"),
     output: str = typer.Option("analysis_report.json", "--output", "-o", help="Fichier de sortie"),
-    detailed: bool = typer.Option(False, "--detailed", "-d", help="Analyse detaillee")
+    detailed: bool = typer.Option(False, "--detailed", "-d", help="Analyse detaillee"),
 ):
     """Analyser un dataset avec l'agent Data Analyst"""
     show_agents_header("data")
 
-    console.print(f"{agent_mascot_inline('data', 'starting')} [bold {SUNSET_THEME['info_color']}]Analyse du dataset: {dataset}[/]\n")
+    console.print(
+        f"{agent_mascot_inline('data', 'starting')} [bold {SUNSET_THEME['info_color']}]Analyse du dataset: {dataset}[/]\n"
+    )
 
     # Display GPU status
     from src.cli.ui.gpu_monitor import get_gpu_status
+
     gpu_status = get_gpu_status()
     if gpu_status.available:
         location = "Host" if gpu_status.location.value == "host" else "VM 400"
@@ -391,18 +416,20 @@ def analyze_data(
             return
 
         try:
-            if hasattr(integration, 'execute_data_analysis'):
+            if hasattr(integration, "execute_data_analysis"):
                 task_id = await integration.execute_data_analysis(
                     dataset, detailed=detailed, output_format="json"
                 )
-                console.print(f"[bold {SUNSET_THEME['accent_color']}]Tache soumise: {task_id[:8]}...[/]")
+                console.print(
+                    f"[bold {SUNSET_THEME['accent_color']}]Tache soumise: {task_id[:8]}...[/]"
+                )
             else:
                 console.print("[yellow]Fonction d'analyse non disponible - simulation[/]")
                 # Simulation
                 await asyncio.sleep(1)
                 result = {"summary": {"rows": 1000, "columns": 10, "missing": 5}}
 
-                with open(output, 'w') as f:
+                with open(output, "w") as f:
                     json.dump(result, f, indent=2)
                 inline_success(f"Rapport sauvegarde: {output}")
 
@@ -422,12 +449,14 @@ def generate_code(
     language: str = typer.Option("python", "--language", "-l", help="Langage de programmation"),
     output: str = typer.Option("generated_code.py", "--output", "-o", help="Fichier de sortie"),
     framework: str | None = typer.Option(None, "--framework", "-f", help="Framework a utiliser"),
-    tests: bool = typer.Option(True, "--tests/--no-tests", help="Generer des tests")
+    tests: bool = typer.Option(True, "--tests/--no-tests", help="Generer des tests"),
 ):
     """Generer du code avec l'agent Code Generator"""
     show_agents_header("code")
 
-    console.print(f"{agent_mascot_inline('code', 'starting')} [bold {SUNSET_THEME['info_color']}]Generation de code {language}[/]\n")
+    console.print(
+        f"{agent_mascot_inline('code', 'starting')} [bold {SUNSET_THEME['info_color']}]Generation de code {language}[/]\n"
+    )
     console.print(f"  Description: {description}")
     if framework:
         console.print(f"  Framework: {framework}")
@@ -446,16 +475,20 @@ def generate_code(
             ) as progress:
                 progress.add_task("Generation en cours...", total=None)
 
-                if hasattr(integration, 'execute_code_generation'):
+                if hasattr(integration, "execute_code_generation"):
                     task_id = await integration.execute_code_generation(
                         description, language, framework=framework, generate_tests=tests
                     )
-                    console.print(f"\n[bold {SUNSET_THEME['accent_color']}]Tache soumise: {task_id[:8]}...[/]")
+                    console.print(
+                        f"\n[bold {SUNSET_THEME['accent_color']}]Tache soumise: {task_id[:8]}...[/]"
+                    )
                 else:
                     # Simulation
                     await asyncio.sleep(2)
-                    code = f"# Generated {language} code\n# {description}\n\ndef main():\n    pass\n"
-                    with open(output, 'w') as f:
+                    code = (
+                        f"# Generated {language} code\n# {description}\n\ndef main():\n    pass\n"
+                    )
+                    with open(output, "w") as f:
                         f.write(code)
                     inline_success(f"Code sauvegarde: {output}")
 
@@ -474,12 +507,16 @@ def automate_browser(
     url: str = typer.Argument(..., help="URL a automatiser"),
     objective: str = typer.Argument(..., help="Objectif de l'automatisation"),
     headless: bool = typer.Option(True, "--headless/--no-headless", help="Mode headless"),
-    output: str = typer.Option("automation_result.json", "--output", "-o", help="Fichier de sortie")
+    output: str = typer.Option(
+        "automation_result.json", "--output", "-o", help="Fichier de sortie"
+    ),
 ):
     """Automatiser des taches de navigateur"""
     show_agents_header("browser")
 
-    console.print(f"{agent_mascot_inline('browser', 'starting')} [bold {SUNSET_THEME['info_color']}]Automation du navigateur[/]\n")
+    console.print(
+        f"{agent_mascot_inline('browser', 'starting')} [bold {SUNSET_THEME['info_color']}]Automation du navigateur[/]\n"
+    )
     console.print(f"  URL: {url}")
     console.print(f"  Objectif: {objective}")
     console.print()
@@ -507,9 +544,10 @@ def automate_browser(
                     result = await browser_agent.execute_task(browser_task)
 
                     from dataclasses import asdict
+
                     result_dict = asdict(result)
 
-                    with open(output, 'w') as f:
+                    with open(output, "w") as f:
                         json.dump(result_dict, f, indent=2)
 
                     progress.update(task, completed=True)
@@ -534,21 +572,24 @@ def automate_browser(
 # BENCHMARK ET MONITORING
 # =============================================================================
 
+
 @app.command("benchmark")
 def benchmark_system(
     num_tasks: int = typer.Option(50, "--tasks", "-n", help="Nombre de taches"),
     workers: int = typer.Option(4, "--workers", "-w", help="Nombre de workers"),
-    duration: int = typer.Option(60, "--duration", "-d", help="Duree en secondes")
+    duration: int = typer.Option(60, "--duration", "-d", help="Duree en secondes"),
 ):
     """Benchmarker les performances du systeme"""
     show_agents_header("ml")
 
     console.print(f"{agent_mascot_inline('ml', 'starting')}")
-    console.print(Panel.fit(
-        f"[bold]Benchmark du Systeme[/bold]\n"
-        f"Taches: {num_tasks} | Workers: {workers} | Duree: {duration}s",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]Benchmark du Systeme[/bold]\n"
+            f"Taches: {num_tasks} | Workers: {workers} | Duree: {duration}s",
+            border_style="cyan",
+        )
+    )
 
     async def run_benchmark():
         try:
@@ -557,10 +598,7 @@ def benchmark_system(
                 create_optimized_agent_integration,
             )
 
-            config = OptimizedSystemConfig(
-                num_workers=workers,
-                enable_gpu_optimization=False
-            )
+            config = OptimizedSystemConfig(num_workers=workers, enable_gpu_optimization=False)
             integration = await create_optimized_agent_integration(config)
 
             async def bench_task(n):
@@ -616,7 +654,7 @@ def benchmark_system(
 @app.command("list-tasks")
 def list_tasks(
     status_filter: str | None = typer.Option(None, "--status", "-s", help="Filtrer par statut"),
-    limit: int = typer.Option(10, "--limit", "-l", help="Nombre de taches a afficher")
+    limit: int = typer.Option(10, "--limit", "-l", help="Nombre de taches a afficher"),
 ):
     """Lister les taches d'agents"""
 
@@ -631,20 +669,22 @@ def list_tasks(
         table.add_column("Statut", justify="center")
         table.add_column("Priorite", justify="center")
 
-        if hasattr(integration, 'active_tasks'):
+        if hasattr(integration, "active_tasks"):
             for task_id, task_info in list(integration.active_tasks.items())[:limit]:
                 if status_filter is None or task_info.get("status") == status_filter:
                     table.add_row(
                         task_id[:8] + "...",
                         task_info.get("task_type", "unknown"),
                         task_info.get("status", "unknown"),
-                        str(task_info.get("priority", "normal"))
+                        str(task_info.get("priority", "normal")),
                     )
 
         console.print(table)
 
-        if hasattr(integration, 'active_tasks') and hasattr(integration, 'task_queue'):
-            console.print(f"\n[dim]Actives: {len(integration.active_tasks)} | En attente: {integration.task_queue.qsize()}[/]")
+        if hasattr(integration, "active_tasks") and hasattr(integration, "task_queue"):
+            console.print(
+                f"\n[dim]Actives: {len(integration.active_tasks)} | En attente: {integration.task_queue.qsize()}[/]"
+            )
 
     run_async(list_all())
 

@@ -5,10 +5,10 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.feedback_model import FeedbackDB
 
 from src.domain.entities.feedback import Feedback, FeedbackStatus, FeedbackType
 from src.domain.repositories.ml_repositories import IFeedbackRepository
+from src.infrastructure.persistence.models.feedback_model import FeedbackDB
 
 
 class SQLAlchemyFeedbackRepository(IFeedbackRepository):
@@ -130,10 +130,7 @@ class SQLAlchemyFeedbackRepository(IFeedbackRepository):
         """
         async with self._session_factory() as session:
             query = (
-                select(FeedbackDB)
-                .order_by(FeedbackDB.created_at.desc())
-                .offset(skip)
-                .limit(limit)
+                select(FeedbackDB).order_by(FeedbackDB.created_at.desc()).offset(skip).limit(limit)
             )
             result = await session.execute(query)
             db_models = result.scalars().all()
@@ -274,7 +271,10 @@ class SQLAlchemyFeedbackRepository(IFeedbackRepository):
                 (FeedbackDB.feedback_type == FeedbackType.THUMBS_DOWN.value)
                 | (FeedbackDB.feedback_type == FeedbackType.BUG_REPORT.value)
                 | (FeedbackDB.feedback_type == FeedbackType.CORRECTION.value)
-                | ((FeedbackDB.feedback_type == FeedbackType.RATING.value) & (FeedbackDB.rating <= 2))
+                | (
+                    (FeedbackDB.feedback_type == FeedbackType.RATING.value)
+                    & (FeedbackDB.rating <= 2)
+                )
             )
 
             if model_id:
@@ -322,9 +322,7 @@ class SQLAlchemyFeedbackRepository(IFeedbackRepository):
         """
         async with self._session_factory() as session:
             # Total count
-            total_query = select(func.count(FeedbackDB.id)).where(
-                FeedbackDB.model_id == model_id
-            )
+            total_query = select(func.count(FeedbackDB.id)).where(FeedbackDB.model_id == model_id)
             total_result = await session.execute(total_query)
             total_count = total_result.scalar() or 0
 

@@ -32,10 +32,11 @@ def _find_project_root() -> Path:
 
 _PROJECT_ROOT = _find_project_root()
 
-DB_URL = os.getenv(
-    "COLLECTOR_DATABASE_URL",
-    "postgresql://localhost:5433/tawiza"
-).replace("postgresql+asyncpg://", "postgresql://").replace("postgresql://", "postgres://")
+DB_URL = (
+    os.getenv("COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza")
+    .replace("postgresql+asyncpg://", "postgresql://")
+    .replace("postgresql://", "postgres://")
+)
 
 
 class ActiveLearner:
@@ -85,41 +86,49 @@ class ActiveLearner:
             dept = gap["department"]
             missing = gap.get("missing_sources", [])
             for source in missing[:3]:  # Max 3 per department
-                plan["actions"].append({
-                    "type": "collect",
-                    "source": source,
-                    "department": dept,
-                    "priority": gap["priority"],
-                    "reason": f"Dept {dept} missing {source} data",
-                })
+                plan["actions"].append(
+                    {
+                        "type": "collect",
+                        "source": source,
+                        "department": dept,
+                        "priority": gap["priority"],
+                        "reason": f"Dept {dept} missing {source} data",
+                    }
+                )
 
         # Priority 2: Low coverage departments
         for gap in by_type.get("low_coverage", []):
             dept = gap["department"]
-            plan["actions"].append({
-                "type": "full_collect",
-                "department": dept,
-                "priority": 1,
-                "reason": f"Dept {dept} has only {gap['total_signals']} signals",
-            })
+            plan["actions"].append(
+                {
+                    "type": "full_collect",
+                    "department": dept,
+                    "priority": 1,
+                    "reason": f"Dept {dept} has only {gap['total_signals']} signals",
+                }
+            )
 
         # Priority 3: Sources not covering enough departments
         for gap in by_type.get("source_low_coverage", []):
-            plan["actions"].append({
-                "type": "expand_source",
-                "source": gap["source"],
-                "priority": 2,
-                "reason": f"{gap['source']} only covers {gap['departments_covered']} departments",
-            })
+            plan["actions"].append(
+                {
+                    "type": "expand_source",
+                    "source": gap["source"],
+                    "priority": 2,
+                    "reason": f"{gap['source']} only covers {gap['departments_covered']} departments",
+                }
+            )
 
         # Priority 4: Re-run detection
         for gap in by_type.get("no_anomalies_detected", []):
-            plan["actions"].append({
-                "type": "rerun_detection",
-                "department": gap["department"],
-                "priority": 3,
-                "reason": gap["suggestion"],
-            })
+            plan["actions"].append(
+                {
+                    "type": "rerun_detection",
+                    "department": gap["department"],
+                    "priority": 3,
+                    "reason": gap["suggestion"],
+                }
+            )
 
         # Sort by priority
         plan["actions"].sort(key=lambda a: a["priority"])

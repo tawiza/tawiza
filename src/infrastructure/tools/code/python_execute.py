@@ -30,49 +30,47 @@ logger = logging.getLogger(__name__)
 
 # Security configuration
 DANGEROUS_PATTERNS = [
-    r'\beval\s*\(',
-    r'\bexec\s*\(',
-    r'\b__import__\s*\(',
-    r'\bcompile\s*\(',
-    r'\bopen\s*\(',
-    r'\bfile\s*\(',
-    r'\binput\s*\(',
-    r'\braw_input\s*\(',
-    r'subprocess',
-    r'os\.system',
-    r'os\.popen',
-    r'os\.spawn',
-    r'os\.exec',
-    r'__builtins__',
-    r'__globals__',
-    r'__code__',
-    r'__class__',
+    r"\beval\s*\(",
+    r"\bexec\s*\(",
+    r"\b__import__\s*\(",
+    r"\bcompile\s*\(",
+    r"\bopen\s*\(",
+    r"\bfile\s*\(",
+    r"\binput\s*\(",
+    r"\braw_input\s*\(",
+    r"subprocess",
+    r"os\.system",
+    r"os\.popen",
+    r"os\.spawn",
+    r"os\.exec",
+    r"__builtins__",
+    r"__globals__",
+    r"__code__",
+    r"__class__",
 ]
 
 ALLOWED_IMPORTS = {
     # Standard library - safe modules
-    'math',
-    'random',
-    'datetime',
-    'json',
-    'collections',
-    'itertools',
-    'functools',
-    're',
-    'string',
-    'decimal',
-    'fractions',
-    'statistics',
-    'copy',
-    'pprint',
-    'typing',
-
+    "math",
+    "random",
+    "datetime",
+    "json",
+    "collections",
+    "itertools",
+    "functools",
+    "re",
+    "string",
+    "decimal",
+    "fractions",
+    "statistics",
+    "copy",
+    "pprint",
+    "typing",
     # Data science - commonly needed
-    'numpy',
-    'pandas',
-    'matplotlib',
-    'scipy',
-
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scipy",
     # Note: os, sys, subprocess are explicitly blocked
 }
 
@@ -101,7 +99,7 @@ class PythonExecuteTool(BaseTool):
         self,
         use_vm_sandbox: bool = False,
         vm_sandbox_client: Any | None = None,
-        default_timeout: int = 30
+        default_timeout: int = 30,
     ):
         """
         Initialize Python execution tool.
@@ -117,8 +115,7 @@ class PythonExecuteTool(BaseTool):
 
         if use_vm_sandbox and not vm_sandbox_client:
             logger.warning(
-                "VM sandbox requested but no client provided. "
-                "Falling back to RestrictedPython."
+                "VM sandbox requested but no client provided. Falling back to RestrictedPython."
             )
             self._use_vm_sandbox = False
 
@@ -146,7 +143,7 @@ class PythonExecuteTool(BaseTool):
                         "Python code to execute. "
                         "Can include imports from allowed modules, "
                         "calculations, data processing, etc."
-                    )
+                    ),
                 },
                 "timeout": {
                     "type": "integer",
@@ -155,10 +152,10 @@ class PythonExecuteTool(BaseTool):
                     ),
                     "default": self._default_timeout,
                     "minimum": 1,
-                    "maximum": 300
-                }
+                    "maximum": 300,
+                },
             },
-            "required": ["code"]
+            "required": ["code"],
         }
 
     @property
@@ -215,14 +212,14 @@ class PythonExecuteTool(BaseTool):
             Error message if invalid import found, None otherwise
         """
         # Find all import statements
-        import_pattern = r'^\s*(?:from\s+(\S+)|import\s+(\S+))'
+        import_pattern = r"^\s*(?:from\s+(\S+)|import\s+(\S+))"
 
-        for line in code.split('\n'):
+        for line in code.split("\n"):
             match = re.match(import_pattern, line.strip())
             if match:
                 # Extract module name (from either 'from X' or 'import X')
                 module = match.group(1) or match.group(2)
-                module = module.split('.')[0]  # Get base module
+                module = module.split(".")[0]  # Get base module
 
                 if module not in ALLOWED_IMPORTS:
                     return (
@@ -252,11 +249,7 @@ class PythonExecuteTool(BaseTool):
             # Validate first
             validation_error = self.validate_input(**kwargs)
             if validation_error:
-                return ToolResult(
-                    success=False,
-                    error=validation_error,
-                    execution_time_ms=0
-                )
+                return ToolResult(success=False, error=validation_error, execution_time_ms=0)
 
             # Execute in appropriate environment
             if self._use_vm_sandbox:
@@ -272,8 +265,8 @@ class PythonExecuteTool(BaseTool):
                 execution_time_ms=execution_time_ms,
                 metadata={
                     "sandbox_type": "vm" if self._use_vm_sandbox else "restricted_python",
-                    "timeout": timeout
-                }
+                    "timeout": timeout,
+                },
             )
 
         except TimeoutError:
@@ -281,7 +274,7 @@ class PythonExecuteTool(BaseTool):
             return ToolResult(
                 success=False,
                 error=f"Execution timed out after {timeout} seconds",
-                execution_time_ms=execution_time_ms
+                execution_time_ms=execution_time_ms,
             )
 
         except Exception as e:
@@ -291,14 +284,10 @@ class PythonExecuteTool(BaseTool):
                 success=False,
                 error=f"Execution error: {str(e)}",
                 execution_time_ms=execution_time_ms,
-                metadata={"exception_type": type(e).__name__}
+                metadata={"exception_type": type(e).__name__},
             )
 
-    async def _execute_restricted(
-        self,
-        code: str,
-        timeout: int
-    ) -> dict[str, str]:
+    async def _execute_restricted(self, code: str, timeout: int) -> dict[str, str]:
         """
         Execute code using RestrictedPython approach.
 
@@ -332,37 +321,37 @@ class PythonExecuteTool(BaseTool):
             # Create restricted globals
             # Only include safe builtins
             safe_builtins = {
-                'print': print,
-                'len': len,
-                'range': range,
-                'enumerate': enumerate,
-                'zip': zip,
-                'map': map,
-                'filter': filter,
-                'sum': sum,
-                'min': min,
-                'max': max,
-                'abs': abs,
-                'round': round,
-                'sorted': sorted,
-                'list': list,
-                'dict': dict,
-                'set': set,
-                'tuple': tuple,
-                'str': str,
-                'int': int,
-                'float': float,
-                'bool': bool,
-                'type': type,
-                'isinstance': isinstance,
-                'hasattr': hasattr,
-                'getattr': getattr,
-                'all': all,
-                'any': any,
-                'True': True,
-                'False': False,
-                'None': None,
-                '__import__': __import__,  # Needed for import statements (validated separately)
+                "print": print,
+                "len": len,
+                "range": range,
+                "enumerate": enumerate,
+                "zip": zip,
+                "map": map,
+                "filter": filter,
+                "sum": sum,
+                "min": min,
+                "max": max,
+                "abs": abs,
+                "round": round,
+                "sorted": sorted,
+                "list": list,
+                "dict": dict,
+                "set": set,
+                "tuple": tuple,
+                "str": str,
+                "int": int,
+                "float": float,
+                "bool": bool,
+                "type": type,
+                "isinstance": isinstance,
+                "hasattr": hasattr,
+                "getattr": getattr,
+                "all": all,
+                "any": any,
+                "True": True,
+                "False": False,
+                "None": None,
+                "__import__": __import__,  # Needed for import statements (validated separately)
             }
 
             # SECURITY: exec() is intentional here for Python code execution
@@ -378,11 +367,7 @@ class PythonExecuteTool(BaseTool):
             sys.stdout = old_stdout
             sys.stderr = old_stderr
 
-    async def _execute_in_vm(
-        self,
-        code: str,
-        timeout: int
-    ) -> dict[str, str]:
+    async def _execute_in_vm(self, code: str, timeout: int) -> dict[str, str]:
         """
         Execute Python code in VM sandbox via VMSandboxClient.
 
@@ -400,10 +385,7 @@ class PythonExecuteTool(BaseTool):
             raise RuntimeError("VM sandbox client not configured")
 
         # Call VM sandbox service
-        result = await self._vm_sandbox_client.run_python(
-            code=code,
-            timeout=timeout
-        )
+        result = await self._vm_sandbox_client.run_python(code=code, timeout=timeout)
 
         # Log execution for monitoring
         if result.success:
@@ -412,16 +394,14 @@ class PythonExecuteTool(BaseTool):
                 f"exit_code={result.exit_code}, duration={result.duration_ms}ms"
             )
         else:
-            logger.warning(
-                f"VM sandbox Python execution failed: {result.error}"
-            )
+            logger.warning(f"VM sandbox Python execution failed: {result.error}")
 
         return {
             "stdout": result.stdout,
             "stderr": result.stderr,
             "exit_code": result.exit_code,
             "vm_run_id": result.run_id,
-            "duration_ms": result.duration_ms
+            "duration_ms": result.duration_ms,
         }
 
     async def execute_stream(
@@ -452,18 +432,14 @@ class PythonExecuteTool(BaseTool):
             # Validate first
             validation_error = self.validate_input(code=code)
             if validation_error:
-                return ToolResult(
-                    success=False,
-                    error=validation_error,
-                    execution_time_ms=0
-                )
+                return ToolResult(success=False, error=validation_error, execution_time_ms=0)
 
             # Must use VM sandbox for streaming
             if not self._use_vm_sandbox or not self._vm_sandbox_client:
                 return ToolResult(
                     success=False,
                     error="Streaming execution requires VM sandbox mode",
-                    execution_time_ms=0
+                    execution_time_ms=0,
                 )
 
             # Default callback that does nothing
@@ -474,9 +450,7 @@ class PythonExecuteTool(BaseTool):
 
             # Execute with streaming
             result = await self._vm_sandbox_client.run_python_stream(
-                code=code,
-                on_output=callback,
-                timeout=timeout
+                code=code, on_output=callback, timeout=timeout
             )
 
             execution_time_ms = (time.time() - start_time) * 1000
@@ -488,14 +462,14 @@ class PythonExecuteTool(BaseTool):
                     "stderr": result.stderr,
                     "exit_code": result.exit_code,
                     "vm_run_id": result.run_id,
-                    "duration_ms": result.duration_ms
+                    "duration_ms": result.duration_ms,
                 },
                 execution_time_ms=execution_time_ms,
                 metadata={
                     "sandbox_type": "vm_stream",
                     "timeout": timeout,
-                    "exit_code": result.exit_code
-                }
+                    "exit_code": result.exit_code,
+                },
             )
 
         except Exception as e:
@@ -505,5 +479,5 @@ class PythonExecuteTool(BaseTool):
                 success=False,
                 error=f"Streaming execution error: {str(e)}",
                 execution_time_ms=execution_time_ms,
-                metadata={"exception_type": type(e).__name__}
+                metadata={"exception_type": type(e).__name__},
             )

@@ -1,4 +1,5 @@
 """Embeddings service using Ollama."""
+
 from dataclasses import dataclass
 
 import httpx
@@ -8,6 +9,7 @@ from loguru import logger
 @dataclass
 class EmbeddingsConfig:
     """Embeddings configuration."""
+
     ollama_url: str = "http://localhost:11434"
     model: str = "nomic-embed-text"
 
@@ -25,7 +27,7 @@ class EmbeddingsService:
             response = await client.post(
                 f"{self.config.ollama_url}/api/embed",
                 json={"model": self.config.model, "input": text},
-                timeout=30.0
+                timeout=30.0,
             )
             response.raise_for_status()
             data = response.json()

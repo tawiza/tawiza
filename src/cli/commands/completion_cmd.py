@@ -28,9 +28,7 @@ def detect_shell() -> str:
 
 
 @app.command()
-def install(
-    shell: str = typer.Option(None, "--shell", "-s", help="Shell type (bash, zsh, fish)")
-):
+def install(shell: str = typer.Option(None, "--shell", "-s", help="Shell type (bash, zsh, fish)")):
     """
     🚀 Install shell completion for Tawiza CLI.
 
@@ -42,11 +40,7 @@ def install(
         tawiza completion install --shell zsh
     """
     # Header
-    header = ColorGradient.create_gradient(
-        "Shell Completion Installer",
-        "#00D9FF",
-        "#7B68EE"
-    )
+    header = ColorGradient.create_gradient("Shell Completion Installer", "#00D9FF", "#7B68EE")
     console.print()
     console.print(header, justify="center")
     console.print("=" * 70, style="dim cyan")
@@ -69,9 +63,7 @@ def install(
     try:
         # Run the install-completion command
         result = subprocess.run(
-            ["tawiza", "--install-completion", shell],
-            capture_output=True,
-            text=True
+            ["tawiza", "--install-completion", shell], capture_output=True, text=True
         )
 
         if result.returncode == 0:
@@ -98,11 +90,7 @@ def install(
             console.print()
 
             # Show test command
-            badge = TextStyling.create_badge(
-                "Test with: tawiza <TAB>",
-                color="green",
-                symbol="✨"
-            )
+            badge = TextStyling.create_badge("Test with: tawiza <TAB>", color="green", symbol="✨")
             console.print(badge, justify="center")
             console.print()
 
@@ -116,9 +104,7 @@ def install(
 
 
 @app.command()
-def show(
-    shell: str = typer.Option(None, "--shell", "-s", help="Shell type (bash, zsh, fish)")
-):
+def show(shell: str = typer.Option(None, "--shell", "-s", help="Shell type (bash, zsh, fish)")):
     """
     📄 Show completion script for manual installation.
 
@@ -137,9 +123,7 @@ def show(
 
     try:
         result = subprocess.run(
-            ["tawiza", "--show-completion", shell],
-            capture_output=True,
-            text=True
+            ["tawiza", "--show-completion", shell], capture_output=True, text=True
         )
 
         if result.returncode == 0:
@@ -166,11 +150,7 @@ def status():
     shell = detect_shell()
 
     # Header
-    header = ColorGradient.create_gradient(
-        "Completion Status",
-        "#FF6B6B",
-        "#4ECDC4"
-    )
+    header = ColorGradient.create_gradient("Completion Status", "#FF6B6B", "#4ECDC4")
     console.print()
     console.print(header, justify="center")
     console.print("=" * 70, style="dim cyan")
@@ -199,31 +179,21 @@ def status():
             with open(completion_file) as f:
                 content = f.read()
                 if "tawiza" in content:
-                    table.add_row(
-                        icon(Icons.SUCCESS, "Status"),
-                        "[green]Installed ✅[/green]"
-                    )
+                    table.add_row(icon(Icons.SUCCESS, "Status"), "[green]Installed ✅[/green]")
                 else:
-                    table.add_row(
-                        icon(Icons.WARNING, "Status"),
-                        "[yellow]Not installed[/yellow]"
-                    )
+                    table.add_row(icon(Icons.WARNING, "Status"), "[yellow]Not installed[/yellow]")
         except Exception:
-            table.add_row(
-                icon(Icons.ERROR, "Status"),
-                "[red]Unknown[/red]"
-            )
+            table.add_row(icon(Icons.ERROR, "Status"), "[red]Unknown[/red]")
     else:
-        table.add_row(
-            icon(Icons.WARNING, "Status"),
-            "[yellow]Not installed[/yellow]"
-        )
+        table.add_row(icon(Icons.WARNING, "Status"), "[yellow]Not installed[/yellow]")
 
     console.print(table)
     console.print()
 
     # Installation tip
-    console.print("[dim]💡 Tip: Run [bold]tawiza completion install[/bold] to enable tab completion[/dim]\n")
+    console.print(
+        "[dim]💡 Tip: Run [bold]tawiza completion install[/bold] to enable tab completion[/dim]\n"
+    )
 
 
 @app.command()

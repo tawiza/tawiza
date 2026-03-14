@@ -18,6 +18,7 @@ from loguru import logger
 
 class CacheStrategy(Enum):
     """Stratégies de cache"""
+
     LRU = "lru"  # Least Recently Used
     LFU = "lfu"  # Least Frequently Used
     TTL = "ttl"  # Time To Live
@@ -27,6 +28,7 @@ class CacheStrategy(Enum):
 @dataclass
 class CacheEntry:
     """Entrée de cache"""
+
     key: str
     value: Any
     created_at: float = field(default_factory=time.time)
@@ -85,7 +87,7 @@ class LRUCache:
         """Ajouter une valeur au cache"""
         async with self._lock:
             # Calculer la taille
-            value_size = len(json.dumps(value, default=str).encode('utf-8'))
+            value_size = len(json.dumps(value, default=str).encode("utf-8"))
 
             # Supprimer l'ancienne valeur si elle existe
             if key in self.cache:
@@ -93,8 +95,8 @@ class LRUCache:
 
             # Éviction si nécessaire
             while (
-                len(self.cache) >= self.max_size or
-                self.current_memory + value_size > self.max_memory_bytes
+                len(self.cache) >= self.max_size
+                or self.current_memory + value_size > self.max_memory_bytes
             ):
                 if not self.cache:
                     break
@@ -103,12 +105,7 @@ class LRUCache:
                 await self._remove(oldest_key)
 
             # Ajouter la nouvelle entrée
-            entry = CacheEntry(
-                key=key,
-                value=value,
-                ttl=ttl,
-                size_bytes=value_size
-            )
+            entry = CacheEntry(key=key, value=value, ttl=ttl, size_bytes=value_size)
 
             self.cache[key] = entry
             self.current_memory += value_size
@@ -141,20 +138,24 @@ class LRUCache:
                 "hits": self.hits,
                 "misses": self.misses,
                 "hit_rate": hit_rate,
-                "utilization": len(self.cache) / self.max_size * 100
+                "utilization": len(self.cache) / self.max_size * 100,
             }
 
 
 class AgentResultCache:
     """Cache spécialisé pour les résultats des agents"""
 
-    def __init__(self, max_size: int = 1000, max_memory_mb: float = 100.0, default_ttl: float = 3600.0):
+    def __init__(
+        self, max_size: int = 1000, max_memory_mb: float = 100.0, default_ttl: float = 3600.0
+    ):
         self.lru_cache = LRUCache(max_size, max_memory_mb)
         self.default_ttl = default_ttl
         self.cache_by_agent: dict[str, list[str]] = {}
         self._lock = asyncio.Lock()
 
-    def _generate_cache_key(self, agent_type: str, task_type: str, parameters: dict[str, Any]) -> str:
+    def _generate_cache_key(
+        self, agent_type: str, task_type: str, parameters: dict[str, Any]
+    ) -> str:
         """Générer une clé de cache unique"""
         # Créer une chaîne déterministe à partir des paramètres
         param_str = json.dumps(parameters, sort_keys=True, default=str)
@@ -166,10 +167,7 @@ class AgentResultCache:
         return f"{agent_type}:{task_type}:{key_hash}"
 
     async def get_result(
-        self,
-        agent_type: str,
-        task_type: str,
-        parameters: dict[str, Any]
+        self, agent_type: str, task_type: str, parameters: dict[str, Any]
     ) -> Any | None:
         """Récupérer un résultat en cache"""
         key = self._generate_cache_key(agent_type, task_type, parameters)
@@ -188,7 +186,7 @@ class AgentResultCache:
         task_type: str,
         parameters: dict[str, Any],
         result: Any,
-        ttl: float | None = None
+        ttl: float | None = None,
     ):
         """Mettre en cache un résultat"""
         key = self._generate_cache_key(agent_type, task_type, parameters)
@@ -222,16 +220,9 @@ class AgentResultCache:
         cache_stats = await self.lru_cache.get_stats()
 
         async with self._lock:
-            agent_counts = {
-                agent: len(keys)
-                for agent, keys in self.cache_by_agent.items()
-            }
+            agent_counts = {agent: len(keys) for agent, keys in self.cache_by_agent.items()}
 
-        return {
-            **cache_stats,
-            "agents": agent_counts,
-            "total_agents": len(self.cache_by_agent)
-        }
+        return {**cache_stats, "agents": agent_counts, "total_agents": len(self.cache_by_agent)}
 
     async def clear(self):
         """Vider complètement le cache"""
@@ -282,6 +273,7 @@ class SmartCache:
 
             # Trier par fréquence
             from collections import Counter
+
             task_counts = Counter(key for _, key in relevant_patterns)
 
             # Retourner les tâches les plus fréquentes
@@ -309,18 +301,13 @@ class CacheManager:
         max_size: int = 1000,
         max_memory_mb: float = 100.0,
         default_ttl: float = 3600.0,
-        enable_smart_cache: bool = True
+        enable_smart_cache: bool = True,
     ):
         self.agent_cache = AgentResultCache(max_size, max_memory_mb, default_ttl)
         self.smart_cache = SmartCache(self.agent_cache) if enable_smart_cache else None
         self.is_enabled = True
 
-    async def get(
-        self,
-        agent_type: str,
-        task_type: str,
-        parameters: dict[str, Any]
-    ) -> Any | None:
+    async def get(self, agent_type: str, task_type: str, parameters: dict[str, Any]) -> Any | None:
         """Récupérer un résultat (avec enregistrement des patterns)"""
         if not self.is_enabled:
             return None
@@ -338,7 +325,7 @@ class CacheManager:
         task_type: str,
         parameters: dict[str, Any],
         result: Any,
-        ttl: float | None = None
+        ttl: float | None = None,
     ):
         """Mettre en cache un résultat"""
         if not self.is_enabled:
@@ -378,10 +365,10 @@ class CacheManager:
 
 # Export
 __all__ = [
-    'CacheStrategy',
-    'CacheEntry',
-    'LRUCache',
-    'AgentResultCache',
-    'SmartCache',
-    'CacheManager'
+    "CacheStrategy",
+    "CacheEntry",
+    "LRUCache",
+    "AgentResultCache",
+    "SmartCache",
+    "CacheManager",
 ]

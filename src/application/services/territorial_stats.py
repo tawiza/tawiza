@@ -21,6 +21,7 @@ from loguru import logger
 @dataclass
 class RadarPoint:
     """Point for radar chart."""
+
     metric: str
     value: float
     benchmark: float
@@ -29,6 +30,7 @@ class RadarPoint:
 @dataclass
 class HeatmapCell:
     """Cell for heatmap."""
+
     x: str  # Quarter (T1 2024, etc.)
     y: str  # Sector
     value: int
@@ -37,6 +39,7 @@ class HeatmapCell:
 @dataclass
 class TimeseriesPoint:
     """Point for timeseries."""
+
     date: str
     creations: int
     radiations: int
@@ -46,6 +49,7 @@ class TimeseriesPoint:
 @dataclass
 class SectorStats:
     """Statistics for a sector."""
+
     code: str
     label: str
     count: int
@@ -125,7 +129,7 @@ class TerritorialStatsService:
         dept: str,
         naf_code: str | None = None,
         text_query: str | None = None,
-        active_only: bool = True
+        active_only: bool = True,
     ) -> int:
         """Count enterprises in a department, optionally filtered by NAF or text.
 
@@ -156,14 +160,13 @@ class TerritorialStatsService:
             data = response.json()
             return data.get("total_results", 0)
         except httpx.HTTPError as e:
-            logger.warning(f"SIRENE count failed for dept={dept}, naf={naf_code}, q={text_query}: {e}")
+            logger.warning(
+                f"SIRENE count failed for dept={dept}, naf={naf_code}, q={text_query}: {e}"
+            )
             return 0
 
     async def get_creations_count(
-        self,
-        dept: str,
-        date_from: date | None = None,
-        date_to: date | None = None
+        self, dept: str, date_from: date | None = None, date_to: date | None = None
     ) -> int:
         """Count enterprise creations in a department and period."""
         client = await self._get_client()
@@ -223,10 +226,7 @@ class TerritorialStatsService:
         sector_counts: dict[str, int] = {}
 
         # Execute in parallel
-        counts = await asyncio.gather(
-            *[t[1] for t in tasks],
-            return_exceptions=True
-        )
+        counts = await asyncio.gather(*[t[1] for t in tasks], return_exceptions=True)
 
         for i, count in enumerate(counts):
             sector = tasks[i][0]
@@ -236,12 +236,14 @@ class TerritorialStatsService:
         # Build result sorted by count
         for sector, count in sorted(sector_counts.items(), key=lambda x: -x[1]):
             if count > 0:
-                results.append(SectorStats(
-                    code=sector,
-                    label=sector,
-                    count=count,
-                    percentage=round(count / max(total, 1) * 100, 1),
-                ))
+                results.append(
+                    SectorStats(
+                        code=sector,
+                        label=sector,
+                        count=count,
+                        percentage=round(count / max(total, 1) * 100, 1),
+                    )
+                )
 
         return results
 
@@ -252,7 +254,7 @@ class TerritorialStatsService:
         dept: str,
         event_type: str,  # creation, radiation, procedure
         date_from: date | None = None,
-        date_to: date | None = None
+        date_to: date | None = None,
     ) -> int:
         """Count BODACC events by type in a department."""
         client = await self._get_client()
@@ -281,8 +283,7 @@ class TerritorialStatsService:
 
         try:
             response = await client.get(
-                f"{self.BODACC_API}/catalog/datasets/annonces-commerciales/records",
-                params=params
+                f"{self.BODACC_API}/catalog/datasets/annonces-commerciales/records", params=params
             )
             response.raise_for_status()
             data = response.json()
@@ -291,11 +292,7 @@ class TerritorialStatsService:
             logger.warning(f"BODACC count failed: {e}")
             return 0
 
-    async def get_timeseries(
-        self,
-        dept: str,
-        period: str = "6m"
-    ) -> list[TimeseriesPoint]:
+    async def get_timeseries(self, dept: str, period: str = "6m") -> list[TimeseriesPoint]:
         """Get timeseries of creations/radiations over time."""
         # Parse period
         months = int(period.replace("m", "")) if period.endswith("m") else 6
@@ -309,17 +306,17 @@ class TerritorialStatsService:
             month_date = today - timedelta(days=i * 30)
             month_start = month_date.replace(day=1)
             if month_start.month == 12:
-                month_end = month_start.replace(year=month_start.year + 1, month=1, day=1) - timedelta(days=1)
+                month_end = month_start.replace(
+                    year=month_start.year + 1, month=1, day=1
+                ) - timedelta(days=1)
             else:
-                month_end = month_start.replace(month=month_start.month + 1, day=1) - timedelta(days=1)
+                month_end = month_start.replace(month=month_start.month + 1, day=1) - timedelta(
+                    days=1
+                )
 
             # Fetch counts in parallel
-            creations_task = self.count_bodacc_events(
-                dept, "creation", month_start, month_end
-            )
-            radiations_task = self.count_bodacc_events(
-                dept, "radiation", month_start, month_end
-            )
+            creations_task = self.count_bodacc_events(dept, "creation", month_start, month_end)
+            radiations_task = self.count_bodacc_events(dept, "radiation", month_start, month_end)
 
             creations, radiations = await asyncio.gather(
                 creations_task, radiations_task, return_exceptions=True
@@ -328,12 +325,14 @@ class TerritorialStatsService:
             creations = creations if isinstance(creations, int) else 0
             radiations = radiations if isinstance(radiations, int) else 0
 
-            results.append(TimeseriesPoint(
-                date=month_start.strftime("%Y-%m"),
-                creations=creations,
-                radiations=radiations,
-                net=creations - radiations,
-            ))
+            results.append(
+                TimeseriesPoint(
+                    date=month_start.strftime("%Y-%m"),
+                    creations=creations,
+                    radiations=radiations,
+                    net=creations - radiations,
+                )
+            )
 
         return results
 
@@ -381,42 +380,44 @@ class TerritorialStatsService:
             RadarPoint(
                 metric="Emploi",
                 value=round(normalize(total_enterprises, 0, 50000), 1),  # Density proxy
-                benchmark=NATIONAL_BENCHMARKS["Emploi"]
+                benchmark=NATIONAL_BENCHMARKS["Emploi"],
             ),
             RadarPoint(
                 metric="Croissance",
                 value=round(normalize(growth_rate, 0, 20), 1),  # Growth rate %
-                benchmark=NATIONAL_BENCHMARKS["Croissance"] * 10 + 50  # Scaled benchmark
+                benchmark=NATIONAL_BENCHMARKS["Croissance"] * 10 + 50,  # Scaled benchmark
             ),
             RadarPoint(
                 metric="Innovation",
                 value=round(normalize(tech_ratio, 0, 15), 1),  # Tech ratio %
-                benchmark=NATIONAL_BENCHMARKS["Innovation"]
+                benchmark=NATIONAL_BENCHMARKS["Innovation"],
             ),
             RadarPoint(
                 metric="Export",
-                value=round(NATIONAL_BENCHMARKS["Export"] + (hash(dept) % 20 - 10), 1),  # Dept variation
-                benchmark=NATIONAL_BENCHMARKS["Export"]
+                value=round(
+                    NATIONAL_BENCHMARKS["Export"] + (hash(dept) % 20 - 10), 1
+                ),  # Dept variation
+                benchmark=NATIONAL_BENCHMARKS["Export"],
             ),
             RadarPoint(
                 metric="Investissement",
                 value=round(normalize(creations / 12, 0, 200), 1),  # Monthly creation rate
-                benchmark=NATIONAL_BENCHMARKS["Investissement"]
+                benchmark=NATIONAL_BENCHMARKS["Investissement"],
             ),
             RadarPoint(
                 metric="Formation",
                 value=round(NATIONAL_BENCHMARKS["Formation"] + (hash(dept[::-1]) % 15 - 7), 1),
-                benchmark=NATIONAL_BENCHMARKS["Formation"]
+                benchmark=NATIONAL_BENCHMARKS["Formation"],
             ),
             RadarPoint(
                 metric="Numerique",
                 value=round(NATIONAL_BENCHMARKS["Numerique"] + (hash(dept * 2) % 20 - 10), 1),
-                benchmark=NATIONAL_BENCHMARKS["Numerique"]
+                benchmark=NATIONAL_BENCHMARKS["Numerique"],
             ),
             RadarPoint(
                 metric="Durabilite",
                 value=round(NATIONAL_BENCHMARKS["Durabilite"] + (hash(dept * 3) % 20 - 10), 1),
-                benchmark=NATIONAL_BENCHMARKS["Durabilite"]
+                benchmark=NATIONAL_BENCHMARKS["Durabilite"],
             ),
         ]
 
@@ -443,8 +444,7 @@ class TerritorialStatsService:
         # First, get total enterprises per sector (for normalization)
         sector_totals: dict[str, int] = {}
         sector_tasks = [
-            self.count_enterprises(dept, text_query=self.SECTOR_SEARCH_QUERIES[s])
-            for s in sectors
+            self.count_enterprises(dept, text_query=self.SECTOR_SEARCH_QUERIES[s]) for s in sectors
         ]
         sector_counts = await asyncio.gather(*sector_tasks, return_exceptions=True)
         for i, sector in enumerate(sectors):
@@ -524,9 +524,7 @@ class TerritorialStatsService:
                 "change_percent": calc_change(current_radiations, previous_radiations),
             },
             "net_balance": current_creations - current_radiations,
-            "health_index": round(
-                (current_creations / max(current_radiations, 1)) * 50, 1
-            ),
+            "health_index": round((current_creations / max(current_radiations, 1)) * 50, 1),
             "period": period,
             "period_start": current_start.isoformat(),
             "period_end": current_end.isoformat(),

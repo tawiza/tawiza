@@ -108,31 +108,55 @@ def static_preview():
     print(f"{DIM}─── État: THINKING ───{RESET}")
     print(MASCOT_TEMPLATE.format(eyes="◐", mouth=".~~.", bar1="░", bar2="░"))
     print(f"{BOLD}╭─────────────────────────────────────────────────────╮{RESET}")
-    print(f"{BOLD}│{RESET} {MAGENTA}◆ Agent ReAct{RESET} {DIM}• qwen3.5:27b{RESET}                           {BOLD}│{RESET}")
+    print(
+        f"{BOLD}│{RESET} {MAGENTA}◆ Agent ReAct{RESET} {DIM}• qwen3.5:27b{RESET}                           {BOLD}│{RESET}"
+    )
     print(f"{BOLD}├─────────────────────────────────────────────────────┤{RESET}")
-    print(f"{BOLD}│{RESET} {YELLOW}💭 Thinking:{RESET} Analyzing user request...              {BOLD}│{RESET}")
-    print(f"{BOLD}│{RESET} {DIM}Step 1/? • Elapsed: 1.2s{RESET}                            {BOLD}│{RESET}")
+    print(
+        f"{BOLD}│{RESET} {YELLOW}💭 Thinking:{RESET} Analyzing user request...              {BOLD}│{RESET}"
+    )
+    print(
+        f"{BOLD}│{RESET} {DIM}Step 1/? • Elapsed: 1.2s{RESET}                            {BOLD}│{RESET}"
+    )
     print(f"{BOLD}╰─────────────────────────────────────────────────────╯{RESET}")
 
     print(f"\n{DIM}─── État: WORKING ───{RESET}")
     print(MASCOT_TEMPLATE.format(eyes="●", mouth=".==.", bar1="▆", bar2="▂"))
     print(f"{BOLD}╭─────────────────────────────────────────────────────╮{RESET}")
-    print(f"{BOLD}│{RESET} {MAGENTA}◆ Agent ReAct{RESET} {DIM}• qwen3.5:27b{RESET}                           {BOLD}│{RESET}")
+    print(
+        f"{BOLD}│{RESET} {MAGENTA}◆ Agent ReAct{RESET} {DIM}• qwen3.5:27b{RESET}                           {BOLD}│{RESET}"
+    )
     print(f"{BOLD}├─────────────────────────────────────────────────────┤{RESET}")
-    print(f"{BOLD}│{RESET} {CYAN}⚡ Action:{RESET} calculator(15 + 27)                      {BOLD}│{RESET}")
-    print(f"{BOLD}│{RESET} {GREEN}📥 Result:{RESET} 42                                       {BOLD}│{RESET}")
-    print(f"{BOLD}│{RESET} {DIM}Step 2/3 • Elapsed: 8.4s{RESET}                            {BOLD}│{RESET}")
+    print(
+        f"{BOLD}│{RESET} {CYAN}⚡ Action:{RESET} calculator(15 + 27)                      {BOLD}│{RESET}"
+    )
+    print(
+        f"{BOLD}│{RESET} {GREEN}📥 Result:{RESET} 42                                       {BOLD}│{RESET}"
+    )
+    print(
+        f"{BOLD}│{RESET} {DIM}Step 2/3 • Elapsed: 8.4s{RESET}                            {BOLD}│{RESET}"
+    )
     print(f"{BOLD}╰─────────────────────────────────────────────────────╯{RESET}")
 
     print(f"\n{DIM}─── État: SUCCESS ───{RESET}")
     print(MASCOT_TEMPLATE.format(eyes="◈", mouth=".^^.", bar1="█", bar2="█"))
     print(f"{GREEN}{BOLD}╭─────────────────────────────────────────────────────╮{RESET}")
-    print(f"{GREEN}{BOLD}│{RESET} {GREEN}✓ Completed!{RESET}                                        {GREEN}{BOLD}│{RESET}")
+    print(
+        f"{GREEN}{BOLD}│{RESET} {GREEN}✓ Completed!{RESET}                                        {GREEN}{BOLD}│{RESET}"
+    )
     print(f"{GREEN}{BOLD}├─────────────────────────────────────────────────────┤{RESET}")
-    print(f"{GREEN}{BOLD}│{RESET}                                                     {GREEN}{BOLD}│{RESET}")
-    print(f"{GREEN}{BOLD}│{RESET}  La somme de 15 et 27 est {BOLD}42{RESET}.                      {GREEN}{BOLD}│{RESET}")
-    print(f"{GREEN}{BOLD}│{RESET}                                                     {GREEN}{BOLD}│{RESET}")
-    print(f"{GREEN}{BOLD}│{RESET}  {DIM}3 steps • 14.2s • qwen3.5:27b{RESET}                       {GREEN}{BOLD}│{RESET}")
+    print(
+        f"{GREEN}{BOLD}│{RESET}                                                     {GREEN}{BOLD}│{RESET}"
+    )
+    print(
+        f"{GREEN}{BOLD}│{RESET}  La somme de 15 et 27 est {BOLD}42{RESET}.                      {GREEN}{BOLD}│{RESET}"
+    )
+    print(
+        f"{GREEN}{BOLD}│{RESET}                                                     {GREEN}{BOLD}│{RESET}"
+    )
+    print(
+        f"{GREEN}{BOLD}│{RESET}  {DIM}3 steps • 14.2s • qwen3.5:27b{RESET}                       {GREEN}{BOLD}│{RESET}"
+    )
     print(f"{GREEN}{BOLD}╰─────────────────────────────────────────────────────╯{RESET}")
 
 

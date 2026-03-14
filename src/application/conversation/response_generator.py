@@ -17,11 +17,13 @@ class ResponseGenerator:
     Integrates with Ollama/LitServe for response generation
     """
 
-    def __init__(self,
-                 llm_client,  # OllamaAdapter or LitServeClient
-                 model_name: str = "llama3.2:3b",
-                 temperature: float = 0.7,
-                 max_tokens: int = 500):
+    def __init__(
+        self,
+        llm_client,  # OllamaAdapter or LitServeClient
+        model_name: str = "llama3.2:3b",
+        temperature: float = 0.7,
+        max_tokens: int = 500,
+    ):
         """
         Initialize response generator
 
@@ -41,23 +43,23 @@ class ResponseGenerator:
             "greeting": [
                 "Hello! I'm the Tawiza AI assistant. How can I help you today?",
                 "Hi there! I'm here to help you with fine-tuning, training, and model management. What would you like to do?",
-                "Welcome! I can assist you with the Tawiza platform. What brings you here?"
+                "Welcome! I can assist you with the Tawiza platform. What brings you here?",
             ],
             "farewell": [
                 "Goodbye! Feel free to come back if you need more help.",
                 "See you later! Don't hesitate to ask if you have more questions.",
-                "Take care! I'm here whenever you need assistance."
+                "Take care! I'm here whenever you need assistance.",
             ],
             "clarification": [
                 "I'm not sure I understand. Could you rephrase that?",
                 "Could you provide more details about what you're trying to do?",
-                "I want to make sure I help you correctly. Can you elaborate?"
+                "I want to make sure I help you correctly. Can you elaborate?",
             ],
             "fallback": [
                 "I'm not quite sure how to help with that. Try asking about fine-tuning models, viewing system status, or managing prompts.",
                 "That's outside my current capabilities. I can help you with model training, system commands, and data management.",
-                "I don't have information about that. Would you like to know what I can help you with?"
-            ]
+                "I don't have information about that. Would you like to know what I can help you with?",
+            ],
         }
 
         # System prompts for different contexts
@@ -82,7 +84,6 @@ You help users with:
 
 Be concise, helpful, and provide actionable guidance. When referencing commands, use the actual CLI syntax.
 If you don't know something, say so and suggest alternatives.""",
-
             "technical": """You are a technical expert assistant for the Tawiza platform.
 
 Provide detailed, accurate technical guidance about:
@@ -93,7 +94,6 @@ Provide detailed, accurate technical guidance about:
 - Troubleshooting errors
 
 Use technical language appropriately and provide code examples when relevant.""",
-
             "beginner": """You are a friendly, patient tutor for the Tawiza platform.
 
 Help beginners understand:
@@ -102,14 +102,16 @@ Help beginners understand:
 - Step-by-step guidance
 - Common pitfalls to avoid
 
-Use simple language and provide encouragement. Break down complex topics into understandable chunks."""
+Use simple language and provide encouragement. Break down complex topics into understandable chunks.""",
         }
 
-    async def generate_response(self,
-                               user_input: str,
-                               context: ConversationContext,
-                               use_rag: bool = False,
-                               rag_results: list[dict[str, Any]] | None = None) -> str:
+    async def generate_response(
+        self,
+        user_input: str,
+        context: ConversationContext,
+        use_rag: bool = False,
+        rag_results: list[dict[str, Any]] | None = None,
+    ) -> str:
         """
         Generate response to user input
 
@@ -128,6 +130,7 @@ Use simple language and provide encouragement. Break down complex topics into un
         # Use template for simple intents
         if intent in ["greeting", "farewell"]:
             import random
+
             return random.choice(self.templates[intent])
 
         # Build prompt
@@ -138,10 +141,7 @@ Use simple language and provide encouragement. Break down complex topics into un
 
         # Generate with LLM
         try:
-            response = await self._generate_with_llm(
-                prompt=prompt,
-                system_prompt=system_prompt
-            )
+            response = await self._generate_with_llm(prompt=prompt, system_prompt=system_prompt)
 
             # Post-process response
             response = self._post_process_response(response)
@@ -151,6 +151,7 @@ Use simple language and provide encouragement. Break down complex topics into un
         except Exception as e:
             print(f"Error generating response: {e}")
             import random
+
             return random.choice(self.templates["fallback"])
 
     def _detect_simple_intent(self, text: str) -> str | None:
@@ -171,10 +172,12 @@ Use simple language and provide encouragement. Break down complex topics into un
 
         return None
 
-    def _build_prompt(self,
-                     user_input: str,
-                     context: ConversationContext,
-                     rag_results: list[dict[str, Any]] | None = None) -> str:
+    def _build_prompt(
+        self,
+        user_input: str,
+        context: ConversationContext,
+        rag_results: list[dict[str, Any]] | None = None,
+    ) -> str:
         """Build prompt for LLM"""
 
         parts = []
@@ -219,7 +222,7 @@ Use simple language and provide encouragement. Break down complex topics into un
         """Generate response using LLM"""
 
         # Check if using OllamaAdapter or LitServeClient
-        if hasattr(self.llm, 'generate'):
+        if hasattr(self.llm, "generate"):
             # OllamaAdapter or LitServeClient
             response = await self.llm.generate(
                 prompt=prompt,
@@ -228,7 +231,7 @@ Use simple language and provide encouragement. Break down complex topics into un
                 options={
                     "temperature": self.temperature,
                     "num_predict": self.max_tokens,
-                }
+                },
             )
             return response.get("response", "")
 

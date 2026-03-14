@@ -3,7 +3,6 @@
 Navigates websites to extract additional information about companies.
 """
 
-
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import FunctionTool
@@ -56,8 +55,7 @@ Enrichir les données entreprises en visitant leurs sites web pour extraire : de
 
 
 def create_web_agent(
-    model_id: str = "qwen3.5:27b",
-    base_url: str = "http://localhost:11434/v1"
+    model_id: str = "qwen3.5:27b", base_url: str = "http://localhost:11434/v1"
 ) -> ChatAgent:
     """Create a WebAgent for web enrichment.
 

@@ -1,4 +1,5 @@
 """Mini-jeux d'attente avec la mascotte."""
+
 import random
 import time
 from dataclasses import dataclass, field
@@ -12,6 +13,7 @@ from rich.text import Text
 @dataclass
 class CatchGame:
     """Jeu où la mascotte attrape des objets."""
+
     width: int = 40
     mascot_pos: int = field(default_factory=lambda: 20)
     score: int = 0
@@ -23,11 +25,13 @@ class CatchGame:
     def spawn_object(self):
         """Fait apparaître un objet."""
         if random.random() > 0.7:
-            self.objects.append({
-                "x": random.randint(2, self.width - 2),
-                "y": 0,
-                "char": random.choice(self.OBJECTS),
-            })
+            self.objects.append(
+                {
+                    "x": random.randint(2, self.width - 2),
+                    "y": 0,
+                    "char": random.choice(self.OBJECTS),
+                }
+            )
 
     def update(self):
         """Met à jour les positions."""
@@ -98,7 +102,7 @@ class TypingGame:
         if self.pos == len(self.current_msg):
             self.current_msg = random.choice(self.MESSAGES)
             self.pos = 0
-        return self.current_msg[:self.pos] + "▌"
+        return self.current_msg[: self.pos] + "▌"
 
 
 class WaitingGames:

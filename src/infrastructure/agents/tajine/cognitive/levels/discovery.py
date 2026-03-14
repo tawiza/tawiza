@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 @dataclass
 class Signal:
     """A detected weak signal."""
+
     type: str
     description: str
     strength: float  # 0-1
@@ -34,6 +35,7 @@ class Signal:
 @dataclass
 class Pattern:
     """A detected pattern."""
+
     name: str
     description: str
     confidence: float
@@ -42,7 +44,7 @@ class Pattern:
 class BaseCognitiveLevel(ABC):
     """Base class for cognitive levels with optional LLM support."""
 
-    def __init__(self, llm_provider: Optional['LLMProvider'] = None):
+    def __init__(self, llm_provider: Optional["LLMProvider"] = None):
         """
         Initialize cognitive level.
 
@@ -65,17 +67,13 @@ class BaseCognitiveLevel(ABC):
 
     @abstractmethod
     async def process(
-        self,
-        results: list[dict[str, Any]],
-        previous: dict[str, Any]
+        self, results: list[dict[str, Any]], previous: dict[str, Any]
     ) -> dict[str, Any]:
         """Process results and return level output."""
         pass
 
     async def _process_with_llm(
-        self,
-        results: list[dict[str, Any]],
-        previous: dict[str, Any]
+        self, results: list[dict[str, Any]], previous: dict[str, Any]
     ) -> dict[str, Any] | None:
         """
         Process using LLM if available.
@@ -86,11 +84,7 @@ class BaseCognitiveLevel(ABC):
             return None
 
         try:
-            return await self._llm_provider.process_level(
-                self.level_name,
-                results,
-                previous
-            )
+            return await self._llm_provider.process_level(self.level_name, results, previous)
         except Exception as e:
             logger.warning(f"LLM processing failed for {self.level_name}: {e}")
             return None
@@ -121,9 +115,7 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         return "discovery"
 
     async def process(
-        self,
-        results: list[dict[str, Any]],
-        previous: dict[str, Any]
+        self, results: list[dict[str, Any]], previous: dict[str, Any]
     ) -> dict[str, Any]:
         """
         Detect signals and patterns from raw results.
@@ -139,11 +131,11 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
 
         # Try LLM-powered processing first
         llm_result = await self._process_with_llm(results, previous)
-        if llm_result and llm_result.get('signals'):
+        if llm_result and llm_result.get("signals"):
             logger.info("DiscoveryLevel: Using LLM-powered analysis")
             # Add reflection for LLM result
             reflection = self._create_llm_reflection(llm_result)
-            llm_result['reflection'] = reflection.to_dict()
+            llm_result["reflection"] = reflection.to_dict()
             return llm_result
 
         # Fallback to rule-based processing
@@ -153,7 +145,7 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         patterns = []
 
         for r in results:
-            result_data = r.get('result', {})
+            result_data = r.get("result", {})
             if isinstance(result_data, dict):
                 # Detect growth signals
                 signals.extend(self._detect_growth_signals(result_data))
@@ -168,17 +160,17 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         reflection = self._create_rule_based_reflection(signals, patterns, confidence)
 
         return {
-            'signals': [s.__dict__ if hasattr(s, '__dict__') else s for s in signals],
-            'patterns': [p.__dict__ if hasattr(p, '__dict__') else p for p in patterns],
-            'confidence': confidence,
-            'reflection': reflection.to_dict()
+            "signals": [s.__dict__ if hasattr(s, "__dict__") else s for s in signals],
+            "patterns": [p.__dict__ if hasattr(p, "__dict__") else p for p in patterns],
+            "confidence": confidence,
+            "reflection": reflection.to_dict(),
         }
 
     def _create_llm_reflection(self, llm_result: dict[str, Any]) -> ReflectionOutput:
         """Create reflection for LLM-powered analysis."""
-        signals = llm_result.get('signals', [])
-        patterns = llm_result.get('patterns', [])
-        confidence = llm_result.get('confidence', 0.6)
+        signals = llm_result.get("signals", [])
+        patterns = llm_result.get("patterns", [])
+        confidence = llm_result.get("confidence", 0.6)
 
         thinking = f"LLM analysis: {len(signals)} signals, {len(patterns)} patterns"
 
@@ -197,10 +189,7 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         )
 
     def _create_rule_based_reflection(
-        self,
-        signals: list[Signal],
-        patterns: list[Pattern],
-        confidence: float
+        self, signals: list[Signal], patterns: list[Pattern], confidence: float
     ) -> ReflectionOutput:
         """Create reflection for rule-based analysis."""
         gaps = []
@@ -228,14 +217,16 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         if signals:
             thinking_parts.append(f"Detected {len(signals)} signals ({', '.join(signal_types)})")
         if patterns:
-            thinking_parts.append(f"Identified {len(patterns)} patterns ({', '.join(pattern_names)})")
+            thinking_parts.append(
+                f"Identified {len(patterns)} patterns ({', '.join(pattern_names)})"
+            )
         if gaps:
             thinking_parts.append(f"Gaps: {', '.join(gaps)}")
 
         thinking = ". ".join(thinking_parts) if thinking_parts else "Rule-based analysis completed"
 
         return ReflectionOutput(
-            result={'signals': len(signals), 'patterns': len(patterns)},
+            result={"signals": len(signals), "patterns": len(patterns)},
             thinking=thinking,
             confidence=confidence,
             gaps=gaps,
@@ -247,43 +238,49 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         signals = []
 
         # 1. Handle DataHunter format with 'data' array from SIRENE/BODACC
-        if hunt_data := data.get('data'):
+        if hunt_data := data.get("data"):
             signals.extend(self._analyze_hunt_data(hunt_data))
 
         # 2. Handle direct company counts (legacy format)
-        current = data.get('companies', data.get('count', data.get('data_count', 0)))
-        previous = data.get('companies_last_year', data.get('count_last_year'))
+        current = data.get("companies", data.get("count", data.get("data_count", 0)))
+        previous = data.get("companies_last_year", data.get("count_last_year"))
 
         if previous and current and previous > 0:
             growth_rate = (current - previous) / previous
             if abs(growth_rate) > 0.1:  # >10% change
-                signal_type = 'growth' if growth_rate > 0 else 'decline'
-                signals.append(Signal(
-                    type=signal_type,
-                    description=f"{signal_type.capitalize()} detected: {growth_rate:.1%}",
-                    strength=min(abs(growth_rate), 1.0),
-                    source='year_over_year'
-                ))
+                signal_type = "growth" if growth_rate > 0 else "decline"
+                signals.append(
+                    Signal(
+                        type=signal_type,
+                        description=f"{signal_type.capitalize()} detected: {growth_rate:.1%}",
+                        strength=min(abs(growth_rate), 1.0),
+                        source="year_over_year",
+                    )
+                )
 
         # 3. Check for explicit growth indicator
-        if growth := data.get('growth'):
+        if growth := data.get("growth"):
             if isinstance(growth, (int, float)) and growth > 0.05:
-                signals.append(Signal(
-                    type='growth',
-                    description=f"Growth indicator: {growth:.1%}",
-                    strength=min(growth, 1.0),
-                    source='growth_indicator'
-                ))
+                signals.append(
+                    Signal(
+                        type="growth",
+                        description=f"Growth indicator: {growth:.1%}",
+                        strength=min(growth, 1.0),
+                        source="growth_indicator",
+                    )
+                )
 
         # 4. Detect signals from sources_used (DataHunter metadata)
-        if sources := data.get('sources_used'):
+        if sources := data.get("sources_used"):
             if len(sources) >= 3:
-                signals.append(Signal(
-                    type='data_richness',
-                    description=f"Multi-source coverage: {', '.join(sources)}",
-                    strength=min(len(sources) / 5, 1.0),
-                    source='data_hunter'
-                ))
+                signals.append(
+                    Signal(
+                        type="data_richness",
+                        description=f"Multi-source coverage: {', '.join(sources)}",
+                        strength=min(len(sources) / 5, 1.0),
+                        source="data_hunter",
+                    )
+                )
 
         return signals
 
@@ -296,33 +293,36 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         # Group data by source for analysis
         by_source: dict[str, list] = {}
         for item in hunt_data:
-            source = item.get('source', 'unknown')
+            source = item.get("source", "unknown")
             by_source.setdefault(source, []).append(item)
 
         # Analyze SIRENE data
-        if sirene_data := by_source.get('sirene'):
+        if sirene_data := by_source.get("sirene"):
             signals.extend(self._analyze_sirene_signals(sirene_data))
 
         # Analyze BODACC data (legal announcements)
-        if bodacc_data := by_source.get('bodacc'):
+        if bodacc_data := by_source.get("bodacc"):
             signals.extend(self._analyze_bodacc_signals(bodacc_data))
 
         # Analyze other sources
         for source, items in by_source.items():
-            if source not in ('sirene', 'bodacc'):
+            if source not in ("sirene", "bodacc"):
                 if len(items) > 5:
-                    signals.append(Signal(
-                        type='data_volume',
-                        description=f"High data volume from {source}: {len(items)} items",
-                        strength=min(len(items) / 20, 1.0),
-                        source=source
-                    ))
+                    signals.append(
+                        Signal(
+                            type="data_volume",
+                            description=f"High data volume from {source}: {len(items)} items",
+                            strength=min(len(items) / 20, 1.0),
+                            source=source,
+                        )
+                    )
 
         return signals
 
     def _analyze_sirene_signals(self, sirene_data: list[dict]) -> list[Signal]:
         """Extract signals from SIRENE enterprise data."""
         from datetime import datetime
+
         signals = []
 
         # Analyze company creations by year
@@ -333,12 +333,12 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
 
         for item in sirene_data:
             # Handle both flat format (from DataHunter) and nested 'content' format
-            content = item.get('content', item) if isinstance(item, dict) else {}
+            content = item.get("content", item) if isinstance(item, dict) else {}
             if not isinstance(content, dict):
                 continue
 
             # Extract date_creation (format: YYYY-MM-DD or YYYY)
-            date_creation = content.get('date_creation', content.get('dateCreation', ''))
+            date_creation = content.get("date_creation", content.get("dateCreation", ""))
             if date_creation:
                 try:
                     year = int(str(date_creation)[:4])
@@ -349,19 +349,21 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
                     pass
 
             # Extract sector (NAF code)
-            naf = content.get('activite_principale', content.get('activitePrincipale', ''))
+            naf = content.get("activite_principale", content.get("activitePrincipale", ""))
             if naf:
                 sector_code = str(naf)[:2]  # First 2 chars = sector
                 sectors[sector_code] = sectors.get(sector_code, 0) + 1
 
         # Signal: Recent creations surge
         if recent_creations >= 3:
-            signals.append(Signal(
-                type='creation_surge',
-                description=f"{recent_creations} entreprises créées récemment",
-                strength=min(recent_creations / 10, 1.0),
-                source='sirene_creations'
-            ))
+            signals.append(
+                Signal(
+                    type="creation_surge",
+                    description=f"{recent_creations} entreprises créées récemment",
+                    strength=min(recent_creations / 10, 1.0),
+                    source="sirene_creations",
+                )
+            )
 
         # Signal: Year-over-year growth
         sorted_years = sorted(creations_by_year.keys())
@@ -373,23 +375,27 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
                     creations_by_year[last_year] - creations_by_year[prev_year]
                 ) / creations_by_year[prev_year]
                 if yoy_growth > 0.1:
-                    signals.append(Signal(
-                        type='growth',
-                        description=f"Croissance créations: +{yoy_growth:.0%} ({prev_year}→{last_year})",
-                        strength=min(yoy_growth, 1.0),
-                        source='sirene_yoy'
-                    ))
+                    signals.append(
+                        Signal(
+                            type="growth",
+                            description=f"Croissance créations: +{yoy_growth:.0%} ({prev_year}→{last_year})",
+                            strength=min(yoy_growth, 1.0),
+                            source="sirene_yoy",
+                        )
+                    )
 
         # Signal: Sector concentration
         if sectors:
             top_sector = max(sectors.items(), key=lambda x: x[1])
             if top_sector[1] >= 3:
-                signals.append(Signal(
-                    type='sector_concentration',
-                    description=f"Concentration secteur NAF {top_sector[0]}: {top_sector[1]} entreprises",
-                    strength=min(top_sector[1] / 10, 1.0),
-                    source='sirene_sectors'
-                ))
+                signals.append(
+                    Signal(
+                        type="sector_concentration",
+                        description=f"Concentration secteur NAF {top_sector[0]}: {top_sector[1]} entreprises",
+                        strength=min(top_sector[1] / 10, 1.0),
+                        source="sirene_sectors",
+                    )
+                )
 
         return signals
 
@@ -401,29 +407,33 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         by_type: dict[str, int] = {}
         for item in bodacc_data:
             # Handle both flat format (from DataHunter) and nested 'content' format
-            content = item.get('content', item) if isinstance(item, dict) else {}
-            pub_type = content.get('type_annonce', content.get('familleavis', 'unknown'))
+            content = item.get("content", item) if isinstance(item, dict) else {}
+            pub_type = content.get("type_annonce", content.get("familleavis", "unknown"))
             by_type[pub_type] = by_type.get(pub_type, 0) + 1
 
         # Signal: High dissolution count (economic stress)
-        dissolutions = by_type.get('dissolution', 0) + by_type.get('Procédures collectives', 0)
+        dissolutions = by_type.get("dissolution", 0) + by_type.get("Procédures collectives", 0)
         if dissolutions >= 3:
-            signals.append(Signal(
-                type='economic_stress',
-                description=f"{dissolutions} procédures/dissolutions détectées",
-                strength=min(dissolutions / 10, 0.9),
-                source='bodacc_dissolutions'
-            ))
+            signals.append(
+                Signal(
+                    type="economic_stress",
+                    description=f"{dissolutions} procédures/dissolutions détectées",
+                    strength=min(dissolutions / 10, 0.9),
+                    source="bodacc_dissolutions",
+                )
+            )
 
         # Signal: High creation count (dynamism)
-        creations = by_type.get('creation', 0) + by_type.get('Immatriculations', 0)
+        creations = by_type.get("creation", 0) + by_type.get("Immatriculations", 0)
         if creations >= 5:
-            signals.append(Signal(
-                type='economic_dynamism',
-                description=f"{creations} immatriculations BODACC",
-                strength=min(creations / 15, 1.0),
-                source='bodacc_creations'
-            ))
+            signals.append(
+                Signal(
+                    type="economic_dynamism",
+                    description=f"{creations} immatriculations BODACC",
+                    strength=min(creations / 15, 1.0),
+                    source="bodacc_creations",
+                )
+            )
 
         return signals
 
@@ -432,28 +442,32 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         signals = []
 
         # Check data_count from DataHunter
-        data_count = data.get('data_count', 0)
-        companies = data.get('companies', data_count)
+        data_count = data.get("data_count", 0)
+        companies = data.get("companies", data_count)
 
         if companies and companies > 500:
-            signals.append(Signal(
-                type='concentration',
-                description=f"High company concentration: {companies}",
-                strength=min(companies / 1000, 1.0),
-                source='company_count'
-            ))
+            signals.append(
+                Signal(
+                    type="concentration",
+                    description=f"High company concentration: {companies}",
+                    strength=min(companies / 1000, 1.0),
+                    source="company_count",
+                )
+            )
 
         # Check for high data_count (indicates active market)
         if data_count >= 10:
-            signals.append(Signal(
-                type='market_activity',
-                description=f"Active market: {data_count} data points collected",
-                strength=min(data_count / 30, 1.0),
-                source='data_count'
-            ))
+            signals.append(
+                Signal(
+                    type="market_activity",
+                    description=f"Active market: {data_count} data points collected",
+                    strength=min(data_count / 30, 1.0),
+                    source="data_count",
+                )
+            )
 
         # Check for anomalies in SIRENE data
-        if hunt_data := data.get('data'):
+        if hunt_data := data.get("data"):
             signals.extend(self._detect_sirene_anomalies(hunt_data))
 
         return signals
@@ -465,20 +479,22 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         # Analyze effectifs (workforce size)
         effectifs = []
         for item in hunt_data:
-            content = item.get('content', {})
-            if eff := content.get('tranche_effectif', content.get('trancheEffectifs')):
+            content = item.get("content", {})
+            if eff := content.get("tranche_effectif", content.get("trancheEffectifs")):
                 effectifs.append(eff)
 
         if effectifs:
             # Count large companies (effectif >= 50)
             large_companies = sum(1 for e in effectifs if str(e).isdigit() and int(e) >= 21)
             if large_companies >= 2:
-                signals.append(Signal(
-                    type='large_employer_cluster',
-                    description=f"{large_companies} grandes entreprises (50+ salariés)",
-                    strength=min(large_companies / 5, 1.0),
-                    source='sirene_effectifs'
-                ))
+                signals.append(
+                    Signal(
+                        type="large_employer_cluster",
+                        description=f"{large_companies} grandes entreprises (50+ salariés)",
+                        strength=min(large_companies / 5, 1.0),
+                        source="sirene_effectifs",
+                    )
+                )
 
         return signals
 
@@ -487,33 +503,39 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         patterns = []
 
         # Check for university proximity pattern (legacy)
-        if data.get('proximity_university'):
-            patterns.append(Pattern(
-                name='university_cluster',
-                description='Cluster near university detected',
-                confidence=0.7
-            ))
+        if data.get("proximity_university"):
+            patterns.append(
+                Pattern(
+                    name="university_cluster",
+                    description="Cluster near university detected",
+                    confidence=0.7,
+                )
+            )
 
         # Check for infrastructure patterns (legacy)
-        if data.get('has_fiber') or data.get('has_tgv'):
-            patterns.append(Pattern(
-                name='infrastructure_hub',
-                description='Good infrastructure connectivity',
-                confidence=0.6
-            ))
+        if data.get("has_fiber") or data.get("has_tgv"):
+            patterns.append(
+                Pattern(
+                    name="infrastructure_hub",
+                    description="Good infrastructure connectivity",
+                    confidence=0.6,
+                )
+            )
 
         # Detect patterns from DataHunter results
-        if hunt_data := data.get('data'):
+        if hunt_data := data.get("data"):
             patterns.extend(self._detect_hunt_patterns(hunt_data))
 
         # Detect multi-source pattern (data richness)
-        sources = data.get('sources_used', [])
+        sources = data.get("sources_used", [])
         if len(sources) >= 2:
-            patterns.append(Pattern(
-                name='multi_source_validation',
-                description=f"Data from {len(sources)} sources: {', '.join(sources)}",
-                confidence=min(0.5 + len(sources) * 0.1, 0.9)
-            ))
+            patterns.append(
+                Pattern(
+                    name="multi_source_validation",
+                    description=f"Data from {len(sources)} sources: {', '.join(sources)}",
+                    confidence=min(0.5 + len(sources) * 0.1, 0.9),
+                )
+            )
 
         return patterns
 
@@ -526,47 +548,47 @@ class DiscoveryLevel(BaseCognitiveLevel, ReflectionMixin):
         cities: dict[str, int] = {}
 
         for item in hunt_data:
-            content = item.get('content', {})
+            content = item.get("content", {})
             if not isinstance(content, dict):
                 continue
 
             # NAF sector
-            naf = content.get('activite_principale', content.get('activitePrincipale', ''))
+            naf = content.get("activite_principale", content.get("activitePrincipale", ""))
             if naf:
                 sector = str(naf)[:2]
                 sectors[sector] = sectors.get(sector, 0) + 1
 
             # City/commune
-            city = content.get('commune', content.get('libelleCommuneEtablissement', ''))
+            city = content.get("commune", content.get("libelleCommuneEtablissement", ""))
             if city:
                 cities[city] = cities.get(city, 0) + 1
 
         # Pattern: Sector specialization
         if sectors and len(sectors) <= 3 and sum(sectors.values()) >= 5:
             top_sector = max(sectors.items(), key=lambda x: x[1])
-            patterns.append(Pattern(
-                name='sector_specialization',
-                description=f"Spécialisation sectorielle NAF {top_sector[0]}",
-                confidence=min(top_sector[1] / sum(sectors.values()), 0.9)
-            ))
+            patterns.append(
+                Pattern(
+                    name="sector_specialization",
+                    description=f"Spécialisation sectorielle NAF {top_sector[0]}",
+                    confidence=min(top_sector[1] / sum(sectors.values()), 0.9),
+                )
+            )
 
         # Pattern: Geographic clustering
         if cities:
             top_city = max(cities.items(), key=lambda x: x[1])
             if top_city[1] >= 3:
-                patterns.append(Pattern(
-                    name='geographic_cluster',
-                    description=f"Concentration géographique: {top_city[0]} ({top_city[1]} entreprises)",
-                    confidence=min(top_city[1] / 10, 0.85)
-                ))
+                patterns.append(
+                    Pattern(
+                        name="geographic_cluster",
+                        description=f"Concentration géographique: {top_city[0]} ({top_city[1]} entreprises)",
+                        confidence=min(top_city[1] / 10, 0.85),
+                    )
+                )
 
         return patterns
 
-    def _compute_confidence(
-        self,
-        signals: list[Signal],
-        patterns: list[Pattern]
-    ) -> float:
+    def _compute_confidence(self, signals: list[Signal], patterns: list[Pattern]) -> float:
         """Compute confidence based on signals and patterns found."""
         if not signals and not patterns:
             return 0.3  # Low confidence with no findings

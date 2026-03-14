@@ -4,7 +4,6 @@ Compares market conditions across multiple French territories to identify
 the best locations for business development.
 """
 
-
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import FunctionTool
@@ -87,8 +86,7 @@ Comparer objectivement plusieurs territoires sur des criteres economiques pour a
 
 
 def create_comparison_agent(
-    model_id: str = "qwen3.5:27b",
-    base_url: str = "http://localhost:11434/v1"
+    model_id: str = "qwen3.5:27b", base_url: str = "http://localhost:11434/v1"
 ) -> ChatAgent:
     """Create a ComparisonAgent for territorial comparison.
 

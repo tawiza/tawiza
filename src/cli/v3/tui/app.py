@@ -52,9 +52,15 @@ class StatusBar(Static):
     browser_status = reactive("Ready")
 
     def render(self) -> str:
-        gpu_color = "green" if self.gpu_percent < 50 else "yellow" if self.gpu_percent < 80 else "red"
-        cpu_color = "green" if self.cpu_percent < 50 else "yellow" if self.cpu_percent < 80 else "red"
-        ram_color = "green" if self.ram_percent < 50 else "yellow" if self.ram_percent < 80 else "red"
+        gpu_color = (
+            "green" if self.gpu_percent < 50 else "yellow" if self.gpu_percent < 80 else "red"
+        )
+        cpu_color = (
+            "green" if self.cpu_percent < 50 else "yellow" if self.cpu_percent < 80 else "red"
+        )
+        ram_color = (
+            "green" if self.ram_percent < 50 else "yellow" if self.ram_percent < 80 else "red"
+        )
 
         browser_icon = "●" if self.browser_status == "Active" else "○"
         browser_color = "green" if self.browser_status == "Active" else "dim"
@@ -220,6 +226,7 @@ class TawizaApp(App):
         import json
 
         from src.cli.constants import PROJECT_ROOT
+
         prefs_file = PROJECT_ROOT / ".tui_preferences.json"
         try:
             if prefs_file.exists():
@@ -249,6 +256,7 @@ class TawizaApp(App):
         # Save preference in background thread to avoid blocking
         def _save_prefs():
             from src.cli.constants import PROJECT_ROOT
+
             prefs_file = PROJECT_ROOT / ".tui_preferences.json"
             try:
                 prefs = {}
@@ -294,6 +302,7 @@ class TawizaApp(App):
 
             # Dynamic import
             import importlib
+
             module = importlib.import_module(module_path)
             screen_class = getattr(module, class_name)
 
@@ -312,6 +321,7 @@ class TawizaApp(App):
         except Exception as e:
             logger.error(f"Failed to mount screen {screen_id}: {e}")
             import traceback
+
             logger.error(traceback.format_exc())
             return False
 
@@ -335,6 +345,7 @@ class TawizaApp(App):
 
         def _do_import():
             import importlib
+
             module = importlib.import_module(module_path)
             return getattr(module, class_name)
 
@@ -384,8 +395,8 @@ class TawizaApp(App):
             name="app_metrics",
             callback=self._update_metrics,
             priority=RefreshPriority.LOW,
-            active_interval=2.0,   # 2s when active
-            idle_interval=5.0,     # 5s when idle
+            active_interval=2.0,  # 2s when active
+            idle_interval=5.0,  # 5s when idle
             background_interval=10.0,  # 10s when in background
         )
         self._refresh_manager.start_timer("app_metrics")
@@ -576,6 +587,7 @@ class TawizaApp(App):
         """Focus the input field if available."""
         try:
             from textual.widgets import Input
+
             input_widget = self.screen.query_one(Input)
             input_widget.focus()
         except Exception:

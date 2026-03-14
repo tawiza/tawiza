@@ -153,10 +153,7 @@ class MLflowAdapter(IMLExperimentTracker):
             model_uri = f"runs:/{run_id}/{model_path}"
             result = mlflow.register_model(model_uri, model_name)
 
-            logger.info(
-                f"Registered model {model_name} version {result.version} "
-                f"from run {run_id}"
-            )
+            logger.info(f"Registered model {model_name} version {result.version} from run {run_id}")
 
             return result.version
 

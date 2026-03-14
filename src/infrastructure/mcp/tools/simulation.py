@@ -17,6 +17,7 @@ from mcp.server.fastmcp import Context, FastMCP
 @dataclass
 class Actor:
     """An economic actor in the simulation."""
+
     id: str
     type: str  # enterprise, institution, investor, media
     name: str
@@ -40,6 +41,7 @@ class Actor:
 @dataclass
 class SimulationEvent:
     """An event in the simulation."""
+
     type: str
     description: str
     affected_sectors: list[str]
@@ -59,6 +61,7 @@ class SimulationEvent:
 @dataclass
 class SimulationResult:
     """Results from a scenario simulation."""
+
     scenario: str
     territory: str
     event: SimulationEvent
@@ -245,10 +248,13 @@ def register_simulation_tools(mcp: FastMCP) -> None:
         # Get scenario details
         if scenario == "custom":
             if not custom_event:
-                return json.dumps({
-                    "success": False,
-                    "error": "custom_event requis pour scenario 'custom'",
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": "custom_event requis pour scenario 'custom'",
+                    },
+                    ensure_ascii=False,
+                )
             event = SimulationEvent(
                 type="custom",
                 description=custom_event,
@@ -268,10 +274,13 @@ def register_simulation_tools(mcp: FastMCP) -> None:
             )
             scenario_name = sc["name"]
         else:
-            return json.dumps({
-                "success": False,
-                "error": f"Scenario inconnu: {scenario}. Disponibles: {list(SCENARIOS.keys())}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Scenario inconnu: {scenario}. Disponibles: {list(SCENARIOS.keys())}",
+                },
+                ensure_ascii=False,
+            )
 
         notify(f"[Simulation] Scenario: {scenario_name}", 10)
 
@@ -294,7 +303,7 @@ def register_simulation_tools(mcp: FastMCP) -> None:
 **Duree**: {event.duration}
 **Territoire**: {territory}
 **Secteur principal**: {sector}
-**Secteurs affectes**: {', '.join(event.affected_sectors)}
+**Secteurs affectes**: {", ".join(event.affected_sectors)}
 
 Utilise l'outil sirene_search pour analyser le contexte territorial (entreprises presentes).
 Puis genere une analyse complete avec:
@@ -310,15 +319,20 @@ Puis genere une analyse complete avec:
                 agent_result = str(agent_response.msg.content)
                 notify("[SimulationAgent] Simulation terminee", 90)
 
-                return json.dumps({
-                    "success": True,
-                    "mode": "agent",
-                    "scenario": scenario_name,
-                    "territory": territory,
-                    "event": event.to_dict(),
-                    "agent_analysis": agent_result,
-                    "report_md": f"# Simulation: {scenario_name}\\n\\n{agent_result}",
-                }, ensure_ascii=False, indent=2, default=str)
+                return json.dumps(
+                    {
+                        "success": True,
+                        "mode": "agent",
+                        "scenario": scenario_name,
+                        "territory": territory,
+                        "event": event.to_dict(),
+                        "agent_analysis": agent_result,
+                        "report_md": f"# Simulation: {scenario_name}\\n\\n{agent_result}",
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                    default=str,
+                )
 
             except Exception as e:
                 logger.error(f"SimulationAgent failed: {e}, falling back to direct LLM")
@@ -347,13 +361,16 @@ Puis genere une analyse complete avec:
                 sectors[naf] = sectors.get(naf, 0) + 1
         main_sectors = sorted(sectors.keys(), key=lambda x: sectors[x], reverse=True)[:5]
 
-        notify(f"[Simulation] Contexte: {enterprises_count} entreprises, secteurs: {main_sectors}", 40)
+        notify(
+            f"[Simulation] Contexte: {enterprises_count} entreprises, secteurs: {main_sectors}", 40
+        )
 
         # Run LLM simulation
         notify("[Simulation] Generation des predictions LLM...", 50)
 
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
 
             prompt = SIMULATION_PROMPT.format(
@@ -378,9 +395,8 @@ Puis genere une analyse complete avec:
 
             sim_data = json.loads(json_str.strip())
 
-            impacts = (
-                sim_data.get("short_term_impacts", []) +
-                sim_data.get("medium_term_impacts", [])
+            impacts = sim_data.get("short_term_impacts", []) + sim_data.get(
+                "medium_term_impacts", []
             )
             predictions = sim_data.get("predictions", {})
             recommendations = sim_data.get("recommendations", [])
@@ -392,8 +408,16 @@ Puis genere une analyse complete avec:
             logger.error(f"LLM simulation failed: {e}")
             # Fallback to rule-based simulation
             impacts = [
-                {"actor_type": "entreprises", "impact": f"Impact {event.type} sur le secteur {sector}", "severity": int(event.magnitude / 10)},
-                {"actor_type": "emploi", "impact": "Variations possibles de l'emploi local", "severity": int(event.magnitude / 15)},
+                {
+                    "actor_type": "entreprises",
+                    "impact": f"Impact {event.type} sur le secteur {sector}",
+                    "severity": int(event.magnitude / 10),
+                },
+                {
+                    "actor_type": "emploi",
+                    "impact": "Variations possibles de l'emploi local",
+                    "severity": int(event.magnitude / 15),
+                },
             ]
             predictions = {
                 "emploi": "Impact modere a evaluer",
@@ -447,10 +471,10 @@ Puis genere une analyse complete avec:
 
 | Dimension | Prediction |
 |-----------|------------|
-| Emploi | {predictions.get('emploi', 'N/A')} |
-| Investissement | {predictions.get('investissement', 'N/A')} |
-| Attractivite | {predictions.get('attractivite', 'N/A')} |
-| Concurrence | {predictions.get('concurrence', 'N/A')} |
+| Emploi | {predictions.get("emploi", "N/A")} |
+| Investissement | {predictions.get("investissement", "N/A")} |
+| Attractivite | {predictions.get("attractivite", "N/A")} |
+| Concurrence | {predictions.get("concurrence", "N/A")} |
 
 ## Recommandations
 
@@ -466,15 +490,20 @@ Puis genere une analyse complete avec:
 
         notify(f"Simulation terminee (confiance: {confidence}%)", 100)
 
-        return json.dumps({
-            "success": True,
-            **result.to_dict(),
-            "report_md": report_md,
-            "context": {
-                "enterprises_count": enterprises_count,
-                "main_sectors": main_sectors,
+        return json.dumps(
+            {
+                "success": True,
+                **result.to_dict(),
+                "report_md": report_md,
+                "context": {
+                    "enterprises_count": enterprises_count,
+                    "main_sectors": main_sectors,
+                },
             },
-        }, ensure_ascii=False, indent=2, default=str)
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def tawiza_scenarios_list(ctx: Context = None) -> str:
@@ -485,21 +514,27 @@ Puis genere une analyse complete avec:
         """
         scenarios_list = []
         for key, sc in SCENARIOS.items():
-            scenarios_list.append({
-                "id": key,
-                "name": sc["name"],
-                "description": sc["description"],
-                "magnitude": sc["magnitude"],
-                "duration": sc["duration"],
-                "affected_sectors": sc["affected_sectors"],
-            })
+            scenarios_list.append(
+                {
+                    "id": key,
+                    "name": sc["name"],
+                    "description": sc["description"],
+                    "magnitude": sc["magnitude"],
+                    "duration": sc["duration"],
+                    "affected_sectors": sc["affected_sectors"],
+                }
+            )
 
-        return json.dumps({
-            "success": True,
-            "scenarios": scenarios_list,
-            "custom_available": True,
-            "usage": "tawiza_simulate(scenario='<id>', territory='<ville>', sector='<secteur>')",
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "scenarios": scenarios_list,
+                "custom_available": True,
+                "usage": "tawiza_simulate(scenario='<id>', territory='<ville>', sector='<secteur>')",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def tawiza_impact_analysis(
@@ -525,6 +560,7 @@ Puis genere une analyse complete avec:
 
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
 
             prompt = f"""Analyse rapidement l'impact de cet evenement economique.
@@ -553,16 +589,23 @@ Reponds en JSON:
 
             analysis = json.loads(json_str.strip())
 
-            return json.dumps({
-                "success": True,
-                "territory": territory,
-                "sector": sector,
-                "event": event_description,
-                "analysis": analysis,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "territory": territory,
+                    "sector": sector,
+                    "event": event_description,
+                    "analysis": analysis,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )

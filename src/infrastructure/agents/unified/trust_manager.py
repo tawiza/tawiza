@@ -76,12 +76,7 @@ class TrustManager:
             return False
         return utc_now() < self._cooldown_until
 
-    def record_metrics(
-        self,
-        accuracy: float,
-        success_rate: float,
-        error_rate: float
-    ) -> None:
+    def record_metrics(self, accuracy: float, success_rate: float, error_rate: float) -> None:
         """Record performance metrics.
 
         Args:
@@ -127,9 +122,9 @@ class TrustManager:
         """
         # Metrics score (accuracy, success, low errors)
         metrics_score = (
-            self._metrics["accuracy"] * 0.4 +
-            self._metrics["success_rate"] * 0.4 +
-            (1 - self._metrics["error_rate"]) * 0.2
+            self._metrics["accuracy"] * 0.4
+            + self._metrics["success_rate"] * 0.4
+            + (1 - self._metrics["error_rate"]) * 0.2
         )
 
         # Feedback score
@@ -146,9 +141,9 @@ class TrustManager:
 
         # Weighted combination
         self._score = (
-            metrics_score * self.config.metrics_weight +
-            feedback_score * self.config.feedback_weight +
-            history_score * self.config.history_weight
+            metrics_score * self.config.metrics_weight
+            + feedback_score * self.config.feedback_weight
+            + history_score * self.config.history_weight
         )
 
         logger.debug(
@@ -177,9 +172,7 @@ class TrustManager:
         # Handle regression
         if new_level < self._level:
             if self.config.rollback_on_regression:
-                logger.warning(
-                    f"Trust regression: {self._level.name} -> {new_level.name}"
-                )
+                logger.warning(f"Trust regression: {self._level.name} -> {new_level.name}")
                 self._level = new_level
             # If rollback disabled, keep current level
         elif new_level > self._level:
@@ -208,10 +201,7 @@ class TrustManager:
         Returns:
             True if approval required
         """
-        required_level = self.TASK_REQUIREMENTS.get(
-            task_type,
-            AutonomyLevel.SUPERVISED
-        )
+        required_level = self.TASK_REQUIREMENTS.get(task_type, AutonomyLevel.SUPERVISED)
         return self._level < required_level
 
     def to_dict(self) -> dict:

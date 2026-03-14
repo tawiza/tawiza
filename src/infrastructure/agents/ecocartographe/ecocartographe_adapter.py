@@ -46,11 +46,15 @@ class EcoCartographeAdapter(BaseAgent):
         # Créer un type d'agent personnalisé ou utiliser OPENMANUS comme base
         super().__init__(
             agent_type=AgentType.OPENMANUS,  # On réutilise ce type pour compatibilité
-            config=config or {}
+            config=config or {},
         )
 
         self.projets: dict[str, ProjetCartographie] = {}
-        self.output_dir = Path(config.get('output_dir', './workspace/outputs')) if config else Path('./workspace/outputs')
+        self.output_dir = (
+            Path(config.get("output_dir", "./workspace/outputs"))
+            if config
+            else Path("./workspace/outputs")
+        )
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info("EcoCartographeAdapter initialisé")
@@ -70,45 +74,39 @@ class EcoCartographeAdapter(BaseAgent):
             Résultat de la tâche
         """
         task_id = self._create_task(task_config)
-        action = task_config.get('action', 'pipeline_complet')
+        action = task_config.get("action", "pipeline_complet")
 
         try:
             self._update_task(task_id, {"status": TaskStatus.RUNNING})
             self._update_progress(task_id, 0, f"Démarrage: {action}")
 
-            if action == 'creer_projet':
+            if action == "creer_projet":
                 result = await self._creer_projet(task_id, task_config)
-            elif action == 'ingerer':
+            elif action == "ingerer":
                 result = await self._ingerer_sources(task_id, task_config)
-            elif action == 'extraire':
+            elif action == "extraire":
                 result = await self._extraire_entites(task_id, task_config)
-            elif action == 'analyser':
+            elif action == "analyser":
                 result = await self._analyser_reseau(task_id, task_config)
-            elif action == 'visualiser':
+            elif action == "visualiser":
                 result = await self._generer_visualisations(task_id, task_config)
-            elif action == 'collecter':
+            elif action == "collecter":
                 result = await self._collecter_donnees(task_id, task_config)
-            elif action == 'pipeline_complet':
+            elif action == "pipeline_complet":
                 result = await self._pipeline_complet(task_id, task_config)
-            elif action == 'pipeline_auto':
+            elif action == "pipeline_auto":
                 result = await self._pipeline_auto(task_id, task_config)
             else:
                 raise ValueError(f"Action inconnue: {action}")
 
-            self._update_task(task_id, {
-                "status": TaskStatus.COMPLETED,
-                "result": result
-            })
+            self._update_task(task_id, {"status": TaskStatus.COMPLETED, "result": result})
             self._update_progress(task_id, 100, "Terminé")
 
             return result
 
         except Exception as e:
             logger.exception(f"Erreur dans la tâche {task_id}")
-            self._update_task(task_id, {
-                "status": TaskStatus.FAILED,
-                "error": str(e)
-            })
+            self._update_task(task_id, {"status": TaskStatus.FAILED, "error": str(e)})
             raise
 
     async def _creer_projet(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -116,33 +114,29 @@ class EcoCartographeAdapter(BaseAgent):
         self._update_progress(task_id, 10, "Création du projet")
 
         extraction_config = ConfigurationExtraction(
-            modele_spacy=config.get('modele_spacy', 'fr_core_news_lg'),
-            modele_ollama=config.get('modele_ollama', 'mistral:latest'),
-            seuil_proximite_km=config.get('seuil_proximite_km', 50.0),
-            seuil_similarite_thematique=config.get('seuil_similarite', 0.7)
+            modele_spacy=config.get("modele_spacy", "fr_core_news_lg"),
+            modele_ollama=config.get("modele_ollama", "mistral:latest"),
+            seuil_proximite_km=config.get("seuil_proximite_km", 50.0),
+            seuil_similarite_thematique=config.get("seuil_similarite", 0.7),
         )
 
         projet = ProjetCartographie(
-            nom=config.get('nom', 'Cartographie sans nom'),
-            description=config.get('description'),
-            territoire=config.get('territoire'),
-            thematique=config.get('thematique'),
-            configuration=extraction_config
+            nom=config.get("nom", "Cartographie sans nom"),
+            description=config.get("description"),
+            territoire=config.get("territoire"),
+            thematique=config.get("thematique"),
+            configuration=extraction_config,
         )
 
         self.projets[projet.id] = projet
         self._add_log(task_id, f"Projet créé: {projet.id} - {projet.nom}")
 
-        return {
-            "projet_id": projet.id,
-            "nom": projet.nom,
-            "statut": projet.statut.value
-        }
+        return {"projet_id": projet.id, "nom": projet.nom, "statut": projet.statut.value}
 
     async def _ingerer_sources(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
         """Ingère les sources de données dans le projet"""
-        projet_id = config.get('projet_id')
-        sources_config = config.get('sources', [])
+        projet_id = config.get("projet_id")
+        sources_config = config.get("sources", [])
 
         if not projet_id or projet_id not in self.projets:
             raise ValueError(f"Projet non trouvé: {projet_id}")
@@ -152,13 +146,15 @@ class EcoCartographeAdapter(BaseAgent):
 
         for i, src_config in enumerate(sources_config):
             progress = 20 + (i * 30 // len(sources_config))
-            self._update_progress(task_id, progress, f"Ingestion source {i+1}/{len(sources_config)}")
+            self._update_progress(
+                task_id, progress, f"Ingestion source {i + 1}/{len(sources_config)}"
+            )
 
             source = SourceDonnees(
-                type=src_config.get('type', 'csv'),
-                chemin=src_config.get('chemin', ''),
-                url=src_config.get('url'),
-                configuration=src_config.get('configuration', {})
+                type=src_config.get("type", "csv"),
+                chemin=src_config.get("chemin", ""),
+                url=src_config.get("url"),
+                configuration=src_config.get("configuration", {}),
             )
             projet.ajouter_source(source)
             self._add_log(task_id, f"Source ajoutée: {source.type} - {source.chemin or source.url}")
@@ -166,12 +162,12 @@ class EcoCartographeAdapter(BaseAgent):
         return {
             "projet_id": projet_id,
             "nb_sources": len(projet.sources),
-            "sources": [{"type": s.type, "chemin": s.chemin} for s in projet.sources]
+            "sources": [{"type": s.type, "chemin": s.chemin} for s in projet.sources],
         }
 
     async def _extraire_entites(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
         """Extrait les entités des sources"""
-        projet_id = config.get('projet_id')
+        projet_id = config.get("projet_id")
 
         if not projet_id or projet_id not in self.projets:
             raise ValueError(f"Projet non trouvé: {projet_id}")
@@ -190,15 +186,15 @@ class EcoCartographeAdapter(BaseAgent):
             self._update_progress(task_id, progress, f"Extraction depuis {source.type}")
 
             try:
-                if source.type == 'csv':
+                if source.type == "csv":
                     acteurs = await extracteur.extraire_depuis_csv(source.chemin)
-                elif source.type == 'excel':
+                elif source.type == "excel":
                     acteurs = await extracteur.extraire_depuis_excel(source.chemin)
-                elif source.type == 'json':
+                elif source.type == "json":
                     acteurs = await extracteur.extraire_depuis_json(source.chemin)
-                elif source.type == 'texte':
+                elif source.type == "texte":
                     # Lire le fichier texte
-                    with open(source.chemin, encoding='utf-8') as f:
+                    with open(source.chemin, encoding="utf-8") as f:
                         texte = f.read()
                     textes_extraits.append(texte)
                     acteurs = await extracteur.extraire_depuis_texte(texte, source.chemin)
@@ -220,21 +216,21 @@ class EcoCartographeAdapter(BaseAgent):
         acteurs_uniques = self._dedupliquer_acteurs(tous_acteurs)
 
         # Stocker temporairement
-        projet.metadata = projet.metadata if hasattr(projet, 'metadata') else {}
-        projet.metadata['acteurs'] = acteurs_uniques
-        projet.metadata['textes'] = textes_extraits
+        projet.metadata = projet.metadata if hasattr(projet, "metadata") else {}
+        projet.metadata["acteurs"] = acteurs_uniques
+        projet.metadata["textes"] = textes_extraits
 
         self._add_log(task_id, f"Extraction terminée: {len(acteurs_uniques)} acteurs uniques")
 
         return {
             "projet_id": projet_id,
             "nb_acteurs": len(acteurs_uniques),
-            "acteurs_par_type": self._compter_par_type(acteurs_uniques)
+            "acteurs_par_type": self._compter_par_type(acteurs_uniques),
         }
 
     async def _analyser_reseau(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
         """Analyse le réseau et détecte les communautés"""
-        projet_id = config.get('projet_id')
+        projet_id = config.get("projet_id")
 
         if not projet_id or projet_id not in self.projets:
             raise ValueError(f"Projet non trouvé: {projet_id}")
@@ -242,8 +238,8 @@ class EcoCartographeAdapter(BaseAgent):
         projet = self.projets[projet_id]
         projet.statut = StatutProjet.ANALYSE
 
-        acteurs = projet.metadata.get('acteurs', [])
-        textes = projet.metadata.get('textes', [])
+        acteurs = projet.metadata.get("acteurs", [])
+        textes = projet.metadata.get("textes", [])
 
         if not acteurs:
             raise ValueError("Aucun acteur extrait. Exécutez d'abord l'extraction.")
@@ -265,11 +261,14 @@ class EcoCartographeAdapter(BaseAgent):
         analyseur_reseau.exporter_gexf(str(gexf_path))
 
         # Stocker les résultats
-        projet.metadata['relations'] = relations
-        projet.metadata['analyse'] = analyse
-        projet.metadata['analyseur_reseau'] = analyseur_reseau
+        projet.metadata["relations"] = relations
+        projet.metadata["analyse"] = analyse
+        projet.metadata["analyseur_reseau"] = analyseur_reseau
 
-        self._add_log(task_id, f"Analyse terminée: {len(relations)} relations, {len(analyse.communautes)} communautés")
+        self._add_log(
+            task_id,
+            f"Analyse terminée: {len(relations)} relations, {len(analyse.communautes)} communautés",
+        )
 
         return {
             "projet_id": projet_id,
@@ -280,14 +279,14 @@ class EcoCartographeAdapter(BaseAgent):
                 "densite": analyse.densite,
                 "nb_communautes": len(analyse.communautes),
                 "modularite": analyse.modularite,
-                "acteurs_centraux": analyse.acteurs_centraux[:5]
+                "acteurs_centraux": analyse.acteurs_centraux[:5],
             },
-            "fichier_gexf": str(gexf_path)
+            "fichier_gexf": str(gexf_path),
         }
 
     async def _generer_visualisations(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
         """Génère les visualisations (carte et graphe)"""
-        projet_id = config.get('projet_id')
+        projet_id = config.get("projet_id")
 
         if not projet_id or projet_id not in self.projets:
             raise ValueError(f"Projet non trouvé: {projet_id}")
@@ -295,9 +294,9 @@ class EcoCartographeAdapter(BaseAgent):
         projet = self.projets[projet_id]
         projet.statut = StatutProjet.VISUALISATION
 
-        acteurs = projet.metadata.get('acteurs', [])
-        relations = projet.metadata.get('relations', [])
-        analyse = projet.metadata.get('analyse')
+        acteurs = projet.metadata.get("acteurs", [])
+        relations = projet.metadata.get("relations", [])
+        analyse = projet.metadata.get("analyse")
 
         if not acteurs:
             raise ValueError("Aucun acteur. Exécutez d'abord l'extraction et l'analyse.")
@@ -307,32 +306,34 @@ class EcoCartographeAdapter(BaseAgent):
         # Générer la carte
         self._update_progress(task_id, 85, "Génération de la carte")
         fichier_carte = await generateur.generer_carte(
-            acteurs, relations,
-            nom_fichier=f"{projet_id}_carte.html"
+            acteurs, relations, nom_fichier=f"{projet_id}_carte.html"
         )
 
         # Générer le graphe
         self._update_progress(task_id, 90, "Génération du graphe")
         fichier_graphe = await generateur.generer_graphe(
-            acteurs, relations,
-            nom_fichier=f"{projet_id}_graphe.html"
+            acteurs, relations, nom_fichier=f"{projet_id}_graphe.html"
         )
 
         # Générer le rapport
         self._update_progress(task_id, 90, "Génération du rapport")
         fichier_rapport = await generateur.generer_rapport(
-            projet.nom, acteurs, relations, analyse,
-            nom_fichier=f"{projet_id}_rapport.md"
+            projet.nom, acteurs, relations, analyse, nom_fichier=f"{projet_id}_rapport.md"
         )
 
         # Générer le dashboard interactif
         self._update_progress(task_id, 95, "Génération du dashboard interactif")
         from .dashboard_generator import DashboardGenerator
+
         dashboard_gen = DashboardGenerator(str(self.output_dir))
         fichier_dashboard = dashboard_gen.generer_dashboard(
-            projet.nom, acteurs, relations, analyse,
-            fichier_carte, fichier_graphe,
-            nom_fichier=f"{projet_id}_dashboard.html"
+            projet.nom,
+            acteurs,
+            relations,
+            analyse,
+            fichier_carte,
+            fichier_graphe,
+            nom_fichier=f"{projet_id}_dashboard.html",
         )
 
         # Créer le résultat final
@@ -342,7 +343,7 @@ class EcoCartographeAdapter(BaseAgent):
             analyse=analyse,
             fichier_carte=fichier_carte,
             fichier_graphe=fichier_graphe,
-            fichier_rapport=fichier_rapport
+            fichier_rapport=fichier_rapport,
         )
 
         projet.terminer(resultat)
@@ -353,13 +354,13 @@ class EcoCartographeAdapter(BaseAgent):
                 "carte": fichier_carte,
                 "graphe": fichier_graphe,
                 "rapport": fichier_rapport,
-                "dashboard": fichier_dashboard
+                "dashboard": fichier_dashboard,
             },
             "resume": {
                 "nb_acteurs": len(acteurs),
                 "nb_relations": len(relations),
-                "nb_communautes": len(analyse.communautes) if analyse else 0
-            }
+                "nb_communautes": len(analyse.communautes) if analyse else 0,
+            },
         }
 
     async def _pipeline_complet(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -368,8 +369,8 @@ class EcoCartographeAdapter(BaseAgent):
         # 1. Créer le projet
         self._update_progress(task_id, 5, "Création du projet")
         result_creation = await self._creer_projet(task_id, config)
-        projet_id = result_creation['projet_id']
-        config['projet_id'] = projet_id
+        projet_id = result_creation["projet_id"]
+        config["projet_id"] = projet_id
 
         # 2. Ingérer les sources
         self._update_progress(task_id, 15, "Ingestion des sources")
@@ -391,9 +392,9 @@ class EcoCartographeAdapter(BaseAgent):
             "projet_id": projet_id,
             "statut": "termine",
             "extraction": result_extraction,
-            "analyse": result_analyse['analyse'],
-            "fichiers": result_visu['fichiers'],
-            "resume": result_visu['resume']
+            "analyse": result_analyse["analyse"],
+            "fichiers": result_visu["fichiers"],
+            "resume": result_visu["resume"],
         }
 
     async def _collecter_donnees(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -401,30 +402,27 @@ class EcoCartographeAdapter(BaseAgent):
         Collecte automatiquement des données sur les acteurs d'innovation.
         Recherche sur le web et les APIs publiques.
         """
-        territoire = config.get('territoire', 'France')
-        thematique = config.get('thematique')
-        limite = config.get('limite', 100)
-        projet_id = config.get('projet_id')
+        territoire = config.get("territoire", "France")
+        thematique = config.get("thematique")
+        limite = config.get("limite", 100)
+        projet_id = config.get("projet_id")
 
         self._update_progress(task_id, 10, f"Recherche d'acteurs: {territoire}")
 
         # Créer le projet si nécessaire
         if not projet_id:
-            nom_projet = config.get('nom', f"Collecte {territoire} {thematique or ''}")
-            result_creation = await self._creer_projet(task_id, {
-                'nom': nom_projet,
-                'territoire': territoire,
-                'thematique': thematique
-            })
-            projet_id = result_creation['projet_id']
-            config['projet_id'] = projet_id
+            nom_projet = config.get("nom", f"Collecte {territoire} {thematique or ''}")
+            result_creation = await self._creer_projet(
+                task_id, {"nom": nom_projet, "territoire": territoire, "thematique": thematique}
+            )
+            projet_id = result_creation["projet_id"]
+            config["projet_id"] = projet_id
 
         projet = self.projets[projet_id]
 
         # Initialiser le collecteur
         collecteur = CollecteurDonnees(
-            config=projet.configuration,
-            output_dir=str(self.output_dir / "datasets")
+            config=projet.configuration, output_dir=str(self.output_dir / "datasets")
         )
 
         self._update_progress(task_id, 20, "Recherche via API Entreprises")
@@ -432,18 +430,14 @@ class EcoCartographeAdapter(BaseAgent):
 
         # Collecter les données
         resultat = await collecteur.rechercher_acteurs(
-            territoire=territoire,
-            thematique=thematique,
-            limite=limite
+            territoire=territoire, thematique=thematique, limite=limite
         )
 
         self._update_progress(task_id, 70, f"Collecté {len(resultat.acteurs)} acteurs")
 
         # Sauvegarder le dataset
         nom_fichier = f"{projet_id}_dataset.json"
-        chemin_dataset = await collecteur.sauvegarder_dataset(
-            resultat, nom_fichier, format="json"
-        )
+        chemin_dataset = await collecteur.sauvegarder_dataset(resultat, nom_fichier, format="json")
 
         # Ajouter comme source au projet
         source = SourceDonnees(
@@ -451,13 +445,13 @@ class EcoCartographeAdapter(BaseAgent):
             chemin=chemin_dataset,
             date_ingestion=datetime.utcnow(),
             nb_enregistrements=len(resultat.acteurs),
-            statut="completed"
+            statut="completed",
         )
         projet.ajouter_source(source)
 
         # Stocker les acteurs dans le projet
-        projet.metadata = projet.metadata if hasattr(projet, 'metadata') else {}
-        projet.metadata['acteurs'] = resultat.acteurs
+        projet.metadata = projet.metadata if hasattr(projet, "metadata") else {}
+        projet.metadata["acteurs"] = resultat.acteurs
 
         self._update_progress(task_id, 90, "Collecte terminée")
 
@@ -467,7 +461,7 @@ class EcoCartographeAdapter(BaseAgent):
             "sources_utilisees": resultat.sources_utilisees,
             "fichier_dataset": chemin_dataset,
             "acteurs_par_type": self._compter_par_type(resultat.acteurs),
-            "erreurs": resultat.erreurs if resultat.erreurs else None
+            "erreurs": resultat.erreurs if resultat.erreurs else None,
         }
 
     async def _pipeline_auto(self, task_id: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -475,15 +469,15 @@ class EcoCartographeAdapter(BaseAgent):
         Pipeline automatique: collecte les données si aucune source n'est fournie,
         puis exécute le pipeline complet.
         """
-        territoire = config.get('territoire', 'France')
-        thematique = config.get('thematique')
-        sources = config.get('sources', [])
+        territoire = config.get("territoire", "France")
+        thematique = config.get("thematique")
+        sources = config.get("sources", [])
 
         # 1. Créer le projet
         self._update_progress(task_id, 5, "Création du projet")
         result_creation = await self._creer_projet(task_id, config)
-        projet_id = result_creation['projet_id']
-        config['projet_id'] = projet_id
+        projet_id = result_creation["projet_id"]
+        config["projet_id"] = projet_id
 
         # 2. Collecter ou ingérer les données
         if not sources:
@@ -491,12 +485,15 @@ class EcoCartographeAdapter(BaseAgent):
             self._update_progress(task_id, 10, "Collecte automatique des données")
             self._add_log(task_id, "Aucune source fournie, lancement de la collecte automatique")
 
-            result_collecte = await self._collecter_donnees(task_id, {
-                'projet_id': projet_id,
-                'territoire': territoire,
-                'thematique': thematique,
-                'limite': config.get('limite', 100)
-            })
+            result_collecte = await self._collecter_donnees(
+                task_id,
+                {
+                    "projet_id": projet_id,
+                    "territoire": territoire,
+                    "thematique": thematique,
+                    "limite": config.get("limite", 100),
+                },
+            )
 
             self._add_log(task_id, f"Collecté {result_collecte['nb_acteurs']} acteurs")
         else:
@@ -520,9 +517,9 @@ class EcoCartographeAdapter(BaseAgent):
             "projet_id": projet_id,
             "statut": "termine",
             "mode": "auto" if not sources else "sources",
-            "analyse": result_analyse['analyse'],
-            "fichiers": result_visu['fichiers'],
-            "resume": result_visu['resume']
+            "analyse": result_analyse["analyse"],
+            "fichiers": result_visu["fichiers"],
+            "resume": result_visu["resume"],
         }
 
     def _dedupliquer_acteurs(self, acteurs: list[Acteur]) -> list[Acteur]:

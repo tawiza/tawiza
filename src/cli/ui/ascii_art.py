@@ -18,6 +18,7 @@ from dataclasses import dataclass
 @dataclass
 class Point:
     """2D point"""
+
     x: float
     y: float
 
@@ -351,7 +352,7 @@ class MatrixRain:
 
         while time.time() - start_time < duration:
             # Clear screen
-            os.system('clear' if os.name != 'nt' else 'cls')
+            os.system("clear" if os.name != "nt" else "cls")
 
             # Generate and print frame
             frame = self.generate_frame()

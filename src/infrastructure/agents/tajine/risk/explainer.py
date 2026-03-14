@@ -92,7 +92,7 @@ class RiskExplanation:
             f"# Analyse de Risque - {self.denomination}",
             f"**SIREN:** {self.siren}",
             f"**Score:** {self.score.score:.0f}/100 ({self.score.risk_level.value})",
-            f"**Confiance:** {self.score.confidence*100:.0f}%",
+            f"**Confiance:** {self.score.confidence * 100:.0f}%",
             "",
             "## Résumé",
             self.summary,
@@ -101,26 +101,32 @@ class RiskExplanation:
         ]
 
         for factor in self.factors[:5]:
-            icon = "🔴" if factor.direction == FactorDirection.CRITICAL else (
-                "🟡" if factor.direction == FactorDirection.NEGATIVE else "🟢"
+            icon = (
+                "🔴"
+                if factor.direction == FactorDirection.CRITICAL
+                else ("🟡" if factor.direction == FactorDirection.NEGATIVE else "🟢")
             )
             lines.append(f"- {icon} **{factor.name}**: {factor.description}")
 
         if self.recommendations:
-            lines.extend([
-                "",
-                "## Recommandations",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "## Recommandations",
+                ]
+            )
             for rec in self.recommendations:
                 lines.append(f"- {rec}")
 
-        lines.extend([
-            "",
-            "## Sources de Données",
-            ", ".join(self.data_sources),
-            "",
-            f"*Généré le {self.generated_at.strftime('%d/%m/%Y à %H:%M')}*",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Sources de Données",
+                ", ".join(self.data_sources),
+                "",
+                f"*Généré le {self.generated_at.strftime('%d/%m/%Y à %H:%M')}*",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -187,17 +193,17 @@ FACTOR_TEMPLATES = {
 # Risk level summaries
 RISK_SUMMARIES = {
     RiskLevel.VERY_LOW: "Entreprise présentant un profil de risque très faible. "
-                        "Les indicateurs sont favorables sur l'ensemble des dimensions analysées.",
+    "Les indicateurs sont favorables sur l'ensemble des dimensions analysées.",
     RiskLevel.LOW: "Entreprise présentant un profil de risque faible. "
-                   "Quelques points d'attention mineurs mais situation globalement saine.",
+    "Quelques points d'attention mineurs mais situation globalement saine.",
     RiskLevel.MODERATE: "Entreprise présentant un risque modéré. "
-                        "Certains indicateurs méritent une attention particulière.",
+    "Certains indicateurs méritent une attention particulière.",
     RiskLevel.HIGH: "Entreprise présentant un risque élevé. "
-                    "Plusieurs signaux d'alerte détectés nécessitant une vigilance accrue.",
+    "Plusieurs signaux d'alerte détectés nécessitant une vigilance accrue.",
     RiskLevel.VERY_HIGH: "Entreprise présentant un risque très élevé. "
-                         "Signaux d'alerte multiples - prudence recommandée.",
+    "Signaux d'alerte multiples - prudence recommandée.",
     RiskLevel.CRITICAL: "Situation critique détectée. "
-                        "Risque majeur avéré - engagement fortement déconseillé.",
+    "Risque majeur avéré - engagement fortement déconseillé.",
 }
 
 
@@ -222,6 +228,7 @@ class RiskExplainer:
         if use_shap:
             try:
                 import shap  # noqa: F401
+
                 self._shap_available = True
                 logger.info("SHAP available for risk explanations")
             except ImportError:
@@ -284,136 +291,158 @@ class RiskExplainer:
         # BODACC signals (negative factors)
         if bodacc.nb_privileges_12m > 0:
             template = FACTOR_TEMPLATES["privileges_recent"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=bodacc.nb_privileges_12m,
-                impact=bodacc.nb_privileges_12m * 15.0,
-                direction=FactorDirection.NEGATIVE,
-                description=template["description_template"].format(
-                    count=bodacc.nb_privileges_12m
-                ),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=bodacc.nb_privileges_12m,
+                    impact=bodacc.nb_privileges_12m * 15.0,
+                    direction=FactorDirection.NEGATIVE,
+                    description=template["description_template"].format(
+                        count=bodacc.nb_privileges_12m
+                    ),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         if bodacc.nb_privileges_24m > bodacc.nb_privileges_12m:
             older = bodacc.nb_privileges_24m - bodacc.nb_privileges_12m
             template = FACTOR_TEMPLATES["privileges_old"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=older,
-                impact=older * 8.0,
-                direction=FactorDirection.NEGATIVE,
-                description=template["description_template"].format(count=older),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=older,
+                    impact=older * 8.0,
+                    direction=FactorDirection.NEGATIVE,
+                    description=template["description_template"].format(count=older),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         if bodacc.has_liquidation:
             template = FACTOR_TEMPLATES["liquidation"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=True,
-                impact=35.0,
-                direction=FactorDirection.CRITICAL,
-                description=template["description_template"],
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=True,
+                    impact=35.0,
+                    direction=FactorDirection.CRITICAL,
+                    description=template["description_template"],
+                    recommendation=template["recommendation"],
+                )
+            )
         elif bodacc.has_redressement:
             template = FACTOR_TEMPLATES["redressement"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=True,
-                impact=20.0,
-                direction=FactorDirection.CRITICAL,
-                description=template["description_template"],
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=True,
+                    impact=20.0,
+                    direction=FactorDirection.CRITICAL,
+                    description=template["description_template"],
+                    recommendation=template["recommendation"],
+                )
+            )
         elif bodacc.has_procedure_collective:
             template = FACTOR_TEMPLATES["procedure_collective"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=True,
-                impact=25.0,
-                direction=FactorDirection.NEGATIVE,
-                description=template["description_template"],
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=True,
+                    impact=25.0,
+                    direction=FactorDirection.NEGATIVE,
+                    description=template["description_template"],
+                    recommendation=template["recommendation"],
+                )
+            )
 
         if bodacc.nb_jugements_12m > 0:
             template = FACTOR_TEMPLATES["jugements"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=bodacc.nb_jugements_12m,
-                impact=bodacc.nb_jugements_12m * 12.0,
-                direction=FactorDirection.NEGATIVE,
-                description=template["description_template"].format(
-                    count=bodacc.nb_jugements_12m
-                ),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=bodacc.nb_jugements_12m,
+                    impact=bodacc.nb_jugements_12m * 12.0,
+                    direction=FactorDirection.NEGATIVE,
+                    description=template["description_template"].format(
+                        count=bodacc.nb_jugements_12m
+                    ),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         # SIRENE signals (can be positive)
         if sirene.age_years >= 5:
             template = FACTOR_TEMPLATES["age"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=sirene.age_years,
-                impact=-min(sirene.age_years, 10) * 2.0,  # Negative = reduces risk
-                direction=FactorDirection.POSITIVE,
-                description=template["description_template"].format(years=sirene.age_years),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=sirene.age_years,
+                    impact=-min(sirene.age_years, 10) * 2.0,  # Negative = reduces risk
+                    direction=FactorDirection.POSITIVE,
+                    description=template["description_template"].format(years=sirene.age_years),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         if sirene.effectif_actuel >= 10:
             template = FACTOR_TEMPLATES["effectif"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=sirene.effectif_actuel,
-                impact=-min(sirene.effectif_actuel, 50) * 0.5,
-                direction=FactorDirection.POSITIVE,
-                description=template["description_template"].format(
-                    count=sirene.effectif_actuel
-                ),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=sirene.effectif_actuel,
+                    impact=-min(sirene.effectif_actuel, 50) * 0.5,
+                    direction=FactorDirection.POSITIVE,
+                    description=template["description_template"].format(
+                        count=sirene.effectif_actuel
+                    ),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         # Sector/Regional risk
         if features.secteur_risque_national > 0.05:
             template = FACTOR_TEMPLATES["secteur_risque"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=features.secteur_risque_national,
-                impact=features.secteur_risque_national * 100.0,
-                direction=FactorDirection.NEGATIVE,
-                description=template["description_template"].format(
-                    rate=features.secteur_risque_national
-                ),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=features.secteur_risque_national,
+                    impact=features.secteur_risque_national * 100.0,
+                    direction=FactorDirection.NEGATIVE,
+                    description=template["description_template"].format(
+                        rate=features.secteur_risque_national
+                    ),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         if features.region_risque > 0.045:
             template = FACTOR_TEMPLATES["region_risque"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=features.region_risque,
-                impact=features.region_risque * 50.0,
-                direction=FactorDirection.NEGATIVE,
-                description=template["description_template"].format(
-                    rate=features.region_risque
-                ),
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=features.region_risque,
+                    impact=features.region_risque * 50.0,
+                    direction=FactorDirection.NEGATIVE,
+                    description=template["description_template"].format(
+                        rate=features.region_risque
+                    ),
+                    recommendation=template["recommendation"],
+                )
+            )
 
         # Inactive company
         if not sirene.is_active:
             template = FACTOR_TEMPLATES["inactive"]
-            factors.append(ExplanationFactor(
-                name=template["name"],
-                value=True,
-                impact=95.0,
-                direction=FactorDirection.CRITICAL,
-                description=template["description_template"],
-                recommendation=template["recommendation"],
-            ))
+            factors.append(
+                ExplanationFactor(
+                    name=template["name"],
+                    value=True,
+                    impact=95.0,
+                    direction=FactorDirection.CRITICAL,
+                    description=template["description_template"],
+                    recommendation=template["recommendation"],
+                )
+            )
 
         # Sort by absolute impact
         factors.sort(key=lambda f: abs(f.impact), reverse=True)
@@ -427,10 +456,7 @@ class RiskExplainer:
         style: ExplanationStyle,
     ) -> str:
         """Generate summary text based on risk level."""
-        base_summary = RISK_SUMMARIES.get(
-            score.risk_level,
-            "Profil de risque analysé."
-        )
+        base_summary = RISK_SUMMARIES.get(score.risk_level, "Profil de risque analysé.")
 
         if style == ExplanationStyle.SUMMARY:
             return base_summary
@@ -456,26 +482,31 @@ class RiskExplainer:
         lines = []
 
         # Score interpretation
-        lines.append(f"Le score de risque de {score.score:.0f}/100 place cette entreprise "
-                     f"dans la catégorie '{score.risk_level.value}'.")
+        lines.append(
+            f"Le score de risque de {score.score:.0f}/100 place cette entreprise "
+            f"dans la catégorie '{score.risk_level.value}'."
+        )
 
         # Confidence
         if score.confidence >= 0.8:
-            lines.append("La confiance dans cette évaluation est élevée, "
-                         "les données étant complètes et récentes.")
+            lines.append(
+                "La confiance dans cette évaluation est élevée, "
+                "les données étant complètes et récentes."
+            )
         elif score.confidence >= 0.6:
-            lines.append("La confiance est modérée. Certaines données peuvent "
-                         "être incomplètes ou anciennes.")
+            lines.append(
+                "La confiance est modérée. Certaines données peuvent être incomplètes ou anciennes."
+            )
         else:
-            lines.append("⚠️ La confiance est limitée en raison de données "
-                         "manquantes ou obsolètes.")
+            lines.append("⚠️ La confiance est limitée en raison de données manquantes ou obsolètes.")
 
         # Key factors analysis
         if style == ExplanationStyle.TECHNICAL:
             lines.append("\n### Détail des facteurs")
             for factor in factors[:5]:
-                lines.append(f"- **{factor.name}** (impact: {factor.impact:+.1f}): "
-                             f"{factor.description}")
+                lines.append(
+                    f"- **{factor.name}** (impact: {factor.impact:+.1f}): {factor.description}"
+                )
 
         return " ".join(lines)
 

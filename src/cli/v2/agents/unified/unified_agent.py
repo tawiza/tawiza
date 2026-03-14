@@ -15,6 +15,7 @@ from .tools import ToolRegistry
 
 class AgentEvent(Enum):
     """Events emitted by the agent."""
+
     THINKING = "thinking"
     ACTING = "acting"
     OBSERVING = "observing"
@@ -25,6 +26,7 @@ class AgentEvent(Enum):
 @dataclass
 class AgentCallback:
     """Callback data for agent events."""
+
     event: AgentEvent
     step: int
     total_steps: int
@@ -108,14 +110,16 @@ class UnifiedAgent:
                 logger.info(f"--- Step {step_num}/{self.max_steps} ---")
 
             # Emit thinking event
-            self._emit(AgentCallback(
-                event=AgentEvent.THINKING,
-                step=step_num,
-                total_steps=self.max_steps,
-                thought="Planning next action...",
-                elapsed=elapsed,
-                progress=progress,
-            ))
+            self._emit(
+                AgentCallback(
+                    event=AgentEvent.THINKING,
+                    step=step_num,
+                    total_steps=self.max_steps,
+                    thought="Planning next action...",
+                    elapsed=elapsed,
+                    progress=progress,
+                )
+            )
 
             try:
                 # Plan next action
@@ -134,15 +138,17 @@ class UnifiedAgent:
                     logger.info(f"Tool: {tool_call.name}({tool_call.params})")
 
                 # Emit acting event with thought
-                self._emit(AgentCallback(
-                    event=AgentEvent.ACTING,
-                    step=step_num,
-                    total_steps=self.max_steps,
-                    thought=thought,
-                    action=f"{tool_call.name}({tool_call.params})",
-                    elapsed=time.time() - start_time,
-                    progress=progress,
-                ))
+                self._emit(
+                    AgentCallback(
+                        event=AgentEvent.ACTING,
+                        step=step_num,
+                        total_steps=self.max_steps,
+                        thought=thought,
+                        action=f"{tool_call.name}({tool_call.params})",
+                        elapsed=time.time() - start_time,
+                        progress=progress,
+                    )
+                )
 
                 # Check if agent wants to finish
                 if tool_call.name == "finish":
@@ -152,15 +158,17 @@ class UnifiedAgent:
                         logger.success(f"Agent finished: {answer}")
 
                     # Emit finished event
-                    self._emit(AgentCallback(
-                        event=AgentEvent.FINISHED,
-                        step=step_num,
-                        total_steps=step_num,
-                        thought=thought,
-                        result=answer,
-                        elapsed=time.time() - start_time,
-                        progress=1.0,
-                    ))
+                    self._emit(
+                        AgentCallback(
+                            event=AgentEvent.FINISHED,
+                            step=step_num,
+                            total_steps=step_num,
+                            thought=thought,
+                            result=answer,
+                            elapsed=time.time() - start_time,
+                            progress=1.0,
+                        )
+                    )
 
                     # Create final step
                     observation = Observation(
@@ -188,16 +196,18 @@ class UnifiedAgent:
                 observation = await self._execute_tool(tool_call)
 
                 # Emit observing event
-                self._emit(AgentCallback(
-                    event=AgentEvent.OBSERVING,
-                    step=step_num,
-                    total_steps=self.max_steps,
-                    thought=thought,
-                    action=tool_call.name,
-                    result=str(observation.result)[:100] if observation.result else "",
-                    elapsed=time.time() - start_time,
-                    progress=progress,
-                ))
+                self._emit(
+                    AgentCallback(
+                        event=AgentEvent.OBSERVING,
+                        step=step_num,
+                        total_steps=self.max_steps,
+                        thought=thought,
+                        action=tool_call.name,
+                        result=str(observation.result)[:100] if observation.result else "",
+                        elapsed=time.time() - start_time,
+                        progress=progress,
+                    )
+                )
 
                 # Create and store step
                 agent_step = AgentStep(
@@ -208,11 +218,13 @@ class UnifiedAgent:
                 steps.append(agent_step)
 
                 # Add to history for next iteration
-                history.append({
-                    "thought": thought,
-                    "tool_call": tool_call,
-                    "observation": observation,
-                })
+                history.append(
+                    {
+                        "thought": thought,
+                        "tool_call": tool_call,
+                        "observation": observation,
+                    }
+                )
 
                 if self.verbose:
                     if observation.success:

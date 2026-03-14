@@ -25,7 +25,7 @@ class OpenInterpreterAdapter:
         timeout: int = 300,
         safe_mode: bool = True,
         output_callback: Callable[[str, str], None] | None = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize Open Interpreter adapter.
@@ -65,7 +65,7 @@ class OpenInterpreterAdapter:
         language: str = "python",
         timeout: int | None = None,
         auto_run: bool = True,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """
         Execute code using Open Interpreter locally.
@@ -93,9 +93,7 @@ class OpenInterpreterAdapter:
 
             # Create temporary file with code
             with tempfile.NamedTemporaryFile(
-                mode='w',
-                suffix=self._get_extension(language),
-                delete=False
+                mode="w", suffix=self._get_extension(language), delete=False
             ) as f:
                 f.write(code)
                 code_file = f.name
@@ -142,13 +140,10 @@ class OpenInterpreterAdapter:
                 "backend": "open_interpreter",
             }
 
-    async def _execute_python(
-        self,
-        code_file: str,
-        timeout: int
-    ) -> dict[str, Any]:
+    async def _execute_python(self, code_file: str, timeout: int) -> dict[str, Any]:
         """Execute Python code file with live output."""
         import time
+
         start_time = time.time()
 
         try:
@@ -174,7 +169,7 @@ class OpenInterpreterAdapter:
 
             await asyncio.gather(
                 self._read_stream(process.stdout, stdout_cb, "stdout"),
-                self._read_stream(process.stderr, stderr_cb, "stderr")
+                self._read_stream(process.stderr, stderr_cb, "stderr"),
             )
 
             await process.wait()
@@ -195,13 +190,10 @@ class OpenInterpreterAdapter:
                 process.kill()
             raise
 
-    async def _execute_javascript(
-        self,
-        code_file: str,
-        timeout: int
-    ) -> dict[str, Any]:
+    async def _execute_javascript(self, code_file: str, timeout: int) -> dict[str, Any]:
         """Execute JavaScript code file with Node.js."""
         import time
+
         start_time = time.time()
 
         try:
@@ -212,10 +204,7 @@ class OpenInterpreterAdapter:
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
 
             execution_time = time.time() - start_time
 
@@ -233,13 +222,10 @@ class OpenInterpreterAdapter:
                 process.kill()
             raise
 
-    async def _execute_bash(
-        self,
-        code_file: str,
-        timeout: int
-    ) -> dict[str, Any]:
+    async def _execute_bash(self, code_file: str, timeout: int) -> dict[str, Any]:
         """Execute Bash script."""
         import time
+
         start_time = time.time()
 
         try:
@@ -250,10 +236,7 @@ class OpenInterpreterAdapter:
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
 
             execution_time = time.time() - start_time
 
@@ -282,10 +265,7 @@ class OpenInterpreterAdapter:
         return extensions.get(language, ".txt")
 
     async def execute_python(
-        self,
-        code: str,
-        timeout: int | None = None,
-        **kwargs
+        self, code: str, timeout: int | None = None, **kwargs
     ) -> dict[str, Any]:
         """
         Execute Python code locally.
@@ -301,10 +281,7 @@ class OpenInterpreterAdapter:
         return await self.execute_code(code, language="python", timeout=timeout, **kwargs)
 
     async def execute_javascript(
-        self,
-        code: str,
-        timeout: int | None = None,
-        **kwargs
+        self, code: str, timeout: int | None = None, **kwargs
     ) -> dict[str, Any]:
         """
         Execute JavaScript code locally.
@@ -319,12 +296,7 @@ class OpenInterpreterAdapter:
         """
         return await self.execute_code(code, language="javascript", timeout=timeout, **kwargs)
 
-    async def execute_bash(
-        self,
-        code: str,
-        timeout: int | None = None,
-        **kwargs
-    ) -> dict[str, Any]:
+    async def execute_bash(self, code: str, timeout: int | None = None, **kwargs) -> dict[str, Any]:
         """
         Execute Bash script locally.
 
@@ -346,11 +318,7 @@ class OpenInterpreterAdapter:
             True if Python interpreter is available
         """
         try:
-            result = subprocess.run(
-                ["python3", "--version"],
-                capture_output=True,
-                timeout=5
-            )
+            result = subprocess.run(["python3", "--version"], capture_output=True, timeout=5)
             return result.returncode == 0
         except Exception:
             return False

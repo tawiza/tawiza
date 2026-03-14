@@ -69,6 +69,7 @@ class DVFAdapter(BaseAdapter):
         if use_local_cache:
             try:
                 from src.infrastructure.datasources.adapters.dvf_cache import DVFLocalCache
+
                 self._local_cache = DVFLocalCache(cache_path)
             except Exception as e:
                 logger.warning(f"Could not initialize DVF local cache: {e}")
@@ -269,7 +270,9 @@ class DVFAdapter(BaseAdapter):
 
         # Filter by type_bien (DVF OpenData uses libtypbien)
         # Types: APPARTEMENT, MAISON, LOCAL INDUSTRIEL, DEPENDANCE, etc.
-        appartements = [t for t in transactions if "APPARTEMENT" in (t.get("type_bien") or "").upper()]
+        appartements = [
+            t for t in transactions if "APPARTEMENT" in (t.get("type_bien") or "").upper()
+        ]
         maisons = [t for t in transactions if "MAISON" in (t.get("type_bien") or "").upper()]
         # Include mixed residential
         logements = [t for t in transactions if "LOGEMENT" in (t.get("type_bien") or "").upper()]

@@ -231,8 +231,7 @@ class TreeOfThoughts:
         """
         path = self.get_path(node)
         return "\n".join(
-            f"Étape {i + 1} (score: {n.score:.2f}): {n.thought}"
-            for i, n in enumerate(path)
+            f"Étape {i + 1} (score: {n.score:.2f}): {n.thought}" for i, n in enumerate(path)
         )
 
     async def expand(
@@ -598,10 +597,7 @@ class TreeOfThoughts:
             List of paths (each path is list of nodes)
         """
         # Get all leaf nodes
-        leaves = [
-            n for n in self.all_nodes.values()
-            if not n.children
-        ]
+        leaves = [n for n in self.all_nodes.values() if not n.children]
 
         # Sort by score
         leaves.sort(key=lambda n: n.score, reverse=True)
@@ -634,9 +630,7 @@ class TreeOfThoughts:
                 "solution": best[-1].thought if best else "Analyse incomplète",
                 "confidence": best[-1].score if best else 0.0,
                 "justification": " -> ".join(n.thought for n in best),
-                "alternatives": [
-                    p[-1].thought for p in top_paths[1:] if p
-                ],
+                "alternatives": [p[-1].thought for p in top_paths[1:] if p],
             }
 
         # Use LLM to synthesize

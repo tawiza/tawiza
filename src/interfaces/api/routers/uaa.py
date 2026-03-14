@@ -31,6 +31,7 @@ def get_agent():
     global _agent_instance
     if _agent_instance is None:
         from src.infrastructure.agents.unified import UnifiedAdaptiveAgent
+
         _agent_instance = UnifiedAdaptiveAgent()
     return _agent_instance
 
@@ -38,6 +39,7 @@ def get_agent():
 # Pydantic schemas
 class StatusResponse(BaseModel):
     """Agent status response."""
+
     autonomy_level: str
     autonomy_level_value: int = 0
     trust_score: float
@@ -48,6 +50,7 @@ class StatusResponse(BaseModel):
 
 class ExecuteRequest(BaseModel):
     """Task execution request."""
+
     description: str = Field(..., description="Natural language task description")
     task_type: str | None = Field(None, description="Task type for routing")
     context: dict[str, Any] = Field(default_factory=dict, description="Additional context")
@@ -56,6 +59,7 @@ class ExecuteRequest(BaseModel):
 
 class TaskResultResponse(BaseModel):
     """Task result response."""
+
     task_id: str
     status: str
     output: dict[str, Any] = Field(default_factory=dict)
@@ -66,17 +70,20 @@ class TaskResultResponse(BaseModel):
 
 class RejectRequest(BaseModel):
     """Task rejection request."""
+
     reason: str = Field("", description="Rejection reason")
 
 
 class FeedbackRequest(BaseModel):
     """Feedback request."""
+
     feedback: str = Field(..., description="positive or negative")
     correction: str | None = Field(None, description="Corrected output for learning")
 
 
 class FeedbackResponse(BaseModel):
     """Feedback response."""
+
     success: bool
     trust_score: float
     autonomy_level: str
@@ -84,6 +91,7 @@ class FeedbackResponse(BaseModel):
 
 class StatsResponse(BaseModel):
     """Agent statistics response."""
+
     tasks_completed: int
     tasks_failed: int
     tasks_pending: int
@@ -94,6 +102,7 @@ class StatsResponse(BaseModel):
 
 class LearningResponse(BaseModel):
     """Learning cycle response."""
+
     state: str
     accuracy_before: float = 0.0
     accuracy_after: float = 0.0
@@ -103,6 +112,7 @@ class LearningResponse(BaseModel):
 
 class PendingTaskResponse(BaseModel):
     """Pending task info."""
+
     task_id: str
     description: str
     task_type: str | None = None
@@ -112,6 +122,7 @@ class PendingTaskResponse(BaseModel):
 
 class ConfigResponse(BaseModel):
     """Agent configuration response."""
+
     llm_model: str
     max_concurrent_tasks: int
     default_timeout: int
@@ -121,6 +132,7 @@ class ConfigResponse(BaseModel):
 
 class ConfigUpdateRequest(BaseModel):
     """Configuration update request."""
+
     autonomy_level: str | None = None
     learning_enabled: bool | None = None
 
@@ -293,7 +305,9 @@ async def trigger_learning(
                 state=cycle.state if hasattr(cycle, "state") else "COMPLETED",
                 accuracy_before=cycle.metrics.accuracy_before if hasattr(cycle, "metrics") else 0.0,
                 accuracy_after=cycle.metrics.accuracy_after if hasattr(cycle, "metrics") else 0.0,
-                improvement=cycle.metrics.accuracy_improvement if hasattr(cycle, "metrics") else 0.0,
+                improvement=cycle.metrics.accuracy_improvement
+                if hasattr(cycle, "metrics")
+                else 0.0,
             )
         else:
             return LearningResponse(
@@ -315,13 +329,15 @@ async def list_pending():
     pending = []
 
     for task_id, request in agent._pending_tasks.items():
-        pending.append(PendingTaskResponse(
-            task_id=task_id,
-            description=request.description,
-            task_type=request.task_type,
-            priority=request.priority,
-            created_at=request.created_at.isoformat(),
-        ))
+        pending.append(
+            PendingTaskResponse(
+                task_id=task_id,
+                description=request.description,
+                task_type=request.task_type,
+                priority=request.priority,
+                created_at=request.created_at.isoformat(),
+            )
+        )
 
     return pending
 

@@ -75,14 +75,11 @@ async def get_datetime(timezone: str = "UTC") -> dict[str, Any]:
             "datetime": now.isoformat(),
             "timezone": timezone,
             "timestamp": now.timestamp(),
-            "formatted": now.strftime("%Y-%m-%d %H:%M:%S %Z")
+            "formatted": now.strftime("%Y-%m-%d %H:%M:%S %Z"),
         }
     except Exception as e:
         logger.error(f"Error getting datetime for timezone {timezone}: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 async def calculate(expression: str) -> dict[str, Any]:
@@ -96,30 +93,20 @@ async def calculate(expression: str) -> dict[str, Any]:
     """
     try:
         # Parse the expression
-        tree = ast.parse(expression, mode='eval')
+        tree = ast.parse(expression, mode="eval")
 
         # Evaluate safely using AST
         result = safe_evaluate(tree.body)
 
         logger.debug(f"Calculated: {expression} = {result}")
 
-        return {
-            "success": True,
-            "expression": expression,
-            "result": result
-        }
+        return {"success": True, "expression": expression, "result": result}
     except (ValueError, SyntaxError, ZeroDivisionError) as e:
         logger.error(f"Error calculating expression '{expression}': {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
     except Exception as e:
         logger.error(f"Unexpected error calculating expression '{expression}': {e}")
-        return {
-            "success": False,
-            "error": f"Invalid expression: {str(e)}"
-        }
+        return {"success": False, "error": f"Invalid expression: {str(e)}"}
 
 
 def register_utility_tools(registry: ToolRegistry) -> None:
@@ -133,14 +120,14 @@ def register_utility_tools(registry: ToolRegistry) -> None:
         name="utility.datetime",
         func=get_datetime,
         category=ToolCategory.UTILITY,
-        description="Get current date and time in specified timezone"
+        description="Get current date and time in specified timezone",
     )
 
     registry._tools["utility.calculate"] = Tool(
         name="utility.calculate",
         func=calculate,
         category=ToolCategory.UTILITY,
-        description="Safely evaluate a mathematical expression"
+        description="Safely evaluate a mathematical expression",
     )
 
     logger.debug("Registered 2 utility tools")

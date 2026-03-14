@@ -58,7 +58,7 @@ class FilePreview(Static):
                 if self._file_size > 50000:  # 50KB limit
                     self._content = "[dim]File too large for preview[/]"
                 else:
-                    with open(path, errors='replace') as f:
+                    with open(path, errors="replace") as f:
                         self._content = f.read()[:5000]  # First 5000 chars
                         if len(self._content) == 5000:
                             self._content += "\n\n[dim]... (truncated)[/]"
@@ -82,22 +82,30 @@ class FilePreview(Static):
         # Syntax highlighting hint based on extension
         ext = self._file_path.suffix.lower()
         lang_map = {
-            '.py': 'python', '.js': 'javascript', '.ts': 'typescript',
-            '.json': 'json', '.yaml': 'yaml', '.yml': 'yaml',
-            '.md': 'markdown', '.html': 'html', '.css': 'css',
-            '.sh': 'bash', '.sql': 'sql', '.toml': 'toml',
+            ".py": "python",
+            ".js": "javascript",
+            ".ts": "typescript",
+            ".json": "json",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".md": "markdown",
+            ".html": "html",
+            ".css": "css",
+            ".sh": "bash",
+            ".sql": "sql",
+            ".toml": "toml",
         }
-        lang = lang_map.get(ext, 'text')
+        lang = lang_map.get(ext, "text")
 
         return f"""[bold cyan]{name}[/]
 [dim]Size: {size} | Modified: {modified} | Type: {lang}[/]
-{'─' * 50}
+{"─" * 50}
 
 {self._content}"""
 
     def _format_size(self, size: int) -> str:
         """Format file size in human-readable format."""
-        for unit in ['B', 'KB', 'MB', 'GB']:
+        for unit in ["B", "KB", "MB", "GB"]:
             if size < 1024:
                 return f"{size:.1f} {unit}"
             size /= 1024
@@ -172,6 +180,7 @@ class FilesScreen(Container):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         from src.cli.constants import PROJECT_ROOT
+
         self._project_root = PROJECT_ROOT
 
     def compose(self) -> ComposeResult:
@@ -184,10 +193,7 @@ class FilesScreen(Container):
         # Content: tree + preview
         with Horizontal(id="files-content"):
             with Vertical(id="file-tree-container"):
-                yield DirectoryTree(
-                    str(self._project_root),
-                    id="file-tree"
-                )
+                yield DirectoryTree(str(self._project_root), id="file-tree")
 
             with Vertical(id="file-preview-container"):
                 yield FilePreview(id="file-preview")
@@ -227,7 +233,7 @@ class FilesScreen(Container):
 
     def _format_size(self, size: int) -> str:
         """Format file size."""
-        for unit in ['B', 'KB', 'MB', 'GB']:
+        for unit in ["B", "KB", "MB", "GB"]:
             if size < 1024:
                 return f"{size:.1f} {unit}"
             size /= 1024

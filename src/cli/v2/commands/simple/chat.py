@@ -1,6 +1,5 @@
 """Chat command - Interactive AI chat."""
 
-
 import typer
 from rich.console import Console
 
@@ -13,7 +12,9 @@ console = Console()
 def chat_command(
     message: str | None = typer.Argument(None, help="Message to send"),
     model: str = typer.Option("qwen3.5:27b", "--model", "-m", help="Model to use"),
-    interactive: bool = typer.Option(True, "--interactive/--no-interactive", help="Interactive mode"),
+    interactive: bool = typer.Option(
+        True, "--interactive/--no-interactive", help="Interactive mode"
+    ),
 ):
     """Chat with the AI assistant."""
     console.print(header("tawiza chat", 40))
@@ -44,7 +45,7 @@ def _send_message(message: str, model: str) -> None:
             response = httpx.post(
                 "http://localhost:11434/api/generate",
                 json={"model": model, "prompt": message, "stream": False},
-                timeout=60.0
+                timeout=60.0,
             )
 
         if response.status_code == 200:

@@ -35,6 +35,7 @@ class BrowserLogPanel(Static):
 
     def add_entry(self, action: str, target: str = "") -> None:
         from datetime import datetime
+
         ts = datetime.now().strftime("%H:%M:%S")
         entry = f"[dim]{ts}[/] {action}"
         if target:
@@ -128,10 +129,7 @@ class BrowserScreen(Container):
         # URL bar
         with Horizontal(id="url-bar"):
             yield Static("[bold]URL:[/]")
-            yield Input(
-                placeholder="Enter URL and press Ctrl+G to navigate...",
-                id="url-input"
-            )
+            yield Input(placeholder="Enter URL and press Ctrl+G to navigate...", id="url-input")
 
         # Main content
         with Container(id="browser-content"):
@@ -139,8 +137,7 @@ class BrowserScreen(Container):
 
         # Captcha warning banner
         yield Static(
-            "[bold]⚠️ CAPTCHA DETECTED[/] - Press Ctrl+K to take control",
-            id="captcha-banner"
+            "[bold]⚠️ CAPTCHA DETECTED[/] - Press Ctrl+K to take control", id="captcha-banner"
         )
 
         # Browser log
@@ -183,11 +180,12 @@ class BrowserScreen(Container):
         """Check if browser/noVNC is running."""
         # Check if noVNC port is open
         import socket
+
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)
             result = sock.connect_ex(("localhost", 6080))
-            self._browser_active = (result == 0)
+            self._browser_active = result == 0
             sock.close()
         except Exception:
             self._browser_active = False

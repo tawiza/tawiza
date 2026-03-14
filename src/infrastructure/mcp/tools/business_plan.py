@@ -106,7 +106,6 @@ L'executive summary doit inclure:
 - Objectifs à 3 ans
 
 Format: Markdown structuré, 300-400 mots, ton professionnel.""",
-
     "market_analysis": """Rédige l'analyse de marché pour ce business plan.
 
 **Données marché collectées**:
@@ -124,7 +123,6 @@ L'analyse doit inclure:
 - Opportunités identifiées
 
 Format: Markdown avec tableaux et bullet points, 400-500 mots.""",
-
     "business_model": """Rédige la section Modèle Économique.
 
 **Contexte**: {company_context}
@@ -141,7 +139,6 @@ Détaille:
 - Métriques clés ({sector_focus})
 
 Format: Markdown, inclure un canvas simplifié si pertinent.""",
-
     "financials": """Rédige les projections financières.
 
 **Contexte**: {company_context}
@@ -157,7 +154,6 @@ Inclure:
 - Indicateurs clés: {sector_focus}
 
 Format: Markdown avec tableaux pour les chiffres.""",
-
     "go_to_market": """Rédige la stratégie Go-to-Market.
 
 **Contexte**: {company_context}
@@ -173,7 +169,6 @@ Détaille:
 - Timeline
 
 Format: Markdown structuré.""",
-
     "team": """Rédige la section Équipe.
 
 **Contexte**: {company_context}
@@ -186,7 +181,6 @@ Inclure:
 - Advisors / mentors
 
 Format: Markdown.""",
-
     "roadmap": """Rédige la Roadmap produit/développement.
 
 **Contexte**: {company_context}
@@ -256,6 +250,7 @@ def register_business_plan_tools(mcp: FastMCP) -> None:
         Returns:
             Business plan complet en Markdown + métadonnées
         """
+
         def notify(msg: str, progress: int = None):
             if ctx:
                 try:
@@ -270,10 +265,13 @@ def register_business_plan_tools(mcp: FastMCP) -> None:
 
         # Validate sector
         if sector not in BP_TEMPLATES:
-            return json.dumps({
-                "success": False,
-                "error": f"Secteur inconnu: {sector}. Disponibles: {list(BP_TEMPLATES.keys())}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Secteur inconnu: {sector}. Disponibles: {list(BP_TEMPLATES.keys())}",
+                },
+                ensure_ascii=False,
+            )
 
         template = BP_TEMPLATES[sector]
         notify(f"[BP] Template: {template['name']}", 5)
@@ -283,7 +281,7 @@ def register_business_plan_tools(mcp: FastMCP) -> None:
 Entreprise: {company_name}
 Description: {company_description}
 Territoire: {territory}
-Secteur: {template['name']}
+Secteur: {template["name"]}
 """
         if funding_ask:
             company_context += f"Financement recherché: {funding_ask}\n"
@@ -296,13 +294,14 @@ Secteur: {template['name']}
             notify("[BP] Récupération données marché...", 10)
             try:
                 from src.infrastructure.agents.camel.tools.territorial_tools import sirene_search
+
                 result = sirene_search(query=f"{sector} {territory}", limite=30)
                 if result.get("success"):
                     enterprises = result.get("enterprises", [])
                     market_context = f"""
 Entreprises similaires sur {territory}: {len(enterprises)}
-Secteurs NAF présents: {', '.join({e.get('naf', '')[:2] for e in enterprises[:20] if e.get('naf')})}
-Effectif total estimé: {sum(e.get('effectif', 0) for e in enterprises if isinstance(e.get('effectif'), int))}
+Secteurs NAF présents: {", ".join({e.get("naf", "")[:2] for e in enterprises[:20] if e.get("naf")})}
+Effectif total estimé: {sum(e.get("effectif", 0) for e in enterprises if isinstance(e.get("effectif"), int))}
 """
             except Exception as e:
                 logger.warning(f"Could not fetch market data: {e}")
@@ -316,6 +315,7 @@ Effectif total estimé: {sum(e.get('effectif', 0) for e in enterprises if isinst
 
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
 
             for i, section_name in enumerate(sections_to_generate):
@@ -338,7 +338,7 @@ Effectif total estimé: {sum(e.get('effectif', 0) for e in enterprises if isinst
 
 Contexte: {company_context}
 Marché: {market_context}
-Focus: {', '.join(template['focus'])}
+Focus: {", ".join(template["focus"])}
 
 Format: Markdown professionnel, 200-300 mots."""
 
@@ -365,9 +365,9 @@ Format: Markdown professionnel, 200-300 mots."""
         # Assemble the business plan
         bp_md = f"""# Business Plan - {company_name}
 
-**Document généré le {datetime.now().strftime('%d/%m/%Y')}**
+**Document généré le {datetime.now().strftime("%d/%m/%Y")}**
 
-**Secteur**: {template['name']}
+**Secteur**: {template["name"]}
 **Territoire**: {territory}
 
 ---
@@ -394,7 +394,7 @@ Format: Markdown professionnel, 200-300 mots."""
 ## Annexes
 
 ### Métriques clés à suivre
-{chr(10).join(f'- {m}' for m in template['focus'])}
+{chr(10).join(f"- {m}" for m in template["focus"])}
 
 ### Sources de données
 - Analyse territoriale Tawiza
@@ -404,7 +404,7 @@ Format: Markdown professionnel, 200-300 mots."""
 ---
 
 *Business Plan généré par Tawiza - Intelligence Territoriale*
-*{datetime.now().strftime('%d/%m/%Y %H:%M')}*
+*{datetime.now().strftime("%d/%m/%Y %H:%M")}*
 """
 
         # Save to file
@@ -421,21 +421,26 @@ Format: Markdown professionnel, 200-300 mots."""
 
         notify(f"[BP] Business Plan généré ({len(sections_to_generate)} sections)", 100)
 
-        return json.dumps({
-            "success": True,
-            "company": company_name,
-            "sector": template["name"],
-            "territory": territory,
-            "sections_count": len(sections_to_generate),
-            "sections": list(sections_content.keys()),
-            "output_file": str(filepath),
-            "business_plan_md": bp_md,
-            "metadata": {
-                "template": sector,
-                "focus_metrics": template["focus"],
-                "generated_at": datetime.now().isoformat(),
+        return json.dumps(
+            {
+                "success": True,
+                "company": company_name,
+                "sector": template["name"],
+                "territory": territory,
+                "sections_count": len(sections_to_generate),
+                "sections": list(sections_content.keys()),
+                "output_file": str(filepath),
+                "business_plan_md": bp_md,
+                "metadata": {
+                    "template": sector,
+                    "focus_metrics": template["focus"],
+                    "generated_at": datetime.now().isoformat(),
+                },
             },
-        }, ensure_ascii=False, indent=2, default=str)
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def tawiza_bp_templates(ctx: Context = None) -> str:
@@ -446,19 +451,25 @@ Format: Markdown professionnel, 200-300 mots."""
         """
         templates_list = []
         for key, tmpl in BP_TEMPLATES.items():
-            templates_list.append({
-                "id": key,
-                "name": tmpl["name"],
-                "sections": tmpl["sections"],
-                "focus": tmpl["focus"],
-                "sections_count": len(tmpl["sections"]),
-            })
+            templates_list.append(
+                {
+                    "id": key,
+                    "name": tmpl["name"],
+                    "sections": tmpl["sections"],
+                    "focus": tmpl["focus"],
+                    "sections_count": len(tmpl["sections"]),
+                }
+            )
 
-        return json.dumps({
-            "success": True,
-            "templates": templates_list,
-            "usage": "tawiza_generate_bp(company_name='...', company_description='...', territory='...', sector='tech')",
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "templates": templates_list,
+                "usage": "tawiza_generate_bp(company_name='...', company_description='...', territory='...', sector='tech')",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def tawiza_bp_section(
@@ -485,21 +496,28 @@ Format: Markdown professionnel, 200-300 mots."""
             ctx.info(f"[BP Section] Génération: {section}")
 
         if sector not in BP_TEMPLATES:
-            return json.dumps({
-                "success": False,
-                "error": f"Secteur inconnu: {sector}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Secteur inconnu: {sector}",
+                },
+                ensure_ascii=False,
+            )
 
         template = BP_TEMPLATES[sector]
 
         if section not in SECTION_PROMPTS:
-            return json.dumps({
-                "success": False,
-                "error": f"Section inconnue: {section}. Disponibles: {list(SECTION_PROMPTS.keys())}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Section inconnue: {section}. Disponibles: {list(SECTION_PROMPTS.keys())}",
+                },
+                ensure_ascii=False,
+            )
 
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
 
             section_prompt = SECTION_PROMPTS[section].format(
@@ -514,17 +532,24 @@ Format: Markdown professionnel, 200-300 mots."""
             prompt = BP_GENERATION_PROMPT.format(section_prompt=section_prompt)
             response = await client.generate(prompt=prompt, max_tokens=600)
 
-            return json.dumps({
-                "success": True,
-                "section": section,
-                "content": response.strip(),
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "section": section,
+                    "content": response.strip(),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def tawiza_bp_from_analysis(
@@ -578,7 +603,9 @@ Format: Markdown professionnel, 200-300 mots."""
             try:
                 metadata = json.loads(metadata_file.read_text())
                 market_data += "### Métadonnées\n"
-                market_data += f"- Entreprises analysées: {metadata.get('enterprises_count', 'N/A')}\n"
+                market_data += (
+                    f"- Entreprises analysées: {metadata.get('enterprises_count', 'N/A')}\n"
+                )
                 market_data += f"- Requête: {metadata.get('query', 'N/A')}\n"
                 if metadata.get("territory"):
                     territory = metadata["territory"]
@@ -591,6 +618,7 @@ Format: Markdown professionnel, 200-300 mots."""
         if csv_file.exists():
             try:
                 import csv
+
                 with open(csv_file, encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     rows = list(reader)
@@ -608,10 +636,13 @@ Format: Markdown professionnel, 200-300 mots."""
                 pass
 
         if not market_data:
-            return json.dumps({
-                "success": False,
-                "error": f"Aucune donnée d'analyse trouvée dans {analysis_dir}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Aucune donnée d'analyse trouvée dans {analysis_dir}",
+                },
+                ensure_ascii=False,
+            )
 
         if ctx:
             ctx.info("[BP] Données chargées, génération du BP...")

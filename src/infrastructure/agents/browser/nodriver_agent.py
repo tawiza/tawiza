@@ -297,9 +297,7 @@ class NodriverBrowserAgent:
                 duration_ms=duration,
             )
 
-    async def wait_for_selector(
-        self, selector: str, timeout: int = 30
-    ) -> StealthResult:
+    async def wait_for_selector(self, selector: str, timeout: int = 30) -> StealthResult:
         """Wait for an element to appear."""
         start_time = datetime.now()
         try:
@@ -314,9 +312,7 @@ class NodriverBrowserAgent:
             for _ in range(timeout * 10):  # 100ms intervals
                 element = await self._tab.select(selector)
                 if element:
-                    duration = int(
-                        (datetime.now() - start_time).total_seconds() * 1000
-                    )
+                    duration = int((datetime.now() - start_time).total_seconds() * 1000)
                     return StealthResult(
                         success=True,
                         action=StealthAction.WAIT_FOR_ELEMENT,
@@ -382,9 +378,7 @@ class NodriverBrowserAgent:
                     error="Browser not started",
                 )
 
-            await self._tab.evaluate(
-                "window.scrollTo(0, document.body.scrollHeight)"
-            )
+            await self._tab.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             await asyncio.sleep(0.5)
             await self._tab.wait_for_idle()
 
@@ -435,17 +429,13 @@ class NodriverBrowserAgent:
             case StealthAction.CLICK:
                 return await self.click(request.selector or "")
             case StealthAction.TYPE:
-                return await self.type_text(
-                    request.selector or "", request.value or ""
-                )
+                return await self.type_text(request.selector or "", request.value or "")
             case StealthAction.SCROLL:
                 return await self.scroll_to_bottom()
             case StealthAction.EXTRACT:
                 return await self.extract_data(request.selector or "*")
             case StealthAction.WAIT_FOR_ELEMENT:
-                return await self.wait_for_selector(
-                    request.selector or "", request.timeout
-                )
+                return await self.wait_for_selector(request.selector or "", request.timeout)
             case _:
                 return StealthResult(
                     success=False,

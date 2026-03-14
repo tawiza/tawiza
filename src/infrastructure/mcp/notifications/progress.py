@@ -11,16 +11,18 @@ from enum import Enum
 
 class ProgressType(Enum):
     """Types of progress notifications."""
-    STEP = "step"           # Main step progress
-    SOURCE = "source"       # Data source query
-    AGENT = "agent"         # Debate agent activity
-    BROWSER = "browser"     # Browser navigation
-    GEOCODE = "geocode"     # Geocoding operation
+
+    STEP = "step"  # Main step progress
+    SOURCE = "source"  # Data source query
+    AGENT = "agent"  # Debate agent activity
+    BROWSER = "browser"  # Browser navigation
+    GEOCODE = "geocode"  # Geocoding operation
 
 
 @dataclass
 class ProgressEvent:
     """Progress event data."""
+
     type: ProgressType
     progress: float
     total: float

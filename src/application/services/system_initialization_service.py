@@ -8,6 +8,7 @@ Follows:
 - Dependency Inversion Principle: Depends on interfaces, not concrete classes
 - Open/Closed Principle: Extensible without modification
 """
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -54,7 +55,7 @@ class SystemInitializationService:
         self,
         verification_service: ISystemVerificationService,
         directory_manager: IDirectoryManagerService,
-        state_manager: SystemStateManager | None = None
+        state_manager: SystemStateManager | None = None,
     ):
         """Initialize with injected dependencies.
 
@@ -70,9 +71,7 @@ class SystemInitializationService:
         logger.info("SystemInitializationService created")
 
     async def initialize_system(
-        self,
-        config: InitializationConfig,
-        force: bool = False
+        self, config: InitializationConfig, force: bool = False
     ) -> SystemState:
         """Initialize the complete system.
 
@@ -99,10 +98,7 @@ class SystemInitializationService:
             verification_results = await self._verify_requirements(config)
 
             # Adjust config based on verification results
-            config = self._adjust_config_from_verification(
-                config,
-                verification_results
-            )
+            config = self._adjust_config_from_verification(config, verification_results)
 
             # Step 2: Setup directory structure
             logger.info("Step 2/5: Creating directory structure...")
@@ -126,7 +122,7 @@ class SystemInitializationService:
                 monitoring=monitoring,
                 config=config,
                 initialized_at=datetime.utcnow(),
-                version=APP_VERSION
+                version=APP_VERSION,
             )
 
             # Update state manager
@@ -137,9 +133,7 @@ class SystemInitializationService:
 
         except Exception as e:
             logger.error(f"System initialization failed: {e}", exc_info=True)
-            raise SystemInitializationError(
-                f"Initialization failed: {e}"
-            ) from e
+            raise SystemInitializationError(f"Initialization failed: {e}") from e
 
     async def shutdown_system(self) -> None:
         """Shutdown the system gracefully.
@@ -173,10 +167,7 @@ class SystemInitializationService:
             logger.error(f"Error during shutdown: {e}", exc_info=True)
             raise
 
-    async def restart_system(
-        self,
-        config: InitializationConfig | None = None
-    ) -> SystemState:
+    async def restart_system(self, config: InitializationConfig | None = None) -> SystemState:
         """Restart the system.
 
         Args:
@@ -193,9 +184,7 @@ class SystemInitializationService:
             if current_state and current_state.config:
                 config = current_state.config
             else:
-                raise SystemInitializationError(
-                    "No configuration available for restart"
-                )
+                raise SystemInitializationError("No configuration available for restart")
 
         # Shutdown current system
         try:
@@ -211,10 +200,7 @@ class SystemInitializationService:
     # Private helper methods (each follows SRP)
     # ========================================================================
 
-    async def _verify_requirements(
-        self,
-        config: InitializationConfig
-    ) -> dict[str, bool]:
+    async def _verify_requirements(self, config: InitializationConfig) -> dict[str, bool]:
         """Verify all system requirements.
 
         Args:
@@ -226,9 +212,7 @@ class SystemInitializationService:
         return await self._verification_service.verify_all(config)
 
     def _adjust_config_from_verification(
-        self,
-        config: InitializationConfig,
-        verification_results: dict[str, bool]
+        self, config: InitializationConfig, verification_results: dict[str, bool]
     ) -> InitializationConfig:
         """Adjust configuration based on verification results.
 
@@ -244,6 +228,7 @@ class SystemInitializationService:
             logger.warning("GPU not available, disabling GPU features")
             # Create new config with GPU disabled
             from dataclasses import replace
+
             config = replace(config, gpu_enabled=False)
 
         return config
@@ -257,10 +242,7 @@ class SystemInitializationService:
         self._directory_manager.create_required_directories(DIRS_TO_CREATE)
         logger.info(f"Created {len(DIRS_TO_CREATE)} directories")
 
-    async def _initialize_agents(
-        self,
-        config: InitializationConfig
-    ) -> Any | None:
+    async def _initialize_agents(self, config: InitializationConfig) -> Any | None:
         """Initialize agent system.
 
         Args:
@@ -280,10 +262,7 @@ class SystemInitializationService:
             # Don't fail entire initialization if agents fail
             return None
 
-    async def _setup_monitoring(
-        self,
-        config: InitializationConfig
-    ) -> Any | None:
+    async def _setup_monitoring(self, config: InitializationConfig) -> Any | None:
         """Setup monitoring system.
 
         Args:
@@ -307,10 +286,7 @@ class SystemInitializationService:
             # Don't fail entire initialization if monitoring fails
             return None
 
-    async def _save_configuration(
-        self,
-        config: InitializationConfig
-    ) -> None:
+    async def _save_configuration(self, config: InitializationConfig) -> None:
         """Save configuration to file.
 
         Args:
@@ -333,11 +309,11 @@ class SystemInitializationService:
                 "max_concurrent_tasks": config.max_concurrent_tasks,
                 "auto_scale": config.auto_scale,
                 "retry_failed_tasks": config.retry_failed_tasks,
-            }
+            },
         }
 
         try:
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 json.dump(config_data, f, indent=2)
 
             logger.info(f"Configuration saved to {config_path}")

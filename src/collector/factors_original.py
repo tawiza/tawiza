@@ -20,6 +20,7 @@ from src.infrastructure.datasources.adapters.insee_local import INSEELocalAdapte
 @dataclass
 class PopulationData:
     """Population data for normalization."""
+
     code_dept: str
     nom: str
     population: int
@@ -29,6 +30,7 @@ class PopulationData:
 @dataclass
 class TerritorialFactors:
     """Calculated territorial alpha factors."""
+
     code_dept: str
     nom: str
     calculated_at: datetime
@@ -77,7 +79,7 @@ class PopulationManager:
                     code_dept=code_dept,
                     nom=pop_data.get("nom", f"Département {code_dept}"),
                     population=pop_data.get("population", 0),
-                    last_updated=datetime.now()
+                    last_updated=datetime.now(),
                 )
                 self._population_cache[code_dept] = population_obj
 
@@ -105,16 +107,20 @@ class PopulationManager:
             # Update or append row
             existing = df[df["code_dept"] == pop_data.code_dept]
             if not existing.empty:
-                df.loc[df["code_dept"] == pop_data.code_dept, ["nom", "population", "last_updated"]] = [
-                    pop_data.nom, pop_data.population, pop_data.last_updated.isoformat()
-                ]
+                df.loc[
+                    df["code_dept"] == pop_data.code_dept, ["nom", "population", "last_updated"]
+                ] = [pop_data.nom, pop_data.population, pop_data.last_updated.isoformat()]
             else:
-                new_row = pd.DataFrame([{
-                    "code_dept": pop_data.code_dept,
-                    "nom": pop_data.nom,
-                    "population": pop_data.population,
-                    "last_updated": pop_data.last_updated.isoformat()
-                }])
+                new_row = pd.DataFrame(
+                    [
+                        {
+                            "code_dept": pop_data.code_dept,
+                            "nom": pop_data.nom,
+                            "population": pop_data.population,
+                            "last_updated": pop_data.last_updated.isoformat(),
+                        }
+                    ]
+                )
                 df = pd.concat([df, new_row], ignore_index=True)
 
             df.to_csv(csv_path, index=False)
@@ -127,16 +133,100 @@ class PopulationManager:
         """Load population data for all departments."""
         # French metropolitan departments
         departments = [
-            "01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
-            "11", "12", "13", "14", "15", "16", "17", "18", "19", "21",
-            "22", "23", "24", "25", "26", "27", "28", "29", "30", "31",
-            "32", "33", "34", "35", "36", "37", "38", "39", "40", "41",
-            "42", "43", "44", "45", "46", "47", "48", "49", "50", "51",
-            "52", "53", "54", "55", "56", "57", "58", "59", "60", "61",
-            "62", "63", "64", "65", "66", "67", "68", "69", "70", "71",
-            "72", "73", "74", "75", "76", "77", "78", "79", "80", "81",
-            "82", "83", "84", "85", "86", "87", "88", "89", "90", "91",
-            "92", "93", "94", "95"
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31",
+            "32",
+            "33",
+            "34",
+            "35",
+            "36",
+            "37",
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44",
+            "45",
+            "46",
+            "47",
+            "48",
+            "49",
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60",
+            "61",
+            "62",
+            "63",
+            "64",
+            "65",
+            "66",
+            "67",
+            "68",
+            "69",
+            "70",
+            "71",
+            "72",
+            "73",
+            "74",
+            "75",
+            "76",
+            "77",
+            "78",
+            "79",
+            "80",
+            "81",
+            "82",
+            "83",
+            "84",
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
         ]
 
         populations = {}
@@ -248,7 +338,7 @@ class TerritorialFactorsCalculator:
                     "liquidations": row[4] or 0,
                     "job_offers": row[5] or 0,
                     "transactions_immo": row[6] or 0,
-                    "prix_m2_moyen": row[7] or 0.0
+                    "prix_m2_moyen": row[7] or 0.0,
                 }
 
             return metrics
@@ -257,7 +347,9 @@ class TerritorialFactorsCalculator:
             logger.error(f"Failed to get metrics data: {e}")
             return {}
 
-    async def _calculate_dept_factors(self, metrics: dict, pop_data: PopulationData) -> TerritorialFactors | None:
+    async def _calculate_dept_factors(
+        self, metrics: dict, pop_data: PopulationData
+    ) -> TerritorialFactors | None:
         """Calculate factors for a single department."""
         try:
             population = max(pop_data.population, 1)  # Avoid division by zero
@@ -302,14 +394,16 @@ class TerritorialFactorsCalculator:
                 liquidations=metrics["liquidations"],
                 prix_m2_moyen=metrics["prix_m2_moyen"],
                 transactions_immo=metrics["transactions_immo"],
-                logements_autorises=logements_autorises
+                logements_autorises=logements_autorises,
             )
 
         except Exception as e:
             logger.error(f"Failed to calculate factors for {pop_data.code_dept}: {e}")
             return None
 
-    def _calculate_composite_scores(self, factors_list: list[TerritorialFactors]) -> list[TerritorialFactors]:
+    def _calculate_composite_scores(
+        self, factors_list: list[TerritorialFactors]
+    ) -> list[TerritorialFactors]:
         """Calculate composite scores and national rankings."""
         if not factors_list:
             return factors_list
@@ -320,17 +414,17 @@ class TerritorialFactorsCalculator:
             "dynamisme_immo": 0.25,
             "sante_entreprises": 0.3,
             "construction": 0.15,
-            "declin_ratio": -0.1  # Negative weight (higher declin = worse score)
+            "declin_ratio": -0.1,  # Negative weight (higher declin = worse score)
         }
 
         # Calculate raw scores
         for factors in factors_list:
             raw_score = (
-                factors.factor_tension_emploi * weights["tension_emploi"] +
-                factors.factor_dynamisme_immo * weights["dynamisme_immo"] +
-                factors.factor_sante_entreprises * weights["sante_entreprises"] +
-                factors.factor_construction * weights["construction"] +
-                factors.factor_declin_ratio * weights["declin_ratio"]
+                factors.factor_tension_emploi * weights["tension_emploi"]
+                + factors.factor_dynamisme_immo * weights["dynamisme_immo"]
+                + factors.factor_sante_entreprises * weights["sante_entreprises"]
+                + factors.factor_construction * weights["construction"]
+                + factors.factor_declin_ratio * weights["declin_ratio"]
             )
 
             # Normalize to 0-100 scale (simple linear normalization for now)
@@ -411,7 +505,8 @@ class TerritorialFactorsRepository:
             cursor = conn.cursor()
 
             for factors in factors_list:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT OR REPLACE INTO territorial_factors (
                         code_dept, nom, calculated_at,
                         factor_tension_emploi, factor_dynamisme_immo, factor_sante_entreprises,
@@ -421,26 +516,28 @@ class TerritorialFactorsRepository:
                         creations, liquidations, prix_m2_moyen,
                         transactions_immo, logements_autorises
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    factors.code_dept,
-                    factors.nom,
-                    factors.calculated_at.isoformat(),
-                    factors.factor_tension_emploi,
-                    factors.factor_dynamisme_immo,
-                    factors.factor_sante_entreprises,
-                    factors.factor_construction,
-                    factors.factor_declin_ratio,
-                    factors.score_composite,
-                    factors.rang_national,
-                    factors.population,
-                    factors.nb_entreprises_actives,
-                    factors.offres_emploi,
-                    factors.creations,
-                    factors.liquidations,
-                    factors.prix_m2_moyen,
-                    factors.transactions_immo,
-                    factors.logements_autorises
-                ))
+                """,
+                    (
+                        factors.code_dept,
+                        factors.nom,
+                        factors.calculated_at.isoformat(),
+                        factors.factor_tension_emploi,
+                        factors.factor_dynamisme_immo,
+                        factors.factor_sante_entreprises,
+                        factors.factor_construction,
+                        factors.factor_declin_ratio,
+                        factors.score_composite,
+                        factors.rang_national,
+                        factors.population,
+                        factors.nb_entreprises_actives,
+                        factors.offres_emploi,
+                        factors.creations,
+                        factors.liquidations,
+                        factors.prix_m2_moyen,
+                        factors.transactions_immo,
+                        factors.logements_autorises,
+                    ),
+                )
 
             conn.commit()
             conn.close()
@@ -456,11 +553,14 @@ class TerritorialFactorsRepository:
             cursor = conn.cursor()
 
             if code_dept:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT * FROM territorial_factors
                     WHERE code_dept = ?
                     ORDER BY calculated_at DESC LIMIT 1
-                """, (code_dept,))
+                """,
+                    (code_dept,),
+                )
             else:
                 cursor.execute("""
                     SELECT tf1.* FROM territorial_factors tf1
@@ -495,7 +595,7 @@ class TerritorialFactorsRepository:
                     liquidations=row[15],
                     prix_m2_moyen=row[16],
                     transactions_immo=row[17],
-                    logements_autorises=row[18]
+                    logements_autorises=row[18],
                 )
                 factors_list.append(factors)
 
@@ -543,7 +643,9 @@ async def main():
     if args.show_ranking:
         print("NATIONAL RANKING (Dynamisme ↔ Déclin):")
         print("-" * 80)
-        print(f"{'Rank':<4} {'Dept':<4} {'Name':<20} {'Score':<6} {'Tension':<8} {'Immo':<8} {'Santé':<8} {'Constr':<8} {'Déclin':<8}")
+        print(
+            f"{'Rank':<4} {'Dept':<4} {'Name':<20} {'Score':<6} {'Tension':<8} {'Immo':<8} {'Santé':<8} {'Constr':<8} {'Déclin':<8}"
+        )
         print("-" * 80)
 
         for f in factors_list:

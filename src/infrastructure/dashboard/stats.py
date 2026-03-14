@@ -28,7 +28,9 @@ class StatsCalculator:
 
         # Create a dict with all days initialized to 0
         today = datetime.now().date()
-        counts_by_day = {(today - timedelta(days=i)).isoformat(): 0 for i in range(days - 1, -1, -1)}
+        counts_by_day = {
+            (today - timedelta(days=i)).isoformat(): 0 for i in range(days - 1, -1, -1)
+        }
 
         # Fill in actual counts
         for row in cursor.fetchall():
@@ -53,7 +55,15 @@ class StatsCalculator:
             query = row["query"].lower()
             # Simple word extraction
             for word in query.split():
-                if len(word) > 2 and word not in ["les", "des", "une", "dans", "pour", "sur", "avec"]:
+                if len(word) > 2 and word not in [
+                    "les",
+                    "des",
+                    "une",
+                    "dans",
+                    "pour",
+                    "sur",
+                    "avec",
+                ]:
                     words.append(word)
 
         # Count and return top words

@@ -20,6 +20,7 @@ def _get_fc():
     if _fc is None:
         try:
             import french_cities
+
             _fc = french_cities
             logger.info("[geocoder] french-cities loaded")
         except ImportError:
@@ -54,6 +55,7 @@ def resolve_commune(name: str, code_dept: str | None = None) -> dict[str, str | 
 
     try:
         import pandas as pd
+
         # Use french-cities to find the commune
         df = pd.DataFrame({"city": [name], "dep": [code_dept or ""]})
         result = fc.find_city(df, "city", "dep")
@@ -81,6 +83,7 @@ def postal_to_commune(postal_code: str) -> dict[str, str | None]:
 
     try:
         import pandas as pd
+
         df = pd.DataFrame({"postal": [postal_code]})
         result = fc.find_city(df, "postal")
         if not result.empty:

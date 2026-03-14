@@ -32,9 +32,9 @@ class WatcherDaemon:
 
     # Polling intervals in seconds
     INTERVALS = {
-        "bodacc": 6 * 3600,   # Every 6 hours
-        "boamp": 6 * 3600,    # Every 6 hours
-        "gdelt": 2 * 3600,    # Every 2 hours
+        "bodacc": 6 * 3600,  # Every 6 hours
+        "boamp": 6 * 3600,  # Every 6 hours
+        "gdelt": 2 * 3600,  # Every 2 hours
     }
 
     # Check interval (how often to check if polling is needed)

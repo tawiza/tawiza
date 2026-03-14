@@ -519,9 +519,7 @@ class IRetrainingJobRepository(IRepository["RetrainingJob"]):
         pass
 
     @abstractmethod
-    async def get_latest_by_model(
-        self, model_name: str
-    ) -> Optional["RetrainingJob"]:
+    async def get_latest_by_model(self, model_name: str) -> Optional["RetrainingJob"]:
         """Get the most recent retraining job for a model.
 
         Args:
@@ -533,9 +531,7 @@ class IRetrainingJobRepository(IRepository["RetrainingJob"]):
         pass
 
     @abstractmethod
-    async def get_by_drift_report(
-        self, drift_report_id: UUID
-    ) -> list["RetrainingJob"]:
+    async def get_by_drift_report(self, drift_report_id: UUID) -> list["RetrainingJob"]:
         """Get retraining jobs triggered by a specific drift report.
 
         Args:

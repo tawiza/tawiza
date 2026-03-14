@@ -79,10 +79,9 @@ def register(app: typer.Typer) -> None:
         _save_jobs(jobs)
 
         msg = MessageBox()
-        console.print(msg.success(
-            "Training job started!",
-            f"Monitor with: tawiza pro train-status {job_id}"
-        ))
+        console.print(
+            msg.success("Training job started!", f"Monitor with: tawiza pro train-status {job_id}")
+        )
 
         # Note: Actual training would be done asynchronously
         console.print()
@@ -118,7 +117,9 @@ def register(app: typer.Typer) -> None:
             console.print(f"  [bold]Job ID:[/] {job_id}")
             console.print(f"  [bold]Name:[/] {job['name']}")
             console.print(f"  [bold]Model:[/] {job['model']}")
-            console.print(f"  [bold]Status:[/] [{THEME['success'] if job['status'] == 'completed' else THEME['warning']}]{job['status']}[/]")
+            console.print(
+                f"  [bold]Status:[/] [{THEME['success'] if job['status'] == 'completed' else THEME['warning']}]{job['status']}[/]"
+            )
             console.print(f"  [bold]Progress:[/] {job['progress']}%")
             console.print(f"  [bold]Started:[/] {job['started_at']}")
         else:
@@ -131,13 +132,15 @@ def register(app: typer.Typer) -> None:
             table.add_column("Progress")
 
             for jid, job in jobs.items():
-                status_color = THEME['success'] if job['status'] == 'completed' else THEME['warning']
+                status_color = (
+                    THEME["success"] if job["status"] == "completed" else THEME["warning"]
+                )
                 table.add_row(
                     jid,
-                    job['name'],
-                    job['model'],
+                    job["name"],
+                    job["model"],
                     f"[{status_color}]{job['status']}[/]",
-                    f"{job['progress']}%"
+                    f"{job['progress']}%",
                 )
 
             console.print(table)
@@ -184,6 +187,7 @@ def register(app: typer.Typer) -> None:
 
         if not force:
             from rich.prompt import Confirm
+
             if not Confirm.ask(f"  Delete job '{job_id}'?"):
                 console.print("  [dim]Cancelled.[/]")
                 console.print(footer(40))

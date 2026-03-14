@@ -54,7 +54,7 @@ def validate_css_selector(selector: str) -> str:
 
     # Validate it looks like a valid CSS selector
     # Allow: . # [ ] : ( ) > + ~ * | = ^ $ - _ alphanumeric, spaces, quotes (for attributes)
-    if not re.match(r'^[a-zA-Z0-9\s\.\#\[\]\:\(\)\>\+\~\*\|\=\^\$\-\_,\'\"]+$', selector):
+    if not re.match(r"^[a-zA-Z0-9\s\.\#\[\]\:\(\)\>\+\~\*\|\=\^\$\-\_,\'\"]+$", selector):
         raise ValueError(f"Invalid CSS selector format: {selector}")
 
     return selector
@@ -696,16 +696,10 @@ if __name__ == "__main__":
             print(f"Framework: {framework}")
 
             # Wait for SPA to be ready
-            await SPAHelper.wait_for_spa_ready(
-                page,
-                strategy=SPAWaitStrategy.NETWORK_IDLE
-            )
+            await SPAHelper.wait_for_spa_ready(page, strategy=SPAWaitStrategy.NETWORK_IDLE)
 
             # Handle infinite scroll
-            scroll_handler = InfiniteScrollHandler(
-                item_selector=".item",
-                max_scrolls=5
-            )
+            scroll_handler = InfiniteScrollHandler(item_selector=".item", max_scrolls=5)
             total_items = await scroll_handler.scroll_to_load_all(page)
             print(f"Loaded {total_items} items")
 

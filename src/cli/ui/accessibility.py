@@ -1,6 +1,5 @@
 """Accessibility features for CLI graphs and dashboards."""
 
-
 from rich.console import Console
 from rich.table import Table
 
@@ -14,7 +13,7 @@ class AccessibilityHelper:
         y_data: list[float],
         title: str = "Line Graph",
         xlabel: str = "X",
-        ylabel: str = "Y"
+        ylabel: str = "Y",
     ) -> str:
         """
         Generate text description of line graph for screen readers.
@@ -57,11 +56,7 @@ Ending value: {y_data[-1]:.2f}
         return description.strip()
 
     @staticmethod
-    def describe_bar_graph(
-        labels: list[str],
-        values: list[float],
-        title: str = "Bar Graph"
-    ) -> str:
+    def describe_bar_graph(labels: list[str], values: list[float], title: str = "Bar Graph") -> str:
         """
         Generate text description of bar graph.
 
@@ -100,7 +95,7 @@ Values:
         train_loss: list[float],
         val_loss: list[float] | None = None,
         train_acc: list[float] | None = None,
-        val_acc: list[float] | None = None
+        val_acc: list[float] | None = None,
     ) -> str:
         """
         Generate accessible description of training metrics.
@@ -157,10 +152,7 @@ Values:
         return description
 
     @staticmethod
-    def create_text_table(
-        data: dict[str, float],
-        title: str = "Data Table"
-    ) -> str:
+    def create_text_table(data: dict[str, float], title: str = "Data Table") -> str:
         """
         Create accessible text table.
 
@@ -206,7 +198,7 @@ Values:
         metric_name: str,
         value: float,
         threshold: float | None = None,
-        higher_is_better: bool = True
+        higher_is_better: bool = True,
     ) -> str:
         """
         Generate announcement text for metric updates.
@@ -244,12 +236,12 @@ class ColorBlindMode:
     def get_colorblind_palette():
         """Return color-blind safe palette."""
         return {
-            "primary": "blue",      # Distinguishable for all types
+            "primary": "blue",  # Distinguishable for all types
             "secondary": "orange",  # Safe alternative
-            "success": "green",     # OK for most, use with patterns
-            "warning": "yellow",    # Use with black text
-            "error": "magenta",     # Distinguishable alternative to red
-            "info": "cyan",         # Clear blue variant
+            "success": "green",  # OK for most, use with patterns
+            "warning": "yellow",  # Use with black text
+            "error": "magenta",  # Distinguishable alternative to red
+            "info": "cyan",  # Clear blue variant
         }
 
     @staticmethod
@@ -282,13 +274,7 @@ class ColorBlindMode:
         Returns:
             Status with symbol
         """
-        symbols = {
-            "running": "▶",
-            "completed": "✓",
-            "failed": "✗",
-            "pending": "○",
-            "stopped": "■"
-        }
+        symbols = {"running": "▶", "completed": "✓", "failed": "✗", "pending": "○", "stopped": "■"}
 
         symbol = symbols.get(status.lower(), "•")
         return f"{symbol} {status.upper()}"
@@ -303,7 +289,7 @@ class TerminalAccessibility:
         import locale
 
         encoding = locale.getpreferredencoding()
-        return 'utf' in encoding.lower()
+        return "utf" in encoding.lower()
 
     @staticmethod
     def get_safe_characters() -> dict[str, str]:
@@ -346,11 +332,7 @@ class TerminalAccessibility:
         import os
 
         # Check for common screen reader environment variables
-        screen_reader_vars = [
-            'SCREEN_READER',
-            'BRLTTY_PID',
-            'ORCA_ENABLED'
-        ]
+        screen_reader_vars = ["SCREEN_READER", "BRLTTY_PID", "ORCA_ENABLED"]
 
         return any(os.environ.get(var) for var in screen_reader_vars)
 
@@ -365,10 +347,10 @@ class TerminalAccessibility:
         import os
 
         # Check for accessibility flags
-        if os.environ.get('TAWIZA_TEXT_MODE') == '1':
+        if os.environ.get("TAWIZA_TEXT_MODE") == "1":
             return True
 
-        if os.environ.get('NO_COLOR') == '1':
+        if os.environ.get("NO_COLOR") == "1":
             return True
 
         return bool(TerminalAccessibility.is_screen_reader_active())
@@ -385,9 +367,7 @@ ACCESSIBILITY_CONFIG = {
 
 
 def set_accessibility_mode(
-    text_mode: bool = False,
-    colorblind_mode: bool = False,
-    verbose: bool = False
+    text_mode: bool = False, colorblind_mode: bool = False, verbose: bool = False
 ):
     """
     Configure accessibility settings.

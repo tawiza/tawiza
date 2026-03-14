@@ -37,46 +37,40 @@ from .web_crawler_agent import CrawlConfig, WebCrawlerAgent, create_crawler
 
 __all__ = [
     # Multi-agent system
-    'BaseAgent',
-    'AgentCoordinator',
-    'MultiAgentSystem',
-    'AgentTask',
-    'AgentStatus',
-    'AgentPriority',
-    'AgentMetrics',
-
+    "BaseAgent",
+    "AgentCoordinator",
+    "MultiAgentSystem",
+    "AgentTask",
+    "AgentStatus",
+    "AgentPriority",
+    "AgentMetrics",
     # Memory system
-    'AdvancedConversationMemory',
-    'ConversationContext',
-    'ShortTermMemory',
-    'LongTermMemory',
-    'ContextManager',
-    'PersonalizationEngine',
-
+    "AdvancedConversationMemory",
+    "ConversationContext",
+    "ShortTermMemory",
+    "LongTermMemory",
+    "ContextManager",
+    "PersonalizationEngine",
     # Agents
-    'DataAnalystAgent',
-    'MLEngineerAgent',
-    'BrowserAutomationAgent',
-    'CodeGeneratorAgent',
-    'GPUOptimizer',
-    'create_gpu_optimizer',
-
+    "DataAnalystAgent",
+    "MLEngineerAgent",
+    "BrowserAutomationAgent",
+    "CodeGeneratorAgent",
+    "GPUOptimizer",
+    "create_gpu_optimizer",
     # Integration
-    'AdvancedAgentIntegration',
-    'create_advanced_agent_integration',
-
+    "AdvancedAgentIntegration",
+    "create_advanced_agent_integration",
     # S3 Storage Agent
-    'S3StorageAgent',
-    'get_s3_agent',
-
+    "S3StorageAgent",
+    "get_s3_agent",
     # Web Crawler Agent
-    'WebCrawlerAgent',
-    'CrawlConfig',
-    'create_crawler',
-
+    "WebCrawlerAgent",
+    "CrawlConfig",
+    "create_crawler",
     # Deep Research Agent
-    'DeepResearchAgent',
-    'ResearchQuery',
-    'ResearchResult',
-    'create_research_agent'
+    "DeepResearchAgent",
+    "ResearchQuery",
+    "ResearchResult",
+    "create_research_agent",
 ]

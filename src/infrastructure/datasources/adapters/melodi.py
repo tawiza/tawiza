@@ -121,12 +121,14 @@ class MelodiAdapter(BaseAdapter):
             resolution_ids = [r.get("id", "") for r in resolutions]
 
             if any(level in resolution_ids for level in ["COM", "DEP", "REG", "EPCI", "ARR"]):
-                territorial.append({
-                    "identifier": ds.get("identifier"),
-                    "title": ds.get("title", [{}])[0].get("content", ""),
-                    "resolutions": resolution_ids,
-                    "observations": ds.get("numObservations", 0),
-                })
+                territorial.append(
+                    {
+                        "identifier": ds.get("identifier"),
+                        "title": ds.get("title", [{}])[0].get("content", ""),
+                        "resolutions": resolution_ids,
+                        "observations": ds.get("numObservations", 0),
+                    }
+                )
 
         return territorial
 
@@ -286,7 +288,11 @@ class MelodiAdapter(BaseAdapter):
         """
         if code_commune:
             geo = f"COM-{code_commune}"
-            dataset = "DS_ETAT_CIVIL_NAIS_COMMUNES" if data_type == "births" else "DS_ETAT_CIVIL_DECES_COMMUNES"
+            dataset = (
+                "DS_ETAT_CIVIL_NAIS_COMMUNES"
+                if data_type == "births"
+                else "DS_ETAT_CIVIL_DECES_COMMUNES"
+            )
         elif code_dept:
             geo = f"DEP-{code_dept}"
             dataset = "DS_EC_NAIS" if data_type == "births" else "DS_EC_DECES"

@@ -6,6 +6,7 @@ Performance Modes:
 - Direct Ollama: Standard performance
 - LitServe: 2-5x faster with automatic batching (Phase 3 optimization)
 """
+
 import asyncio
 import hashlib
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from src.infrastructure.vector_store import PGVectorClient, SearchResult
 # Optional LitServe support (Phase 3)
 try:
     from src.infrastructure.llm.litserve_client import LitServeClient
+
     LITSERVE_AVAILABLE = True
 except ImportError:
     LITSERVE_AVAILABLE = False
@@ -26,6 +28,7 @@ except ImportError:
 @dataclass
 class Document:
     """Document to be embedded"""
+
     id: str
     content: str
     metadata: dict[str, Any] | None = None
@@ -35,6 +38,7 @@ class Document:
 @dataclass
 class Chunk:
     """Document chunk with embedding"""
+
     document_id: str
     chunk_id: str
     content: str
@@ -72,13 +76,13 @@ class EmbeddingService:
     def __init__(
         self,
         vector_client: PGVectorClient,
-        ollama_adapter: Union[OllamaAdapter, 'LitServeClient'] | None = None,
+        ollama_adapter: Union[OllamaAdapter, "LitServeClient"] | None = None,
         embedding_model: str = "nomic-embed-text",
         chunk_size: int = 512,
         chunk_overlap: int = 50,
         embedding_dim: int = 768,
         use_litserve: bool = False,
-        litserve_url: str = "http://localhost:8001"
+        litserve_url: str = "http://localhost:8001",
     ):
         """
         Initialize embedding service
@@ -115,16 +119,13 @@ class EmbeddingService:
         else:
             # Create standard Ollama adapter
             from src.infrastructure.config.settings import get_settings
+
             settings = get_settings()
             self.ollama = OllamaAdapter(base_url=settings.ollama.base_url)
             if use_litserve and not LITSERVE_AVAILABLE:
                 print("⚠️  LitServe requested but not available, using standard Ollama")
 
-    async def index_document(
-        self,
-        document: Document,
-        generate_embeddings: bool = True
-    ) -> int:
+    async def index_document(self, document: Document, generate_embeddings: bool = True) -> int:
         """
         Index a single document
 
@@ -156,17 +157,14 @@ class EmbeddingService:
                     content=chunk.content,
                     embedding=chunk.embedding,
                     metadata=chunk.metadata,
-                    source=chunk.source
+                    source=chunk.source,
                 )
                 chunk_count += 1
 
         return chunk_count
 
     async def index_documents(
-        self,
-        documents: list[Document],
-        batch_size: int = 10,
-        show_progress: bool = True
+        self, documents: list[Document], batch_size: int = 10, show_progress: bool = True
     ) -> dict[str, int]:
         """
         Index multiple documents
@@ -184,7 +182,7 @@ class EmbeddingService:
 
         # Process in batches to avoid overwhelming Ollama
         for i in range(0, len(documents), batch_size):
-            batch = documents[i:i + batch_size]
+            batch = documents[i : i + batch_size]
 
             # Process batch in parallel
             tasks = [self.index_document(doc) for doc in batch]
@@ -199,7 +197,7 @@ class EmbeddingService:
         return {
             "total_documents": len(documents),
             "total_chunks": total_chunks,
-            "avg_chunks_per_doc": total_chunks / len(documents) if documents else 0
+            "avg_chunks_per_doc": total_chunks / len(documents) if documents else 0,
         }
 
     async def search(
@@ -208,7 +206,7 @@ class EmbeddingService:
         limit: int = 10,
         metadata_filter: dict[str, Any] | None = None,
         source_filter: str | None = None,
-        distance_threshold: float = 1.0
+        distance_threshold: float = 1.0,
     ) -> list[SearchResult]:
         """
         Semantic search
@@ -232,7 +230,7 @@ class EmbeddingService:
             limit=limit,
             metadata_filter=metadata_filter,
             source_filter=source_filter,
-            distance_threshold=distance_threshold
+            distance_threshold=distance_threshold,
         )
 
         return results
@@ -285,20 +283,24 @@ class EmbeddingService:
         chunks = []
 
         for i in range(0, len(words), self.chunk_size - self.chunk_overlap):
-            chunk_words = words[i:i + self.chunk_size]
+            chunk_words = words[i : i + self.chunk_size]
             chunk_content = " ".join(chunk_words)
 
             # Create chunk ID from content hash
-            content_hash = hashlib.md5(chunk_content.encode(), usedforsecurity=False).hexdigest()[:8]
+            content_hash = hashlib.md5(chunk_content.encode(), usedforsecurity=False).hexdigest()[
+                :8
+            ]
             chunk_id = f"chunk_{i}_{content_hash}"
 
-            chunks.append(Chunk(
-                document_id=document.id,
-                chunk_id=chunk_id,
-                content=chunk_content,
-                metadata=document.metadata,
-                source=document.source
-            ))
+            chunks.append(
+                Chunk(
+                    document_id=document.id,
+                    chunk_id=chunk_id,
+                    content=chunk_content,
+                    metadata=document.metadata,
+                    source=document.source,
+                )
+            )
 
         return chunks
 
@@ -312,16 +314,11 @@ class EmbeddingService:
         Returns:
             Embedding vector
         """
-        embedding = await self.ollama.get_embedding(
-            model=self.embedding_model,
-            text=text
-        )
+        embedding = await self.ollama.get_embedding(model=self.embedding_model, text=text)
         return embedding
 
     async def _generate_embeddings_batch(
-        self,
-        texts: list[str],
-        batch_size: int = 32
+        self, texts: list[str], batch_size: int = 32
     ) -> list[list[float]]:
         """
         Generate embeddings for multiple texts
@@ -336,7 +333,7 @@ class EmbeddingService:
         embeddings = []
 
         for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
+            batch = texts[i : i + batch_size]
 
             # Generate embeddings in parallel
             tasks = [self._generate_embedding(text) for text in batch]
@@ -351,7 +348,7 @@ class EmbeddingService:
         source: str | None = None,
         batch_size: int = 100,
         show_progress: bool = True,
-        new_model: str | None = None
+        new_model: str | None = None,
     ) -> dict[str, int]:
         """
         Reindex all documents by regenerating embeddings.
@@ -382,12 +379,7 @@ class EmbeddingService:
             print(f"📊 Found {total_count} chunks to reindex{source_str}")
 
         if total_count == 0:
-            return {
-                "total_chunks": 0,
-                "reindexed": 0,
-                "failed": 0,
-                "errors": []
-            }
+            return {"total_chunks": 0, "reindexed": 0, "failed": 0, "errors": []}
 
         reindexed = 0
         failed = 0
@@ -397,9 +389,7 @@ class EmbeddingService:
         while True:
             # Fetch batch of chunks
             chunks = await self.vector_client.get_all_chunks(
-                source=source,
-                batch_size=batch_size,
-                offset=offset
+                source=source, batch_size=batch_size, offset=offset
             )
 
             if not chunks:
@@ -424,7 +414,7 @@ class EmbeddingService:
                     success = await self.vector_client.update_embedding(
                         chunk_id=chunk.chunk_id,
                         document_id=chunk.document_id,
-                        embedding=new_embedding
+                        embedding=new_embedding,
                     )
                     if success:
                         reindexed += 1
@@ -450,5 +440,5 @@ class EmbeddingService:
             "reindexed": reindexed,
             "failed": failed,
             "errors": errors[:10] if len(errors) > 10 else errors,  # Limit error list
-            "embedding_model": self.embedding_model
+            "embedding_model": self.embedding_model,
         }

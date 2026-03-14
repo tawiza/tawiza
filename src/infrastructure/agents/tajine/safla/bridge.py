@@ -165,9 +165,11 @@ class SAFLABridge:
         self._active_contexts[task_id] = context
         self.metacognitive.update_load(len(self._active_contexts))
 
-        logger.debug(f"Prepared context for task {task_id}: "
-                    f"{len(context.relevant_memories or [])} memories, "
-                    f"strategy={context.strategy}")
+        logger.debug(
+            f"Prepared context for task {task_id}: "
+            f"{len(context.relevant_memories or [])} memories, "
+            f"strategy={context.strategy}"
+        )
 
         return context
 
@@ -236,8 +238,10 @@ class SAFLABridge:
         self._active_contexts.pop(context.task_id, None)
         self.metacognitive.update_load(len(self._active_contexts))
 
-        logger.debug(f"Recorded execution for task {context.task_id}: "
-                    f"success={success}, duration={duration_ms:.0f}ms")
+        logger.debug(
+            f"Recorded execution for task {context.task_id}: "
+            f"success={success}, duration={duration_ms:.0f}ms"
+        )
 
     async def store_insight(
         self,

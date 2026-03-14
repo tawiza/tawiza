@@ -27,6 +27,7 @@ from loguru import logger
 try:
     from qdrant_client import QdrantClient
     from qdrant_client.models import Distance, PointStruct, VectorParams
+
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
@@ -40,6 +41,7 @@ from .web_crawler_agent import CrawlConfig, WebCrawlerAgent
 @dataclass
 class ResearchQuery:
     """Requête de recherche"""
+
     query: str
     depth: int = 2
     max_sources: int = 10
@@ -52,6 +54,7 @@ class ResearchQuery:
 @dataclass
 class ResearchSource:
     """Source de recherche"""
+
     url: str
     title: str
     content: str
@@ -65,6 +68,7 @@ class ResearchSource:
 @dataclass
 class ResearchResult:
     """Résultat complet de recherche"""
+
     query: str
     sources: list[ResearchSource]
     synthesis: str
@@ -86,7 +90,7 @@ class DeepResearchAgent:
         qdrant_host: str = "localhost",
         qdrant_port: int = 6333,
         s3_agent: S3StorageAgent = None,
-        cache_bucket: str = "tawiza-research-cache"
+        cache_bucket: str = "tawiza-research-cache",
     ):
         """Initialiser l'agent de recherche
 
@@ -106,7 +110,7 @@ class DeepResearchAgent:
             "semantic_search",
             "llm_analysis",
             "synthesis",
-            "caching"
+            "caching",
         ]
 
         # Configuration - use environment variable for Ollama URL
@@ -171,12 +175,9 @@ class DeepResearchAgent:
                     self.qdrant = None
 
             # Crawler
-            self.crawler = WebCrawlerAgent(CrawlConfig(
-                max_pages=50,
-                max_depth=3,
-                delay_seconds=0.5,
-                respect_robots_txt=True
-            ))
+            self.crawler = WebCrawlerAgent(
+                CrawlConfig(max_pages=50, max_depth=3, delay_seconds=0.5, respect_robots_txt=True)
+            )
 
             # Langfuse tracer
             if LANGFUSE_AVAILABLE:
@@ -184,7 +185,9 @@ class DeepResearchAgent:
                 logger.info("📊 Langfuse tracing enabled")
 
             self.is_initialized = True
-            logger.info(f"🔬 DeepResearchAgent initialized (S3: {self.s3_available}, Qdrant: {self.qdrant_available})")
+            logger.info(
+                f"🔬 DeepResearchAgent initialized (S3: {self.s3_available}, Qdrant: {self.qdrant_available})"
+            )
             return True
 
         except Exception as e:
@@ -202,10 +205,7 @@ class DeepResearchAgent:
         if not exists:
             self.qdrant.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=VectorParams(
-                    size=self.vector_size,
-                    distance=Distance.COSINE
-                )
+                vectors_config=VectorParams(size=self.vector_size, distance=Distance.COSINE),
             )
             logger.info(f"Created Qdrant collection: {self.collection_name}")
 
@@ -218,8 +218,8 @@ class DeepResearchAgent:
                 f"{self.ollama_url}/api/embed",
                 json={
                     "model": "nomic-embed-text",
-                    "input": text[:8000]  # Limite de contexte
-                }
+                    "input": text[:8000],  # Limite de contexte
+                },
             )
             if response.status_code == 200:
                 data = response.json()
@@ -230,13 +230,11 @@ class DeepResearchAgent:
 
         # Fallback: embedding aléatoire
         import random
+
         return [random.random() for _ in range(self.vector_size)]
 
     async def _generate_text(
-        self,
-        prompt: str,
-        system: str = None,
-        temperature: float = 0.7
+        self, prompt: str, system: str = None, temperature: float = 0.7
     ) -> str:
         """Générer du texte via Ollama"""
         try:
@@ -251,9 +249,9 @@ class DeepResearchAgent:
                     "model": self.ollama_model,
                     "messages": messages,
                     "stream": False,
-                    "options": {"temperature": temperature}
+                    "options": {"temperature": temperature},
                 },
-                timeout=120.0
+                timeout=120.0,
             )
 
             if response.status_code == 200:
@@ -293,8 +291,7 @@ class DeepResearchAgent:
             key = self._cache_key(url)
             data = json.dumps(page_data, ensure_ascii=False).encode()
             await self.s3.upload_bytes(
-                self.cache_bucket, key, data,
-                content_type="application/json"
+                self.cache_bucket, key, data, content_type="application/json"
             )
         except Exception as e:
             logger.warning(f"Cache error for {url}: {e}")
@@ -306,13 +303,11 @@ class DeepResearchAgent:
         try:
             # Utiliser DuckDuckGo HTML
             search_url = f"https://html.duckduckgo.com/html/?q={query}"
-            response = await self.http_client.get(
-                search_url,
-                headers={"User-Agent": "Mozilla/5.0"}
-            )
+            response = await self.http_client.get(search_url, headers={"User-Agent": "Mozilla/5.0"})
 
             if response.status_code == 200:
                 from bs4 import BeautifulSoup
+
                 soup = BeautifulSoup(response.text, "html.parser")
                 urls = []
 
@@ -323,6 +318,7 @@ class DeepResearchAgent:
                     elif "uddg=" in href:
                         # Extraire l'URL encodée
                         import urllib.parse
+
                         parsed = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
                         if "uddg" in parsed:
                             urls.append(parsed["uddg"][0])
@@ -337,11 +333,7 @@ class DeepResearchAgent:
 
     # ==================== CONTENT ANALYSIS ====================
 
-    async def _analyze_content(
-        self,
-        content: str,
-        query: str
-    ) -> tuple[str, float, list[str]]:
+    async def _analyze_content(self, content: str, query: str) -> tuple[str, float, list[str]]:
         """Analyser le contenu avec LLM
 
         Returns:
@@ -366,13 +358,13 @@ Analyse ce contenu et sa pertinence pour la requête."""
 
         try:
             # Parser le JSON
-            json_match = re.search(r'\{[^{}]*\}', response, re.DOTALL)
+            json_match = re.search(r"\{[^{}]*\}", response, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group())
                 return (
                     data.get("summary", ""),
                     float(data.get("relevance", 0.5)),
-                    data.get("keywords", [])
+                    data.get("keywords", []),
                 )
         except Exception:
             pass
@@ -380,9 +372,7 @@ Analyse ce contenu et sa pertinence pour la requête."""
         return ("", 0.5, [])
 
     async def _synthesize_research(
-        self,
-        query: str,
-        sources: list[ResearchSource]
+        self, query: str, sources: list[ResearchSource]
     ) -> tuple[str, list[str], list[str], list[str]]:
         """Synthétiser les résultats de recherche
 
@@ -399,10 +389,7 @@ Réponds en JSON avec:
     "related_queries": ["query 1", "query 2", ...]
 }"""
 
-        sources_text = "\n\n".join([
-            f"Source: {s.title}\n{s.summary}"
-            for s in sources[:10]
-        ])
+        sources_text = "\n\n".join([f"Source: {s.title}\n{s.summary}" for s in sources[:10]])
 
         prompt = f"""Requête de recherche: {query}
 
@@ -414,14 +401,14 @@ Crée une synthèse complète de ces informations."""
         response = await self._generate_text(prompt, system, temperature=0.5)
 
         try:
-            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response, re.DOTALL)
+            json_match = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", response, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group())
                 return (
                     data.get("synthesis", ""),
                     data.get("key_findings", []),
                     data.get("recommendations", []),
-                    data.get("related_queries", [])
+                    data.get("related_queries", []),
                 )
         except Exception:
             pass
@@ -430,10 +417,7 @@ Crée une synthèse complète de ces informations."""
 
     # ==================== MAIN RESEARCH FLOW ====================
 
-    async def research(
-        self,
-        query: ResearchQuery
-    ) -> ResearchResult:
+    async def research(self, query: ResearchQuery) -> ResearchResult:
         """Effectuer une recherche approfondie
 
         Args:
@@ -458,9 +442,9 @@ Crée une synthèse complète de ces informations."""
                 input_data={
                     "query": query.query,
                     "depth": query.depth,
-                    "max_sources": query.max_sources
+                    "max_sources": query.max_sources,
                 },
-                tags=["research", "deep_research"]
+                tags=["research", "deep_research"],
             )
 
         sources: list[ResearchSource] = []
@@ -480,7 +464,7 @@ Crée une synthèse complète de ces informations."""
             urls = [u for u in urls if not any(d in u for d in query.exclude_domains)]
 
         # 2. Crawler et analyser chaque URL
-        for url in urls[:query.max_sources]:
+        for url in urls[: query.max_sources]:
             try:
                 # Vérifier le cache
                 cached = await self._get_cached(url)
@@ -495,11 +479,7 @@ Crée une synthèse complète de ces informations."""
 
                     if result.pages:
                         page = result.pages[0]
-                        page_data = {
-                            "url": page.url,
-                            "title": page.title,
-                            "content": page.content
-                        }
+                        page_data = {"url": page.url, "title": page.title, "content": page.content}
                         await self._cache_page(url, page_data)
                         from_cache = False
                     else:
@@ -509,8 +489,7 @@ Crée une synthèse complète de ces informations."""
 
                 # Analyser le contenu
                 summary, relevance, keywords = await self._analyze_content(
-                    page_data["content"],
-                    query.query
+                    page_data["content"], query.query
                 )
 
                 # Créer la source
@@ -522,7 +501,7 @@ Crée une synthèse complète de ces informations."""
                     relevance_score=relevance,
                     keywords=keywords,
                     crawled_at=datetime.utcnow().isoformat(),
-                    cached=from_cache
+                    cached=from_cache,
                 )
 
                 # Indexer dans Qdrant (optional)
@@ -532,18 +511,22 @@ Crée une synthèse complète de ces informations."""
                         if len(embedding) == self.vector_size:
                             self.qdrant.upsert(
                                 collection_name=self.collection_name,
-                                points=[PointStruct(
-                                    id=hash(url) % (2**63),
-                                    vector=embedding,
-                                    payload={
-                                        "url": url,
-                                        "title": source.title,
-                                        "summary": source.summary
-                                    }
-                                )]
+                                points=[
+                                    PointStruct(
+                                        id=hash(url) % (2**63),
+                                        vector=embedding,
+                                        payload={
+                                            "url": url,
+                                            "title": source.title,
+                                            "summary": source.summary,
+                                        },
+                                    )
+                                ],
                             )
                         else:
-                            logger.debug(f"Skipping indexing - embedding dim mismatch: {len(embedding)} vs {self.vector_size}")
+                            logger.debug(
+                                f"Skipping indexing - embedding dim mismatch: {len(embedding)} vs {self.vector_size}"
+                            )
                     except Exception as e:
                         logger.warning(f"Qdrant indexing error: {e}")
 
@@ -559,8 +542,7 @@ Crée une synthèse complète de ces informations."""
 
         # 4. Synthétiser
         synthesis, findings, recommendations, related = await self._synthesize_research(
-            query.query,
-            sources
+            query.query, sources
         )
 
         # Calculer le temps d'exécution
@@ -575,13 +557,10 @@ Crée une synthèse complète de ces informations."""
             related_queries=related,
             total_sources_analyzed=total_analyzed,
             execution_time_seconds=execution_time,
-            generated_at=datetime.utcnow().isoformat()
+            generated_at=datetime.utcnow().isoformat(),
         )
 
-        logger.info(
-            f"🔬 Research complete: {len(sources)} sources, "
-            f"{execution_time:.1f}s"
-        )
+        logger.info(f"🔬 Research complete: {len(sources)} sources, {execution_time:.1f}s")
 
         # End Langfuse trace
         if self.tracer and trace_id:
@@ -590,18 +569,14 @@ Crée une synthèse complète de ces informations."""
                 output_data={
                     "sources_count": len(sources),
                     "execution_time": execution_time,
-                    "synthesis_length": len(synthesis)
-                }
+                    "synthesis_length": len(synthesis),
+                },
             )
             self.tracer.flush()
 
         return result
 
-    async def search_similar(
-        self,
-        query: str,
-        limit: int = 5
-    ) -> list[dict[str, Any]]:
+    async def search_similar(self, query: str, limit: int = 5) -> list[dict[str, Any]]:
         """Rechercher des documents similaires dans l'index
 
         Args:
@@ -617,9 +592,7 @@ Crée une synthèse complète de ces informations."""
         try:
             embedding = await self._get_embedding(query)
             results = self.qdrant.search(
-                collection_name=self.collection_name,
-                query_vector=embedding,
-                limit=limit
+                collection_name=self.collection_name, query_vector=embedding, limit=limit
             )
 
             return [
@@ -627,7 +600,7 @@ Crée une synthèse complète de ces informations."""
                     "url": r.payload.get("url"),
                     "title": r.payload.get("title"),
                     "summary": r.payload.get("summary"),
-                    "score": r.score
+                    "score": r.score,
                 }
                 for r in results
             ]
@@ -636,10 +609,7 @@ Crée une synthèse complète de ces informations."""
             logger.error(f"Search error: {e}")
             return []
 
-    async def stream_research(
-        self,
-        query: ResearchQuery
-    ) -> AsyncGenerator[dict[str, Any]]:
+    async def stream_research(self, query: ResearchQuery) -> AsyncGenerator[dict[str, Any]]:
         """Recherche en mode streaming (yield les résultats progressivement)"""
         if not self.is_initialized:
             await self.initialize()
@@ -663,11 +633,9 @@ Crée une synthèse complète de ces informations."""
 
                     if result.pages:
                         page = result.pages[0]
-                        await self._cache_page(url, {
-                            "url": page.url,
-                            "title": page.title,
-                            "content": page.content
-                        })
+                        await self._cache_page(
+                            url, {"url": page.url, "title": page.title, "content": page.content}
+                        )
 
                         summary, relevance, _ = await self._analyze_content(
                             page.content, query.query
@@ -678,7 +646,7 @@ Crée une synthèse complète de ces informations."""
                             "url": url,
                             "title": page.title,
                             "summary": summary,
-                            "relevance": relevance
+                            "relevance": relevance,
                         }
 
             except Exception as e:
@@ -688,11 +656,7 @@ Crée une synthèse complète de ces informations."""
 
     async def health_check(self) -> dict[str, Any]:
         """Vérifier l'état de l'agent"""
-        status = {
-            "agent": self.name,
-            "initialized": self.is_initialized,
-            "components": {}
-        }
+        status = {"agent": self.name, "initialized": self.is_initialized, "components": {}}
 
         # S3
         if self.s3:
@@ -711,7 +675,9 @@ Crée une synthèse complète de ces informations."""
         # Ollama
         try:
             response = await self.http_client.get(f"{self.ollama_url}/api/tags")
-            status["components"]["ollama"] = "healthy" if response.status_code == 200 else "unhealthy"
+            status["components"]["ollama"] = (
+                "healthy" if response.status_code == 200 else "unhealthy"
+            )
         except Exception:
             status["components"]["ollama"] = "unhealthy"
 
@@ -739,7 +705,9 @@ Crée une synthèse complète de ces informations."""
         max_sources = 5
 
         # Check for depth indicators
-        if any(word in prompt.lower() for word in ["deep", "thorough", "comprehensive", "approfondi"]):
+        if any(
+            word in prompt.lower() for word in ["deep", "thorough", "comprehensive", "approfondi"]
+        ):
             depth = 3
             max_sources = 10
         elif any(word in prompt.lower() for word in ["quick", "brief", "rapide", "bref"]):
@@ -748,14 +716,12 @@ Crée une synthèse complète de ces informations."""
 
         # Extract focus keywords (words in quotes)
         import re
+
         quoted_keywords = re.findall(r'"([^"]+)"', prompt)
 
         # Create ResearchQuery
         query = ResearchQuery(
-            query=prompt,
-            depth=depth,
-            max_sources=max_sources,
-            focus_keywords=quoted_keywords
+            query=prompt, depth=depth, max_sources=max_sources, focus_keywords=quoted_keywords
         )
 
         try:
@@ -774,21 +740,17 @@ Crée une synthèse complète de ces informations."""
                         "title": s.title,
                         "url": s.url,
                         "summary": s.summary,
-                        "relevance": s.relevance_score
+                        "relevance": s.relevance_score,
                     }
                     for s in result.sources[:5]  # Top 5 sources
                 ],
                 "execution_time": result.execution_time_seconds,
-                "related_queries": result.related_queries
+                "related_queries": result.related_queries,
             }
 
         except Exception as e:
             logger.error(f"Research execution failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "query": prompt
-            }
+            return {"success": False, "error": str(e), "query": prompt}
 
     async def close(self):
         """Fermer les ressources"""
@@ -800,8 +762,6 @@ Crée une synthèse complète de ces informations."""
 
 
 # Factory function
-def create_research_agent(
-    ollama_model: str = "llama3.1:8b"
-) -> DeepResearchAgent:
+def create_research_agent(ollama_model: str = "llama3.1:8b") -> DeepResearchAgent:
     """Créer une instance de l'agent de recherche"""
     return DeepResearchAgent(ollama_model=ollama_model)

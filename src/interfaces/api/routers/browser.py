@@ -444,6 +444,7 @@ async def stream_browser_task_progress(
                         break
         ```
     """
+
     async def event_generator():
         """Generate Server-Sent Events for task progress."""
         try:
@@ -452,6 +453,7 @@ async def stream_browser_task_progress(
             async for progress_update in service.stream_progress(task_id):
                 # Format as SSE: data: {JSON}\n\n
                 import json
+
                 data = json.dumps(progress_update)
                 yield f"data: {data}\n\n"
 
@@ -477,6 +479,7 @@ async def stream_browser_task_progress(
         except Exception as e:
             logger.error(f"Error streaming browser task progress for {task_id}: {e}")
             import json
+
             error_data = json.dumps({"error": str(e)})
             yield f"event: error\ndata: {error_data}\n\n"
 
@@ -498,6 +501,7 @@ async def stream_browser_task_progress(
 
 class StealthBrowserTypeEnum(StrEnum):
     """Browser type selection for stealth requests."""
+
     AUTO = "auto"  # Automatic selection based on domain
     NODRIVER = "nodriver"  # Chrome-based, CDP direct
     CAMOUFOX = "camoufox"  # Firefox-based, C++ hooks
@@ -506,6 +510,7 @@ class StealthBrowserTypeEnum(StrEnum):
 
 class StealthFetchRequest(BaseModel):
     """Request model for stealth browser fetch."""
+
     url: str = Field(
         ...,
         description="URL to fetch",
@@ -537,6 +542,7 @@ class StealthFetchRequest(BaseModel):
 
 class StealthFetchResponse(BaseModel):
     """Response model for stealth browser fetch."""
+
     success: bool
     url: str | None = None
     content: str | None = None
@@ -549,6 +555,7 @@ class StealthFetchResponse(BaseModel):
 
 class StealthBrowserStatus(BaseModel):
     """Status of stealth browser availability."""
+
     nodriver_available: bool
     camoufox_available: bool
     recommended: str

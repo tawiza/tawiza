@@ -15,11 +15,14 @@ from pydantic import BaseModel, Field
 router = APIRouter(prefix="/api/v1/export", tags=["Export"])
 
 # Template directory
-TEMPLATES_DIR = Path(__file__).parent.parent.parent.parent.parent / "infrastructure" / "export" / "templates"
+TEMPLATES_DIR = (
+    Path(__file__).parent.parent.parent.parent.parent / "infrastructure" / "export" / "templates"
+)
 
 
 class ExportRequest(BaseModel):
     """Request model for PDF export."""
+
     conversation_id: str = Field(..., description="Conversation ID to export")
     content: str = Field(..., description="Markdown content to export")
     title: str = Field(default="Rapport TAJINE", description="Report title")
@@ -29,6 +32,7 @@ class ExportRequest(BaseModel):
 
 class ExportResponse(BaseModel):
     """Response model for export operations."""
+
     success: bool
     filename: str
     message: str
@@ -59,7 +63,9 @@ def _render_markdown_to_html(content: str) -> str:
     return md.convert(content)
 
 
-def _render_to_html(content: str, title: str, metadata: dict[str, Any], template: str = "report") -> str:
+def _render_to_html(
+    content: str, title: str, metadata: dict[str, Any], template: str = "report"
+) -> str:
     """
     Render content to full HTML document using template.
 
@@ -317,7 +323,7 @@ def _render_to_html(content: str, title: str, metadata: dict[str, Any], template
             <span>Date: {date}</span>
             <span>Territoire: {territory}</span>
             <span class="mode-badge">{mode}</span>
-            <span class="confidence-badge confidence-{'high' if confidence >= 70 else 'medium' if confidence >= 40 else 'low'}">
+            <span class="confidence-badge confidence-{"high" if confidence >= 70 else "medium" if confidence >= 40 else "low"}">
                 Confiance: {confidence}%
             </span>
         </div>
@@ -329,7 +335,7 @@ def _render_to_html(content: str, title: str, metadata: dict[str, Any], template
 
     <div class="footer">
         <div class="footer-row">
-            <span>Sources: {', '.join(sources)}</span>
+            <span>Sources: {", ".join(sources)}</span>
             <span>Mode d'analyse: {mode}</span>
         </div>
         <div class="footer-row">
@@ -455,7 +461,7 @@ async def export_markdown(request: ExportRequest) -> dict[str, Any]:
 
 ---
 
-*Sources: {', '.join(sources)} | Confiance: {confidence}% | Mode: {mode}*
+*Sources: {", ".join(sources)} | Confiance: {confidence}% | Mode: {mode}*
 *Genere par Tawiza - Intelligence Territoriale*
 """
 

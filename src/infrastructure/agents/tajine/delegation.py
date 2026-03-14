@@ -233,9 +233,7 @@ async def execute_browser_action(agent: TAJINEAgent, subtask: dict[str, Any]) ->
                 selector="body",
             )
             if extract_result.get("success"):
-                result["extracted_content"] = extract_result.get("data", {}).get(
-                    "extracted_data"
-                )
+                result["extracted_content"] = extract_result.get("data", {}).get("extracted_data")
 
         return {
             "status": "completed" if result.get("success") else "failed",
@@ -425,9 +423,7 @@ async def run_data_hunt(
 
             asyncio.create_task(bridge_relations_discover(agent, dept_code, task_id))
 
-        logger.info(
-            f"DataHunter completed: {len(collected_data)} items from {list(sources_used)}"
-        )
+        logger.info(f"DataHunter completed: {len(collected_data)} items from {list(sources_used)}")
         return result
 
     except Exception as e:

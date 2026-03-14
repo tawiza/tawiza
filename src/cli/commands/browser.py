@@ -1,6 +1,5 @@
 """Browser automation commands for Tawiza CLI using OpenManus."""
 
-
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -150,6 +149,7 @@ def extract(
 
             # Format as JSON with syntax highlighting
             import json
+
             json_str = json.dumps(result["data"], indent=2)
             syntax = Syntax(json_str, "json", theme="monokai", line_numbers=True)
             console.print(syntax)
@@ -257,7 +257,9 @@ def screenshot(
 @app.command()
 def fill_form(
     url: str = typer.Argument(..., help="URL of the form"),
-    fields: str = typer.Argument(..., help="Form fields as JSON (e.g., '{\"name\":\"John\",\"email\":\"john@test.com\"}')" ),
+    fields: str = typer.Argument(
+        ..., help='Form fields as JSON (e.g., \'{"name":"John","email":"john@test.com"}\')'
+    ),
     submit: bool = typer.Option(False, "--submit", help="Submit the form after filling"),
 ):
     """Fill a web form with provided data.

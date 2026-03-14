@@ -40,5 +40,5 @@ __all__ = [
     "browser",
     "data",
     "training",
-    "ecocartographe"
+    "ecocartographe",
 ]

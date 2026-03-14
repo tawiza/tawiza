@@ -34,25 +34,20 @@ class ModelNameValidator(BaseModel):
         Invalid: "model; rm -rf /", "model`whoami`", "model$(cat /etc/passwd)"
     """
 
-    name: str = Field(
-        ...,
-        min_length=1,
-        max_length=256,
-        description="Model name to validate"
-    )
+    name: str = Field(..., min_length=1, max_length=256, description="Model name to validate")
 
     # Whitelist pattern: alphanumeric, hyphen, underscore, colon, slash, dot
-    ALLOWED_PATTERN: ClassVar[re.Pattern] = re.compile(r'^[a-zA-Z0-9._:/\-]+$')
+    ALLOWED_PATTERN: ClassVar[re.Pattern] = re.compile(r"^[a-zA-Z0-9._:/\-]+$")
 
     # Blacklist patterns for common injection attempts
     FORBIDDEN_PATTERNS: ClassVar[list[re.Pattern]] = [
-        re.compile(r'[;&|`$()]'),  # Shell metacharacters
-        re.compile(r'\.\.'),  # Path traversal
-        re.compile(r'[<>]'),  # Redirections
-        re.compile(r'\s'),  # Whitespace (spaces, tabs, newlines)
+        re.compile(r"[;&|`$()]"),  # Shell metacharacters
+        re.compile(r"\.\."),  # Path traversal
+        re.compile(r"[<>]"),  # Redirections
+        re.compile(r"\s"),  # Whitespace (spaces, tabs, newlines)
     ]
 
-    @field_validator('name')
+    @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
         """Validate model name against security rules.
@@ -76,9 +71,7 @@ class ModelNameValidator(BaseModel):
         # Check blacklist patterns
         for pattern in cls.FORBIDDEN_PATTERNS:
             if pattern.search(v):
-                raise ValueError(
-                    f"Model name contains forbidden pattern: {pattern.pattern}"
-                )
+                raise ValueError(f"Model name contains forbidden pattern: {pattern.pattern}")
 
         return v
 
@@ -100,25 +93,17 @@ class PathValidator(BaseModel):
         Invalid: "../../../etc/passwd", "data/../../../secret", "/etc/passwd"
     """
 
-    path: str = Field(
-        ...,
-        min_length=1,
-        max_length=4096,
-        description="File path to validate"
-    )
-    base_dir: str | None = Field(
-        default=None,
-        description="Base directory to restrict path within"
-    )
+    path: str = Field(..., min_length=1, max_length=4096, description="File path to validate")
+    base_dir: str | None = Field(default=None, description="Base directory to restrict path within")
 
     # Forbidden patterns
     FORBIDDEN_PATTERNS: ClassVar[list[re.Pattern]] = [
-        re.compile(r'\.\.'),  # Parent directory
-        re.compile(r'\0'),  # Null byte
-        re.compile(r'[<>|]'),  # Shell redirections
+        re.compile(r"\.\."),  # Parent directory
+        re.compile(r"\0"),  # Null byte
+        re.compile(r"[<>|]"),  # Shell redirections
     ]
 
-    @field_validator('path')
+    @field_validator("path")
     @classmethod
     def validate_path_security(cls, v: str) -> str:
         """Validate path for security issues.
@@ -135,9 +120,7 @@ class PathValidator(BaseModel):
         # Check forbidden patterns
         for pattern in cls.FORBIDDEN_PATTERNS:
             if pattern.search(v):
-                raise ValueError(
-                    f"Path contains forbidden pattern: {pattern.pattern}"
-                )
+                raise ValueError(f"Path contains forbidden pattern: {pattern.pattern}")
 
         return v
 
@@ -166,9 +149,7 @@ class PathValidator(BaseModel):
             try:
                 resolved_path.relative_to(base)
             except ValueError:
-                raise ValueError(
-                    f"Path '{self.path}' escapes base directory '{self.base_dir}'"
-                )
+                raise ValueError(f"Path '{self.path}' escapes base directory '{self.base_dir}'")
 
         return resolved_path
 
@@ -190,38 +171,29 @@ class URLValidator(BaseModel):
         Invalid: "http://localhost:8080", "http://192.168.1.1", "file:///etc/passwd"
     """
 
-    url: str = Field(
-        ...,
-        min_length=1,
-        max_length=2048,
-        description="URL to validate"
-    )
-    allowed_schemes: set[str] = Field(
-        default={'http', 'https'},
-        description="Allowed URL schemes"
-    )
+    url: str = Field(..., min_length=1, max_length=2048, description="URL to validate")
+    allowed_schemes: set[str] = Field(default={"http", "https"}, description="Allowed URL schemes")
     allowed_domains: set[str] | None = Field(
         default=None,
-        description="Whitelist of allowed domains (if None, all public domains allowed)"
+        description="Whitelist of allowed domains (if None, all public domains allowed)",
     )
     allow_private_ips: bool = Field(
-        default=False,
-        description="Allow private IP addresses (default: False for SSRF protection)"
+        default=False, description="Allow private IP addresses (default: False for SSRF protection)"
     )
 
     # Private IP ranges (RFC 1918, RFC 4193, loopback)
     PRIVATE_IP_RANGES: ClassVar[list] = [
-        ipaddress.ip_network('10.0.0.0/8'),
-        ipaddress.ip_network('172.16.0.0/12'),
-        ipaddress.ip_network('192.168.0.0/16'),
-        ipaddress.ip_network('127.0.0.0/8'),
-        ipaddress.ip_network('169.254.0.0/16'),  # Link-local
-        ipaddress.ip_network('::1/128'),  # IPv6 loopback
-        ipaddress.ip_network('fc00::/7'),  # IPv6 private
-        ipaddress.ip_network('fe80::/10'),  # IPv6 link-local
+        ipaddress.ip_network("10.0.0.0/8"),
+        ipaddress.ip_network("172.16.0.0/12"),
+        ipaddress.ip_network("192.168.0.0/16"),
+        ipaddress.ip_network("127.0.0.0/8"),
+        ipaddress.ip_network("169.254.0.0/16"),  # Link-local
+        ipaddress.ip_network("::1/128"),  # IPv6 loopback
+        ipaddress.ip_network("fc00::/7"),  # IPv6 private
+        ipaddress.ip_network("fe80::/10"),  # IPv6 link-local
     ]
 
-    @field_validator('url')
+    @field_validator("url")
     @classmethod
     def validate_url_format(cls, v: str) -> str:
         """Basic URL format validation.
@@ -236,7 +208,7 @@ class URLValidator(BaseModel):
             ValueError: If URL format is invalid
         """
         # Check for null bytes
-        if '\0' in v:
+        if "\0" in v:
             raise ValueError("URL contains null byte")
 
         # Check for whitespace
@@ -271,17 +243,14 @@ class URLValidator(BaseModel):
         # Check domain whitelist if specified
         if self.allowed_domains and hostname not in self.allowed_domains:
             raise ValueError(
-                f"Domain '{hostname}' not in allowed whitelist: "
-                f"{', '.join(self.allowed_domains)}"
+                f"Domain '{hostname}' not in allowed whitelist: {', '.join(self.allowed_domains)}"
             )
 
         # Check for private IPs (SSRF protection)
         if not self.allow_private_ips:
             # Check if hostname is localhost-like
-            if hostname in {'localhost', '0.0.0.0', '[::]'}:
-                raise ValueError(
-                    f"Access to '{hostname}' is not allowed (SSRF protection)"
-                )
+            if hostname in {"localhost", "0.0.0.0", "[::]"}:
+                raise ValueError(f"Access to '{hostname}' is not allowed (SSRF protection)")
 
             # Try to parse as IP address
             try:
@@ -306,6 +275,7 @@ class URLValidator(BaseModel):
 
 # Helper functions for convenient validation
 
+
 def validate_model_name(name: str) -> str:
     """Validate a model name (convenience function).
 
@@ -328,11 +298,7 @@ def validate_model_name(name: str) -> str:
     return validator.name
 
 
-def validate_path(
-    path: str,
-    base_dir: str | None = None,
-    must_be_within_base: bool = True
-) -> Path:
+def validate_path(path: str, base_dir: str | None = None, must_be_within_base: bool = True) -> Path:
     """Validate a file path (convenience function).
 
     Args:
@@ -361,9 +327,7 @@ def validate_path(
 
 
 def validate_url(
-    url: str,
-    allowed_domains: set[str] | None = None,
-    allow_private_ips: bool = False
+    url: str, allowed_domains: set[str] | None = None, allow_private_ips: bool = False
 ) -> str:
     """Validate a URL for SSRF protection (convenience function).
 
@@ -385,9 +349,7 @@ def validate_url(
         ValueError: Access to 'localhost' is not allowed (SSRF protection)
     """
     validator = URLValidator(
-        url=url,
-        allowed_domains=allowed_domains,
-        allow_private_ips=allow_private_ips
+        url=url, allowed_domains=allowed_domains, allow_private_ips=allow_private_ips
     )
     return validator.validate_ssrf_protection()
 
@@ -421,9 +383,7 @@ def sanitize_command_argument(arg: str, arg_type: str = "string") -> str:
         return validator.path
     else:
         # For generic strings, remove shell metacharacters
-        forbidden_chars = set(';|&$`()<>"\'\n\r\t')
+        forbidden_chars = set(";|&$`()<>\"'\n\r\t")
         if any(c in arg for c in forbidden_chars):
-            raise ValueError(
-                "Argument contains forbidden shell metacharacters"
-            )
+            raise ValueError("Argument contains forbidden shell metacharacters")
         return arg

@@ -84,7 +84,7 @@ class SafeExpressionEvaluator:
         """
         # Parse expression into AST
         try:
-            tree = ast.parse(expression, mode='eval')
+            tree = ast.parse(expression, mode="eval")
         except SyntaxError as e:
             raise SyntaxError(f"Invalid expression syntax: {e}")
 
@@ -173,7 +173,7 @@ class SafeExpressionEvaluator:
             True if valid, False otherwise
         """
         try:
-            ast.parse(expression, mode='eval')
+            ast.parse(expression, mode="eval")
             return True
         except SyntaxError:
             return False
@@ -245,11 +245,13 @@ class SessionMemory(BaseModel):
         data: dict[str, Any],
     ) -> None:
         """Record an action in history."""
-        self.history.append({
-            "timestamp": datetime.now().isoformat(),
-            "action": action,
-            "data": data,
-        })
+        self.history.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "action": action,
+                "data": data,
+            }
+        )
 
     def clear(self) -> None:
         """Clear all session data."""
@@ -301,11 +303,7 @@ class WorkflowSession:
         logger.info(f"WorkflowSession created: {self.name} ({self.session_id})")
 
     def add_step(
-        self,
-        name: str,
-        action: str,
-        params: dict[str, Any] | None = None,
-        **kwargs
+        self, name: str, action: str, params: dict[str, Any] | None = None, **kwargs
     ) -> WorkflowStep:
         """
         Add a step to the workflow.
@@ -324,7 +322,7 @@ class WorkflowSession:
             name=name,
             action=action,
             params=params or {},
-            **kwargs
+            **kwargs,
         )
 
         self.steps.append(step)
@@ -482,10 +480,7 @@ class WorkflowSession:
         for attempt in range(step.max_retries + 1):
             try:
                 # Execute step
-                result = await asyncio.wait_for(
-                    executor(step, self.memory),
-                    timeout=step.timeout
-                )
+                result = await asyncio.wait_for(executor(step, self.memory), timeout=step.timeout)
 
                 # Store result
                 step.result = result if isinstance(result, dict) else {"value": result}
@@ -509,7 +504,7 @@ class WorkflowSession:
             # Retry if not last attempt
             if attempt < step.max_retries:
                 step.retry_count += 1
-                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+                await asyncio.sleep(2**attempt)  # Exponential backoff
 
         # All retries exhausted
         step.status = "failed"
@@ -647,7 +642,9 @@ class WorkflowSession:
             "completed": completed_steps,
             "failed": failed_steps,
             "current_step": self.current_step_index + 1,
-            "progress_percent": round((completed_steps / total_steps) * 100, 1) if total_steps > 0 else 0,
+            "progress_percent": round((completed_steps / total_steps) * 100, 1)
+            if total_steps > 0
+            else 0,
             "state": self.state,
         }
 

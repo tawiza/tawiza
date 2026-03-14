@@ -16,12 +16,13 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
 class CacheEntry[T]:
     """A cached value with metadata."""
+
     value: T
     created_at: datetime
     expires_at: datetime
@@ -91,11 +92,7 @@ class LRUCache[T]:
         ttl = ttl if ttl is not None else self._default_ttl
         now = datetime.now()
 
-        entry = CacheEntry(
-            value=value,
-            created_at=now,
-            expires_at=now + timedelta(seconds=ttl)
-        )
+        entry = CacheEntry(value=value, created_at=now, expires_at=now + timedelta(seconds=ttl))
 
         # Remove old entry if exists
         if key in self._cache:
@@ -133,10 +130,7 @@ class LRUCache[T]:
         Returns:
             Number of entries removed
         """
-        expired_keys = [
-            key for key, entry in self._cache.items()
-            if entry.is_expired
-        ]
+        expired_keys = [key for key, entry in self._cache.items() if entry.is_expired]
 
         for key in expired_keys:
             del self._cache[key]
@@ -272,7 +266,7 @@ class MetricsCache:
 
         # Trim history
         if len(self._history[name]) > self._max_history:
-            self._history[name] = self._history[name][-self._max_history:]
+            self._history[name] = self._history[name][-self._max_history :]
 
     def get_history(self, name: str, count: int = 20) -> list:
         """Get historical values for a metric."""
@@ -322,6 +316,7 @@ def cached(ttl: float = 60.0, key_prefix: str = ""):
         ttl: Time-to-live in seconds
         key_prefix: Prefix for cache keys
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):

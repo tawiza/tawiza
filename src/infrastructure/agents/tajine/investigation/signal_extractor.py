@@ -245,7 +245,7 @@ class SignalExtractor:
                             source="SIRENE",
                             impact=SignalImpact.NEGATIVE,
                             likelihood_ratio=prior / SECTOR_PRIORS["default"],
-                            details=f"Secteur NAF {naf} - taux défaillance élevé ({prior*100:.1f}%)",
+                            details=f"Secteur NAF {naf} - taux défaillance élevé ({prior * 100:.1f}%)",
                         )
                     )
                 else:
@@ -257,7 +257,7 @@ class SignalExtractor:
                             source="SIRENE",
                             impact=SignalImpact.POSITIVE,
                             likelihood_ratio=prior / SECTOR_PRIORS["default"],
-                            details=f"Secteur NAF {naf} - taux défaillance modéré ({prior*100:.1f}%)",
+                            details=f"Secteur NAF {naf} - taux défaillance modéré ({prior * 100:.1f}%)",
                         )
                     )
 

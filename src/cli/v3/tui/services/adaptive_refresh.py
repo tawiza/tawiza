@@ -19,21 +19,23 @@ from textual.timer import Timer
 
 class RefreshPriority(Enum):
     """Priority levels for refresh operations."""
-    CRITICAL = 1    # Always refresh at full rate (e.g., active task progress)
-    HIGH = 2        # Refresh frequently when visible (e.g., metrics)
-    NORMAL = 3      # Standard refresh rate
-    LOW = 4         # Can be delayed (e.g., logs, history)
+
+    CRITICAL = 1  # Always refresh at full rate (e.g., active task progress)
+    HIGH = 2  # Refresh frequently when visible (e.g., metrics)
+    NORMAL = 3  # Standard refresh rate
+    LOW = 4  # Can be delayed (e.g., logs, history)
     BACKGROUND = 5  # Only refresh when explicitly requested
 
 
 @dataclass
 class RefreshConfig:
     """Configuration for a refresh timer."""
+
     name: str
     callback: Callable
     priority: RefreshPriority = RefreshPriority.NORMAL
-    active_interval: float = 1.0    # Interval when screen is active (seconds)
-    idle_interval: float = 5.0      # Interval when screen is idle
+    active_interval: float = 1.0  # Interval when screen is active (seconds)
+    idle_interval: float = 5.0  # Interval when screen is idle
     background_interval: float = 30.0  # Interval when screen is not visible
     enabled: bool = True
     last_refresh: float = field(default_factory=time.time)
@@ -52,7 +54,7 @@ class AdaptiveRefreshManager:
     IDLE_THRESHOLD = 10.0  # seconds
 
     # Activity detection - any of these events reset idle timer
-    ACTIVITY_EVENTS = {'key', 'mouse_move', 'mouse_down', 'focus'}
+    ACTIVITY_EVENTS = {"key", "mouse_move", "mouse_down", "focus"}
 
     def __init__(self, app: App | None = None):
         """Initialize the refresh manager.
@@ -239,10 +241,7 @@ class AdaptiveRefreshManager:
             return config.active_interval
 
         # Check if timer's screen is active
-        is_active_screen = (
-            self._active_screen and
-            config.name.startswith(self._active_screen)
-        )
+        is_active_screen = self._active_screen and config.name.startswith(self._active_screen)
 
         if is_active_screen:
             # Active screen - use active or idle interval
@@ -292,7 +291,7 @@ class AdaptiveRefreshManager:
                     "enabled": config.enabled,
                 }
                 for name, config in self._configs.items()
-            }
+            },
         }
 
 

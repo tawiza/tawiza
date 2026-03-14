@@ -127,30 +127,17 @@ class OllamaSettings(BaseSettings):
 
     # Connection pooling settings (pour OllamaClient)
     pool_connections: int = Field(
-        default=10,
-        ge=1,
-        le=50,
-        description="Number of keep-alive connections in pool"
+        default=10, ge=1, le=50, description="Number of keep-alive connections in pool"
     )
     pool_maxsize: int = Field(
-        default=20,
-        ge=1,
-        le=100,
-        description="Maximum number of connections in pool"
+        default=20, ge=1, le=100, description="Maximum number of connections in pool"
     )
     enable_http2: bool = Field(
-        default=True,
-        description="Enable HTTP/2 for connection multiplexing"
+        default=True, description="Enable HTTP/2 for connection multiplexing"
     )
-    enable_cache: bool = Field(
-        default=True,
-        description="Enable response caching for GET requests"
-    )
+    enable_cache: bool = Field(default=True, description="Enable response caching for GET requests")
     cache_ttl: int = Field(
-        default=300,
-        ge=60,
-        le=3600,
-        description="Cache TTL in seconds (default: 5 minutes)"
+        default=300, ge=60, le=3600, description="Cache TTL in seconds (default: 5 minutes)"
     )
 
 
@@ -244,13 +231,10 @@ class MonitoringSettings(BaseSettings):
         default=3600,
         ge=300,
         le=86400,
-        description="Cleanup old progress events after N seconds (default: 1 hour)"
+        description="Cleanup old progress events after N seconds (default: 1 hour)",
     )
     progress_max_events_per_task: int = Field(
-        default=1000,
-        ge=100,
-        le=10000,
-        description="Maximum events to store per task"
+        default=1000, ge=100, le=10000, description="Maximum events to store per task"
     )
 
 
@@ -288,54 +272,27 @@ class SecuritySettings(BaseSettings):
 class VectorDBSettings(BaseSettings):
     """Vector database (pgvector) configuration."""
 
-    enabled: bool = Field(
-        default=True,
-        description="Enable vector database features"
-    )
-    embedding_dim: int = Field(
-        default=768,
-        ge=128,
-        le=4096,
-        description="Embedding dimension"
-    )
+    enabled: bool = Field(default=True, description="Enable vector database features")
+    embedding_dim: int = Field(default=768, ge=128, le=4096, description="Embedding dimension")
     embedding_model: str = Field(
-        default="nomic-embed-text",
-        description="Ollama model for embeddings"
+        default="nomic-embed-text", description="Ollama model for embeddings"
     )
     chunk_size: int = Field(
-        default=512,
-        ge=100,
-        le=2048,
-        description="Document chunk size (tokens)"
+        default=512, ge=100, le=2048, description="Document chunk size (tokens)"
     )
-    chunk_overlap: int = Field(
-        default=50,
-        ge=0,
-        le=500,
-        description="Chunk overlap size (tokens)"
-    )
+    chunk_overlap: int = Field(default=50, ge=0, le=500, description="Chunk overlap size (tokens)")
     search_limit_default: int = Field(
-        default=10,
-        ge=1,
-        le=100,
-        description="Default number of search results"
+        default=10, ge=1, le=100, description="Default number of search results"
     )
     search_distance_threshold: float = Field(
-        default=1.0,
-        ge=0.0,
-        le=2.0,
-        description="Default maximum cosine distance"
+        default=1.0, ge=0.0, le=2.0, description="Default maximum cosine distance"
     )
 
     # Phase 3: LitServe optimization
     use_litserve: bool = Field(
-        default=False,
-        description="Use LitServe for 2-5x faster embedding generation (Phase 3)"
+        default=False, description="Use LitServe for 2-5x faster embedding generation (Phase 3)"
     )
-    litserve_url: str = Field(
-        default="http://localhost:8001",
-        description="LitServe server URL"
-    )
+    litserve_url: str = Field(default="http://localhost:8001", description="LitServe server URL")
 
 
 class CodeExecutionSettings(BaseSettings):
@@ -387,9 +344,7 @@ class Settings(BaseSettings):
     api_host: str = Field(default="0.0.0.0")
     api_port: int = Field(default=8000, ge=1024, le=65535)
     api_prefix: str = Field(default="/api/v1")
-    cors_origins: list[str] = Field(
-        default=["http://localhost:3000", "http://localhost:8000"]
-    )
+    cors_origins: list[str] = Field(default=["http://localhost:3000", "http://localhost:8000"])
 
     # Feature flags
     enable_auto_annotation: bool = Field(default=True)

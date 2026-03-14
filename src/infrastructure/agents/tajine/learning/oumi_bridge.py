@@ -96,7 +96,9 @@ class OumiTrainingBridge:
 
         # 2. Create Oumi config
         oumi_config = self._create_oumi_config(base_model, config)
-        logger.info(f"Created Oumi config: method={config.method.value if config.method else 'sft'}")
+        logger.info(
+            f"Created Oumi config: method={config.method.value if config.method else 'sft'}"
+        )
 
         # 3. Call Oumi training
         try:
@@ -248,9 +250,7 @@ class OumiModelEvaluator:
             # Weighted average: accuracy (40%), f1 (40%), perplexity penalty (20%)
             perplexity_score = max(0.0, 1.0 - (oumi_result.perplexity / 100.0))
             global_score = (
-                0.4 * oumi_result.accuracy
-                + 0.4 * oumi_result.f1_score
-                + 0.2 * perplexity_score
+                0.4 * oumi_result.accuracy + 0.4 * oumi_result.f1_score + 0.2 * perplexity_score
             )
             global_score = min(1.0, max(0.0, global_score))  # Clamp to [0, 1]
 

@@ -69,11 +69,14 @@ class EPCIReferentiel:
         with open(COMMUNE_CACHE, "w") as f:
             json.dump(self._commune_to_epci, f)
         with open(EPCI_CACHE, "w") as f:
-            json.dump({
-                "epcis": self._epci_info,
-                "communes": self._commune_info,
-                "updated": datetime.now().isoformat(),
-            }, f)
+            json.dump(
+                {
+                    "epcis": self._epci_info,
+                    "communes": self._commune_info,
+                    "updated": datetime.now().isoformat(),
+                },
+                f,
+            )
 
     async def _fetch_from_api(self) -> None:
         """Fetch full commune and EPCI data from geo.api.gouv.fr."""
@@ -154,8 +157,7 @@ class EPCIReferentiel:
     def epcis_in_department(self, code_dept: str) -> list[str]:
         """Get all EPCI codes that cover a department."""
         return [
-            code for code, info in self._epci_info.items()
-            if code_dept in info.get("depts", [])
+            code for code, info in self._epci_info.items() if code_dept in info.get("depts", [])
         ]
 
     def all_epcis(self) -> dict[str, dict]:

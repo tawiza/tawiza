@@ -54,14 +54,14 @@ def register_coder_tools(registry: ToolRegistry) -> None:
             import tempfile
 
             # Write code to temp file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
                 f.write(code)
                 temp_path = f.name
 
             try:
                 # Execute with timeout
                 result = subprocess.run(
-                    ['python3', temp_path],
+                    ["python3", temp_path],
                     capture_output=True,
                     text=True,
                     timeout=30,

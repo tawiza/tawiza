@@ -185,8 +185,7 @@ class TerritorialSimulator:
 
         # Base context - attractiveness dict for household agents
         attractiveness_dict = {
-            axis.value: initial_score.axes[axis].score
-            for axis in initial_score.axes
+            axis.value: initial_score.axes[axis].score for axis in initial_score.axes
         }
         base_context = {
             "territory_code": territory_code,
@@ -245,9 +244,7 @@ class TerritorialSimulator:
 
         return result
 
-    async def _initialize_agents(
-        self, territory_code: str, sample_size: int
-    ) -> None:
+    async def _initialize_agents(self, territory_code: str, sample_size: int) -> None:
         """Initialize enterprise and household agents."""
         self._enterprises = []
         self._households = []
@@ -287,8 +284,7 @@ class TerritorialSimulator:
             self._households.append(household)
 
         logger.info(
-            f"Initialized {len(self._enterprises)} enterprises, "
-            f"{len(self._households)} households"
+            f"Initialized {len(self._enterprises)} enterprises, {len(self._households)} households"
         )
 
     def _update_context(self, base_context: dict, month: int) -> dict:
@@ -341,9 +337,7 @@ class TerritorialSimulator:
             self._enterprises.append(new_enterprise)
 
         # Step households (sample for performance)
-        sample = random.sample(
-            self._households, min(100, len(self._households))
-        )
+        sample = random.sample(self._households, min(100, len(self._households)))
         for household in sample:
             household.step(context)
 
@@ -351,9 +345,7 @@ class TerritorialSimulator:
         """Update attractiveness based on agent activity."""
         # Calculate enterprise health
         if self._enterprises:
-            avg_health = sum(e.health_score for e in self._enterprises) / len(
-                self._enterprises
-            )
+            avg_health = sum(e.health_score for e in self._enterprises) / len(self._enterprises)
             total_employment = sum(e.effectif for e in self._enterprises)
         else:
             avg_health = 0.5
@@ -376,15 +368,9 @@ class TerritorialSimulator:
         """Create monthly snapshot of simulation state."""
         total_employment = sum(e.effectif for e in self._enterprises)
 
-        employed_households = sum(
-            1 for h in self._households if h.employment_status == "employed"
-        )
-        total_active = sum(
-            1 for h in self._households if h.employment_status != "retired"
-        )
-        unemployment_rate = (
-            (1 - employed_households / total_active) * 100 if total_active else 8
-        )
+        employed_households = sum(1 for h in self._households if h.employment_status == "employed")
+        total_active = sum(1 for h in self._households if h.employment_status != "retired")
+        unemployment_rate = (1 - employed_households / total_active) * 100 if total_active else 8
 
         return MonthlySnapshot(
             month=month,

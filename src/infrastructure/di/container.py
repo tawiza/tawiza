@@ -4,7 +4,6 @@ This module provides a DI container for managing dependencies and their lifecycl
 It uses the dependency-injector library pattern but implemented manually for clarity.
 """
 
-
 from src.application.ports.ml_ports import (
     IDataAnnotator,
     IDataDriftDetector,
@@ -377,8 +376,7 @@ class Container:
             )
         except RuntimeError as e:
             raise RuntimeError(
-                f"Cannot create PredictUseCase: {e}. "
-                "Ensure model repository is initialized."
+                f"Cannot create PredictUseCase: {e}. Ensure model repository is initialized."
             ) from e
 
     # Lifecycle management

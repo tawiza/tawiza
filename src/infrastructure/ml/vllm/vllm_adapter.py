@@ -110,10 +110,7 @@ class VLLMAdapter(IModelInference):
                     confidence = min(1.0, max(0.0, (avg_logprob + 5) / 5))
                     output["confidence"] = confidence
 
-            logger.debug(
-                f"Generated {len(output_text)} characters "
-                f"for model {model_id}"
-            )
+            logger.debug(f"Generated {len(output_text)} characters for model {model_id}")
 
             return output
 

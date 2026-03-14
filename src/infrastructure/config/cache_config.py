@@ -15,10 +15,12 @@ from loguru import logger
 @dataclass
 class CacheConfig:
     """Configuration du cache."""
+
     max_size: int = 1000
     ttl_seconds: int = 3600  # 1 heure par défaut
     cleanup_interval: int = 300  # 5 minutes
     lfu_threshold: int = 5  # Nombre d'accès minimum pour LFU
+
 
 class LFUCache:
     """Cache LFU (Least Frequently Used) pour les données fréquemment accédées."""
@@ -66,8 +68,7 @@ class LFUCache:
         """Nettoie les entrées expirées."""
         current_time = time.time()
         expired_keys = [
-            key for key, access_time in self.access_time.items()
-            if current_time - access_time > ttl
+            key for key, access_time in self.access_time.items() if current_time - access_time > ttl
         ]
         for key in expired_keys:
             self._remove_key(key)
@@ -111,8 +112,9 @@ class LFUCache:
                 "max_size": self.max_size,
                 "total_accesses": total_freq,
                 "average_frequency": avg_freq,
-                "keys": list(self.cache.keys())
+                "keys": list(self.cache.keys()),
             }
+
 
 class LRUCache:
     """Cache LRU (Least Recently Used) pour les données temporaires."""
@@ -160,8 +162,9 @@ class LRUCache:
             return {
                 "size": len(self.cache),
                 "max_size": self.max_size,
-                "keys": list(self.cache.keys())
+                "keys": list(self.cache.keys()),
             }
+
 
 class MultiLevelCache:
     """Cache multi-niveau combinant LFU et LRU pour des performances optimales."""
@@ -211,6 +214,7 @@ class MultiLevelCache:
 
     def _start_cleanup_thread(self):
         """Démarre le thread de nettoyage périodique."""
+
         def cleanup_loop():
             while True:
                 time.sleep(self.config.cleanup_interval)
@@ -240,15 +244,14 @@ class MultiLevelCache:
         return {
             "lfu_cache": self.lfu_cache.stats(),
             "lru_cache": self.lru_cache.stats(),
-            "total_size": (
-                self.lfu_cache.stats()["size"] +
-                self.lru_cache.stats()["size"]
-            ),
-            "total_capacity": self.config.max_size
+            "total_size": (self.lfu_cache.stats()["size"] + self.lru_cache.stats()["size"]),
+            "total_capacity": self.config.max_size,
         }
+
 
 # Instance globale du cache multi-niveau
 cache = MultiLevelCache()
+
 
 def get_cache() -> MultiLevelCache:
     """Retourne l'instance globale du cache."""

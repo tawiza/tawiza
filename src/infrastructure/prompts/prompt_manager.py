@@ -25,11 +25,12 @@ from loguru import logger
 
 class PromptFormat(StrEnum):
     """Formats de prompts supportés."""
-    ALPACA = "alpaca"              # Instruction/Input/Output
-    CHATML = "chatml"              # Messages (OpenAI-style)
-    BROWSER = "browser"            # Browser automation tasks
-    SIMPLE = "simple"              # Simple prompt/response
-    SYSTEM_USER = "system_user"    # System + User prompt
+
+    ALPACA = "alpaca"  # Instruction/Input/Output
+    CHATML = "chatml"  # Messages (OpenAI-style)
+    BROWSER = "browser"  # Browser automation tasks
+    SIMPLE = "simple"  # Simple prompt/response
+    SYSTEM_USER = "system_user"  # System + User prompt
 
 
 @dataclass
@@ -49,6 +50,7 @@ class PromptTemplate:
         created_at: Date de création
         updated_at: Date de dernière modification
     """
+
     name: str
     format: PromptFormat
     template: str
@@ -78,7 +80,7 @@ class PromptTemplate:
         Returns:
             Liste des noms de variables trouvées
         """
-        pattern = r'\{([a-zA-Z_][a-zA-Z0-9_]*)\}'
+        pattern = r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}"
         matches = re.findall(pattern, self.template)
         return list(set(matches))
 
@@ -113,9 +115,7 @@ class PromptTemplate:
         """
         is_valid, missing = self.validate_variables(**kwargs)
         if not is_valid:
-            raise ValueError(
-                f"Variables manquantes pour le template '{self.name}': {missing}"
-            )
+            raise ValueError(f"Variables manquantes pour le template '{self.name}': {missing}")
 
         # Incrémente le compteur d'utilisation
         self.usage_count += 1
@@ -274,19 +274,18 @@ class PromptManager:
 
         # Met à jour les statistiques
         self.stats["total_renders"] += 1
-        self.stats["renders_by_template"][template_name] = \
+        self.stats["renders_by_template"][template_name] = (
             self.stats["renders_by_template"].get(template_name, 0) + 1
-        self.stats["renders_by_format"][template.format.value] = \
+        )
+        self.stats["renders_by_format"][template.format.value] = (
             self.stats["renders_by_format"].get(template.format.value, 0) + 1
+        )
 
         logger.debug(f"Template rendu: '{template_name}' ({len(rendered)} chars)")
 
         return rendered
 
-    def list_templates(
-        self,
-        format_filter: PromptFormat | None = None
-    ) -> list[PromptTemplate]:
+    def list_templates(self, format_filter: PromptFormat | None = None) -> list[PromptTemplate]:
         """
         Liste tous les templates.
 
@@ -365,7 +364,7 @@ class PromptManager:
             "templates_by_format": {
                 format.value: len([t for t in self.templates.values() if t.format == format])
                 for format in PromptFormat
-            }
+            },
         }
 
     def create_default_templates(self):
@@ -378,7 +377,7 @@ class PromptManager:
             format=PromptFormat.BROWSER,
             template="Navigate to {url} and {action}",
             description="Navigation et action sur une page web",
-            metadata={"category": "browser", "use_case": "automation"}
+            metadata={"category": "browser", "use_case": "automation"},
         )
 
         # Template browser avec contexte
@@ -390,7 +389,7 @@ Task: {task}
 {context}
 Please complete this task step by step.""",
             description="Tâche browser détaillée avec contexte",
-            metadata={"category": "browser", "use_case": "automation"}
+            metadata={"category": "browser", "use_case": "automation"},
         )
 
         # Template classification
@@ -406,7 +405,7 @@ Classify the following text into one of these categories: {categories}
 ### Response:
 """,
             description="Classification de texte",
-            metadata={"category": "classification", "use_case": "ml"}
+            metadata={"category": "classification", "use_case": "ml"},
         )
 
         # Template chat simple
@@ -417,7 +416,7 @@ Classify the following text into one of these categories: {categories}
 
 User: {user_message}""",
             description="Chat simple avec system prompt",
-            metadata={"category": "chat", "use_case": "conversation"}
+            metadata={"category": "chat", "use_case": "conversation"},
         )
 
         # Template NER
@@ -433,7 +432,7 @@ Extract named entities from the following text. Return entities in JSON format w
 ### Response:
 """,
             description="Extraction d'entités nommées",
-            metadata={"category": "ner", "use_case": "ml"}
+            metadata={"category": "ner", "use_case": "ml"},
         )
 
         # Template summarization
@@ -446,7 +445,7 @@ User: Please summarize the following text in {max_words} words or less:
 
 {text}""",
             description="Résumé de texte",
-            metadata={"category": "summarization", "use_case": "ml"}
+            metadata={"category": "summarization", "use_case": "ml"},
         )
 
         # Template code generation
@@ -458,7 +457,7 @@ User: Please summarize the following text in {max_words} words or less:
 User: Write a {language} function to {task}.
 Requirements: {requirements}""",
             description="Génération de code",
-            metadata={"category": "code", "use_case": "development"}
+            metadata={"category": "code", "use_case": "development"},
         )
 
         # Code review
@@ -480,7 +479,7 @@ Provide a detailed review with:
 4. Best practices violations
 5. Suggestions for improvement""",
             description="Review de code avec analyse complète",
-            metadata={"category": "code", "use_case": "quality"}
+            metadata={"category": "code", "use_case": "quality"},
         )
 
         # Data validation
@@ -497,7 +496,7 @@ Return validation results in JSON format with fields: is_valid, errors, warnings
 ### Response:
 """,
             description="Validation de données avec règles",
-            metadata={"category": "validation", "use_case": "ml"}
+            metadata={"category": "validation", "use_case": "ml"},
         )
 
         # Error analysis
@@ -516,7 +515,7 @@ Error: {error_type}
 Message: {error_message}
 Stack trace: {stack_trace}""",
             description="Analyse d'erreurs et solutions",
-            metadata={"category": "debugging", "use_case": "development"}
+            metadata={"category": "debugging", "use_case": "development"},
         )
 
         # Fine-tuning data preparation
@@ -534,7 +533,7 @@ Requirements: {requirements}
 ### Response:
 """,
             description="Préparation de données pour fine-tuning",
-            metadata={"category": "ml", "use_case": "fine-tuning"}
+            metadata={"category": "ml", "use_case": "fine-tuning"},
         )
 
         # Annotation assistance
@@ -552,7 +551,7 @@ Return suggestions in JSON format with confidence scores.
 ### Response:
 """,
             description="Assistant d'annotation avec suggestions",
-            metadata={"category": "annotation", "use_case": "ml"}
+            metadata={"category": "annotation", "use_case": "ml"},
         )
 
         # SQL generation
@@ -571,7 +570,7 @@ Requirements:
 - Add indexes suggestions if needed
 - Prevent SQL injection""",
             description="Génération de requêtes SQL",
-            metadata={"category": "database", "use_case": "development"}
+            metadata={"category": "database", "use_case": "development"},
         )
 
         # API documentation
@@ -594,7 +593,7 @@ Include:
 6. Example response
 7. Error codes""",
             description="Documentation d'API endpoints",
-            metadata={"category": "documentation", "use_case": "development"}
+            metadata={"category": "documentation", "use_case": "development"},
         )
 
         # Sentiment analysis
@@ -611,7 +610,7 @@ Return: sentiment (positive/negative/neutral), confidence score, and key phrases
 ### Response:
 """,
             description="Analyse de sentiment avec confiance",
-            metadata={"category": "nlp", "use_case": "ml"}
+            metadata={"category": "nlp", "use_case": "ml"},
         )
 
         # Question answering
@@ -631,7 +630,7 @@ If the answer is not in the context, say 'I don't know'.
 ### Answer:
 """,
             description="Réponse à des questions basée sur contexte",
-            metadata={"category": "qa", "use_case": "ml"}
+            metadata={"category": "qa", "use_case": "ml"},
         )
 
         # Translation
@@ -644,7 +643,7 @@ User: Translate the following text from {source_lang} to {target_lang}:
 
 {text}""",
             description="Traduction de texte entre langues",
-            metadata={"category": "translation", "use_case": "nlp"}
+            metadata={"category": "translation", "use_case": "nlp"},
         )
 
         logger.info(f"Templates par défaut créés ({len(self.templates) - initial_count} templates)")

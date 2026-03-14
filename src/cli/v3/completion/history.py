@@ -89,8 +89,9 @@ class CommandHistory:
                 if arg_name not in pattern["common_args"]:
                     pattern["common_args"][arg_name] = {}
                 val_key = str(arg_value)
-                pattern["common_args"][arg_name][val_key] = \
+                pattern["common_args"][arg_name][val_key] = (
                     pattern["common_args"][arg_name].get(val_key, 0) + 1
+                )
 
         self._save(history)
 

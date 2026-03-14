@@ -50,13 +50,17 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                     clusters_by_commune[commune].append(actor.get("nom", f"Actor_{i}"))
 
                 # Group by sector/activity
-                sector = actor.get("activite") or actor.get("libelle_activite") or actor.get("section_activite")
+                sector = (
+                    actor.get("activite")
+                    or actor.get("libelle_activite")
+                    or actor.get("section_activite")
+                )
                 if sector:
                     clusters_by_sector[sector[:30]].append(actor.get("nom", f"Actor_{i}"))
 
             # Find potential connections (same commune or sector)
             for i, a1 in enumerate(actors):
-                for j, a2 in enumerate(actors[i + 1:], i + 1):
+                for j, a2 in enumerate(actors[i + 1 :], i + 1):
                     connection_reasons = []
 
                     # Same commune
@@ -68,7 +72,14 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                     # Similar sector
                     s1 = a1.get("activite") or a1.get("libelle_activite", "")
                     s2 = a2.get("activite") or a2.get("libelle_activite", "")
-                    if s1 and s2 and (s1[:10] == s2[:10] or any(w in s2.lower() for w in s1.lower().split()[:2])):
+                    if (
+                        s1
+                        and s2
+                        and (
+                            s1[:10] == s2[:10]
+                            or any(w in s2.lower() for w in s1.lower().split()[:2])
+                        )
+                    ):
                         connection_reasons.append("sector")
 
                     # Complementary types (startup + incubateur, etc.)
@@ -86,12 +97,14 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                             break
 
                     if connection_reasons:
-                        connections.append({
-                            "from": a1.get("nom", f"Actor_{i}"),
-                            "to": a2.get("nom", f"Actor_{j}"),
-                            "reasons": connection_reasons,
-                            "strength": len(connection_reasons),
-                        })
+                        connections.append(
+                            {
+                                "from": a1.get("nom", f"Actor_{i}"),
+                                "to": a2.get("nom", f"Actor_{j}"),
+                                "reasons": connection_reasons,
+                                "strength": len(connection_reasons),
+                            }
+                        )
 
             # Calculate centrality (number of connections per actor)
             centrality = Counter()
@@ -111,12 +124,16 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                 "total_actors": len(actors),
                 "connections": connections[:50],  # Top 50 connections
                 "connection_count": len(connections),
-                "central_actors": [{"name": name, "score": score} for name, score in central_actors],
+                "central_actors": [
+                    {"name": name, "score": score} for name, score in central_actors
+                ],
                 "clusters": {
                     "by_location": dict(list(geo_clusters.items())[:10]),
                     "by_sector": dict(list(sector_clusters.items())[:10]),
                 },
-                "density": round(len(connections) / (len(actors) * (len(actors) - 1) / 2) * 100, 1) if len(actors) > 1 else 0,
+                "density": round(len(connections) / (len(actors) * (len(actors) - 1) / 2) * 100, 1)
+                if len(actors) > 1
+                else 0,
             }
 
         except Exception as e:
@@ -166,28 +183,34 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                     elif winner == r2_name:
                         r2_wins += 1
 
-                    comparisons.append({
-                        "criterion": criterion,
-                        "values": {r1_name: v1, r2_name: v2},
-                        "difference": diff,
-                        "difference_pct": diff_pct,
-                        "winner": winner,
-                    })
+                    comparisons.append(
+                        {
+                            "criterion": criterion,
+                            "values": {r1_name: v1, r2_name: v2},
+                            "difference": diff,
+                            "difference_pct": diff_pct,
+                            "winner": winner,
+                        }
+                    )
 
                 elif isinstance(v1, list) and isinstance(v2, list):
                     only_r1 = set(v1) - set(v2)
                     only_r2 = set(v2) - set(v1)
                     common = set(v1) & set(v2)
 
-                    comparisons.append({
-                        "criterion": criterion,
-                        "values": {r1_name: len(v1), r2_name: len(v2)},
-                        "unique_to_" + r1_name: list(only_r1)[:10],
-                        "unique_to_" + r2_name: list(only_r2)[:10],
-                        "common": list(common)[:10],
-                    })
+                    comparisons.append(
+                        {
+                            "criterion": criterion,
+                            "values": {r1_name: len(v1), r2_name: len(v2)},
+                            "unique_to_" + r1_name: list(only_r1)[:10],
+                            "unique_to_" + r2_name: list(only_r2)[:10],
+                            "common": list(common)[:10],
+                        }
+                    )
 
-            overall_winner = r1_name if r1_wins > r2_wins else r2_name if r2_wins > r1_wins else "tie"
+            overall_winner = (
+                r1_name if r1_wins > r2_wins else r2_name if r2_wins > r1_wins else "tie"
+            )
 
             # Generate recommendations
             recommendations = []
@@ -245,7 +268,11 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
 
             for actor in actors:
                 # Count sectors
-                sector = actor.get("activite") or actor.get("libelle_activite") or actor.get("section_activite")
+                sector = (
+                    actor.get("activite")
+                    or actor.get("libelle_activite")
+                    or actor.get("section_activite")
+                )
                 if sector:
                     sector_key = sector[:40]
                     sector_counts[sector_key] += 1
@@ -276,12 +303,14 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                 recent = sector_recent.get(sector, 0)
                 if total >= 3:
                     growth_rate = round(recent / total * 100, 1)
-                    growing_sectors.append({
-                        "sector": sector,
-                        "total": total,
-                        "recent": recent,
-                        "growth_rate": growth_rate,
-                    })
+                    growing_sectors.append(
+                        {
+                            "sector": sector,
+                            "total": total,
+                            "recent": recent,
+                            "growth_rate": growth_rate,
+                        }
+                    )
 
             # Sort by growth rate
             growing_sectors.sort(key=lambda x: x["growth_rate"], reverse=True)
@@ -291,13 +320,21 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
                 "total_actors": len(actors),
                 "trends": {
                     "growing_sectors": growing_sectors[:10],
-                    "top_sectors": [{"sector": s, "count": c} for s, c in sector_counts.most_common(10)],
-                    "actor_types": [{"type": t, "count": c} for t, c in type_counts.most_common(10)],
-                    "hotspot_communes": [{"commune": c, "count": n} for c, n in commune_counts.most_common(10)],
+                    "top_sectors": [
+                        {"sector": s, "count": c} for s, c in sector_counts.most_common(10)
+                    ],
+                    "actor_types": [
+                        {"type": t, "count": c} for t, c in type_counts.most_common(10)
+                    ],
+                    "hotspot_communes": [
+                        {"commune": c, "count": n} for c, n in commune_counts.most_common(10)
+                    ],
                 },
                 "insights": {
                     "fastest_growing": growing_sectors[0]["sector"] if growing_sectors else None,
-                    "dominant_sector": sector_counts.most_common(1)[0][0] if sector_counts else None,
+                    "dominant_sector": sector_counts.most_common(1)[0][0]
+                    if sector_counts
+                    else None,
                     "main_hotspot": commune_counts.most_common(1)[0][0] if commune_counts else None,
                 },
             }
@@ -372,29 +409,38 @@ def register_strategy_tools(registry: ToolRegistry) -> None:
 
                 for curr_sector in current_sectors:
                     # Fuzzy match
-                    if ref_lower in curr_sector or curr_sector in ref_lower or \
-                       any(word in curr_sector for word in ref_lower.split()):
+                    if (
+                        ref_lower in curr_sector
+                        or curr_sector in ref_lower
+                        or any(word in curr_sector for word in ref_lower.split())
+                    ):
                         found = True
                         matching_actors.extend(sector_details.get(curr_sector, []))
 
                 if found:
                     if len(matching_actors) < 3:
-                        weak.append({
-                            "sector": ref_sector,
-                            "actors_count": len(matching_actors),
-                            "actors": matching_actors[:5],
-                            "recommendation": f"Renforcer {ref_sector}: seulement {len(matching_actors)} acteur(s)",
-                        })
+                        weak.append(
+                            {
+                                "sector": ref_sector,
+                                "actors_count": len(matching_actors),
+                                "actors": matching_actors[:5],
+                                "recommendation": f"Renforcer {ref_sector}: seulement {len(matching_actors)} acteur(s)",
+                            }
+                        )
                     else:
-                        present.append({
-                            "sector": ref_sector,
-                            "actors_count": len(matching_actors),
-                        })
+                        present.append(
+                            {
+                                "sector": ref_sector,
+                                "actors_count": len(matching_actors),
+                            }
+                        )
                 else:
-                    missing.append({
-                        "sector": ref_sector,
-                        "recommendation": f"Opportunité: développer {ref_sector} (absent du territoire)",
-                    })
+                    missing.append(
+                        {
+                            "sector": ref_sector,
+                            "recommendation": f"Opportunité: développer {ref_sector} (absent du territoire)",
+                        }
+                    )
 
             # Identify value chain gaps (simplified)
             value_chain_roles = ["recherche", "incubateur", "startup", "entreprise", "investisseur"]

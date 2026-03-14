@@ -42,9 +42,7 @@ class URSSAFCollector(BaseCollector):
 
         for metric_key, dataset_id in DATASETS.items():
             try:
-                new_signals = await self._fetch_dataset(
-                    dataset_id, metric_key, code_dept
-                )
+                new_signals = await self._fetch_dataset(dataset_id, metric_key, code_dept)
                 signals.extend(new_signals)
             except Exception as e:
                 logger.warning(f"[urssaf] Failed to fetch {metric_key}: {e}")
@@ -85,7 +83,11 @@ class URSSAFCollector(BaseCollector):
                 value = record.get("nombre_de_ti") or record.get("revenu") or 0
                 metric_name = "urssaf_travailleurs_independants"
             else:
-                value = record.get("effectifs_salaries_moyens") or record.get("nombre_d_etablissements") or 0
+                value = (
+                    record.get("effectifs_salaries_moyens")
+                    or record.get("nombre_d_etablissements")
+                    or 0
+                )
                 metric_name = "urssaf_effectifs_ess"
 
             if value and float(value) > 0:
@@ -100,11 +102,20 @@ class URSSAFCollector(BaseCollector):
                         signal_type="neutre",
                         confidence=0.85,
                         raw_data={
-                            k: v for k, v in record.items()
-                            if k in ("departement", "annee", "nombre_de_ti",
-                                     "revenu", "effectifs_salaries_moyens",
-                                     "nombre_d_etablissements", "masse_salariale",
-                                     "type_de_travailleur_independant", "famille_ess")
+                            k: v
+                            for k, v in record.items()
+                            if k
+                            in (
+                                "departement",
+                                "annee",
+                                "nombre_de_ti",
+                                "revenu",
+                                "effectifs_salaries_moyens",
+                                "nombre_d_etablissements",
+                                "masse_salariale",
+                                "type_de_travailleur_independant",
+                                "famille_ess",
+                            )
                         },
                     )
                 )

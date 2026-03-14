@@ -23,9 +23,11 @@ console = Console()
 
 # ===== DATA PROVIDERS =====
 
+
 @dataclass
 class SystemMetrics:
     """Métriques système"""
+
     cpu_percent: float
     memory_percent: float
     memory_used_gb: float
@@ -35,11 +37,11 @@ class SystemMetrics:
     disk_total_gb: float
 
     @staticmethod
-    def collect() -> 'SystemMetrics':
+    def collect() -> "SystemMetrics":
         """Collecter les métriques système"""
         cpu = psutil.cpu_percent(interval=0.1)
         memory = psutil.virtual_memory()
-        disk = psutil.disk_usage('/')
+        disk = psutil.disk_usage("/")
 
         return SystemMetrics(
             cpu_percent=cpu,
@@ -48,13 +50,14 @@ class SystemMetrics:
             memory_total_gb=memory.total / (1024**3),
             disk_percent=disk.percent,
             disk_used_gb=disk.used / (1024**3),
-            disk_total_gb=disk.total / (1024**3)
+            disk_total_gb=disk.total / (1024**3),
         )
 
 
 @dataclass
 class PerformanceMetrics:
     """Métriques de performance"""
+
     throughput: float  # tasks/s
     latency: float  # ms
     success_rate: float  # %
@@ -67,6 +70,7 @@ class PerformanceMetrics:
 @dataclass
 class AgentStatus:
     """Status d'un agent"""
+
     name: str
     status: str  # running, idle, error
     tasks_completed: int
@@ -74,6 +78,7 @@ class AgentStatus:
 
 
 # ===== DASHBOARD COMPONENTS =====
+
 
 class DashboardComponents:
     """Composants réutilisables pour dashboards"""
@@ -85,19 +90,11 @@ class DashboardComponents:
         if subtitle:
             content += f"\n[dim]{subtitle}[/]"
 
-        return Panel(
-            Align.center(content),
-            border_style="cyan",
-            box=box.HEAVY
-        )
+        return Panel(Align.center(content), border_style="cyan", box=box.HEAVY)
 
     @staticmethod
     def create_metric_bar(
-        label: str,
-        value: float,
-        max_value: float = 100.0,
-        unit: str = "%",
-        color: str = "cyan"
+        label: str, value: float, max_value: float = 100.0, unit: str = "%", color: str = "cyan"
     ) -> str:
         """Créer une barre de métrique"""
         percentage = (value / max_value) * 100 if max_value > 0 else 0
@@ -130,6 +127,7 @@ class DashboardComponents:
 
 # ===== SYSTEM DASHBOARD =====
 
+
 class SystemDashboard:
     """Dashboard système temps réel"""
 
@@ -138,25 +136,19 @@ class SystemDashboard:
         """Générer le dashboard système"""
         layout = Layout()
         layout.split_column(
-            Layout(name="header", size=3),
-            Layout(name="main"),
-            Layout(name="footer", size=3)
+            Layout(name="header", size=3), Layout(name="main"), Layout(name="footer", size=3)
         )
 
         # Header
         timestamp = datetime.now().strftime("%H:%M:%S")
         layout["header"].update(
             DashboardComponents.create_header(
-                "System Monitor",
-                f"Updated: {timestamp} | Refresh: 1s"
+                "System Monitor", f"Updated: {timestamp} | Refresh: 1s"
             )
         )
 
         # Main - split en 2 colonnes
-        layout["main"].split_row(
-            Layout(name="left"),
-            Layout(name="right")
-        )
+        layout["main"].split_row(Layout(name="left"), Layout(name="right"))
 
         # Left: System metrics
         metrics = SystemMetrics.collect()
@@ -169,11 +161,9 @@ class SystemDashboard:
             f"[cyan]Disk:[/] {metrics.disk_used_gb:.1f}GB / {metrics.disk_total_gb:.1f}GB"
         )
 
-        layout["left"].update(Panel(
-            left_content,
-            title="[bold cyan]System Resources[/]",
-            border_style="cyan"
-        ))
+        layout["left"].update(
+            Panel(left_content, title="[bold cyan]System Resources[/]", border_style="cyan")
+        )
 
         # Right: Process info
         process_count = len(psutil.pids())
@@ -185,21 +175,18 @@ class SystemDashboard:
             f"[cyan]CPU Cores:[/] {cpu_count}\n"
             f"[cyan]Processes:[/] {process_count}\n"
             f"[cyan]Boot Time:[/] {boot_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-            f"[cyan]Uptime:[/] {uptime.days}d {uptime.seconds//3600}h\n\n"
+            f"[cyan]Uptime:[/] {uptime.days}d {uptime.seconds // 3600}h\n\n"
             f"[bold green]System Status: Healthy ✓[/]"
         )
 
-        layout["right"].update(Panel(
-            right_content,
-            title="[bold cyan]System Info[/]",
-            border_style="cyan"
-        ))
+        layout["right"].update(
+            Panel(right_content, title="[bold cyan]System Info[/]", border_style="cyan")
+        )
 
         # Footer
-        layout["footer"].update(Panel(
-            Align.center("[dim]Press Ctrl+C to exit[/]"),
-            border_style="dim"
-        ))
+        layout["footer"].update(
+            Panel(Align.center("[dim]Press Ctrl+C to exit[/]"), border_style="dim")
+        )
 
         return layout
 
@@ -212,7 +199,7 @@ class SystemDashboard:
             SystemDashboard.generate(0),
             console=console,
             refresh_per_second=refresh_rate,
-            screen=False
+            screen=False,
         ) as live:
             for i in range(duration * refresh_rate):
                 time.sleep(1 / refresh_rate)
@@ -220,6 +207,7 @@ class SystemDashboard:
 
 
 # ===== PERFORMANCE DASHBOARD =====
+
 
 class PerformanceDashboard:
     """Dashboard de performance temps réel"""
@@ -255,92 +243,90 @@ class PerformanceDashboard:
 
         layout = Layout()
         layout.split_column(
-            Layout(name="header", size=3),
-            Layout(name="main"),
-            Layout(name="footer", size=3)
+            Layout(name="header", size=3), Layout(name="main"), Layout(name="footer", size=3)
         )
 
         # Header
         timestamp = datetime.now().strftime("%H:%M:%S")
         layout["header"].update(
-            DashboardComponents.create_header(
-                "Performance Monitor",
-                f"Updated: {timestamp}"
-            )
+            DashboardComponents.create_header("Performance Monitor", f"Updated: {timestamp}")
         )
 
         # Main - 2x2 grid
-        layout["main"].split_row(
-            Layout(name="left"),
-            Layout(name="right")
-        )
+        layout["main"].split_row(Layout(name="left"), Layout(name="right"))
 
-        layout["left"].split_column(
-            Layout(name="top_left"),
-            Layout(name="bottom_left")
-        )
+        layout["left"].split_column(Layout(name="top_left"), Layout(name="bottom_left"))
 
-        layout["right"].split_column(
-            Layout(name="top_right"),
-            Layout(name="bottom_right")
-        )
+        layout["right"].split_column(Layout(name="top_right"), Layout(name="bottom_right"))
 
         # Top Left: Throughput
         throughput_values = [m.throughput for m in self.metrics_history]
         throughput_spark = self.generate_sparkline(throughput_values)
 
-        layout["top_left"].update(Panel(
-            f"[bold cyan]{current_metrics.throughput:.1f}[/] tasks/s\n\n"
-            f"[green]{throughput_spark}[/]\n\n"
-            f"[dim]History (30s)[/]",
-            title="[bold cyan]Throughput[/]",
-            border_style="cyan"
-        ))
+        layout["top_left"].update(
+            Panel(
+                f"[bold cyan]{current_metrics.throughput:.1f}[/] tasks/s\n\n"
+                f"[green]{throughput_spark}[/]\n\n"
+                f"[dim]History (30s)[/]",
+                title="[bold cyan]Throughput[/]",
+                border_style="cyan",
+            )
+        )
 
         # Top Right: Latency
         latency_values = [m.latency for m in self.metrics_history]
         latency_spark = self.generate_sparkline(latency_values)
 
-        layout["top_right"].update(Panel(
-            f"[bold cyan]{current_metrics.latency:.1f}[/] ms\n\n"
-            f"[green]{latency_spark}[/]\n\n"
-            f"[dim]History (30s)[/]",
-            title="[bold cyan]Latency[/]",
-            border_style="cyan"
-        ))
+        layout["top_right"].update(
+            Panel(
+                f"[bold cyan]{current_metrics.latency:.1f}[/] ms\n\n"
+                f"[green]{latency_spark}[/]\n\n"
+                f"[dim]History (30s)[/]",
+                title="[bold cyan]Latency[/]",
+                border_style="cyan",
+            )
+        )
 
         # Bottom Left: Success Rate & Cache
-        layout["bottom_left"].update(Panel(
-            f"[cyan]Success Rate:[/]\n"
-            f"[bold green]{current_metrics.success_rate:.1f}%[/]\n\n"
-            f"[cyan]Cache Hit Rate:[/]\n"
-            f"[bold green]{current_metrics.cache_hit_rate:.1f}%[/]",
-            title="[bold cyan]Quality Metrics[/]",
-            border_style="cyan"
-        ))
+        layout["bottom_left"].update(
+            Panel(
+                f"[cyan]Success Rate:[/]\n"
+                f"[bold green]{current_metrics.success_rate:.1f}%[/]\n\n"
+                f"[cyan]Cache Hit Rate:[/]\n"
+                f"[bold green]{current_metrics.cache_hit_rate:.1f}%[/]",
+                title="[bold cyan]Quality Metrics[/]",
+                border_style="cyan",
+            )
+        )
 
         # Bottom Right: Tasks
-        total_tasks = current_metrics.active_tasks + current_metrics.completed_tasks + current_metrics.failed_tasks
+        total_tasks = (
+            current_metrics.active_tasks
+            + current_metrics.completed_tasks
+            + current_metrics.failed_tasks
+        )
 
-        layout["bottom_right"].update(Panel(
-            f"[cyan]Active:[/] [bold yellow]{current_metrics.active_tasks}[/]\n"
-            f"[cyan]Completed:[/] [bold green]{current_metrics.completed_tasks}[/]\n"
-            f"[cyan]Failed:[/] [bold red]{current_metrics.failed_tasks}[/]\n"
-            f"[cyan]Total:[/] [bold]{total_tasks}[/]",
-            title="[bold cyan]Tasks[/]",
-            border_style="cyan"
-        ))
+        layout["bottom_right"].update(
+            Panel(
+                f"[cyan]Active:[/] [bold yellow]{current_metrics.active_tasks}[/]\n"
+                f"[cyan]Completed:[/] [bold green]{current_metrics.completed_tasks}[/]\n"
+                f"[cyan]Failed:[/] [bold red]{current_metrics.failed_tasks}[/]\n"
+                f"[cyan]Total:[/] [bold]{total_tasks}[/]",
+                title="[bold cyan]Tasks[/]",
+                border_style="cyan",
+            )
+        )
 
         # Footer
-        layout["footer"].update(Panel(
-            Align.center("[dim]Press Ctrl+C to exit[/]"),
-            border_style="dim"
-        ))
+        layout["footer"].update(
+            Panel(Align.center("[dim]Press Ctrl+C to exit[/]"), border_style="dim")
+        )
 
         return layout
 
 
 # ===== AGENTS DASHBOARD =====
+
 
 class AgentsDashboard:
     """Dashboard des agents temps réel"""
@@ -350,9 +336,7 @@ class AgentsDashboard:
         """Générer le dashboard des agents"""
         layout = Layout()
         layout.split_column(
-            Layout(name="header", size=3),
-            Layout(name="main"),
-            Layout(name="footer", size=3)
+            Layout(name="header", size=3), Layout(name="main"), Layout(name="footer", size=3)
         )
 
         # Header
@@ -361,8 +345,7 @@ class AgentsDashboard:
 
         layout["header"].update(
             DashboardComponents.create_header(
-                "Agents Monitor",
-                f"Active: {active_count}/{len(agents)} | Updated: {timestamp}"
+                "Agents Monitor", f"Active: {active_count}/{len(agents)} | Updated: {timestamp}"
             )
         )
 
@@ -375,26 +358,25 @@ class AgentsDashboard:
 
         for agent in agents:
             status_indicator = DashboardComponents.create_status_indicator(agent.status)
-            success_color = "green" if agent.success_rate >= 90 else ("yellow" if agent.success_rate >= 75 else "red")
+            success_color = (
+                "green"
+                if agent.success_rate >= 90
+                else ("yellow" if agent.success_rate >= 75 else "red")
+            )
 
             table.add_row(
                 agent.name,
                 status_indicator,
                 str(agent.tasks_completed),
-                f"[{success_color}]{agent.success_rate:.1f}%[/]"
+                f"[{success_color}]{agent.success_rate:.1f}%[/]",
             )
 
-        layout["main"].update(Panel(
-            table,
-            title="[bold cyan]Agent Status[/]",
-            border_style="cyan"
-        ))
+        layout["main"].update(Panel(table, title="[bold cyan]Agent Status[/]", border_style="cyan"))
 
         # Footer
-        layout["footer"].update(Panel(
-            Align.center("[dim]Press Ctrl+C to exit[/]"),
-            border_style="dim"
-        ))
+        layout["footer"].update(
+            Panel(Align.center("[dim]Press Ctrl+C to exit[/]"), border_style="dim")
+        )
 
         return layout
 
@@ -405,11 +387,12 @@ if __name__ == "__main__":
     import random
 
     console.clear()
-    console.print(Panel(
-        "[bold cyan]Live Dashboard Demo[/]\n"
-        "[dim]Testing real-time dashboards[/]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]Live Dashboard Demo[/]\n[dim]Testing real-time dashboards[/]",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     # Demo 1: System Dashboard
@@ -432,7 +415,7 @@ if __name__ == "__main__":
         with Live(
             perf_dash.generate(PerformanceMetrics(25, 8, 98.5, 92, 4, 150, 3)),
             console=console,
-            refresh_per_second=2
+            refresh_per_second=2,
         ) as live:
             for i in range(20):
                 # Simulate changing metrics
@@ -443,7 +426,7 @@ if __name__ == "__main__":
                     cache_hit_rate=random.uniform(88, 95),
                     active_tasks=random.randint(2, 6),
                     completed_tasks=150 + i * 5,
-                    failed_tasks=3 + random.randint(0, 1)
+                    failed_tasks=3 + random.randint(0, 1),
                 )
                 live.update(perf_dash.generate(metrics))
                 time.sleep(0.5)
@@ -465,11 +448,7 @@ if __name__ == "__main__":
     ]
 
     try:
-        with Live(
-            AgentsDashboard.generate(agents),
-            console=console,
-            refresh_per_second=2
-        ) as live:
+        with Live(AgentsDashboard.generate(agents), console=console, refresh_per_second=2) as live:
             for i in range(20):
                 # Simulate changing agent status
                 for agent in agents:
@@ -483,7 +462,4 @@ if __name__ == "__main__":
 
     console.print("\n[green]✓ Agents dashboard demo complete[/]\n")
 
-    console.print(Panel(
-        "[bold green]All Dashboards Demo Complete![/]",
-        border_style="green"
-    ))
+    console.print(Panel("[bold green]All Dashboards Demo Complete![/]", border_style="green"))

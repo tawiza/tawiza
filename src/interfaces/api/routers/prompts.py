@@ -4,7 +4,6 @@ Prompts Management API
 Endpoints pour gérer les templates de prompts dynamiques.
 """
 
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -21,6 +20,7 @@ router = APIRouter()
 # Pydantic models
 class PromptTemplateCreate(BaseModel):
     """Request model for creating a prompt template."""
+
     name: str = Field(..., min_length=1, max_length=100)
     format: PromptFormat
     template: str = Field(..., min_length=1)
@@ -31,6 +31,7 @@ class PromptTemplateCreate(BaseModel):
 
 class PromptTemplateResponse(BaseModel):
     """Response model for prompt template."""
+
     name: str
     format: str
     template: str
@@ -45,12 +46,14 @@ class PromptTemplateResponse(BaseModel):
 
 class PromptRenderRequest(BaseModel):
     """Request model for rendering a prompt."""
+
     template_name: str
     variables: dict = Field(default_factory=dict)
 
 
 class PromptRenderResponse(BaseModel):
     """Response model for rendered prompt."""
+
     template_name: str
     rendered_prompt: str
     variables_used: dict
@@ -58,6 +61,7 @@ class PromptRenderResponse(BaseModel):
 
 class PromptStatsResponse(BaseModel):
     """Response model for prompt statistics."""
+
     total_renders: int
     total_templates: int
     renders_by_template: dict
@@ -70,11 +74,10 @@ class PromptStatsResponse(BaseModel):
     response_model=PromptTemplateResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create prompt template",
-    description="Create a new prompt template with variables"
+    description="Create a new prompt template with variables",
 )
 async def create_template(
-    request: PromptTemplateCreate,
-    manager: PromptManager = Depends(get_prompt_manager)
+    request: PromptTemplateCreate, manager: PromptManager = Depends(get_prompt_manager)
 ) -> PromptTemplateResponse:
     """
     Create a new prompt template.
@@ -116,7 +119,7 @@ async def create_template(
         logger.error(f"Failed to create template: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create template: {str(e)}"
+            detail=f"Failed to create template: {str(e)}",
         )
 
 
@@ -124,11 +127,10 @@ async def create_template(
     "/templates",
     response_model=list[PromptTemplateResponse],
     summary="List prompt templates",
-    description="List all registered prompt templates"
+    description="List all registered prompt templates",
 )
 async def list_templates(
-    format_filter: PromptFormat | None = None,
-    manager: PromptManager = Depends(get_prompt_manager)
+    format_filter: PromptFormat | None = None, manager: PromptManager = Depends(get_prompt_manager)
 ) -> list[PromptTemplateResponse]:
     """
     List all prompt templates, optionally filtered by format.
@@ -148,11 +150,10 @@ async def list_templates(
     "/templates/{template_name}",
     response_model=PromptTemplateResponse,
     summary="Get prompt template",
-    description="Get a specific prompt template by name"
+    description="Get a specific prompt template by name",
 )
 async def get_template(
-    template_name: str,
-    manager: PromptManager = Depends(get_prompt_manager)
+    template_name: str, manager: PromptManager = Depends(get_prompt_manager)
 ) -> PromptTemplateResponse:
     """
     Get a specific prompt template.
@@ -171,8 +172,7 @@ async def get_template(
 
     if not template:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Template '{template_name}' not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Template '{template_name}' not found"
         )
 
     return PromptTemplateResponse(**template.to_dict())
@@ -182,11 +182,10 @@ async def get_template(
     "/render",
     response_model=PromptRenderResponse,
     summary="Render prompt template",
-    description="Render a prompt template with variables"
+    description="Render a prompt template with variables",
 )
 async def render_template(
-    request: PromptRenderRequest,
-    manager: PromptManager = Depends(get_prompt_manager)
+    request: PromptRenderRequest, manager: PromptManager = Depends(get_prompt_manager)
 ) -> PromptRenderResponse:
     """
     Render a prompt template with provided variables.
@@ -218,19 +217,16 @@ async def render_template(
         return PromptRenderResponse(
             template_name=request.template_name,
             rendered_prompt=rendered,
-            variables_used=request.variables
+            variables_used=request.variables,
         )
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Failed to render template: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to render template: {str(e)}"
+            detail=f"Failed to render template: {str(e)}",
         )
 
 
@@ -238,11 +234,9 @@ async def render_template(
     "/stats",
     response_model=PromptStatsResponse,
     summary="Get prompt statistics",
-    description="Get statistics about prompt usage"
+    description="Get statistics about prompt usage",
 )
-async def get_stats(
-    manager: PromptManager = Depends(get_prompt_manager)
-) -> PromptStatsResponse:
+async def get_stats(manager: PromptManager = Depends(get_prompt_manager)) -> PromptStatsResponse:
     """
     Get prompt usage statistics.
 
@@ -260,12 +254,9 @@ async def get_stats(
     "/templates/{template_name}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete prompt template",
-    description="Delete a prompt template by name"
+    description="Delete a prompt template by name",
 )
-async def delete_template(
-    template_name: str,
-    manager: PromptManager = Depends(get_prompt_manager)
-):
+async def delete_template(template_name: str, manager: PromptManager = Depends(get_prompt_manager)):
     """
     Delete a prompt template.
 
@@ -280,8 +271,7 @@ async def delete_template(
 
     if not template:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Template '{template_name}' not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Template '{template_name}' not found"
         )
 
     # Remove template
@@ -297,11 +287,9 @@ async def delete_template(
     "/templates/defaults",
     status_code=status.HTTP_200_OK,
     summary="Create default templates",
-    description="Create default prompt templates"
+    description="Create default prompt templates",
 )
-async def create_defaults(
-    manager: PromptManager = Depends(get_prompt_manager)
-) -> dict:
+async def create_defaults(manager: PromptManager = Depends(get_prompt_manager)) -> dict:
     """
     Create default prompt templates.
 
@@ -317,5 +305,5 @@ async def create_defaults(
     return {
         "status": "success",
         "message": "Default templates created",
-        "count": len(manager.templates)
+        "count": len(manager.templates),
     }

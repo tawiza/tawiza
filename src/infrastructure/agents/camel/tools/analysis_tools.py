@@ -16,7 +16,7 @@ def generate_report(
     title: str,
     sections: list[dict[str, Any]],
     output_dir: str = "./outputs/analyses",
-    formats: list[str] = None
+    formats: list[str] = None,
 ) -> dict[str, Any]:
     """Generate a structured report in multiple formats.
 
@@ -50,11 +50,13 @@ def generate_report(
 
         for section in sections:
             md_content += f"## {section.get('title', 'Section')}\n\n"
-            content = section.get('content', '')
+            content = section.get("content", "")
             if isinstance(content, list):
                 for item in content:
                     if isinstance(item, dict):
-                        md_content += f"- **{item.get('name', 'Item')}**: {item.get('description', '')}\n"
+                        md_content += (
+                            f"- **{item.get('name', 'Item')}**: {item.get('description', '')}\n"
+                        )
                     else:
                         md_content += f"- {item}\n"
             else:
@@ -98,9 +100,7 @@ def generate_report(
 
 
 def export_csv(
-    data: list[dict[str, Any]],
-    filename: str,
-    output_dir: str = "./outputs/analyses"
+    data: list[dict[str, Any]], filename: str, output_dir: str = "./outputs/analyses"
 ) -> dict[str, Any]:
     """Export data to CSV format.
 
@@ -131,14 +131,14 @@ def export_csv(
         all_keys.update(item.keys())
     headers = sorted(all_keys)
 
-    with open(csv_file, 'w', newline='', encoding='utf-8') as f:
+    with open(csv_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
         for row in data:
             # Flatten nested dicts
             flat_row = {}
             for key in headers:
-                value = row.get(key, '')
+                value = row.get(key, "")
                 if isinstance(value, (dict, list)):
                     value = json.dumps(value, ensure_ascii=False)
                 flat_row[key] = value
@@ -153,10 +153,7 @@ def export_csv(
     }
 
 
-def analyze_data(
-    data: list[dict[str, Any]],
-    analysis_type: str = "summary"
-) -> dict[str, Any]:
+def analyze_data(data: list[dict[str, Any]], analysis_type: str = "summary") -> dict[str, Any]:
     """Perform basic analysis on structured data.
 
     Args:
@@ -195,6 +192,7 @@ def analyze_data(
             if values and all(isinstance(v, str) for v in values):
                 # Count occurrences
                 from collections import Counter
+
                 counts = Counter(values)
                 distributions[key] = dict(counts.most_common(10))
         result["distributions"] = distributions
@@ -205,6 +203,7 @@ def analyze_data(
 # ============================================================================
 # TOOL REGISTRATION
 # ============================================================================
+
 
 def get_analysis_tools() -> list[FunctionTool]:
     """Get all analysis tools as Camel FunctionTools.

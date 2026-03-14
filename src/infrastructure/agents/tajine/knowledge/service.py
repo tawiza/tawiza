@@ -1,4 +1,5 @@
 """Knowledge Graph service for TAJINE."""
+
 from __future__ import annotations
 
 import contextlib
@@ -32,7 +33,7 @@ class KnowledgeGraphService:
                 self._config = Neo4jConfig(
                     uri=tajine_config.neo4j_uri,
                     user=tajine_config.neo4j_user,
-                    password=tajine_config.neo4j_password
+                    password=tajine_config.neo4j_password,
                 )
 
             self._client = Neo4jClient(self._config)
@@ -73,12 +74,15 @@ class KnowledgeGraphService:
         """
 
         try:
-            await self._client.execute_write(query, {
-                "siret": data.get("siret", ""),
-                "nom": data.get("nom", data.get("denominationUniteLegale", "")),
-                "departement": data.get("departement", ""),
-                "naf_code": data.get("naf_code", data.get("activitePrincipaleUniteLegale", ""))
-            })
+            await self._client.execute_write(
+                query,
+                {
+                    "siret": data.get("siret", ""),
+                    "nom": data.get("nom", data.get("denominationUniteLegale", "")),
+                    "departement": data.get("departement", ""),
+                    "naf_code": data.get("naf_code", data.get("activitePrincipaleUniteLegale", "")),
+                },
+            )
             return True
         except Exception as e:
             logger.error(f"Failed to store enterprise: {e}")
@@ -103,12 +107,16 @@ class KnowledgeGraphService:
             # Normalize data
             normalized = []
             for ent in enterprises:
-                normalized.append({
-                    "siret": ent.get("siret", ""),
-                    "nom": ent.get("nom", ent.get("denominationUniteLegale", "")),
-                    "departement": ent.get("departement", ""),
-                    "naf_code": ent.get("naf_code", ent.get("activitePrincipaleUniteLegale", ""))
-                })
+                normalized.append(
+                    {
+                        "siret": ent.get("siret", ""),
+                        "nom": ent.get("nom", ent.get("denominationUniteLegale", "")),
+                        "departement": ent.get("departement", ""),
+                        "naf_code": ent.get(
+                            "naf_code", ent.get("activitePrincipaleUniteLegale", "")
+                        ),
+                    }
+                )
 
             result = await self._client.execute_write(query, {"enterprises": normalized})
             return result[0]["stored"] if result else 0
@@ -117,9 +125,7 @@ class KnowledgeGraphService:
             return 0
 
     async def get_enterprises_by_territory(
-        self,
-        department: str,
-        limit: int = 100
+        self, department: str, limit: int = 100
     ) -> list[dict[str, Any]]:
         """Query enterprises by territory."""
         if not self._available or not self._client:
@@ -132,20 +138,14 @@ class KnowledgeGraphService:
         """
 
         try:
-            results = await self._client.execute(
-                query,
-                {"department": department, "limit": limit}
-            )
+            results = await self._client.execute(query, {"department": department, "limit": limit})
             return [r["e"] for r in results]
         except Exception as e:
             logger.error(f"Failed to query enterprises: {e}")
             return []
 
     async def get_enterprises_by_naf(
-        self,
-        naf_code: str,
-        department: str | None = None,
-        limit: int = 100
+        self, naf_code: str, department: str | None = None, limit: int = 100
     ) -> list[dict[str, Any]]:
         """Query enterprises by NAF code."""
         if not self._available or not self._client:
@@ -174,10 +174,7 @@ class KnowledgeGraphService:
             return []
 
     async def store_analysis_result(
-        self,
-        territory: str,
-        analysis_type: str,
-        result: dict[str, Any]
+        self, territory: str, analysis_type: str, result: dict[str, Any]
     ) -> bool:
         """Store analysis result linked to territory."""
         if not self._available or not self._client:
@@ -195,21 +192,21 @@ class KnowledgeGraphService:
         """
 
         try:
-            await self._client.execute_write(query, {
-                "territory": territory,
-                "analysis_type": analysis_type,
-                "result": json.dumps(result)
-            })
+            await self._client.execute_write(
+                query,
+                {
+                    "territory": territory,
+                    "analysis_type": analysis_type,
+                    "result": json.dumps(result),
+                },
+            )
             return True
         except Exception as e:
             logger.error(f"Failed to store analysis: {e}")
             return False
 
     async def get_previous_analyses(
-        self,
-        territory: str,
-        analysis_type: str | None = None,
-        limit: int = 5
+        self, territory: str, analysis_type: str | None = None, limit: int = 5
     ) -> list[dict[str, Any]]:
         """Get previous analyses for a territory."""
         if not self._available or not self._client:
@@ -247,9 +244,7 @@ class KnowledgeGraphService:
             return []
 
     async def get_context_for_query(
-        self,
-        query: str,
-        territory: str | None = None
+        self, query: str, territory: str | None = None
     ) -> dict[str, Any]:
         """Get relevant context from KG for a query."""
         context = {
@@ -257,19 +252,15 @@ class KnowledgeGraphService:
             "territory": territory,
             "enterprises": [],
             "previous_analyses": [],
-            "related_sectors": []
+            "related_sectors": [],
         }
 
         if not self._available:
             return context
 
         if territory:
-            context["enterprises"] = await self.get_enterprises_by_territory(
-                territory, limit=20
-            )
-            context["previous_analyses"] = await self.get_previous_analyses(
-                territory, limit=3
-            )
+            context["enterprises"] = await self.get_enterprises_by_territory(territory, limit=20)
+            context["previous_analyses"] = await self.get_previous_analyses(territory, limit=3)
 
         return context
 
@@ -278,7 +269,7 @@ class KnowledgeGraphService:
         from_siret: str,
         to_siret: str,
         relationship_type: str,
-        properties: dict[str, Any] | None = None
+        properties: dict[str, Any] | None = None,
     ) -> bool:
         """Create relationship between enterprises."""
         if not self._available or not self._client:
@@ -326,7 +317,7 @@ class KnowledgeGraphService:
                     "available": True,
                     "total_enterprises": result[0]["total"],
                     "sector_count": result[0]["sector_count"],
-                    "top_sectors": result[0]["top_sectors"]
+                    "top_sectors": result[0]["top_sectors"],
                 }
             return {"available": True, "total_enterprises": 0}
         except Exception as e:

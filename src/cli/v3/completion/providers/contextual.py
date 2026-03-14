@@ -22,7 +22,9 @@ class HistoryProvider(CompletionProvider):
     def priority(self) -> int:
         return 50  # Lower than static/dynamic
 
-    def get_completions(self, incomplete: str, context: dict | None = None) -> list[CompletionResult]:
+    def get_completions(
+        self, incomplete: str, context: dict | None = None
+    ) -> list[CompletionResult]:
         """Get completions from command history.
 
         Args:
@@ -60,7 +62,9 @@ class HistoryProvider(CompletionProvider):
                         values.extend(args.values())
 
             # Count frequencies
-            counter = Counter(v for v in values if isinstance(v, str) and incomplete.lower() in v.lower())
+            counter = Counter(
+                v for v in values if isinstance(v, str) and incomplete.lower() in v.lower()
+            )
 
             return [
                 CompletionResult(
@@ -98,13 +102,15 @@ class HistoryProvider(CompletionProvider):
             history = {"commands": [], "patterns": {}}
 
         # Add to commands list
-        history["commands"].append({
-            "timestamp": datetime.now().isoformat(),
-            "command": command,
-            "args": args,
-            "success": success,
-            "duration": duration,
-        })
+        history["commands"].append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "command": command,
+                "args": args,
+                "success": success,
+                "duration": duration,
+            }
+        )
 
         # Keep last 1000 commands
         history["commands"] = history["commands"][-1000:]
@@ -163,29 +169,37 @@ class NextCommandSuggester:
 
         results = []
         for i, cmd in enumerate(suggestions):
-            results.append(CompletionResult(
-                value=cmd,
-                description="Suggested next step",
-                score=2.0 - (i * 0.5),  # Decreasing scores
-                source="workflow",
-            ))
+            results.append(
+                CompletionResult(
+                    value=cmd,
+                    description="Suggested next step",
+                    score=2.0 - (i * 0.5),  # Decreasing scores
+                    source="workflow",
+                )
+            )
 
         # Add contextual suggestions based on result
         if last_result:
             if last_result.get("status") == "failed":
-                results.insert(0, CompletionResult(
-                    value="agent-debug",
-                    description="Debug failed task",
-                    score=3.0,
-                    source="contextual",
-                ))
+                results.insert(
+                    0,
+                    CompletionResult(
+                        value="agent-debug",
+                        description="Debug failed task",
+                        score=3.0,
+                        source="contextual",
+                    ),
+                )
 
             if last_result.get("task_id"):
-                results.insert(0, CompletionResult(
-                    value=f"agent-debug {last_result['task_id'][:8]}",
-                    description="View task details",
-                    score=2.5,
-                    source="contextual",
-                ))
+                results.insert(
+                    0,
+                    CompletionResult(
+                        value=f"agent-debug {last_result['task_id'][:8]}",
+                        description="View task details",
+                        score=2.5,
+                        source="contextual",
+                    ),
+                )
 
         return results

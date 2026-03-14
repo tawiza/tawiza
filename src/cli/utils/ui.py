@@ -13,36 +13,44 @@ from rich.text import Text
 
 # Configuration du thème sunset
 SUNSET_THEME = {
-    "header_color": "#FF6B35",      # Orange coucher de soleil
-    "accent_color": "#F7931E",      # Orange doré
-    "success_color": "#FFD23F",     # Jaune soleil
-    "info_color": "#06FFA5",        # Turquoise
-    "warning_color": "#FF8E53",     # Orange clair
-    "error_color": "#FF5252",       # Rouge corail
-    "text_color": "#F0F0F0",        # Blanc cassé
-    "dim_color": "#B0B0B0",         # Gris clair
+    "header_color": "#FF6B35",  # Orange coucher de soleil
+    "accent_color": "#F7931E",  # Orange doré
+    "success_color": "#FFD23F",  # Jaune soleil
+    "info_color": "#06FFA5",  # Turquoise
+    "warning_color": "#FF8E53",  # Orange clair
+    "error_color": "#FF5252",  # Rouge corail
+    "text_color": "#F0F0F0",  # Blanc cassé
+    "dim_color": "#B0B0B0",  # Gris clair
 }
 
 console = Console()
+
 
 def show_sunset_header():
     """Afficher l'en-tête avec thème sunset"""
     header_text = Text()
     header_text.append("🌅 ", style=SUNSET_THEME["header_color"])
-    header_text.append("Tawiza-V2 Advanced AI Agents System", style=f"bold {SUNSET_THEME['header_color']}")
+    header_text.append(
+        "Tawiza-V2 Advanced AI Agents System", style=f"bold {SUNSET_THEME['header_color']}"
+    )
     header_text.append(" 🤖", style=SUNSET_THEME["header_color"])
 
-    console.print(Panel(
-        Align.center(header_text),
-        style=f"{SUNSET_THEME['header_color']}",
-        box=box.DOUBLE,
-        padding=1
-    ))
+    console.print(
+        Panel(
+            Align.center(header_text),
+            style=f"{SUNSET_THEME['header_color']}",
+            box=box.DOUBLE,
+            padding=1,
+        )
+    )
 
     # Sous-titre
-    subtitle = Text("Système Multi-Agents Intelligent avec Optimisation GPU", style=SUNSET_THEME["dim_color"])
+    subtitle = Text(
+        "Système Multi-Agents Intelligent avec Optimisation GPU", style=SUNSET_THEME["dim_color"]
+    )
     console.print(Align.center(subtitle))
     console.print()
+
 
 def show_sunset_footer():
     """Afficher le pied de page avec thème sunset"""
@@ -56,12 +64,15 @@ def show_sunset_footer():
     footer_text.append("GPU: AMD RX 7900 XTX", style=SUNSET_THEME["info_color"])
     footer_text.append(" 🌅", style=SUNSET_THEME["header_color"])
 
-    console.print(Panel(
-        Align.center(footer_text),
-        style=f"{SUNSET_THEME['header_color']}",
-        box=box.ROUNDED,
-        padding=1
-    ))
+    console.print(
+        Panel(
+            Align.center(footer_text),
+            style=f"{SUNSET_THEME['header_color']}",
+            box=box.ROUNDED,
+            padding=1,
+        )
+    )
+
 
 def create_sunset_table(title: str, show_header: bool = True) -> Table:
     """Créer un tableau avec le thème sunset"""
@@ -70,8 +81,9 @@ def create_sunset_table(title: str, show_header: bool = True) -> Table:
         box=box.ROUNDED,
         show_header=show_header,
         header_style=f"bold {SUNSET_THEME['accent_color']}",
-        border_style=SUNSET_THEME["accent_color"]
+        border_style=SUNSET_THEME["accent_color"],
     )
+
 
 def create_status_panel(status: str, message: str, success: bool = True) -> Panel:
     """Créer un panneau de statut avec thème sunset"""
@@ -87,12 +99,8 @@ def create_status_panel(status: str, message: str, success: bool = True) -> Pane
     content.append(f"{status}", style=f"bold {color}")
     content.append(f"\n{message}", style=SUNSET_THEME["text_color"])
 
-    return Panel(
-        content,
-        style=color,
-        box=box.ROUNDED,
-        padding=1
-    )
+    return Panel(content, style=color, box=box.ROUNDED, padding=1)
+
 
 def create_progress_bar(description: str, total: int = 100) -> None:
     """Créer une barre de progression avec thème sunset"""
@@ -101,10 +109,14 @@ def create_progress_bar(description: str, total: int = 100) -> None:
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
-        BarColumn(complete_style=SUNSET_THEME["success_color"], finished_style=SUNSET_THEME["success_color"]),
+        BarColumn(
+            complete_style=SUNSET_THEME["success_color"],
+            finished_style=SUNSET_THEME["success_color"],
+        ),
         TaskProgressColumn(),
-        console=console
+        console=console,
     )
+
 
 def format_performance_metric(name: str, value: float, unit: str = "") -> str:
     """Formater une métrique de performance avec couleurs"""
@@ -119,6 +131,7 @@ def format_performance_metric(name: str, value: float, unit: str = "") -> str:
         icon = "🔴"
 
     return f"[{color}]{icon} {name}: {value:.1f}{unit}[/{color}]"
+
 
 def create_agent_status_table() -> Table:
     """Créer un tableau de statut des agents"""
@@ -143,6 +156,7 @@ def create_agent_status_table() -> Table:
 
     return table
 
+
 def create_system_metrics_table() -> Table:
     """Créer un tableau de métriques système"""
     table = create_sunset_table("Métriques Système")
@@ -164,6 +178,7 @@ def create_system_metrics_table() -> Table:
 
     return table
 
+
 def show_loading_animation(message: str, duration: float = 2.0) -> None:
     """Afficher une animation de chargement"""
     import time
@@ -174,10 +189,14 @@ def show_loading_animation(message: str, duration: float = 2.0) -> None:
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         console=console,
-        transient=True
+        transient=True,
     ) as progress:
-        progress.add_task(f"[bold {SUNSET_THEME['info_color']}]{message}[/bold {SUNSET_THEME['info_color']}]", total=None)
+        progress.add_task(
+            f"[bold {SUNSET_THEME['info_color']}]{message}[/bold {SUNSET_THEME['info_color']}]",
+            total=None,
+        )
         time.sleep(duration)
+
 
 def create_error_panel(error_message: str, suggestion: str = "") -> Panel:
     """Créer un panneau d'erreur avec suggestion"""
@@ -188,12 +207,8 @@ def create_error_panel(error_message: str, suggestion: str = "") -> Panel:
     if suggestion:
         content.append(f"\n💡 {suggestion}", style=SUNSET_THEME["info_color"])
 
-    return Panel(
-        content,
-        style=SUNSET_THEME["error_color"],
-        box=box.ROUNDED,
-        padding=1
-    )
+    return Panel(content, style=SUNSET_THEME["error_color"], box=box.ROUNDED, padding=1)
+
 
 def create_success_panel(success_message: str, next_steps: str = "") -> Panel:
     """Créer un panneau de succès avec étapes suivantes"""
@@ -204,16 +219,13 @@ def create_success_panel(success_message: str, next_steps: str = "") -> Panel:
     if next_steps:
         content.append(f"\n🎯 {next_steps}", style=SUNSET_THEME["accent_color"])
 
-    return Panel(
-        content,
-        style=SUNSET_THEME["success_color"],
-        box=box.ROUNDED,
-        padding=1
-    )
+    return Panel(content, style=SUNSET_THEME["success_color"], box=box.ROUNDED, padding=1)
+
 
 def format_agent_info(agent_type: str, status: str, performance: str, details: str) -> str:
     """Formater les informations d'un agent"""
     return f"[bold {SUNSET_THEME['info_color']}]{agent_type}[/bold {SUNSET_THEME['info_color']}] - {status} - {performance} - {details}"
+
 
 def create_debug_info(component: str, level: str, message: str) -> str:
     """Créer une information de débogage formatée"""
@@ -221,27 +233,28 @@ def create_debug_info(component: str, level: str, message: str) -> str:
         "DEBUG": SUNSET_THEME["dim_color"],
         "INFO": SUNSET_THEME["info_color"],
         "WARNING": SUNSET_THEME["warning_color"],
-        "ERROR": SUNSET_THEME["error_color"]
+        "ERROR": SUNSET_THEME["error_color"],
     }
 
     color = level_colors.get(level, SUNSET_THEME["text_color"])
     return f"[{color}][{level}] {component}: {message}[/{color}]"
 
+
 # Export des fonctions
 __all__ = [
-    'SUNSET_THEME',
-    'console',
-    'show_sunset_header',
-    'show_sunset_footer',
-    'create_sunset_table',
-    'create_status_panel',
-    'create_progress_bar',
-    'format_performance_metric',
-    'create_agent_status_table',
-    'create_system_metrics_table',
-    'show_loading_animation',
-    'create_error_panel',
-    'create_success_panel',
-    'format_agent_info',
-    'create_debug_info'
+    "SUNSET_THEME",
+    "console",
+    "show_sunset_header",
+    "show_sunset_footer",
+    "create_sunset_table",
+    "create_status_panel",
+    "create_progress_bar",
+    "format_performance_metric",
+    "create_agent_status_table",
+    "create_system_metrics_table",
+    "show_loading_animation",
+    "create_error_panel",
+    "create_success_panel",
+    "format_agent_info",
+    "create_debug_info",
 ]

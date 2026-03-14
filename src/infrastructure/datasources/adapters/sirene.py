@@ -132,10 +132,7 @@ class SireneAdapter(BaseAdapter):
             data = response.json()
 
             return {
-                "results": [
-                    self._transform_result(r)
-                    for r in data.get("results", [])
-                ],
+                "results": [self._transform_result(r) for r in data.get("results", [])],
                 "total_results": data.get("total_results", 0),
                 "page": data.get("page", 1),
                 "per_page": data.get("per_page", per_page),

@@ -20,6 +20,7 @@ from loguru import logger
 
 class ChainStatus(StrEnum):
     """Status of a chain execution."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -139,12 +140,7 @@ class FunctionStep(ChainStep):
         >>> step = FunctionStep("process", process)
     """
 
-    def __init__(
-        self,
-        name: str,
-        func: Callable,
-        **kwargs
-    ):
+    def __init__(self, name: str, func: Callable, **kwargs):
         super().__init__(name)
         self.func = func
         self.kwargs = kwargs
@@ -223,11 +219,7 @@ class AgentChain:
         return self
 
     def add_agent(
-        self,
-        name: str,
-        agent: Any,
-        config: dict[str, Any] | None = None,
-        **kwargs
+        self, name: str, agent: Any, config: dict[str, Any] | None = None, **kwargs
     ) -> "AgentChain":
         """Convenience method to add an agent step.
 
@@ -243,12 +235,7 @@ class AgentChain:
         step = AgentStep(name, agent, config, **kwargs)
         return self.add_step(step)
 
-    def add_function(
-        self,
-        name: str,
-        func: Callable,
-        **kwargs
-    ) -> "AgentChain":
+    def add_function(self, name: str, func: Callable, **kwargs) -> "AgentChain":
         """Convenience method to add a function step.
 
         Args:
@@ -262,11 +249,7 @@ class AgentChain:
         step = FunctionStep(name, func, **kwargs)
         return self.add_step(step)
 
-    async def execute(
-        self,
-        input_data: Any = None,
-        stop_on_error: bool = True
-    ) -> ChainResult:
+    async def execute(self, input_data: Any = None, stop_on_error: bool = True) -> ChainResult:
         """Execute the chain.
 
         Args:
@@ -326,8 +309,7 @@ class AgentChain:
         result.completed_at = datetime.utcnow()
 
         logger.info(
-            f"Chain {self.name} completed: {result.status.value} "
-            f"in {result.duration_seconds:.2f}s"
+            f"Chain {self.name} completed: {result.status.value} in {result.duration_seconds:.2f}s"
         )
 
         return result
@@ -360,11 +342,7 @@ class ParallelChain:
         self.combine_results = combine_results
         self.branches: dict[str, ChainStep | AgentChain] = {}
 
-    def add(
-        self,
-        key: str,
-        branch: ChainStep | AgentChain
-    ) -> "ParallelChain":
+    def add(self, key: str, branch: ChainStep | AgentChain) -> "ParallelChain":
         """Add a parallel branch.
 
         Args:
@@ -377,11 +355,7 @@ class ParallelChain:
         self.branches[key] = branch
         return self
 
-    async def execute(
-        self,
-        input_data: Any = None,
-        timeout: float | None = None
-    ) -> dict[str, Any]:
+    async def execute(self, input_data: Any = None, timeout: float | None = None) -> dict[str, Any]:
         """Execute all branches in parallel.
 
         Args:
@@ -406,16 +380,12 @@ class ParallelChain:
                 return key, {"error": str(e)}
 
         # Create tasks
-        tasks = [
-            execute_branch(key, branch)
-            for key, branch in self.branches.items()
-        ]
+        tasks = [execute_branch(key, branch) for key, branch in self.branches.items()]
 
         # Execute with optional timeout
         if timeout:
             results = await asyncio.wait_for(
-                asyncio.gather(*tasks, return_exceptions=True),
-                timeout=timeout
+                asyncio.gather(*tasks, return_exceptions=True), timeout=timeout
             )
         else:
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -498,8 +468,7 @@ class MapReduceChain:
                     return await self.processor.execute(part)
 
         results = await asyncio.gather(
-            *[process_part(part) for part in parts],
-            return_exceptions=True
+            *[process_part(part) for part in parts], return_exceptions=True
         )
 
         # Filter out exceptions
@@ -517,6 +486,7 @@ class MapReduceChain:
 
 
 # Utility functions for common patterns
+
 
 def create_sequential_chain(
     name: str,
@@ -558,7 +528,7 @@ def create_parallel_analysis(
         step = AgentStep(
             analyzer_name,
             agent,
-            input_transform=lambda x: x.get(input_key) if isinstance(x, dict) else x
+            input_transform=lambda x: x.get(input_key) if isinstance(x, dict) else x,
         )
         parallel.add(analyzer_name, step)
 

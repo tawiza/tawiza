@@ -7,9 +7,7 @@ from src.cli.commands.system import app as system_app
 from src.cli.commands.vm_sandbox_commands import app as vm_app
 
 app = typer.Typer(
-    name="infra",
-    help="Infrastructure - Systeme, VMs et Docker",
-    rich_markup_mode="rich"
+    name="infra", help="Infrastructure - Systeme, VMs et Docker", rich_markup_mode="rich"
 )
 
 # Ajouter les sous-commandes

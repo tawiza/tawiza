@@ -20,6 +20,7 @@ from loguru import logger
 @dataclass
 class SandboxConfig:
     """Sandbox configuration."""
+
     host: str = os.getenv("VM_SANDBOX_URL", "http://localhost:8100")
     api_key: str = os.getenv("VM_SANDBOX_API_KEY", "changeme")
     default_timeout: int = 30
@@ -29,6 +30,7 @@ class SandboxConfig:
 @dataclass
 class SandboxResult:
     """Result from sandbox execution."""
+
     success: bool
     stdout: str
     stderr: str
@@ -241,6 +243,7 @@ class VMSandboxClient:
                         elif event_type == "complete":
                             # Parse JSON result
                             import json
+
                             result_data = json.loads(data)
                             run_id = result_data.get("run_id", "")
                             exit_code = result_data.get("exit_code", 0)

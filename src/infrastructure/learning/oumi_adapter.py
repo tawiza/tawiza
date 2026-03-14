@@ -118,8 +118,7 @@ class OumiAdapter(TrainingAdapter):
         self.config_path = config_path
 
         logger.info(
-            f"OumiAdapter initialized (oumi_path={self.oumi_path}, "
-            f"fallback={fallback_to_ollama})"
+            f"OumiAdapter initialized (oumi_path={self.oumi_path}, fallback={fallback_to_ollama})"
         )
 
     def is_available(self) -> bool:
@@ -134,6 +133,7 @@ class OumiAdapter(TrainingAdapter):
                 return True
             # Check if oumi is importable
             import importlib.util
+
             spec = importlib.util.find_spec("oumi")
             return spec is not None
         except Exception:
@@ -311,9 +311,7 @@ class OumiAdapter(TrainingAdapter):
 
         return formatted
 
-    async def _run_safe_subprocess(
-        self, cmd: list[str], cwd: str | None = None
-    ) -> tuple:
+    async def _run_safe_subprocess(self, cmd: list[str], cwd: str | None = None) -> tuple:
         """Run subprocess safely with argument list (no shell injection risk).
 
         Uses asyncio.create_subprocess_exec which passes arguments directly
@@ -361,9 +359,7 @@ class OumiAdapter(TrainingAdapter):
 
         logger.info(f"Starting Oumi training with config: {config_file}")
 
-        (stdout, stderr), returncode = await self._run_safe_subprocess(
-            cmd, cwd=str(self.oumi_path)
-        )
+        (stdout, stderr), returncode = await self._run_safe_subprocess(cmd, cwd=str(self.oumi_path))
 
         if returncode != 0:
             error_msg = stderr.decode() if stderr else "Unknown error"
@@ -495,9 +491,7 @@ SYSTEM You are a territorial analysis assistant specialized in French economic d
             except (FileNotFoundError, RuntimeError) as e:
                 if self.fallback_to_ollama:
                     logger.warning(f"Oumi failed ({e}), trying Ollama fallback")
-                    result_data = await self._run_ollama_fallback(
-                        dataset_path, output_dir, config
-                    )
+                    result_data = await self._run_ollama_fallback(dataset_path, output_dir, config)
                 else:
                     raise
 

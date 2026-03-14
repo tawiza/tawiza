@@ -12,9 +12,10 @@ from typing import Any
 @dataclass
 class CausalHypothesis:
     """A potential cause-effect relationship to test."""
-    cause: str           # e.g., "unemployment_rate"
-    effect: str          # e.g., "company_creation_rate"
-    source: str          # where hypothesis came from (rule, discovery)
+
+    cause: str  # e.g., "unemployment_rate"
+    effect: str  # e.g., "company_creation_rate"
+    source: str  # where hypothesis came from (rule, discovery)
     priority: float = 0.5  # 0-1, higher = test first
 
     def to_dict(self) -> dict[str, Any]:
@@ -22,19 +23,20 @@ class CausalHypothesis:
             "cause": self.cause,
             "effect": self.effect,
             "source": self.source,
-            "priority": self.priority
+            "priority": self.priority,
         }
 
 
 @dataclass
 class CausalLink:
     """A validated causal relationship."""
+
     cause: str
     effect: str
-    correlation: float   # -1 to 1
-    lag_months: int      # optimal lag (0 = instantaneous)
-    confidence: float    # 0-1
-    evidence: str = ""   # human-readable explanation
+    correlation: float  # -1 to 1
+    lag_months: int  # optimal lag (0 = instantaneous)
+    confidence: float  # 0-1
+    evidence: str = ""  # human-readable explanation
     validated_at: datetime = field(default_factory=datetime.now)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,7 +47,7 @@ class CausalLink:
             "lag_months": self.lag_months,
             "confidence": self.confidence,
             "evidence": self.evidence,
-            "validated_at": self.validated_at.isoformat()
+            "validated_at": self.validated_at.isoformat(),
         }
 
     @classmethod
@@ -60,13 +62,14 @@ class CausalLink:
             lag_months=data["lag_months"],
             confidence=data["confidence"],
             evidence=data.get("evidence", ""),
-            validated_at=validated_at or datetime.now()
+            validated_at=validated_at or datetime.now(),
         )
 
 
 @dataclass
 class CausalChain:
     """A sequence of causal links forming a path."""
+
     root_cause: str
     final_effect: str
     links: list[CausalLink] = field(default_factory=list)
@@ -104,5 +107,5 @@ class CausalChain:
             "final_effect": self.final_effect,
             "chain": [self.root_cause] + [link.effect for link in self.links],
             "links": [link.to_dict() for link in self.links],
-            "total_confidence": self.total_confidence
+            "total_confidence": self.total_confidence,
         }

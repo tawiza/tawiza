@@ -1,4 +1,5 @@
 """Event system for crawler-to-TAJINE communication."""
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, StrEnum
@@ -7,6 +8,7 @@ from typing import Any
 
 class CrawlerEvent(StrEnum):
     """Events emitted by AdaptiveCrawler."""
+
     SOURCE_CRAWLED = "crawler.source_crawled"
     SOURCE_CHANGED = "crawler.source_changed"
     SOURCE_ERROR = "crawler.source_error"
@@ -17,6 +19,7 @@ class CrawlerEvent(StrEnum):
 @dataclass
 class CrawlerCallback:
     """Callback data for crawler events."""
+
     event: CrawlerEvent
     source_id: str
     url: str

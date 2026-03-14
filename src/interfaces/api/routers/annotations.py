@@ -17,6 +17,7 @@ from src.infrastructure.annotation.annotation_service import AnnotationService
 
 router = APIRouter()
 
+
 # Initialize annotation service with credentials from settings
 # The service is initialized when needed, not at module load
 def get_annotation_service() -> AnnotationService:
@@ -32,7 +33,9 @@ def get_annotation_service() -> AnnotationService:
     url = os.getenv("LABEL_STUDIO__URL", "http://localhost:8082")
     api_key = os.getenv("LABEL_STUDIO__API_KEY", "")
 
-    logger.debug(f"Initializing annotation service with URL: {url}, API key present: {bool(api_key)}")
+    logger.debug(
+        f"Initializing annotation service with URL: {url}, API key present: {bool(api_key)}"
+    )
 
     return AnnotationService(
         label_studio_url=url,
@@ -249,9 +252,7 @@ async def get_project(project_id: str) -> ProjectResponse:
 
 
 @router.post("/projects/{project_id}/import", response_model=ImportDataResponse)
-async def import_data(
-    project_id: str, request: ImportDataRequest
-) -> ImportDataResponse:
+async def import_data(project_id: str, request: ImportDataRequest) -> ImportDataResponse:
     """
     Import data for annotation.
 

@@ -25,15 +25,17 @@ from typing import Any
 import asyncpg
 from loguru import logger
 
-DB_URL = os.getenv(
-    "COLLECTOR_DATABASE_URL",
-    "postgresql://localhost:5433/tawiza"
-).replace("postgresql+asyncpg://", "postgresql://").replace("postgresql://", "postgres://")
+DB_URL = (
+    os.getenv("COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza")
+    .replace("postgresql+asyncpg://", "postgresql://")
+    .replace("postgresql://", "postgres://")
+)
 
 
 @dataclass
 class KGNode:
     """Node in the knowledge graph."""
+
     id: str  # e.g. "dept:75", "source:bodacc", "sector:tech"
     type: str  # department, source, sector, signal_type, metric
     label: str
@@ -44,6 +46,7 @@ class KGNode:
 @dataclass
 class KGEdge:
     """Edge in the knowledge graph."""
+
     source_id: str
     target_id: str
     relation: str  # has_signal, co_occurs, causes, temporal_lag, anomaly_in
@@ -54,6 +57,7 @@ class KGEdge:
 @dataclass
 class KGSubgraph:
     """A subgraph extracted for context."""
+
     nodes: list[KGNode]
     edges: list[KGEdge]
     query: str
@@ -88,7 +92,9 @@ class KGSubgraph:
                 tgt = next((n for n in self.nodes if n.id == e.target_id), None)
                 if src and tgt:
                     lag = e.properties.get("lag_months", "?")
-                    lines.append(f"  {src.label} → {tgt.label} (corrélation={e.weight:.2f}, lag={lag} mois)")
+                    lines.append(
+                        f"  {src.label} → {tgt.label} (corrélation={e.weight:.2f}, lag={lag} mois)"
+                    )
 
         # Anomalies
         anomalies = [e for e in self.edges if e.relation == "anomaly_in"]
@@ -97,7 +103,9 @@ class KGSubgraph:
             for e in anomalies:
                 tgt = next((n for n in self.nodes if n.id == e.target_id), None)
                 if tgt:
-                    lines.append(f"  Score={e.weight:.2f}: {e.properties.get('description', tgt.label)}")
+                    lines.append(
+                        f"  Score={e.weight:.2f}: {e.properties.get('description', tgt.label)}"
+                    )
 
         return "\n".join(lines)
 
@@ -210,8 +218,7 @@ class TerritorialKG:
                 self._built_at = datetime.now()
                 elapsed = (datetime.now() - start).total_seconds()
                 logger.info(
-                    f"KG built: {len(self.nodes)} nodes, {len(self.edges)} edges "
-                    f"in {elapsed:.1f}s"
+                    f"KG built: {len(self.nodes)} nodes, {len(self.edges)} edges in {elapsed:.1f}s"
                 )
             except Exception as e:
                 logger.error(f"Failed to build KG: {e}")
@@ -382,13 +389,16 @@ class TerritorialKG:
         for dept_row in top_depts:
             dept = dept_row["code_dept"]
             # Get monthly counts per source
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT source, date_trunc('month', event_date) as month, count(*) as n
                 FROM signals
                 WHERE code_dept = $1 AND event_date IS NOT NULL
                 GROUP BY source, month
                 ORDER BY month
-            """, dept)
+            """,
+                dept,
+            )
 
             # Group by source
             source_series: dict[str, dict[str, int]] = defaultdict(dict)
@@ -519,26 +529,39 @@ class TerritorialKG:
                         if edge.relation == "has_signals_from":
                             active_sources.add(edge.target_id.replace("source:", ""))
 
-                    all_sources = {"bodacc", "france_travail", "dvf", "sirene", "insee", "ofgl", "urssaf", "presse"}
+                    all_sources = {
+                        "bodacc",
+                        "france_travail",
+                        "dvf",
+                        "sirene",
+                        "insee",
+                        "ofgl",
+                        "urssaf",
+                        "presse",
+                    }
                     missing = all_sources - active_sources
 
-                    gaps.append({
-                        "type": "missing_sources",
-                        "department": dept,
-                        "priority": 1 if num_sources < 2 else 2,
-                        "current_sources": num_sources,
-                        "missing_sources": list(missing),
-                        "suggestion": f"Collect data from {', '.join(list(missing)[:3])} for dept {dept}",
-                    })
+                    gaps.append(
+                        {
+                            "type": "missing_sources",
+                            "department": dept,
+                            "priority": 1 if num_sources < 2 else 2,
+                            "current_sources": num_sources,
+                            "missing_sources": list(missing),
+                            "suggestion": f"Collect data from {', '.join(list(missing)[:3])} for dept {dept}",
+                        }
+                    )
 
                 if total < 100 and dept:
-                    gaps.append({
-                        "type": "low_coverage",
-                        "department": dept,
-                        "priority": 1,
-                        "total_signals": total,
-                        "suggestion": f"Run full collection for dept {dept} (only {total} signals)",
-                    })
+                    gaps.append(
+                        {
+                            "type": "low_coverage",
+                            "department": dept,
+                            "priority": 1,
+                            "total_signals": total,
+                            "suggestion": f"Run full collection for dept {dept} (only {total} signals)",
+                        }
+                    )
 
         # 2. Sources not covering enough departments
         for node_id, node in self.nodes.items():
@@ -546,13 +569,15 @@ class TerritorialKG:
                 depts = node.properties.get("departments_covered", 0)
                 source_name = node_id.replace("source:", "")
                 if depts < 50:
-                    gaps.append({
-                        "type": "source_low_coverage",
-                        "source": source_name,
-                        "priority": 2,
-                        "departments_covered": depts,
-                        "suggestion": f"Expand {source_name} collection to more departments",
-                    })
+                    gaps.append(
+                        {
+                            "type": "source_low_coverage",
+                            "source": source_name,
+                            "priority": 2,
+                            "departments_covered": depts,
+                            "suggestion": f"Expand {source_name} collection to more departments",
+                        }
+                    )
 
         # 3. No micro-signals detected for well-covered departments
         depts_with_anomalies = set()
@@ -566,13 +591,15 @@ class TerritorialKG:
                 dept = node.properties.get("code", "")
                 total = node.properties.get("total_signals", 0)
                 if total > 500 and dept not in depts_with_anomalies:
-                    gaps.append({
-                        "type": "no_anomalies_detected",
-                        "department": dept,
-                        "priority": 3,
-                        "total_signals": total,
-                        "suggestion": f"Re-run anomaly detection for dept {dept} ({total} signals, no anomalies)",
-                    })
+                    gaps.append(
+                        {
+                            "type": "no_anomalies_detected",
+                            "department": dept,
+                            "priority": 3,
+                            "total_signals": total,
+                            "suggestion": f"Re-run anomaly detection for dept {dept} ({total} signals, no anomalies)",
+                        }
+                    )
 
         gaps.sort(key=lambda g: g["priority"])
         return gaps

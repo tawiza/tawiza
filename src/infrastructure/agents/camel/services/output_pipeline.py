@@ -28,7 +28,7 @@ class OutputConfig:
 
     def __post_init__(self):
         if self.formats is None:
-            self.formats = ['csv', 'jsonl', 'md', 'html']
+            self.formats = ["csv", "jsonl", "md", "html"]
 
 
 class OutputPipeline:
@@ -73,53 +73,71 @@ class OutputPipeline:
 
         # Define columns
         base_columns = [
-            'siret', 'nom', 'activite', 'naf_code', 'effectif',
-            'commune', 'code_postal', 'adresse', 'lat', 'lon',
-            'date_creation', 'forme_juridique',
+            "siret",
+            "nom",
+            "activite",
+            "naf_code",
+            "effectif",
+            "commune",
+            "code_postal",
+            "adresse",
+            "lat",
+            "lon",
+            "date_creation",
+            "forme_juridique",
         ]
 
         enriched_columns = [
-            'website', 'description', 'services', 'email', 'phone',
-            'linkedin', 'twitter', 'clients', 'enrichment_quality',
+            "website",
+            "description",
+            "services",
+            "email",
+            "phone",
+            "linkedin",
+            "twitter",
+            "clients",
+            "enrichment_quality",
         ]
 
         columns = base_columns + (enriched_columns if enrichments else [])
 
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=columns)
             writer.writeheader()
 
             for ent in enterprises:
                 row = {
-                    'siret': ent.get('siret', ''),
-                    'nom': ent.get('nom', ''),
-                    'activite': ent.get('activite', ''),
-                    'naf_code': ent.get('naf_code', ''),
-                    'effectif': ent.get('effectif', ''),
-                    'commune': ent.get('adresse', {}).get('commune', ''),
-                    'code_postal': ent.get('adresse', {}).get('code_postal', ''),
-                    'adresse': ent.get('adresse', {}).get('adresse', ''),
-                    'lat': ent.get('geo', {}).get('lat', ''),
-                    'lon': ent.get('geo', {}).get('lon', ''),
-                    'date_creation': ent.get('date_creation', ''),
-                    'forme_juridique': ent.get('forme_juridique', ''),
+                    "siret": ent.get("siret", ""),
+                    "nom": ent.get("nom", ""),
+                    "activite": ent.get("activite", ""),
+                    "naf_code": ent.get("naf_code", ""),
+                    "effectif": ent.get("effectif", ""),
+                    "commune": ent.get("adresse", {}).get("commune", ""),
+                    "code_postal": ent.get("adresse", {}).get("code_postal", ""),
+                    "adresse": ent.get("adresse", {}).get("adresse", ""),
+                    "lat": ent.get("geo", {}).get("lat", ""),
+                    "lon": ent.get("geo", {}).get("lon", ""),
+                    "date_creation": ent.get("date_creation", ""),
+                    "forme_juridique": ent.get("forme_juridique", ""),
                 }
 
                 # Add enrichment data if available
-                siret = ent.get('siret', '')
+                siret = ent.get("siret", "")
                 if siret in enrichment_map:
                     enr = enrichment_map[siret]
-                    row.update({
-                        'website': enr.url_found or '',
-                        'description': (enr.description or '')[:200],
-                        'services': '; '.join(enr.services[:5]),
-                        'email': enr.contact.get('email', ''),
-                        'phone': enr.contact.get('phone', ''),
-                        'linkedin': enr.social_media.get('linkedin', ''),
-                        'twitter': enr.social_media.get('twitter', ''),
-                        'clients': '; '.join(enr.clients_references[:5]),
-                        'enrichment_quality': f"{enr.enrichment_quality:.2f}",
-                    })
+                    row.update(
+                        {
+                            "website": enr.url_found or "",
+                            "description": (enr.description or "")[:200],
+                            "services": "; ".join(enr.services[:5]),
+                            "email": enr.contact.get("email", ""),
+                            "phone": enr.contact.get("phone", ""),
+                            "linkedin": enr.social_media.get("linkedin", ""),
+                            "twitter": enr.social_media.get("twitter", ""),
+                            "clients": "; ".join(enr.clients_references[:5]),
+                            "enrichment_quality": f"{enr.enrichment_quality:.2f}",
+                        }
+                    )
 
                 writer.writerow(row)
 
@@ -148,9 +166,9 @@ class OutputPipeline:
             for e in enrichments:
                 enrichment_map[e.siret] = e
 
-        with open(jsonl_path, 'w', encoding='utf-8') as f:
+        with open(jsonl_path, "w", encoding="utf-8") as f:
             for ent in enterprises:
-                siret = ent.get('siret', '')
+                siret = ent.get("siret", "")
 
                 record = {
                     "id": siret,
@@ -159,14 +177,14 @@ class OutputPipeline:
                     "query": self.config.query,
                     "enterprise": {
                         "siret": siret,
-                        "nom": ent.get('nom', ''),
-                        "activite": ent.get('activite', ''),
-                        "naf_code": ent.get('naf_code', ''),
-                        "effectif": ent.get('effectif', ''),
-                        "adresse": ent.get('adresse', {}),
-                        "geo": ent.get('geo', {}),
-                        "date_creation": ent.get('date_creation', ''),
-                        "forme_juridique": ent.get('forme_juridique', ''),
+                        "nom": ent.get("nom", ""),
+                        "activite": ent.get("activite", ""),
+                        "naf_code": ent.get("naf_code", ""),
+                        "effectif": ent.get("effectif", ""),
+                        "adresse": ent.get("adresse", {}),
+                        "geo": ent.get("geo", {}),
+                        "date_creation": ent.get("date_creation", ""),
+                        "forme_juridique": ent.get("forme_juridique", ""),
                     },
                     "enrichment": None,
                     "annotations": {
@@ -182,7 +200,7 @@ class OutputPipeline:
                     enr = enrichment_map[siret]
                     record["enrichment"] = enr.to_dict()
 
-                f.write(json.dumps(record, ensure_ascii=False) + '\n')
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
         logger.info(f"Generated JSONL: {jsonl_path}")
         return str(jsonl_path)
@@ -215,16 +233,18 @@ class OutputPipeline:
 
         # Calculate statistics
         total = len(enterprises)
-        with_geo = sum(1 for e in enterprises if e.get('geo', {}).get('lat'))
+        with_geo = sum(1 for e in enterprises if e.get("geo", {}).get("lat"))
         with_enrichment = len(enrichment_map)
         avg_quality = 0
         if enrichment_map:
-            avg_quality = sum(e.enrichment_quality for e in enrichment_map.values()) / len(enrichment_map)
+            avg_quality = sum(e.enrichment_quality for e in enrichment_map.values()) / len(
+                enrichment_map
+            )
 
         # Group by city
         cities = {}
         for ent in enterprises:
-            city = ent.get('adresse', {}).get('commune', 'Inconnu')
+            city = ent.get("adresse", {}).get("commune", "Inconnu")
             cities[city] = cities.get(city, 0) + 1
 
         # Sort cities by count
@@ -233,7 +253,7 @@ class OutputPipeline:
         # Generate report
         report = f"""# Analyse Territoriale : {self.config.query}
 
-**Date de génération** : {datetime.now().strftime('%Y-%m-%d %H:%M')}
+**Date de génération** : {datetime.now().strftime("%Y-%m-%d %H:%M")}
 
 ---
 
@@ -246,8 +266,8 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
 | Métrique | Valeur |
 |----------|--------|
 | Entreprises identifiées | {total} |
-| Avec géolocalisation | {with_geo} ({100*with_geo//max(total,1)}%) |
-| Enrichies (web) | {with_enrichment} ({100*with_enrichment//max(total,1)}%) |
+| Avec géolocalisation | {with_geo} ({100 * with_geo // max(total, 1)}%) |
+| Enrichies (web) | {with_enrichment} ({100 * with_enrichment // max(total, 1)}%) |
 | Qualité enrichissement moyenne | {avg_quality:.0%} |
 
 ### Répartition Géographique
@@ -265,10 +285,10 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
 
 """
         for i, ent in enumerate(enterprises[:10], 1):
-            nom = ent.get('nom', 'N/A')
-            commune = ent.get('adresse', {}).get('commune', '?')
-            effectif = ent.get('effectif', '?')
-            siret = ent.get('siret', '')
+            nom = ent.get("nom", "N/A")
+            commune = ent.get("adresse", {}).get("commune", "?")
+            effectif = ent.get("effectif", "?")
+            siret = ent.get("siret", "")
 
             report += f"### {i}. {nom}\n\n"
             report += f"- **SIRET** : {siret}\n"
@@ -331,7 +351,7 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
 *Rapport généré automatiquement par Tawiza - Intelligence Territoriale*
 """
 
-        md_path.write_text(report, encoding='utf-8')
+        md_path.write_text(report, encoding="utf-8")
         logger.info(f"Generated Markdown report: {md_path}")
         return str(md_path)
 
@@ -364,37 +384,43 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
 
         # Add enterprise nodes
         for i, ent in enumerate(enterprises[:50]):  # Limit to 50 for performance
-            siret = ent.get('siret', f'ent_{i}')
-            nom = ent.get('nom', 'N/A')
-            city = ent.get('adresse', {}).get('commune', '')
+            siret = ent.get("siret", f"ent_{i}")
+            nom = ent.get("nom", "N/A")
+            city = ent.get("adresse", {}).get("commune", "")
 
-            nodes.append({
-                'id': siret,
-                'label': nom[:30],
-                'title': f"{nom}\n{city}",
-                'group': 'enterprise',
-                'size': 20,
-            })
+            nodes.append(
+                {
+                    "id": siret,
+                    "label": nom[:30],
+                    "title": f"{nom}\n{city}",
+                    "group": "enterprise",
+                    "size": 20,
+                }
+            )
             node_ids.add(siret)
 
             # Add city node and edge
             if city and city not in node_ids:
-                nodes.append({
-                    'id': city,
-                    'label': city,
-                    'group': 'city',
-                    'size': 30,
-                    'shape': 'box',
-                })
+                nodes.append(
+                    {
+                        "id": city,
+                        "label": city,
+                        "group": "city",
+                        "size": 30,
+                        "shape": "box",
+                    }
+                )
                 node_ids.add(city)
 
             if city:
-                edges.append({
-                    'from': siret,
-                    'to': city,
-                    'label': 'situé à',
-                    'color': '#cccccc',
-                })
+                edges.append(
+                    {
+                        "from": siret,
+                        "to": city,
+                        "label": "situé à",
+                        "color": "#cccccc",
+                    }
+                )
 
             # Add client relations from enrichment
             if siret in enrichment_map:
@@ -402,21 +428,25 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
                 for client in enr.clients_references[:3]:
                     client_id = f"client_{client}"
                     if client_id not in node_ids:
-                        nodes.append({
-                            'id': client_id,
-                            'label': client[:20],
-                            'group': 'client',
-                            'size': 15,
-                            'shape': 'diamond',
-                        })
+                        nodes.append(
+                            {
+                                "id": client_id,
+                                "label": client[:20],
+                                "group": "client",
+                                "size": 15,
+                                "shape": "diamond",
+                            }
+                        )
                         node_ids.add(client_id)
 
-                    edges.append({
-                        'from': siret,
-                        'to': client_id,
-                        'label': 'client',
-                        'color': '#4CAF50',
-                    })
+                    edges.append(
+                        {
+                            "from": siret,
+                            "to": client_id,
+                            "label": "client",
+                            "color": "#4CAF50",
+                        }
+                    )
 
         # Generate HTML with vis.js
         html = f"""<!DOCTYPE html>
@@ -529,7 +559,7 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
 </body>
 </html>
 """
-        graph_path.write_text(html, encoding='utf-8')
+        graph_path.write_text(html, encoding="utf-8")
         logger.info(f"Generated relation graph: {graph_path}")
         return str(graph_path)
 
@@ -551,19 +581,19 @@ Cette analyse couvre **{total} entreprises** identifiées pour la requête "{sel
         """
         outputs = {}
 
-        if 'csv' in self.config.formats:
-            outputs['csv'] = self.generate_csv(enterprises, enrichments)
+        if "csv" in self.config.formats:
+            outputs["csv"] = self.generate_csv(enterprises, enrichments)
 
-        if 'jsonl' in self.config.formats:
-            outputs['jsonl'] = self.generate_jsonl(enterprises, enrichments)
+        if "jsonl" in self.config.formats:
+            outputs["jsonl"] = self.generate_jsonl(enterprises, enrichments)
 
         graph_file = None
-        if self.config.include_graph and 'html' in self.config.formats:
+        if self.config.include_graph and "html" in self.config.formats:
             graph_file = self.generate_relation_graph(enterprises, enrichments)
-            outputs['graph'] = graph_file
+            outputs["graph"] = graph_file
 
-        if 'md' in self.config.formats:
-            outputs['md'] = self.generate_markdown_report(
+        if "md" in self.config.formats:
+            outputs["md"] = self.generate_markdown_report(
                 enterprises, enrichments, map_file, graph_file
             )
 
@@ -594,7 +624,7 @@ async def generate_all_outputs(
     config = OutputConfig(
         output_dir=output_dir,
         query=query,
-        formats=formats or ['csv', 'jsonl', 'md', 'html'],
+        formats=formats or ["csv", "jsonl", "md", "html"],
     )
     pipeline = OutputPipeline(config)
     return await pipeline.generate_all(enterprises, enrichments, map_file)

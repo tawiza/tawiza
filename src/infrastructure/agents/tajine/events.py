@@ -16,6 +16,7 @@ from loguru import logger
 
 class TAJINEEvent(StrEnum):
     """Events emitted during TAJINE execution cycle."""
+
     # Lifecycle events
     TASK_STARTED = "tajine.task.started"
     TASK_COMPLETED = "tajine.task.completed"
@@ -43,6 +44,7 @@ class TAJINEEvent(StrEnum):
 @dataclass
 class TAJINECallback:
     """Callback data for TAJINE events."""
+
     event: TAJINEEvent
     timestamp: datetime = field(default_factory=datetime.now)
     task_id: str = ""
@@ -159,7 +161,7 @@ class EventEmitter:
         phase: str,
         progress: int,
         message: str,
-        data: dict[str, Any] | None = None
+        data: dict[str, Any] | None = None,
     ) -> None:
         """
         Convenience method to emit progress event.
@@ -171,14 +173,16 @@ class EventEmitter:
             message: Human-readable message
             data: Optional additional data
         """
-        self.emit(TAJINECallback(
-            event=TAJINEEvent.PROGRESS,
-            task_id=task_id,
-            phase=phase,
-            progress=progress,
-            message=message,
-            data=data or {},
-        ))
+        self.emit(
+            TAJINECallback(
+                event=TAJINEEvent.PROGRESS,
+                task_id=task_id,
+                phase=phase,
+                progress=progress,
+                message=message,
+                data=data or {},
+            )
+        )
 
     def emit_thinking(self, task_id: str, message: str) -> None:
         """
@@ -188,11 +192,13 @@ class EventEmitter:
             task_id: Current task ID
             message: What the agent is thinking about
         """
-        self.emit(TAJINECallback(
-            event=TAJINEEvent.THINKING,
-            task_id=task_id,
-            message=message,
-        ))
+        self.emit(
+            TAJINECallback(
+                event=TAJINEEvent.THINKING,
+                task_id=task_id,
+                message=message,
+            )
+        )
 
 
 def create_cli_handler(console) -> EventHandler:
@@ -206,15 +212,15 @@ def create_cli_handler(console) -> EventHandler:
         Event handler function
     """
     phase_icons = {
-        'perceive': '👁️',
-        'plan': '📋',
-        'delegate': '🔧',
-        'synthesize': '🧠',
-        'learn': '📚',
+        "perceive": "👁️",
+        "plan": "📋",
+        "delegate": "🔧",
+        "synthesize": "🧠",
+        "learn": "📚",
     }
 
     def handler(cb: TAJINECallback) -> None:
-        icon = phase_icons.get(cb.phase, '⚙️')
+        icon = phase_icons.get(cb.phase, "⚙️")
 
         if cb.event == TAJINEEvent.PROGRESS:
             console.print(f"  {icon} [{cb.phase}] {cb.progress}% - {cb.message}")
@@ -225,7 +231,7 @@ def create_cli_handler(console) -> EventHandler:
         elif cb.event == TAJINEEvent.TASK_FAILED:
             console.print(f"  ❌ Task failed: {cb.error}")
         elif cb.event == TAJINEEvent.DELEGATE_TOOL:
-            tool = cb.data.get('tool', 'unknown')
+            tool = cb.data.get("tool", "unknown")
             console.print(f"    🔧 Executing: {tool}")
 
     return handler
@@ -242,8 +248,11 @@ def create_progress_bar_handler(console, task) -> EventHandler:
     Returns:
         Event handler function
     """
+
     def handler(cb: TAJINECallback) -> None:
         if cb.event == TAJINEEvent.PROGRESS:
-            task.update(completed=cb.progress, description=f"[cyan]{cb.phase}[/]: {cb.message[:30]}")
+            task.update(
+                completed=cb.progress, description=f"[cyan]{cb.phase}[/]: {cb.message[:30]}"
+            )
 
     return handler

@@ -8,6 +8,7 @@ import httpx
 def get_api_url(endpoint: str) -> str:
     """Get full API URL."""
     from src.cli.config.defaults import API_BASE_URL
+
     return f"{API_BASE_URL}{endpoint}"
 
 
@@ -20,9 +21,7 @@ def complete_model_names() -> list[str]:
     """
     try:
         response = httpx.get(
-            get_api_url("/api/v1/models"),
-            params={"page": 1, "page_size": 100},
-            timeout=2.0
+            get_api_url("/api/v1/models"), params={"page": 1, "page_size": 100}, timeout=2.0
         )
         if response.status_code == 200:
             data = response.json()
@@ -42,9 +41,7 @@ def complete_model_ids() -> list[str]:
     """
     try:
         response = httpx.get(
-            get_api_url("/api/v1/models"),
-            params={"page": 1, "page_size": 100},
-            timeout=2.0
+            get_api_url("/api/v1/models"), params={"page": 1, "page_size": 100}, timeout=2.0
         )
         if response.status_code == 200:
             data = response.json()
@@ -63,10 +60,7 @@ def complete_ollama_models() -> list[str]:
         List of Ollama model names
     """
     try:
-        response = httpx.get(
-            get_api_url("/api/v1/ollama/models"),
-            timeout=2.0
-        )
+        response = httpx.get(get_api_url("/api/v1/ollama/models"), timeout=2.0)
         if response.status_code == 200:
             data = response.json()
             models = data.get("models", [])
@@ -85,9 +79,7 @@ def complete_job_ids() -> list[str]:
     """
     try:
         response = httpx.get(
-            get_api_url("/api/v1/fine-tuning/jobs"),
-            params={"limit": 50},
-            timeout=2.0
+            get_api_url("/api/v1/fine-tuning/jobs"), params={"limit": 50}, timeout=2.0
         )
         if response.status_code == 200:
             jobs = response.json()
@@ -106,10 +98,7 @@ def complete_template_names() -> list[str]:
         List of template names
     """
     try:
-        response = httpx.get(
-            get_api_url("/api/v1/prompts/templates"),
-            timeout=2.0
-        )
+        response = httpx.get(get_api_url("/api/v1/prompts/templates"), timeout=2.0)
         if response.status_code == 200:
             templates = response.json()
             if isinstance(templates, list):
@@ -127,10 +116,7 @@ def complete_project_ids() -> list[str]:
         List of project IDs
     """
     try:
-        response = httpx.get(
-            get_api_url("/api/v1/annotations/projects"),
-            timeout=2.0
-        )
+        response = httpx.get(get_api_url("/api/v1/annotations/projects"), timeout=2.0)
         if response.status_code == 200:
             projects = response.json()
             if isinstance(projects, list):

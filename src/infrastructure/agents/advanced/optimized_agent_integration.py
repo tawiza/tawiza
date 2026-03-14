@@ -18,6 +18,7 @@ from .task_queue_system import Task, TaskPriority, TaskQueueSystem
 @dataclass
 class OptimizedSystemConfig:
     """Configuration du système optimisé"""
+
     # Task Queue
     num_workers: int = 4
     max_queue_size: int = 1000
@@ -45,15 +46,14 @@ class OptimizedAgentIntegration:
 
         # Systèmes principaux
         self.task_queue_system = TaskQueueSystem(
-            num_workers=self.config.num_workers,
-            max_queue_size=self.config.max_queue_size
+            num_workers=self.config.num_workers, max_queue_size=self.config.max_queue_size
         )
 
         self.cache_manager = CacheManager(
             max_size=self.config.cache_max_size,
             max_memory_mb=self.config.cache_max_memory_mb,
             default_ttl=self.config.cache_default_ttl,
-            enable_smart_cache=self.config.enable_smart_cache
+            enable_smart_cache=self.config.enable_smart_cache,
         )
 
         self.gpu_optimizer: GPUOptimizer | None = None
@@ -104,9 +104,7 @@ class OptimizedAgentIntegration:
             # Enregistrer un worker par type d'agent
             worker_id = f"{agent_type}-worker-0"
             await self.task_queue_system.load_balancer.register_worker(
-                worker_id=worker_id,
-                agent_type=agent_type,
-                max_load=5
+                worker_id=worker_id, agent_type=agent_type, max_load=5
             )
 
     async def _warmup_cache(self):
@@ -123,7 +121,7 @@ class OptimizedAgentIntegration:
         args: tuple = (),
         kwargs: dict = None,
         priority: TaskPriority = TaskPriority.NORMAL,
-        use_cache: bool = True
+        use_cache: bool = True,
     ) -> str:
         """
         Soumettre une tâche avec support de cache
@@ -148,7 +146,7 @@ class OptimizedAgentIntegration:
             cached_result = await self.cache_manager.get(
                 agent_type=agent_type,
                 task_type=task_type,
-                parameters={"args": args, "kwargs": kwargs}
+                parameters={"args": args, "kwargs": kwargs},
             )
 
             if cached_result is not None:
@@ -169,7 +167,7 @@ class OptimizedAgentIntegration:
                     agent_type=agent_type,
                     task_type=task_type,
                     parameters={"args": args, "kwargs": kwargs},
-                    result=result
+                    result=result,
                 )
 
             return result
@@ -183,13 +181,15 @@ class OptimizedAgentIntegration:
             kwargs=kwargs,
             priority=priority,
             timeout=self.config.task_timeout,
-            max_retries=self.config.max_retries
+            max_retries=self.config.max_retries,
         )
 
         # 3. Soumettre à la queue
         await self.task_queue_system.submit_task(task)
 
-        logger.info(f"📥 Tâche soumise: {task_id} ({agent_type}/{task_type}) - Priorité: {priority.name}")
+        logger.info(
+            f"📥 Tâche soumise: {task_id} ({agent_type}/{task_type}) - Priorité: {priority.name}"
+        )
 
         return task_id
 
@@ -259,7 +259,7 @@ class OptimizedAgentIntegration:
                 str(worker_stats["tasks_completed"]),
                 str(worker_stats["tasks_failed"]),
                 f"{worker_stats['current_load']}/{worker_stats['max_load']}",
-                f"{worker_stats['utilization']:.1f}%"
+                f"{worker_stats['utilization']:.1f}%",
             )
 
         console.print(worker_table)
@@ -283,8 +283,9 @@ class OptimizedAgentIntegration:
 
 # Fonctions utilitaires
 
+
 async def create_optimized_agent_integration(
-    config: OptimizedSystemConfig | None = None
+    config: OptimizedSystemConfig | None = None,
 ) -> OptimizedAgentIntegration:
     """Créer et initialiser une intégration optimisée"""
     integration = OptimizedAgentIntegration(config)
@@ -294,7 +295,7 @@ async def create_optimized_agent_integration(
 
 # Export
 __all__ = [
-    'OptimizedSystemConfig',
-    'OptimizedAgentIntegration',
-    'create_optimized_agent_integration'
+    "OptimizedSystemConfig",
+    "OptimizedAgentIntegration",
+    "create_optimized_agent_integration",
 ]

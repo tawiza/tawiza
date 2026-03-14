@@ -48,7 +48,9 @@ class WebSocketManager:
             if session_id not in self._sessions:
                 self._sessions[session_id] = set()
             self._sessions[session_id].add(websocket)
-            logger.info(f"WebSocket connected to session {session_id}. Total: {self.connection_count}")
+            logger.info(
+                f"WebSocket connected to session {session_id}. Total: {self.connection_count}"
+            )
         else:
             logger.info(f"WebSocket connected (no session). Total: {self.connection_count}")
 
@@ -108,9 +110,7 @@ class WebSocketManager:
             return False
 
     def register_handler(
-        self,
-        message_type: MessageType,
-        handler: Callable[[WSMessage, WebSocket], Any]
+        self, message_type: MessageType, handler: Callable[[WSMessage, WebSocket], Any]
     ) -> None:
         """Register a handler for a specific message type."""
         if message_type not in self._handlers:
@@ -118,11 +118,7 @@ class WebSocketManager:
         self._handlers[message_type].append(handler)
         logger.debug(f"Registered handler for {message_type}")
 
-    async def handle_message(
-        self,
-        websocket: WebSocket,
-        raw_data: str
-    ) -> WSMessage | None:
+    async def handle_message(self, websocket: WebSocket, raw_data: str) -> WSMessage | None:
         """Parse and handle an incoming message."""
         try:
             data = json.loads(raw_data)
@@ -142,25 +138,16 @@ class WebSocketManager:
                         await result
                 except Exception as e:
                     logger.error(f"Handler error for {message.type}: {e}")
-                    await self.send_to(
-                        websocket,
-                        ErrorMessage(error=str(e), code="HANDLER_ERROR")
-                    )
+                    await self.send_to(websocket, ErrorMessage(error=str(e), code="HANDLER_ERROR"))
 
             return message
 
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON: {e}")
-            await self.send_to(
-                websocket,
-                ErrorMessage(error="Invalid JSON", code="PARSE_ERROR")
-            )
+            await self.send_to(websocket, ErrorMessage(error="Invalid JSON", code="PARSE_ERROR"))
         except Exception as e:
             logger.error(f"Message handling error: {e}")
-            await self.send_to(
-                websocket,
-                ErrorMessage(error=str(e), code="UNKNOWN_ERROR")
-            )
+            await self.send_to(websocket, ErrorMessage(error=str(e), code="UNKNOWN_ERROR"))
 
         return None
 
@@ -180,7 +167,7 @@ class WebSocketManager:
                             cpu_percent=psutil.cpu_percent(interval=0),
                             ram_percent=psutil.virtual_memory().percent,
                             gpu_percent=await self._get_gpu_percent(),
-                            disk_percent=psutil.disk_usage('/').percent,
+                            disk_percent=psutil.disk_usage("/").percent,
                             active_tasks=len(active_task_ids),
                         )
                         await self.broadcast(metrics)
@@ -206,12 +193,12 @@ class WebSocketManager:
         """Get GPU usage percentage."""
         try:
             import subprocess
+
             result = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: subprocess.run(
-                    ["rocm-smi", "--showuse", "--json"],
-                    capture_output=True, text=True, timeout=2
-                )
+                    ["rocm-smi", "--showuse", "--json"], capture_output=True, text=True, timeout=2
+                ),
             )
             if result.returncode == 0:
                 data = json.loads(result.stdout)
@@ -238,15 +225,13 @@ def get_ws_manager() -> WebSocketManager:
 # FastAPI Integration
 # ============================================================================
 
+
 def setup_websocket_routes(app: FastAPI) -> WebSocketManager:
     """Setup WebSocket routes on a FastAPI app."""
     manager = get_ws_manager()
 
     @app.websocket("/ws")
-    async def websocket_endpoint(
-        websocket: WebSocket,
-        session_id: str | None = Query(None)
-    ):
+    async def websocket_endpoint(websocket: WebSocket, session_id: str | None = Query(None)):
         origin = websocket.headers.get("origin")
         logger.info(f"WS connect attempt: origin={origin}, session={session_id}")
         await manager.connect(websocket, session_id)
@@ -276,12 +261,13 @@ def setup_websocket_routes(app: FastAPI) -> WebSocketManager:
 # Standalone Server (for testing)
 # ============================================================================
 
+
 def create_ws_app() -> FastAPI:
     """Create a standalone FastAPI app with WebSocket support."""
     app = FastAPI(
         title="Tawiza WebSocket Server",
         description="WebSocket server for TUI communication",
-        version="1.0.0"
+        version="1.0.0",
     )
 
     setup_websocket_routes(app)
@@ -292,7 +278,7 @@ def create_ws_app() -> FastAPI:
         return {
             "status": "ok",
             "connections": manager.connection_count,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     return app

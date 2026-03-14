@@ -95,7 +95,7 @@ class LineGraph(TerminalGraph):
         xlabel: str = "X",
         ylabel: str = "Y",
         color: str = "primary",
-        marker: str = "●"
+        marker: str = "●",
     ) -> str:
         """
         Create a line graph.
@@ -115,12 +115,7 @@ class LineGraph(TerminalGraph):
         self.configure_plot(title, xlabel, ylabel)
 
         # Plot line with color
-        plt.plot(
-            x_data,
-            y_data,
-            color=self.get_color(color),
-            marker=marker
-        )
+        plt.plot(x_data, y_data, color=self.get_color(color), marker=marker)
 
         return self.render()
 
@@ -129,7 +124,7 @@ class LineGraph(TerminalGraph):
         data: dict[str, tuple[list[float], list[float]]],
         title: str = "Multi-Line Graph",
         xlabel: str = "X",
-        ylabel: str = "Y"
+        ylabel: str = "Y",
     ) -> str:
         """
         Create a multi-line graph.
@@ -148,13 +143,7 @@ class LineGraph(TerminalGraph):
         colors = ["primary", "secondary", "success", "warning", "info"]
         for idx, (label, (x_data, y_data)) in enumerate(data.items()):
             color = colors[idx % len(colors)]
-            plt.plot(
-                x_data,
-                y_data,
-                label=label,
-                color=self.get_color(color),
-                marker="●"
-            )
+            plt.plot(x_data, y_data, label=label, color=self.get_color(color), marker="●")
 
         return self.render()
 
@@ -170,7 +159,7 @@ class BarGraph(TerminalGraph):
         xlabel: str = "Category",
         ylabel: str = "Value",
         color: str = "primary",
-        horizontal: bool = False
+        horizontal: bool = False,
     ) -> str:
         """
         Create a bar graph.
@@ -190,7 +179,7 @@ class BarGraph(TerminalGraph):
         self.configure_plot(title, xlabel, ylabel)
 
         if horizontal:
-            plt.bar(labels, values, orientation='h', color=self.get_color(color))
+            plt.bar(labels, values, orientation="h", color=self.get_color(color))
         else:
             plt.bar(labels, values, color=self.get_color(color))
 
@@ -202,7 +191,7 @@ class BarGraph(TerminalGraph):
         data: dict[str, list[float]],
         title: str = "Grouped Bar Graph",
         xlabel: str = "Category",
-        ylabel: str = "Value"
+        ylabel: str = "Value",
     ) -> str:
         """
         Create a grouped bar graph.
@@ -222,12 +211,7 @@ class BarGraph(TerminalGraph):
         colors = ["primary", "secondary", "success", "warning"]
         for idx, (group, values) in enumerate(data.items()):
             color = colors[idx % len(colors)]
-            plt.bar(
-                labels,
-                values,
-                label=group,
-                color=self.get_color(color)
-            )
+            plt.bar(labels, values, label=group, color=self.get_color(color))
 
         return self.render()
 
@@ -239,11 +223,7 @@ class SparklineGraph(TerminalGraph):
         """Initialize sparkline with minimal height."""
         super().__init__(width=40, height=5)
 
-    def plot(
-        self,
-        data: list[float],
-        color: str = "primary"
-    ) -> str:
+    def plot(self, data: list[float], color: str = "primary") -> str:
         """
         Create a sparkline.
 
@@ -256,12 +236,7 @@ class SparklineGraph(TerminalGraph):
         """
         self.configure_plot()
 
-        plt.plot(
-            list(range(len(data))),
-            data,
-            color=self.get_color(color),
-            marker="●"
-        )
+        plt.plot(list(range(len(data))), data, color=self.get_color(color), marker="●")
 
         # Remove labels for compact display
         plt.xlabel("")
@@ -281,7 +256,7 @@ class HistogramGraph(TerminalGraph):
         title: str = "Histogram",
         xlabel: str = "Value",
         ylabel: str = "Frequency",
-        color: str = "primary"
+        color: str = "primary",
     ) -> str:
         """
         Create a histogram.
@@ -299,11 +274,7 @@ class HistogramGraph(TerminalGraph):
         """
         self.configure_plot(title, xlabel, ylabel)
 
-        plt.hist(
-            data,
-            bins=bins,
-            color=self.get_color(color)
-        )
+        plt.hist(data, bins=bins, color=self.get_color(color))
 
         return self.render()
 
@@ -319,7 +290,7 @@ class ScatterGraph(TerminalGraph):
         xlabel: str = "X",
         ylabel: str = "Y",
         color: str = "primary",
-        marker: str = "●"
+        marker: str = "●",
     ) -> str:
         """
         Create a scatter plot.
@@ -338,12 +309,7 @@ class ScatterGraph(TerminalGraph):
         """
         self.configure_plot(title, xlabel, ylabel)
 
-        plt.scatter(
-            x_data,
-            y_data,
-            color=self.get_color(color),
-            marker=marker
-        )
+        plt.scatter(x_data, y_data, color=self.get_color(color), marker=marker)
 
         return self.render()
 
@@ -358,7 +324,7 @@ class StackedAreaGraph(TerminalGraph):
         labels: list[str],
         title: str = "Stacked Area",
         xlabel: str = "X",
-        ylabel: str = "Y"
+        ylabel: str = "Y",
     ) -> str:
         """
         Create a stacked area chart.
@@ -387,7 +353,7 @@ class StackedAreaGraph(TerminalGraph):
                 y_stacked,
                 label=label,
                 color=self.get_color(colors[idx % len(colors)]),
-                fillx=True
+                fillx=True,
             )
             cumulative = y_stacked
 
@@ -403,7 +369,7 @@ class BoxPlotGraph(TerminalGraph):
         labels: list[str],
         title: str = "Box Plot",
         xlabel: str = "Category",
-        ylabel: str = "Value"
+        ylabel: str = "Value",
     ) -> str:
         """
         Create a box plot.
@@ -426,12 +392,7 @@ class BoxPlotGraph(TerminalGraph):
 
 
 # Convenience functions
-def quick_line(
-    x_data: list[float],
-    y_data: list[float],
-    title: str = "",
-    **kwargs
-) -> str:
+def quick_line(x_data: list[float], y_data: list[float], title: str = "", **kwargs) -> str:
     """
     Quick line graph.
 
@@ -448,12 +409,7 @@ def quick_line(
     return graph.plot(x_data, y_data, title=title, **kwargs)
 
 
-def quick_bar(
-    labels: list[str],
-    values: list[float],
-    title: str = "",
-    **kwargs
-) -> str:
+def quick_bar(labels: list[str], values: list[float], title: str = "", **kwargs) -> str:
     """
     Quick bar graph.
 
@@ -484,11 +440,7 @@ def quick_sparkline(data: list[float]) -> str:
     return graph.plot(data)
 
 
-def quick_histogram(
-    data: list[float],
-    title: str = "",
-    **kwargs
-) -> str:
+def quick_histogram(data: list[float], title: str = "", **kwargs) -> str:
     """
     Quick histogram.
 

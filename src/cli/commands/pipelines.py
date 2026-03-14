@@ -23,7 +23,7 @@ app = typer.Typer(
     name="pipelines",
     help="Automated workflow pipelines",
     add_completion=False,
-    rich_markup_mode="rich"
+    rich_markup_mode="rich",
 )
 
 console = Console()
@@ -34,6 +34,7 @@ PIPELINES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ===== Pipeline Models =====
+
 
 class PipelineStep:
     """A single step in a pipeline."""
@@ -55,7 +56,7 @@ class PipelineStep:
             "status": self.status,
             "result": self.result,
             "error": self.error,
-            "duration": self.duration
+            "duration": self.duration,
         }
 
 
@@ -75,16 +76,16 @@ class Pipeline:
         """Create pipeline from dictionary."""
         steps = [
             PipelineStep(
-                name=s.get("name", f"Step {i+1}"),
+                name=s.get("name", f"Step {i + 1}"),
                 action=s.get("action", "shell"),
-                params=s.get("params", {})
+                params=s.get("params", {}),
             )
             for i, s in enumerate(data.get("steps", []))
         ]
         return cls(
             name=data.get("name", "Unnamed Pipeline"),
             description=data.get("description", ""),
-            steps=steps
+            steps=steps,
         )
 
     @classmethod
@@ -92,6 +93,7 @@ class Pipeline:
         """Load pipeline from YAML file."""
         try:
             import yaml
+
             with open(yaml_path) as f:
                 data = yaml.safe_load(f)
             return cls.from_dict(data)
@@ -106,11 +108,12 @@ class Pipeline:
             "steps": [s.to_dict() for s in self.steps],
             "status": self.status,
             "started_at": self.started_at,
-            "completed_at": self.completed_at
+            "completed_at": self.completed_at,
         }
 
 
 # ===== Pipeline Executor =====
+
 
 class PipelineExecutor:
     """Executes pipeline steps."""
@@ -140,7 +143,9 @@ class PipelineExecutor:
 
             try:
                 if self.dry_run:
-                    console.print(f"[dim][DRY RUN] Would execute: {step.action}({step.params})[/dim]")
+                    console.print(
+                        f"[dim][DRY RUN] Would execute: {step.action}({step.params})[/dim]"
+                    )
                     step.result = {"dry_run": True}
                     step.status = "completed"
                 else:
@@ -161,9 +166,7 @@ class PipelineExecutor:
 
             if progress:
                 progress.update(
-                    progress.task_ids[0],
-                    advance=1,
-                    description=f"[cyan]{step.name}[/cyan]"
+                    progress.task_ids[0], advance=1, description=f"[cyan]{step.name}[/cyan]"
                 )
 
             # Stop on failure unless continue_on_error is set
@@ -177,21 +180,16 @@ class PipelineExecutor:
     async def _action_shell(self, params: dict) -> dict:
         """Execute shell command."""
         import subprocess
+
         cmd = params.get("command", "echo 'No command specified'")
         timeout = params.get("timeout", 60)
 
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
 
         return {
             "returncode": result.returncode,
             "stdout": result.stdout[:1000],  # Limit output
-            "stderr": result.stderr[:500]
+            "stderr": result.stderr[:500],
         }
 
     async def _action_python(self, params: dict) -> dict:
@@ -219,13 +217,13 @@ class PipelineExecutor:
                 url=url,
                 headers=headers,
                 json=data if isinstance(data, dict) else None,
-                content=data if isinstance(data, str) else None
+                content=data if isinstance(data, str) else None,
             )
 
         return {
             "status_code": response.status_code,
             "headers": dict(response.headers),
-            "body": response.text[:2000]  # Limit output
+            "body": response.text[:2000],  # Limit output
         }
 
     async def _action_wait(self, params: dict) -> dict:
@@ -242,11 +240,7 @@ class PipelineExecutor:
         # This would integrate with browser agents
         console.print(f"[dim]Browser task: {task} at {url}[/dim]")
 
-        return {
-            "task": task,
-            "url": url,
-            "status": "simulated"
-        }
+        return {"task": task, "url": url, "status": "simulated"}
 
     async def _action_notify(self, params: dict) -> dict:
         """Send notification."""
@@ -255,29 +249,24 @@ class PipelineExecutor:
 
         console.print(f"[bold cyan]NOTIFY:[/bold cyan] {message}")
 
-        return {
-            "message": message,
-            "channel": channel
-        }
+        return {"message": message, "channel": channel}
 
     async def _action_condition(self, params: dict) -> dict:
         """Conditional step."""
         condition = params.get("condition", "True")
         result = eval(condition)  # Be careful with eval in production!
 
-        return {
-            "condition": condition,
-            "result": result
-        }
+        return {"condition": condition, "result": result}
 
 
 # ===== CLI Commands =====
+
 
 @app.command("run")
 def run_pipeline(
     pipeline_file: str = typer.Argument(..., help="Path to pipeline YAML file"),
     dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Show steps without executing"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed output")
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed output"),
 ):
     """
     Execute a pipeline from YAML file
@@ -309,13 +298,15 @@ def run_pipeline(
 
     # Header
     console.print()
-    console.print(Panel(
-        f"[bold cyan]{pipeline.name}[/bold cyan]\n"
-        f"[dim]{pipeline.description}[/dim]\n"
-        f"[dim]Steps: {len(pipeline.steps)}[/dim]",
-        title="Pipeline",
-        border_style=SUNSET_THEME.accent_color
-    ))
+    console.print(
+        Panel(
+            f"[bold cyan]{pipeline.name}[/bold cyan]\n"
+            f"[dim]{pipeline.description}[/dim]\n"
+            f"[dim]Steps: {len(pipeline.steps)}[/dim]",
+            title="Pipeline",
+            border_style=SUNSET_THEME.accent_color,
+        )
+    )
     console.print()
 
     # Execute with progress
@@ -326,7 +317,7 @@ def run_pipeline(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        console=console
+        console=console,
     ) as progress:
         progress.add_task("Starting...", total=len(pipeline.steps))
 
@@ -339,7 +330,9 @@ def run_pipeline(
         for step in pipeline.steps:
             status_icon = "✓" if step.status == "completed" else "✗"
             status_color = "green" if step.status == "completed" else "red"
-            console.print(f"[{status_color}]{status_icon}[/{status_color}] {step.name} ({step.duration:.2f}s)")
+            console.print(
+                f"[{status_color}]{status_icon}[/{status_color}] {step.name} ({step.duration:.2f}s)"
+            )
 
             if step.error:
                 console.print(f"  [red]Error: {step.error}[/red]")
@@ -349,17 +342,20 @@ def run_pipeline(
     failed = sum(1 for s in pipeline.steps if s.status == "failed")
 
     if success:
-        console.print(Panel(
-            f"[green]Pipeline completed successfully[/green]\n"
-            f"Steps: {completed}/{len(pipeline.steps)}",
-            border_style="green"
-        ))
+        console.print(
+            Panel(
+                f"[green]Pipeline completed successfully[/green]\n"
+                f"Steps: {completed}/{len(pipeline.steps)}",
+                border_style="green",
+            )
+        )
     else:
-        console.print(Panel(
-            f"[red]Pipeline failed[/red]\n"
-            f"Completed: {completed}, Failed: {failed}",
-            border_style="red"
-        ))
+        console.print(
+            Panel(
+                f"[red]Pipeline failed[/red]\nCompleted: {completed}, Failed: {failed}",
+                border_style="red",
+            )
+        )
 
 
 @app.command("list")
@@ -382,9 +378,7 @@ def list_pipelines():
         return
 
     table = Table(
-        title="Available Pipelines",
-        border_style=SUNSET_THEME.accent_color,
-        show_header=True
+        title="Available Pipelines", border_style=SUNSET_THEME.accent_color, show_header=True
     )
     table.add_column("Name", style="cyan")
     table.add_column("Description")
@@ -395,8 +389,10 @@ def list_pipelines():
             pipeline = Pipeline.from_yaml(str(yaml_file))
             table.add_row(
                 yaml_file.stem,
-                pipeline.description[:40] + "..." if len(pipeline.description) > 40 else pipeline.description,
-                str(len(pipeline.steps))
+                pipeline.description[:40] + "..."
+                if len(pipeline.description) > 40
+                else pipeline.description,
+                str(len(pipeline.steps)),
             )
         except Exception:
             table.add_row(yaml_file.stem, "[red]Error loading[/red]", "?")
@@ -407,7 +403,9 @@ def list_pipelines():
 @app.command("create")
 def create_pipeline(
     name: str = typer.Argument(..., help="Pipeline name"),
-    template: str = typer.Option("basic", "--template", "-t", help="Template: basic, web-scrape, data-process")
+    template: str = typer.Option(
+        "basic", "--template", "-t", help="Template: basic, web-scrape, data-process"
+    ),
 ):
     """
     Create a new pipeline from template
@@ -425,32 +423,80 @@ def create_pipeline(
             "description": f"Basic pipeline: {name}",
             "steps": [
                 {"name": "Start", "action": "notify", "params": {"message": "Pipeline started"}},
-                {"name": "Main Task", "action": "shell", "params": {"command": "echo 'Hello from pipeline'"}},
-                {"name": "Complete", "action": "notify", "params": {"message": "Pipeline completed"}}
-            ]
+                {
+                    "name": "Main Task",
+                    "action": "shell",
+                    "params": {"command": "echo 'Hello from pipeline'"},
+                },
+                {
+                    "name": "Complete",
+                    "action": "notify",
+                    "params": {"message": "Pipeline completed"},
+                },
+            ],
         },
         "web-scrape": {
             "name": name,
             "description": f"Web scraping pipeline: {name}",
             "steps": [
-                {"name": "Initialize", "action": "notify", "params": {"message": "Starting web scrape"}},
-                {"name": "Fetch Page", "action": "http", "params": {"url": "https://example.com", "method": "GET"}},
-                {"name": "Process Data", "action": "python", "params": {"code": "print('Processing data...')"}},
-                {"name": "Save Results", "action": "shell", "params": {"command": "echo 'Saving results'"}},
-                {"name": "Complete", "action": "notify", "params": {"message": "Scraping completed"}}
-            ]
+                {
+                    "name": "Initialize",
+                    "action": "notify",
+                    "params": {"message": "Starting web scrape"},
+                },
+                {
+                    "name": "Fetch Page",
+                    "action": "http",
+                    "params": {"url": "https://example.com", "method": "GET"},
+                },
+                {
+                    "name": "Process Data",
+                    "action": "python",
+                    "params": {"code": "print('Processing data...')"},
+                },
+                {
+                    "name": "Save Results",
+                    "action": "shell",
+                    "params": {"command": "echo 'Saving results'"},
+                },
+                {
+                    "name": "Complete",
+                    "action": "notify",
+                    "params": {"message": "Scraping completed"},
+                },
+            ],
         },
         "data-process": {
             "name": name,
             "description": f"Data processing pipeline: {name}",
             "steps": [
-                {"name": "Load Data", "action": "shell", "params": {"command": "echo 'Loading data...'"}},
-                {"name": "Validate", "action": "python", "params": {"code": "print('Validating data...')"}},
-                {"name": "Transform", "action": "python", "params": {"code": "print('Transforming data...')"}},
-                {"name": "Export", "action": "shell", "params": {"command": "echo 'Exporting results...'"}},
-                {"name": "Notify", "action": "notify", "params": {"message": "Data processing complete"}}
-            ]
-        }
+                {
+                    "name": "Load Data",
+                    "action": "shell",
+                    "params": {"command": "echo 'Loading data...'"},
+                },
+                {
+                    "name": "Validate",
+                    "action": "python",
+                    "params": {"code": "print('Validating data...')"},
+                },
+                {
+                    "name": "Transform",
+                    "action": "python",
+                    "params": {"code": "print('Transforming data...')"},
+                },
+                {
+                    "name": "Export",
+                    "action": "shell",
+                    "params": {"command": "echo 'Exporting results...'"},
+                },
+                {
+                    "name": "Notify",
+                    "action": "notify",
+                    "params": {"message": "Data processing complete"},
+                },
+            ],
+        },
     }
 
     if template not in templates:
@@ -463,7 +509,8 @@ def create_pipeline(
 
     try:
         import yaml
-        with open(output_path, 'w') as f:
+
+        with open(output_path, "w") as f:
             yaml.dump(pipeline_data, f, default_flow_style=False, allow_unicode=True)
 
         console.print(f"[green]✓[/green] Pipeline created: {output_path}")
@@ -472,7 +519,7 @@ def create_pipeline(
     except ImportError:
         # Fallback to JSON if PyYAML not available
         output_path = PIPELINES_DIR / f"{name}.json"
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(pipeline_data, f, indent=2)
 
         console.print(f"[green]✓[/green] Pipeline created: {output_path}")
@@ -480,9 +527,7 @@ def create_pipeline(
 
 
 @app.command("show")
-def show_pipeline(
-    pipeline_file: str = typer.Argument(..., help="Pipeline file to show")
-):
+def show_pipeline(pipeline_file: str = typer.Argument(..., help="Pipeline file to show")):
     """
     Show pipeline details
 
@@ -504,19 +549,16 @@ def show_pipeline(
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold cyan]{pipeline.name}[/bold cyan]\n"
-        f"[dim]{pipeline.description}[/dim]",
-        title="Pipeline Details",
-        border_style=SUNSET_THEME.accent_color
-    ))
+    console.print(
+        Panel(
+            f"[bold cyan]{pipeline.name}[/bold cyan]\n[dim]{pipeline.description}[/dim]",
+            title="Pipeline Details",
+            border_style=SUNSET_THEME.accent_color,
+        )
+    )
 
     # Steps table
-    table = Table(
-        title="Steps",
-        border_style="dim",
-        show_header=True
-    )
+    table = Table(title="Steps", border_style="dim", show_header=True)
     table.add_column("#", style="dim", width=3)
     table.add_column("Name", style="cyan")
     table.add_column("Action")

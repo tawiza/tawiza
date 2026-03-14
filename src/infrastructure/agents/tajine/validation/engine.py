@@ -20,6 +20,7 @@ from src.infrastructure.agents.tajine.validation.knowledge_graph import Knowledg
 @dataclass
 class ValidationResult:
     """Result of validation."""
+
     is_valid: bool
     confidence: float
     sources_checked: list[str]
@@ -40,13 +41,13 @@ class ValidationEngine:
 
     # Source reliability scores
     SOURCE_RELIABILITY = {
-        'sirene_api': 0.95,
-        'official_api': 0.90,
-        'insee': 0.95,
-        'bodacc': 0.90,
-        'web_scrape': 0.60,
-        'estimated': 0.40,
-        None: 0.20
+        "sirene_api": 0.95,
+        "official_api": 0.90,
+        "insee": 0.95,
+        "bodacc": 0.90,
+        "web_scrape": 0.60,
+        "estimated": 0.40,
+        None: 0.20,
     }
 
     def __init__(self, knowledge_graph: KnowledgeGraph | None = None):
@@ -75,11 +76,11 @@ class ValidationEngine:
         Returns:
             ValidationResult as dict with is_valid, confidence, sources_checked, flags, details
         """
-        claim = claim_data.get('claim', '')
-        source = claim_data.get('source')
-        data = claim_data.get('data', {})
-        entity_type = claim_data.get('entity_type')
-        entity_id = claim_data.get('entity_id')
+        claim = claim_data.get("claim", "")
+        source = claim_data.get("source")
+        data = claim_data.get("data", {})
+        entity_type = claim_data.get("entity_type")
+        entity_id = claim_data.get("entity_id")
 
         flags: list[str] = []
         sources_checked: list[str] = []
@@ -87,33 +88,29 @@ class ValidationEngine:
 
         # Layer 1: Source verification
         source_score = self._verify_source(source)
-        sources_checked.append(source or 'none')
-        details['source_score'] = source_score
+        sources_checked.append(source or "none")
+        details["source_score"] = source_score
 
         # Layer 2: Data consistency
         data_score = self._check_data_consistency(claim, data)
-        details['data_score'] = data_score
+        details["data_score"] = data_score
 
         # Layer 3: Knowledge Graph cross-reference
         kg_score, kg_conflicts = self._cross_reference_knowledge_graph(
-            data=data,
-            entity_type=entity_type,
-            entity_id=entity_id
+            data=data, entity_type=entity_type, entity_id=entity_id
         )
-        details['kg_score'] = kg_score
+        details["kg_score"] = kg_score
         if kg_conflicts:
-            flags.append('kg_conflict')
-            details['kg_conflicts'] = kg_conflicts
+            flags.append("kg_conflict")
+            details["kg_conflicts"] = kg_conflicts
         if kg_score > 0:
-            sources_checked.append('knowledge_graph')
+            sources_checked.append("knowledge_graph")
 
         # Layer 4: Hallucination detection (enhanced with KG)
-        is_hallucination = self._detect_hallucination(
-            claim, source, data, kg_score, kg_conflicts
-        )
+        is_hallucination = self._detect_hallucination(claim, source, data, kg_score, kg_conflicts)
         if is_hallucination:
-            flags.append('hallucination')
-            details['hallucination_reason'] = self._get_hallucination_reason(
+            flags.append("hallucination")
+            details["hallucination_reason"] = self._get_hallucination_reason(
                 source, data, kg_conflicts
             )
 
@@ -121,34 +118,31 @@ class ValidationEngine:
         confidence = self._calibrate_confidence(
             source_score, data_score, kg_score, is_hallucination
         )
-        details['calibrated_confidence'] = confidence
+        details["calibrated_confidence"] = confidence
 
         # Layer 6: Determine validity and flags
         is_valid = not is_hallucination and confidence >= 0.5
 
         # Add warning flags based on thresholds
         if confidence < 0.5:
-            flags.append('low_confidence')
+            flags.append("low_confidence")
         if source_score < 0.5:
-            flags.append('unreliable_source')
+            flags.append("unreliable_source")
         if not data:
-            flags.append('no_supporting_data')
+            flags.append("no_supporting_data")
         if confidence >= 0.8:
-            flags.append('high_confidence')
+            flags.append("high_confidence")
 
         return {
-            'is_valid': is_valid,
-            'confidence': confidence,
-            'sources_checked': sources_checked,
-            'flags': flags,
-            'details': details
+            "is_valid": is_valid,
+            "confidence": confidence,
+            "sources_checked": sources_checked,
+            "flags": flags,
+            "details": details,
         }
 
     def _cross_reference_knowledge_graph(
-        self,
-        data: dict[str, Any],
-        entity_type: str | None,
-        entity_id: str | None
+        self, data: dict[str, Any], entity_type: str | None, entity_id: str | None
     ) -> tuple[float, list[str]]:
         """
         Cross-reference data against knowledge graph.
@@ -166,9 +160,7 @@ class ValidationEngine:
 
         # Cross-reference all claims
         results = self.knowledge_graph.cross_reference(
-            claims=data,
-            entity_type=entity_type,
-            entity_id=entity_id
+            claims=data, entity_type=entity_type, entity_id=entity_id
         )
 
         if not results:
@@ -208,10 +200,7 @@ class ValidationEngine:
         return kg_score, conflicts
 
     def _get_hallucination_reason(
-        self,
-        source: str | None,
-        data: dict[str, Any],
-        kg_conflicts: list[str]
+        self, source: str | None, data: dict[str, Any], kg_conflicts: list[str]
     ) -> str:
         """Generate human-readable hallucination reason."""
         if kg_conflicts:
@@ -249,7 +238,7 @@ class ValidationEngine:
             return 0.2  # No data = low consistency
 
         # Check if data has meaningful values
-        if all(v is None or v == '' for v in data.values()):
+        if all(v is None or v == "" for v in data.values()):
             return 0.3
 
         # Data exists and has values
@@ -261,7 +250,7 @@ class ValidationEngine:
         source: str | None,
         data: dict[str, Any],
         kg_score: float = 0.0,
-        kg_conflicts: list[str] | None = None
+        kg_conflicts: list[str] | None = None,
     ) -> bool:
         """
         Detect if the claim is likely hallucinated.
@@ -290,11 +279,7 @@ class ValidationEngine:
         return bool(claim and not data and source is None)
 
     def _calibrate_confidence(
-        self,
-        source_score: float,
-        data_score: float,
-        kg_score: float,
-        is_hallucination: bool
+        self, source_score: float, data_score: float, kg_score: float, is_hallucination: bool
     ) -> float:
         """
         Calibrate confidence based on all factors.
@@ -317,11 +302,7 @@ class ValidationEngine:
         if kg_score > 0:
             # KG provides strong validation signal
             # source: 40%, data: 20%, kg: 40%
-            base_confidence = (
-                source_score * 0.4 +
-                data_score * 0.2 +
-                kg_score * 0.4
-            )
+            base_confidence = source_score * 0.4 + data_score * 0.2 + kg_score * 0.4
         else:
             # No KG data - fall back to source + data
             # source: 60%, data: 40%

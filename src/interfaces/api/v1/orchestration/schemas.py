@@ -31,16 +31,15 @@ class PipelineStep(BaseModel):
     action: str = Field(..., description="Action to perform")
     config: dict[str, Any] = Field(..., description="Step configuration")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "service": "openmanus",
-            "action": "extract",
-            "config": {
-                "url": "https://example.com",
-                "data": {"target": "main content"}
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "service": "openmanus",
+                "action": "extract",
+                "config": {"url": "https://example.com", "data": {"target": "main content"}},
             }
         }
-    })
+    )
 
 
 class PipelineCreate(BaseModel):
@@ -49,38 +48,38 @@ class PipelineCreate(BaseModel):
     name: str = Field(..., description="Pipeline name")
     steps: list[PipelineStep] = Field(..., description="Pipeline steps")
     error_handling: ErrorHandling = Field(
-        default=ErrorHandling.STOP,
-        description="Error handling strategy"
+        default=ErrorHandling.STOP, description="Error handling strategy"
     )
     retry_policy: dict[str, int] | None = Field(
-        default=None,
-        description="Retry policy (max_retries, delay_seconds)"
+        default=None, description="Retry policy (max_retries, delay_seconds)"
     )
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "name": "data-collection-pipeline",
-            "steps": [
-                {
-                    "service": "skyvern",
-                    "action": "extract",
-                    "config": {
-                        "url": "https://news.ycombinator.com",
-                        "data": {"target": "top stories"}
-                    }
-                },
-                {
-                    "service": "label_studio",
-                    "action": "create_project",
-                    "config": {
-                        "project_name": "HN Stories",
-                        "labeling_config": "<View><Text name=\"text\" value=\"$text\"/></View>"
-                    }
-                }
-            ],
-            "error_handling": "stop"
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "data-collection-pipeline",
+                "steps": [
+                    {
+                        "service": "skyvern",
+                        "action": "extract",
+                        "config": {
+                            "url": "https://news.ycombinator.com",
+                            "data": {"target": "top stories"},
+                        },
+                    },
+                    {
+                        "service": "label_studio",
+                        "action": "create_project",
+                        "config": {
+                            "project_name": "HN Stories",
+                            "labeling_config": '<View><Text name="text" value="$text"/></View>',
+                        },
+                    },
+                ],
+                "error_handling": "stop",
+            }
         }
-    })
+    )
 
 
 class PipelineResponse(BaseModel):

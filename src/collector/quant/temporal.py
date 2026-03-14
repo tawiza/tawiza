@@ -32,10 +32,7 @@ class TemporalAnalyzer:
 
 
 async def compute_moving_averages(
-    db_url: str,
-    dept: str,
-    metric_name: str,
-    windows: list[int] = [3, 6, 12]
+    db_url: str, dept: str, metric_name: str, windows: list[int] = [3, 6, 12]
 ) -> dict[str, Any]:
     """Compute moving averages over N months for a metric in a department.
 
@@ -79,87 +76,86 @@ async def compute_moving_averages(
             rows = result.fetchall()
 
             if len(rows) < max(windows):
-                logger.warning(f"Not enough data for {dept} - {metric_name}: {len(rows)} months, need {max(windows)}")
+                logger.warning(
+                    f"Not enough data for {dept} - {metric_name}: {len(rows)} months, need {max(windows)}"
+                )
                 return {
-                    'moving_averages': {},
-                    'crossovers': [],
-                    'current_trend': 'insufficient_data',
-                    'data_points': len(rows)
+                    "moving_averages": {},
+                    "crossovers": [],
+                    "current_trend": "insufficient_data",
+                    "data_points": len(rows),
                 }
 
             # Convert to pandas for easier manipulation
-            df = pd.DataFrame(rows, columns=['month', 'signal_count', 'avg_value', 'total_value'])
-            df['month'] = pd.to_datetime(df['month'])
-            df = df.set_index('month').sort_index()
+            df = pd.DataFrame(rows, columns=["month", "signal_count", "avg_value", "total_value"])
+            df["month"] = pd.to_datetime(df["month"])
+            df = df.set_index("month").sort_index()
 
             # Compute moving averages
             mas = {}
             for window in windows:
                 if len(df) >= window:
-                    ma = df['total_value'].rolling(window=window).mean()
-                    mas[f'MA{window}'] = ma.iloc[-1] if not pd.isna(ma.iloc[-1]) else None
+                    ma = df["total_value"].rolling(window=window).mean()
+                    mas[f"MA{window}"] = ma.iloc[-1] if not pd.isna(ma.iloc[-1]) else None
                 else:
-                    mas[f'MA{window}'] = None
+                    mas[f"MA{window}"] = None
 
             # Detect crossovers (golden cross: MA3 > MA12, death cross: MA3 < MA12)
             crossovers = []
-            current_trend = 'neutral'
+            current_trend = "neutral"
 
-            if mas.get('MA3') is not None and mas.get('MA12') is not None:
-                ma3 = mas['MA3']
-                ma12 = mas['MA12']
+            if mas.get("MA3") is not None and mas.get("MA12") is not None:
+                ma3 = mas["MA3"]
+                ma12 = mas["MA12"]
 
                 if ma3 > ma12 * 1.05:  # 5% threshold to avoid noise
-                    current_trend = 'bullish'
+                    current_trend = "bullish"
                     # Check if this is a recent cross
                     if len(df) >= 13:
-                        ma3_prev = df['total_value'].rolling(window=3).mean().iloc[-2]
-                        ma12_prev = df['total_value'].rolling(window=12).mean().iloc[-2]
+                        ma3_prev = df["total_value"].rolling(window=3).mean().iloc[-2]
+                        ma12_prev = df["total_value"].rolling(window=12).mean().iloc[-2]
                         if ma3_prev <= ma12_prev and ma3 > ma12:
-                            crossovers.append({
-                                'type': 'golden_cross',
-                                'date': df.index[-1].strftime('%Y-%m-%d'),
-                                'ma3': ma3,
-                                'ma12': ma12
-                            })
+                            crossovers.append(
+                                {
+                                    "type": "golden_cross",
+                                    "date": df.index[-1].strftime("%Y-%m-%d"),
+                                    "ma3": ma3,
+                                    "ma12": ma12,
+                                }
+                            )
                 elif ma3 < ma12 * 0.95:
-                    current_trend = 'bearish'
+                    current_trend = "bearish"
                     # Check if this is a recent cross
                     if len(df) >= 13:
-                        ma3_prev = df['total_value'].rolling(window=3).mean().iloc[-2]
-                        ma12_prev = df['total_value'].rolling(window=12).mean().iloc[-2]
+                        ma3_prev = df["total_value"].rolling(window=3).mean().iloc[-2]
+                        ma12_prev = df["total_value"].rolling(window=12).mean().iloc[-2]
                         if ma3_prev >= ma12_prev and ma3 < ma12:
-                            crossovers.append({
-                                'type': 'death_cross',
-                                'date': df.index[-1].strftime('%Y-%m-%d'),
-                                'ma3': ma3,
-                                'ma12': ma12
-                            })
+                            crossovers.append(
+                                {
+                                    "type": "death_cross",
+                                    "date": df.index[-1].strftime("%Y-%m-%d"),
+                                    "ma3": ma3,
+                                    "ma12": ma12,
+                                }
+                            )
 
             return {
-                'moving_averages': mas,
-                'crossovers': crossovers,
-                'current_trend': current_trend,
-                'data_points': len(rows),
-                'latest_month': df.index[-1].strftime('%Y-%m-%d') if len(df) > 0 else None
+                "moving_averages": mas,
+                "crossovers": crossovers,
+                "current_trend": current_trend,
+                "data_points": len(rows),
+                "latest_month": df.index[-1].strftime("%Y-%m-%d") if len(df) > 0 else None,
             }
 
     except Exception as e:
         logger.error(f"Error computing moving averages for {dept}-{metric_name}: {e}")
-        return {
-            'moving_averages': {},
-            'crossovers': [],
-            'current_trend': 'error',
-            'error': str(e)
-        }
+        return {"moving_averages": {}, "crossovers": [], "current_trend": "error", "error": str(e)}
     finally:
         await engine.dispose()
 
 
 async def compute_rate_of_change(
-    db_url: str,
-    dept: str,
-    periods: list[int] = [3, 6]
+    db_url: str, dept: str, periods: list[int] = [3, 6]
 ) -> dict[str, dict[str, float | None]]:
     """Compute rate of change over N months for all metrics in a department.
 
@@ -202,49 +198,48 @@ async def compute_rate_of_change(
             # Group by metric
             metrics_data = defaultdict(list)
             for row in rows:
-                metrics_data[row.metric_name].append({
-                    'month': row.month,
-                    'total_value': float(row.total_value)
-                })
+                metrics_data[row.metric_name].append(
+                    {"month": row.month, "total_value": float(row.total_value)}
+                )
 
             roc_results = {}
 
             for metric_name, data in metrics_data.items():
                 if len(data) < max(periods) + 1:
-                    roc_results[metric_name] = {f'ROC_{p}m': None for p in periods}
-                    roc_results[metric_name]['alert'] = False
+                    roc_results[metric_name] = {f"ROC_{p}m": None for p in periods}
+                    roc_results[metric_name]["alert"] = False
                     continue
 
                 # Convert to DataFrame for easier calculation
                 df = pd.DataFrame(data)
-                df['month'] = pd.to_datetime(df['month'])
-                df = df.set_index('month').sort_index()
+                df["month"] = pd.to_datetime(df["month"])
+                df = df.set_index("month").sort_index()
 
                 rocs = {}
                 max_roc = 0
 
                 for period in periods:
                     if len(df) >= period + 1:
-                        current = df['total_value'].iloc[-1]
-                        past = df['total_value'].iloc[-(period + 1)]
+                        current = df["total_value"].iloc[-1]
+                        past = df["total_value"].iloc[-(period + 1)]
 
                         if past != 0:
                             roc = (current - past) / past
-                            rocs[f'ROC_{period}m'] = roc
+                            rocs[f"ROC_{period}m"] = roc
                             max_roc = max(max_roc, abs(roc))
                         else:
-                            rocs[f'ROC_{period}m'] = None
+                            rocs[f"ROC_{period}m"] = None
                     else:
-                        rocs[f'ROC_{period}m'] = None
+                        rocs[f"ROC_{period}m"] = None
 
                 # Flag departments with ROC > 50% as alert (especially for negative metrics like liquidations)
                 alert = max_roc > 0.5
-                if 'liquidation' in metric_name.lower() or 'fermeture' in metric_name.lower():
+                if "liquidation" in metric_name.lower() or "fermeture" in metric_name.lower():
                     # For negative metrics, high positive ROC is bad
-                    rocs['alert'] = alert
+                    rocs["alert"] = alert
                 else:
                     # For positive metrics, high negative ROC is bad
-                    rocs['alert'] = alert
+                    rocs["alert"] = alert
 
                 roc_results[metric_name] = rocs
 
@@ -258,8 +253,7 @@ async def compute_rate_of_change(
 
 
 async def compute_lag_correlations(
-    db_url: str,
-    source_pairs: list[tuple[str, str]] | None = None
+    db_url: str, source_pairs: list[tuple[str, str]] | None = None
 ) -> dict[str, dict[str, float]]:
     """Compute cross-correlations between sources with time lag.
 
@@ -280,10 +274,10 @@ async def compute_lag_correlations(
     if source_pairs is None:
         # Default pairs based on known business relationships
         source_pairs = [
-            ('presse_locale', 'bodacc'),  # Presse mentions → liquidations
-            ('sitadel', 'dvf'),  # Building permits → transactions
-            ('bodacc', 'france_travail'),  # Liquidations → job offers down
-            ('sirene', 'bodacc'),  # Company creation/closure → liquidations
+            ("presse_locale", "bodacc"),  # Presse mentions → liquidations
+            ("sitadel", "dvf"),  # Building permits → transactions
+            ("bodacc", "france_travail"),  # Liquidations → job offers down
+            ("sirene", "bodacc"),  # Company creation/closure → liquidations
         ]
 
     engine = create_async_engine(db_url, echo=False)
@@ -320,7 +314,7 @@ async def compute_lag_correlations(
 
                 if len(rows) < 20:  # Need sufficient data points
                     logger.warning(f"Insufficient data for {pair_name}: {len(rows)} rows")
-                    correlations[pair_name] = {'insufficient_data': True}
+                    correlations[pair_name] = {"insufficient_data": True}
                     continue
 
                 # Organize data by department and month
@@ -365,17 +359,17 @@ async def compute_lag_correlations(
                     # Average correlation across departments for this lag
                     if correlations_this_lag:
                         avg_corr = np.mean(correlations_this_lag)
-                        lag_correlations[f'lag_{lag}m'] = avg_corr
+                        lag_correlations[f"lag_{lag}m"] = avg_corr
 
                         if abs(avg_corr) > abs(best_correlation):
                             best_correlation = avg_corr
                             best_lag = lag
                     else:
-                        lag_correlations[f'lag_{lag}m'] = 0.0
+                        lag_correlations[f"lag_{lag}m"] = 0.0
 
-                lag_correlations['best_lag_months'] = best_lag
-                lag_correlations['best_correlation'] = best_correlation
-                lag_correlations['significant'] = abs(best_correlation) > 0.3
+                lag_correlations["best_lag_months"] = best_lag
+                lag_correlations["best_correlation"] = best_correlation
+                lag_correlations["significant"] = abs(best_correlation) > 0.3
 
                 correlations[pair_name] = lag_correlations
 

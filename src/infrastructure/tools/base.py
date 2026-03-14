@@ -25,6 +25,7 @@ class ToolResult:
         execution_time_ms: Time taken to execute (milliseconds)
         timestamp: When the execution occurred
     """
+
     success: bool
     output: Any = None
     error: str | None = None
@@ -168,7 +169,7 @@ class BaseTool(ABC):
                 "name": self.name,
                 "description": self.description,
                 "parameters": self.parameters_schema,
-            }
+            },
         }
 
     def __repr__(self) -> str:

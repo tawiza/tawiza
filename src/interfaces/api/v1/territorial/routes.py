@@ -19,8 +19,10 @@ router = APIRouter(prefix="/territorial", tags=["territorial"])
 # Response Models
 # ============================================================================
 
+
 class TerritoryMetricsResponse(BaseModel):
     """Response model for territory metrics."""
+
     territory_code: str
     territory_name: str
     period_days: int
@@ -30,12 +32,14 @@ class TerritoryMetricsResponse(BaseModel):
 
 class TerritoryComparisonResponse(BaseModel):
     """Response model for territory comparison."""
+
     territories: list[dict[str, Any]]
     generated_at: str
 
 
 class SignalResponse(BaseModel):
     """Response model for detected signals."""
+
     territory_code: str
     territory_name: str
     signals: list[dict[str, Any]]
@@ -45,6 +49,7 @@ class SignalResponse(BaseModel):
 # ============================================================================
 # Dependencies
 # ============================================================================
+
 
 def get_metrics_collector():
     """Get or create the metrics collector instance."""
@@ -58,6 +63,7 @@ def get_metrics_collector():
     france_travail_adapter = None
     try:
         from src.infrastructure.datasources.adapters.france_travail import FranceTravailAdapter
+
         adapter = FranceTravailAdapter()
         if adapter.has_credentials:
             france_travail_adapter = adapter
@@ -68,6 +74,7 @@ def get_metrics_collector():
     insee_adapter = None
     try:
         from src.infrastructure.datasources.adapters.insee_local import INSEELocalAdapter
+
         adapter = INSEELocalAdapter()
         if adapter._client_id and adapter._client_secret:
             insee_adapter = adapter
@@ -78,6 +85,7 @@ def get_metrics_collector():
     dvf_adapter = None
     try:
         from src.infrastructure.datasources.adapters.dvf import DVFAdapter
+
         dvf_adapter = DVFAdapter()
     except Exception:
         pass  # DVF non disponible
@@ -94,12 +102,14 @@ def get_metrics_collector():
 def get_signal_detector():
     """Get or create the signal detector instance."""
     from src.infrastructure.agents.tajine.territorial.signal_detector import create_signal_detector
+
     return create_signal_detector()
 
 
 # ============================================================================
 # Endpoints
 # ============================================================================
+
 
 @router.get(
     "/metrics/{territory_code}",
@@ -183,31 +193,100 @@ async def compare_territories(
 
     # Mapping des noms de départements
     dept_names = {
-        "01": "Ain", "02": "Aisne", "03": "Allier", "04": "Alpes-de-Haute-Provence",
-        "05": "Hautes-Alpes", "06": "Alpes-Maritimes", "07": "Ardèche", "08": "Ardennes",
-        "09": "Ariège", "10": "Aube", "11": "Aude", "12": "Aveyron",
-        "13": "Bouches-du-Rhône", "14": "Calvados", "15": "Cantal", "16": "Charente",
-        "17": "Charente-Maritime", "18": "Cher", "19": "Corrèze", "21": "Côte-d'Or",
-        "22": "Côtes-d'Armor", "23": "Creuse", "24": "Dordogne", "25": "Doubs",
-        "26": "Drôme", "27": "Eure", "28": "Eure-et-Loir", "29": "Finistère",
-        "30": "Gard", "31": "Haute-Garonne", "32": "Gers", "33": "Gironde",
-        "34": "Hérault", "35": "Ille-et-Vilaine", "36": "Indre", "37": "Indre-et-Loire",
-        "38": "Isère", "39": "Jura", "40": "Landes", "41": "Loir-et-Cher",
-        "42": "Loire", "43": "Haute-Loire", "44": "Loire-Atlantique", "45": "Loiret",
-        "46": "Lot", "47": "Lot-et-Garonne", "48": "Lozère", "49": "Maine-et-Loire",
-        "50": "Manche", "51": "Marne", "52": "Haute-Marne", "53": "Mayenne",
-        "54": "Meurthe-et-Moselle", "55": "Meuse", "56": "Morbihan", "57": "Moselle",
-        "58": "Nièvre", "59": "Nord", "60": "Oise", "61": "Orne",
-        "62": "Pas-de-Calais", "63": "Puy-de-Dôme", "64": "Pyrénées-Atlantiques",
-        "65": "Hautes-Pyrénées", "66": "Pyrénées-Orientales", "67": "Bas-Rhin",
-        "68": "Haut-Rhin", "69": "Rhône", "70": "Haute-Saône", "71": "Saône-et-Loire",
-        "72": "Sarthe", "73": "Savoie", "74": "Haute-Savoie", "75": "Paris",
-        "76": "Seine-Maritime", "77": "Seine-et-Marne", "78": "Yvelines",
-        "79": "Deux-Sèvres", "80": "Somme", "81": "Tarn", "82": "Tarn-et-Garonne",
-        "83": "Var", "84": "Vaucluse", "85": "Vendée", "86": "Vienne",
-        "87": "Haute-Vienne", "88": "Vosges", "89": "Yonne", "90": "Territoire de Belfort",
-        "91": "Essonne", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
-        "94": "Val-de-Marne", "95": "Val-d'Oise",
+        "01": "Ain",
+        "02": "Aisne",
+        "03": "Allier",
+        "04": "Alpes-de-Haute-Provence",
+        "05": "Hautes-Alpes",
+        "06": "Alpes-Maritimes",
+        "07": "Ardèche",
+        "08": "Ardennes",
+        "09": "Ariège",
+        "10": "Aube",
+        "11": "Aude",
+        "12": "Aveyron",
+        "13": "Bouches-du-Rhône",
+        "14": "Calvados",
+        "15": "Cantal",
+        "16": "Charente",
+        "17": "Charente-Maritime",
+        "18": "Cher",
+        "19": "Corrèze",
+        "21": "Côte-d'Or",
+        "22": "Côtes-d'Armor",
+        "23": "Creuse",
+        "24": "Dordogne",
+        "25": "Doubs",
+        "26": "Drôme",
+        "27": "Eure",
+        "28": "Eure-et-Loir",
+        "29": "Finistère",
+        "30": "Gard",
+        "31": "Haute-Garonne",
+        "32": "Gers",
+        "33": "Gironde",
+        "34": "Hérault",
+        "35": "Ille-et-Vilaine",
+        "36": "Indre",
+        "37": "Indre-et-Loire",
+        "38": "Isère",
+        "39": "Jura",
+        "40": "Landes",
+        "41": "Loir-et-Cher",
+        "42": "Loire",
+        "43": "Haute-Loire",
+        "44": "Loire-Atlantique",
+        "45": "Loiret",
+        "46": "Lot",
+        "47": "Lot-et-Garonne",
+        "48": "Lozère",
+        "49": "Maine-et-Loire",
+        "50": "Manche",
+        "51": "Marne",
+        "52": "Haute-Marne",
+        "53": "Mayenne",
+        "54": "Meurthe-et-Moselle",
+        "55": "Meuse",
+        "56": "Morbihan",
+        "57": "Moselle",
+        "58": "Nièvre",
+        "59": "Nord",
+        "60": "Oise",
+        "61": "Orne",
+        "62": "Pas-de-Calais",
+        "63": "Puy-de-Dôme",
+        "64": "Pyrénées-Atlantiques",
+        "65": "Hautes-Pyrénées",
+        "66": "Pyrénées-Orientales",
+        "67": "Bas-Rhin",
+        "68": "Haut-Rhin",
+        "69": "Rhône",
+        "70": "Haute-Saône",
+        "71": "Saône-et-Loire",
+        "72": "Sarthe",
+        "73": "Savoie",
+        "74": "Haute-Savoie",
+        "75": "Paris",
+        "76": "Seine-Maritime",
+        "77": "Seine-et-Marne",
+        "78": "Yvelines",
+        "79": "Deux-Sèvres",
+        "80": "Somme",
+        "81": "Tarn",
+        "82": "Tarn-et-Garonne",
+        "83": "Var",
+        "84": "Vaucluse",
+        "85": "Vendée",
+        "86": "Vienne",
+        "87": "Haute-Vienne",
+        "88": "Vosges",
+        "89": "Yonne",
+        "90": "Territoire de Belfort",
+        "91": "Essonne",
+        "92": "Hauts-de-Seine",
+        "93": "Seine-Saint-Denis",
+        "94": "Val-de-Marne",
+        "95": "Val-d'Oise",
     }
 
     collector = get_metrics_collector()
@@ -218,25 +297,29 @@ async def compare_territories(
         try:
             name = dept_names.get(code, f"Département {code}")
             metrics = await collector.collect_metrics(code, name, period_months)
-            results.append({
-                "code": code,
-                "name": name,
-                "creations": metrics.creations_count,
-                "closures": metrics.closures_count,
-                "procedures": metrics.collective_procedures_count,
-                "net_creation": metrics.net_creation,
-                "vitality_index": round(metrics.vitality_index, 1),
-                "job_offers": metrics.job_offers_count,
-                "unemployment_rate": metrics.unemployment_rate,
-                "real_estate_tx": metrics.real_estate_transactions,
-                "avg_price_sqm": round(metrics.avg_price_sqm, 0),
-            })
+            results.append(
+                {
+                    "code": code,
+                    "name": name,
+                    "creations": metrics.creations_count,
+                    "closures": metrics.closures_count,
+                    "procedures": metrics.collective_procedures_count,
+                    "net_creation": metrics.net_creation,
+                    "vitality_index": round(metrics.vitality_index, 1),
+                    "job_offers": metrics.job_offers_count,
+                    "unemployment_rate": metrics.unemployment_rate,
+                    "real_estate_tx": metrics.real_estate_transactions,
+                    "avg_price_sqm": round(metrics.avg_price_sqm, 0),
+                }
+            )
         except Exception as e:
-            results.append({
-                "code": code,
-                "name": dept_names.get(code, f"Département {code}"),
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "code": code,
+                    "name": dept_names.get(code, f"Département {code}"),
+                    "error": str(e),
+                }
+            )
 
     # Trier par vitalité décroissante
     results.sort(key=lambda x: x.get("vitality_index", 0), reverse=True)
@@ -414,9 +497,7 @@ async def get_predictive_signals(
     if include_sectors:
         analyzer = get_sector_analyzer()
         bodacc = BodaccAdapter()
-        sector_result = await analyzer.analyze_territory(
-            territory_code, name, bodacc, limit=200
-        )
+        sector_result = await analyzer.analyze_territory(territory_code, name, bodacc, limit=200)
         sector_analysis = sector_result.to_dict()
 
     # Détecter les signaux
@@ -457,7 +538,9 @@ async def get_predictive_signals(
     description="Returns active alerts across all monitored territories",
 )
 async def get_national_alerts(
-    min_severity: str = Query("warning", description="Minimum severity: info, warning, alert, critical"),
+    min_severity: str = Query(
+        "warning", description="Minimum severity: info, warning, alert, critical"
+    ),
     limit: int = Query(20, ge=1, le=100),
 ) -> dict[str, Any]:
     """Get national-level alerts from all territories."""
@@ -475,7 +558,12 @@ async def get_national_alerts(
 
     all_signals = []
     severity_filter = {
-        "info": [SignalSeverity.INFO, SignalSeverity.WARNING, SignalSeverity.ALERT, SignalSeverity.CRITICAL],
+        "info": [
+            SignalSeverity.INFO,
+            SignalSeverity.WARNING,
+            SignalSeverity.ALERT,
+            SignalSeverity.CRITICAL,
+        ],
         "warning": [SignalSeverity.WARNING, SignalSeverity.ALERT, SignalSeverity.CRITICAL],
         "alert": [SignalSeverity.ALERT, SignalSeverity.CRITICAL],
         "critical": [SignalSeverity.CRITICAL],
@@ -580,14 +668,15 @@ async def get_narrative_analysis(
     # Détecter les signaux
     detector = get_signal_detector()
     signals = await detector.detect_signals(
-        territory_code, name,
+        territory_code,
+        name,
         {
             "creations_count": metrics.creations_count,
             "closures_count": metrics.closures_count,
             "modifications_count": metrics.modifications_count,
             "unemployment_rate": metrics.unemployment_rate,
             "vitality_index": metrics.vitality_index,
-        }
+        },
     )
 
     # Analyse sectorielle

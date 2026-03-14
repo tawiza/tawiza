@@ -360,8 +360,8 @@ def format_number(num: float, precision: int = 1) -> str:
     if num < 1000:
         return str(int(num))
     elif num < 1_000_000:
-        return f"{num/1000:.{precision}f}K"
+        return f"{num / 1000:.{precision}f}K"
     elif num < 1_000_000_000:
-        return f"{num/1_000_000:.{precision}f}M"
+        return f"{num / 1_000_000:.{precision}f}M"
     else:
-        return f"{num/1_000_000_000:.{precision}f}B"
+        return f"{num / 1_000_000_000:.{precision}f}B"

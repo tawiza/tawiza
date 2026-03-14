@@ -65,7 +65,9 @@ class WhatIfScenario:
             if change.type == "tax_reduction":
                 # Réduction fiscale -> améliore environnement économique
                 current = modified.get("attractiveness", {})
-                current["environnement_eco"] = current.get("environnement_eco", 50) + change.value * 50
+                current["environnement_eco"] = (
+                    current.get("environnement_eco", 50) + change.value * 50
+                )
                 modified["attractiveness"] = current
                 modified["policy_impact"] = modified.get("policy_impact", 0) + change.value * 0.5
 

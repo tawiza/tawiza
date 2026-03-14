@@ -2,6 +2,7 @@
 Vector/Embedding API Endpoints
 Provides semantic search, document indexing, and vector management
 """
+
 from datetime import datetime
 from typing import Any
 
@@ -15,41 +16,48 @@ from src.infrastructure.vector_store import PGVectorClient, SearchResult
 # Request/Response Models
 class IndexDocumentRequest(BaseModel):
     """Request to index a document"""
+
     id: str = Field(..., description="Unique document identifier")
     content: str = Field(..., min_length=1, description="Document content")
     metadata: dict[str, Any] | None = Field(default=None, description="Document metadata")
     source: str | None = Field(default=None, description="Source identifier")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "id": "doc_123",
-            "content": "This is a sample document about machine learning and AI.",
-            "metadata": {"category": "documentation", "language": "en"},
-            "source": "knowledge_base"
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "id": "doc_123",
+                "content": "This is a sample document about machine learning and AI.",
+                "metadata": {"category": "documentation", "language": "en"},
+                "source": "knowledge_base",
+            }
         }
-    })
+    )
 
 
 class SearchRequest(BaseModel):
     """Request for semantic search"""
+
     query: str = Field(..., min_length=1, description="Search query")
     limit: int = Field(default=10, ge=1, le=100, description="Number of results")
     metadata_filter: dict[str, Any] | None = Field(default=None, description="Filter by metadata")
     source_filter: str | None = Field(default=None, description="Filter by source")
     distance_threshold: float = Field(default=1.0, ge=0.0, le=2.0, description="Maximum distance")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "query": "What is machine learning?",
-            "limit": 10,
-            "metadata_filter": {"category": "documentation"},
-            "distance_threshold": 0.8
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "query": "What is machine learning?",
+                "limit": 10,
+                "metadata_filter": {"category": "documentation"},
+                "distance_threshold": 0.8,
+            }
         }
-    })
+    )
 
 
 class SearchResultResponse(BaseModel):
     """Single search result"""
+
     id: int
     document_id: str
     chunk_id: str
@@ -72,12 +80,13 @@ class SearchResultResponse(BaseModel):
             score=1.0 - (result.distance / 2.0),  # Normalize to 0-1
             metadata=result.metadata,
             source=result.source,
-            created_at=result.created_at
+            created_at=result.created_at,
         )
 
 
 class SearchResponse(BaseModel):
     """Search response with results"""
+
     query: str
     results: list[SearchResultResponse]
     count: int
@@ -86,6 +95,7 @@ class SearchResponse(BaseModel):
 
 class IndexResponse(BaseModel):
     """Response after indexing document"""
+
     document_id: str
     chunks_created: int
     status: str = "indexed"
@@ -93,6 +103,7 @@ class IndexResponse(BaseModel):
 
 class StatsResponse(BaseModel):
     """Vector database statistics"""
+
     total_embeddings: int
     unique_documents: int
     unique_sources: int
@@ -104,6 +115,7 @@ class StatsResponse(BaseModel):
 
 class DeleteResponse(BaseModel):
     """Response after deletion"""
+
     deleted_count: int
     status: str = "deleted"
 
@@ -125,7 +137,7 @@ async def get_embedding_service() -> EmbeddingService:
     # Initialize vector client
     vector_client = PGVectorClient(
         dsn=str(settings.database.url).replace("postgresql+asyncpg://", "postgresql://"),
-        embedding_dim=settings.vectordb.embedding_dim
+        embedding_dim=settings.vectordb.embedding_dim,
     )
     await vector_client.connect(min_size=5, max_size=15)
 
@@ -138,7 +150,7 @@ async def get_embedding_service() -> EmbeddingService:
         chunk_overlap=settings.vectordb.chunk_overlap,
         embedding_dim=settings.vectordb.embedding_dim,
         use_litserve=settings.vectordb.use_litserve,
-        litserve_url=settings.vectordb.litserve_url
+        litserve_url=settings.vectordb.litserve_url,
     )
 
     return service
@@ -150,8 +162,7 @@ router = APIRouter(prefix="/vectors", tags=["vectors"])
 
 @router.post("/index", response_model=IndexResponse, status_code=status.HTTP_201_CREATED)
 async def index_document(
-    request: IndexDocumentRequest,
-    service: EmbeddingService = Depends(get_embedding_service)
+    request: IndexDocumentRequest, service: EmbeddingService = Depends(get_embedding_service)
 ):
     """
     Index a document for semantic search
@@ -168,30 +179,23 @@ async def index_document(
     """
     try:
         document = Document(
-            id=request.id,
-            content=request.content,
-            metadata=request.metadata,
-            source=request.source
+            id=request.id, content=request.content, metadata=request.metadata, source=request.source
         )
 
         chunks_created = await service.index_document(document)
 
-        return IndexResponse(
-            document_id=request.id,
-            chunks_created=chunks_created
-        )
+        return IndexResponse(document_id=request.id, chunks_created=chunks_created)
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to index document: {str(e)}"
+            detail=f"Failed to index document: {str(e)}",
         )
 
 
 @router.post("/search", response_model=SearchResponse)
 async def search(
-    request: SearchRequest,
-    service: EmbeddingService = Depends(get_embedding_service)
+    request: SearchRequest, service: EmbeddingService = Depends(get_embedding_service)
 ):
     """
     Semantic search across indexed documents
@@ -206,6 +210,7 @@ async def search(
     """
     try:
         import time
+
         start_time = time.time()
 
         results = await service.search(
@@ -213,7 +218,7 @@ async def search(
             limit=request.limit,
             metadata_filter=request.metadata_filter,
             source_filter=request.source_filter,
-            distance_threshold=request.distance_threshold
+            distance_threshold=request.distance_threshold,
         )
 
         processing_time = (time.time() - start_time) * 1000  # ms
@@ -222,13 +227,12 @@ async def search(
             query=request.query,
             results=[SearchResultResponse.from_search_result(r) for r in results],
             count=len(results),
-            processing_time_ms=processing_time
+            processing_time_ms=processing_time,
         )
 
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Search failed: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Search failed: {str(e)}"
         )
 
 
@@ -251,14 +255,13 @@ async def get_stats(service: EmbeddingService = Depends(get_embedding_service)):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get stats: {str(e)}"
+            detail=f"Failed to get stats: {str(e)}",
         )
 
 
 @router.delete("/documents/{document_id}", response_model=DeleteResponse)
 async def delete_document(
-    document_id: str,
-    service: EmbeddingService = Depends(get_embedding_service)
+    document_id: str, service: EmbeddingService = Depends(get_embedding_service)
 ):
     """
     Delete a document and all its chunks
@@ -270,8 +273,7 @@ async def delete_document(
 
         if deleted_count == 0:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Document '{document_id}' not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"Document '{document_id}' not found"
             )
 
         return DeleteResponse(deleted_count=deleted_count)
@@ -281,15 +283,12 @@ async def delete_document(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete document: {str(e)}"
+            detail=f"Failed to delete document: {str(e)}",
         )
 
 
 @router.delete("/sources/{source}", response_model=DeleteResponse)
-async def delete_source(
-    source: str,
-    service: EmbeddingService = Depends(get_embedding_service)
-):
+async def delete_source(source: str, service: EmbeddingService = Depends(get_embedding_service)):
     """
     Delete all documents from a source
 
@@ -301,7 +300,7 @@ async def delete_source(
         if deleted_count == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"No documents found for source '{source}'"
+                detail=f"No documents found for source '{source}'",
             )
 
         return DeleteResponse(deleted_count=deleted_count)
@@ -311,15 +310,11 @@ async def delete_source(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete source: {str(e)}"
+            detail=f"Failed to delete source: {str(e)}",
         )
 
 
 @router.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "vectors",
-        "version": "2.0.3"
-    }
+    return {"status": "healthy", "service": "vectors", "version": "2.0.3"}

@@ -225,10 +225,13 @@ class EpisodicStore:
         Returns:
             True if added, False if episode not found
         """
-        return self.update(episode_id, {
-            "user_feedback": feedback,
-            "feedback_score": score,
-        })
+        return self.update(
+            episode_id,
+            {
+                "user_feedback": feedback,
+                "feedback_score": score,
+            },
+        )
 
     def add_correction(self, episode_id: str, correction: str) -> bool:
         """Add a user correction to an episode.
@@ -262,10 +265,7 @@ class EpisodicStore:
         Returns:
             List of matching episodes, newest first
         """
-        matching = [
-            ep for ep in self._episodes.values()
-            if ep.territory == territory
-        ]
+        matching = [ep for ep in self._episodes.values() if ep.territory == territory]
         matching.sort(key=lambda x: x.timestamp, reverse=True)
         return matching[:limit]
 
@@ -283,10 +283,7 @@ class EpisodicStore:
         Returns:
             List of matching episodes
         """
-        matching = [
-            ep for ep in self._episodes.values()
-            if sector.lower() in ep.sector.lower()
-        ]
+        matching = [ep for ep in self._episodes.values() if sector.lower() in ep.sector.lower()]
         matching.sort(key=lambda x: x.timestamp, reverse=True)
         return matching[:limit]
 
@@ -321,15 +318,13 @@ class EpisodicStore:
             List of episodes with feedback
         """
         episodes = [
-            ep for ep in self._episodes.values()
+            ep
+            for ep in self._episodes.values()
             if ep.user_feedback or ep.feedback_score is not None
         ]
 
         if positive_only:
-            episodes = [
-                ep for ep in episodes
-                if ep.feedback_score and ep.feedback_score > 0
-            ]
+            episodes = [ep for ep in episodes if ep.feedback_score and ep.feedback_score > 0]
 
         episodes.sort(key=lambda x: x.timestamp, reverse=True)
         return episodes[:limit]
@@ -428,12 +423,8 @@ class EpisodicStore:
             "total_episodes": len(episodes),
             "unique_territories": len(territories),
             "unique_sectors": len(sectors),
-            "top_territories": sorted(
-                territories.items(), key=lambda x: x[1], reverse=True
-            )[:5],
-            "top_sectors": sorted(
-                sectors.items(), key=lambda x: x[1], reverse=True
-            )[:5],
+            "top_territories": sorted(territories.items(), key=lambda x: x[1], reverse=True)[:5],
+            "top_sectors": sorted(sectors.items(), key=lambda x: x[1], reverse=True)[:5],
             "episodes_with_feedback": len(with_feedback),
             "avg_feedback_score": avg_feedback,
             "oldest_episode": (

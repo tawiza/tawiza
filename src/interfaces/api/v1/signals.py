@@ -130,7 +130,9 @@ async def list_signals(
             ORDER BY {order}
             LIMIT ${idx} OFFSET ${idx + 1}
             """,
-            *params, per_page, offset,
+            *params,
+            per_page,
+            offset,
         )
 
         return {
@@ -166,6 +168,7 @@ async def get_signal_detail(signal_id: int):
         r = await conn.fetchrow("SELECT * FROM signals WHERE id = $1", signal_id)
         if not r:
             from fastapi import HTTPException
+
             raise HTTPException(status_code=404, detail="Signal non trouvé")
 
         return {
@@ -564,7 +567,8 @@ async def get_predictions(
     pool = await get_pool()
     async with pool.acquire() as conn:
         if dept:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT department, source, metric, metric_label,
                        trend_direction, trend_change_pct, changepoints,
                        forecast, last_actual, data_points, prediction_date
@@ -573,9 +577,13 @@ async def get_predictions(
                   AND prediction_date = (SELECT MAX(prediction_date) FROM predictions_prophet WHERE department = $1)
                 ORDER BY ABS(trend_change_pct) DESC
                 LIMIT $2
-            """, dept, limit)
+            """,
+                dept,
+                limit,
+            )
         elif metric:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT DISTINCT ON (department)
                        department, source, metric, metric_label,
                        trend_direction, trend_change_pct, changepoints,
@@ -584,9 +592,13 @@ async def get_predictions(
                 WHERE metric = $1
                 ORDER BY department, prediction_date DESC
                 LIMIT $2
-            """, metric, limit)
+            """,
+                metric,
+                limit,
+            )
         else:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT department, source, metric, metric_label,
                        trend_direction, trend_change_pct, changepoints,
                        forecast, last_actual, data_points, prediction_date
@@ -594,7 +606,9 @@ async def get_predictions(
                 WHERE prediction_date = (SELECT MAX(prediction_date) FROM predictions_prophet)
                 ORDER BY ABS(trend_change_pct) DESC
                 LIMIT $1
-            """, limit)
+            """,
+                limit,
+            )
 
         return {
             "count": len(rows),

@@ -16,6 +16,7 @@ _gpu_thread_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="gpu_met
 @dataclass
 class GPUInfo:
     """GPU metrics snapshot."""
+
     utilization: float = 0.0
     vram_used_gb: float = 0.0
     vram_total_gb: float = 24.0
@@ -41,10 +42,7 @@ def _run_rocm_sync(*args: str, timeout: float = 2.0) -> dict | None:
 
     try:
         result = subprocess.run(
-            ["rocm-smi", *args, "--json"],
-            capture_output=True,
-            text=True,
-            timeout=timeout
+            ["rocm-smi", *args, "--json"], capture_output=True, text=True, timeout=timeout
         )
         if result.returncode == 0 and result.stdout.strip():
             data = json.loads(result.stdout)
@@ -98,7 +96,7 @@ async def get_gpu_metrics() -> GPUInfo:
         _run_rocm_async("--showmeminfo", "vram"),
         _run_rocm_async("--showtemp", "--showfan"),
         _run_rocm_async("--showpower"),
-        return_exceptions=True
+        return_exceptions=True,
     )
 
     use_data, mem_data, temp_data, power_data = results
@@ -121,7 +119,9 @@ async def get_gpu_metrics() -> GPUInfo:
 
     # Parse power
     if isinstance(power_data, dict) and "card0" in power_data:
-        metrics.power_usage = float(power_data["card0"].get("Average Graphics Package Power (W)", 0))
+        metrics.power_usage = float(
+            power_data["card0"].get("Average Graphics Package Power (W)", 0)
+        )
 
     return metrics
 

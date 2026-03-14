@@ -1,10 +1,12 @@
 """SourceArm model for Multi-Armed Bandit source selection."""
+
 from dataclasses import dataclass
 from enum import Enum, StrEnum
 
 
 class SourceType(StrEnum):
     """Type of data source."""
+
     API = "api"
     WEB = "web"
     RSS = "rss"
@@ -21,6 +23,7 @@ class SourceArm:
     - Quality: Data extraction success rate
     - Relevance: Usefulness to TAJINE queries
     """
+
     source_id: str
     url: str
     source_type: SourceType
@@ -49,10 +52,7 @@ class SourceArm:
         return sum(s * w for s, w in zip(scores, weights, strict=False)) / sum(weights)
 
     def record_pull(
-        self,
-        success: bool,
-        freshness: float | None = None,
-        quality: float | None = None
+        self, success: bool, freshness: float | None = None, quality: float | None = None
     ) -> None:
         """
         Record a crawl attempt.

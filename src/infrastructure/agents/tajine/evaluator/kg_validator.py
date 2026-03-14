@@ -1,4 +1,5 @@
 """KG Validator - Knowledge Graph coherence checker for Evaluator."""
+
 from __future__ import annotations
 
 import logging
@@ -32,6 +33,7 @@ def _get_content_text(data: RawData) -> str:
 
 class CoherenceIssue(Enum):
     """Types of coherence issues."""
+
     CONTRADICTION = "contradiction"
     IMPLAUSIBLE_RELATION = "implausible_relation"
     ORPHAN_ENTITY = "orphan_entity"
@@ -42,6 +44,7 @@ class CoherenceIssue(Enum):
 @dataclass
 class CoherenceCheck:
     """Result of a coherence check."""
+
     passed: bool
     score: float  # 0.0 - 1.0
     issues: list[CoherenceIssue]
@@ -141,9 +144,7 @@ class KGValidator:
         scores["contradiction"] = contradiction_score
 
         # Compute weighted average
-        total_score = sum(
-            scores[k] * self.weights[k] for k in scores
-        )
+        total_score = sum(scores[k] * self.weights[k] for k in scores)
 
         return CoherenceCheck(
             passed=total_score >= 0.5,
@@ -152,9 +153,7 @@ class KGValidator:
             details=scores,
         )
 
-    def _validate_patterns(
-        self, data: RawData, issues: list[CoherenceIssue]
-    ) -> float:
+    def _validate_patterns(self, data: RawData, issues: list[CoherenceIssue]) -> float:
         """Validate that identifiers follow expected patterns."""
         violations = 0
         checks = 0
@@ -220,9 +219,7 @@ class KGValidator:
             total += d
         return total % 10 == 0
 
-    def _check_plausibility(
-        self, data: RawData, issues: list[CoherenceIssue]
-    ) -> float:
+    def _check_plausibility(self, data: RawData, issues: list[CoherenceIssue]) -> float:
         """Check if mentioned relationships are plausible."""
         content = _get_content_text(data).lower()
 
@@ -251,9 +248,7 @@ class KGValidator:
         else:
             return 0.2
 
-    async def _check_contradictions(
-        self, data: RawData, issues: list[CoherenceIssue]
-    ) -> float:
+    async def _check_contradictions(self, data: RawData, issues: list[CoherenceIssue]) -> float:
         """Check for contradictions with existing KG data."""
         if not self.neo4j:
             return 0.5  # Neutral if no KG

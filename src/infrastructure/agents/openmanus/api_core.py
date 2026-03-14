@@ -26,8 +26,10 @@ logging.basicConfig(level=logging.INFO)
 # Models
 # ============================
 
+
 class TaskAction(StrEnum):
     """Actions disponibles pour les tâches."""
+
     NAVIGATE = "navigate"
     EXTRACT = "extract"
     FILL_FORM = "fill_form"
@@ -38,6 +40,7 @@ class TaskAction(StrEnum):
 
 class TaskStatus(StrEnum):
     """Status des tâches."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -47,6 +50,7 @@ class TaskStatus(StrEnum):
 
 class AgentType(StrEnum):
     """Types d'agents disponibles."""
+
     BROWSER_USE = "browser_use"
     LAVAGUE = "lavague"
     SKYVERN = "skyvern"
@@ -56,29 +60,27 @@ class AgentType(StrEnum):
 
 class TaskRequest(BaseModel):
     """Requête pour créer une tâche."""
-    model_config = ConfigDict(json_schema_extra={
-        "examples": [
-            {
-                "command": "Va sur Amazon et trouve le prix du livre 'Python Deep Learning'",
-                "agent": "auto"
-            },
-            {
-                "url": "https://example.com",
-                "action": "extract",
-                "data": {
-                    "selectors": {
-                        "title": "h1",
-                        "content": ".main-content"
-                    }
-                }
-            }
-        ]
-    })
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "command": "Va sur Amazon et trouve le prix du livre 'Python Deep Learning'",
+                    "agent": "auto",
+                },
+                {
+                    "url": "https://example.com",
+                    "action": "extract",
+                    "data": {"selectors": {"title": "h1", "content": ".main-content"}},
+                },
+            ]
+        }
+    )
 
     # Commande en langage naturel (recommandé)
     command: str | None = Field(
         None,
-        description="Commande en langage naturel (ex: 'Va sur Amazon et trouve le prix du livre X')"
+        description="Commande en langage naturel (ex: 'Va sur Amazon et trouve le prix du livre X')",
     )
 
     # OU configuration manuelle
@@ -87,14 +89,12 @@ class TaskRequest(BaseModel):
 
     # Configuration agent
     agent: AgentType = Field(
-        AgentType.AUTO,
-        description="Agent à utiliser (auto = sélection automatique)"
+        AgentType.AUTO, description="Agent à utiliser (auto = sélection automatique)"
     )
 
     # Données additionnelles
     data: dict[str, Any] | None = Field(
-        None,
-        description="Données pour l'action (selecteurs, valeurs de formulaire, etc.)"
+        None, description="Données pour l'action (selecteurs, valeurs de formulaire, etc.)"
     )
 
     # Options
@@ -105,20 +105,23 @@ class TaskRequest(BaseModel):
 
 class TaskResponse(BaseModel):
     """Réponse pour une tâche."""
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "task_id": "task-123e4567-e89b-12d3-a456-426614174000",
-            "status": "completed",
-            "agent_used": "browser_use",
-            "created_at": "2025-11-19T10:00:00Z",
-            "updated_at": "2025-11-19T10:00:15Z",
-            "result": {
-                "success": True,
-                "data": {"price": "$45.99"},
-                "screenshot": "base64_encoded_image"
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "task_id": "task-123e4567-e89b-12d3-a456-426614174000",
+                "status": "completed",
+                "agent_used": "browser_use",
+                "created_at": "2025-11-19T10:00:00Z",
+                "updated_at": "2025-11-19T10:00:15Z",
+                "result": {
+                    "success": True,
+                    "data": {"price": "$45.99"},
+                    "screenshot": "base64_encoded_image",
+                },
             }
         }
-    })
+    )
 
     task_id: str
     status: TaskStatus
@@ -131,6 +134,7 @@ class TaskResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     """Réponse du health check."""
+
     status: str
     version: str
     timestamp: datetime
@@ -141,6 +145,7 @@ class HealthResponse(BaseModel):
 # ============================
 # In-Memory Storage (à remplacer par Redis/DB)
 # ============================
+
 
 class TaskStore:
     """Store temporaire pour les tâches (à remplacer par Redis)."""
@@ -156,7 +161,7 @@ class TaskStore:
             "status": TaskStatus.PENDING,
             "created_at": datetime.now(),
             "updated_at": datetime.now(),
-            **task_data
+            **task_data,
         }
         return task_id
 
@@ -179,8 +184,13 @@ class TaskStore:
 
     def get_active_tasks_count(self) -> int:
         """Compte les tâches actives."""
-        return len([t for t in self.tasks.values()
-                   if t["status"] in [TaskStatus.PENDING, TaskStatus.RUNNING]])
+        return len(
+            [
+                t
+                for t in self.tasks.values()
+                if t["status"] in [TaskStatus.PENDING, TaskStatus.RUNNING]
+            ]
+        )
 
 
 # Global task store
@@ -196,7 +206,7 @@ app = FastAPI(
     description="API pour l'automatisation web intelligente avec multi-agents",
     version="2.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Server start time for uptime tracking
@@ -216,6 +226,7 @@ app.add_middleware(
 # Task Execution (placeholder)
 # ============================
 
+
 async def execute_task_async(task_id: str, task_request: TaskRequest):
     """
     Exécute une tâche de manière asynchrone.
@@ -223,10 +234,9 @@ async def execute_task_async(task_id: str, task_request: TaskRequest):
     """
     try:
         # Update status to running
-        task_store.update_task(task_id, {
-            "status": TaskStatus.RUNNING,
-            "agent_used": task_request.agent.value
-        })
+        task_store.update_task(
+            task_id, {"status": TaskStatus.RUNNING, "agent_used": task_request.agent.value}
+        )
 
         logger.info(f"Démarrage de la tâche {task_id}")
 
@@ -240,29 +250,24 @@ async def execute_task_async(task_id: str, task_request: TaskRequest):
             "data": {
                 "url": task_request.url or "N/A",
                 "action": task_request.action.value if task_request.action else "N/A",
-                "command": task_request.command or "N/A"
-            }
+                "command": task_request.command or "N/A",
+            },
         }
 
         # Update with success
-        task_store.update_task(task_id, {
-            "status": TaskStatus.COMPLETED,
-            "result": result
-        })
+        task_store.update_task(task_id, {"status": TaskStatus.COMPLETED, "result": result})
 
         logger.info(f"Tâche {task_id} terminée avec succès")
 
     except Exception as e:
         logger.error(f"Erreur lors de l'exécution de la tâche {task_id}: {e}")
-        task_store.update_task(task_id, {
-            "status": TaskStatus.FAILED,
-            "error": str(e)
-        })
+        task_store.update_task(task_id, {"status": TaskStatus.FAILED, "error": str(e)})
 
 
 # ============================
 # API Endpoints
 # ============================
+
 
 @app.get("/", response_model=dict[str, str])
 async def root():
@@ -271,7 +276,7 @@ async def root():
         "name": "OpenManus Intelligence Platform API",
         "version": "2.0.0",
         "status": "operational",
-        "docs": "/docs"
+        "docs": "/docs",
     }
 
 
@@ -286,17 +291,14 @@ async def health_check():
             "api": "operational",
             "task_queue": "operational",
             "browser_pool": "operational",
-            "storage": "operational"
+            "storage": "operational",
         },
-        active_tasks=task_store.get_active_tasks_count()
+        active_tasks=task_store.get_active_tasks_count(),
     )
 
 
 @app.post("/api/v1/tasks", response_model=TaskResponse, status_code=201)
-async def create_task(
-    task_request: TaskRequest,
-    background_tasks: BackgroundTasks
-):
+async def create_task(task_request: TaskRequest, background_tasks: BackgroundTasks):
     """
     Crée une nouvelle tâche d'automatisation.
 
@@ -311,8 +313,7 @@ async def create_task(
     # Validation
     if not task_request.command and not task_request.url:
         raise HTTPException(
-            status_code=400,
-            detail="Vous devez fournir soit 'command' (langage naturel) soit 'url'"
+            status_code=400, detail="Vous devez fournir soit 'command' (langage naturel) soit 'url'"
         )
 
     # Créer la tâche
@@ -322,7 +323,7 @@ async def create_task(
         "action": task_request.action.value if task_request.action else None,
         "agent": task_request.agent.value,
         "data": task_request.data,
-        "timeout": task_request.timeout
+        "timeout": task_request.timeout,
     }
 
     task_id = task_store.create_task(task_data)
@@ -340,7 +341,7 @@ async def create_task(
         created_at=task["created_at"],
         updated_at=task["updated_at"],
         result=task.get("result"),
-        error=task.get("error")
+        error=task.get("error"),
     )
 
 
@@ -359,15 +360,12 @@ async def get_task(task_id: str):
         created_at=task["created_at"],
         updated_at=task["updated_at"],
         result=task.get("result"),
-        error=task.get("error")
+        error=task.get("error"),
     )
 
 
 @app.get("/api/v1/tasks", response_model=list[TaskResponse])
-async def list_tasks(
-    status: TaskStatus | None = None,
-    limit: int = 50
-):
+async def list_tasks(status: TaskStatus | None = None, limit: int = 50):
     """Liste les tâches."""
     tasks = task_store.list_tasks(status)[:limit]
 
@@ -379,7 +377,7 @@ async def list_tasks(
             created_at=task["created_at"],
             updated_at=task["updated_at"],
             result=task.get("result"),
-            error=task.get("error")
+            error=task.get("error"),
         )
         for task in tasks
     ]
@@ -396,7 +394,7 @@ async def cancel_task(task_id: str):
     if task["status"] in [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED]:
         raise HTTPException(
             status_code=400,
-            detail=f"Impossible d'annuler une tâche avec le status: {task['status']}"
+            detail=f"Impossible d'annuler une tâche avec le status: {task['status']}",
         )
 
     task_store.update_task(task_id, {"status": TaskStatus.CANCELLED})
@@ -414,29 +412,29 @@ async def list_agents():
                 "name": "Browser-Use",
                 "description": "LLM-guided browsing, bon pour tâches conversationnelles",
                 "status": "available",
-                "best_for": ["exploration", "chat-like tasks"]
+                "best_for": ["exploration", "chat-like tasks"],
             },
             {
                 "id": "lavague",
                 "name": "LaVague",
                 "description": "Large Action Model, excellent pour workflows complexes",
                 "status": "planned",
-                "best_for": ["multi-step workflows", "automation"]
+                "best_for": ["multi-step workflows", "automation"],
             },
             {
                 "id": "skyvern",
                 "name": "Skyvern",
                 "description": "Vision + LLM, s'adapte aux sites dynamiques",
                 "status": "planned",
-                "best_for": ["dynamic sites", "SPAs", "vision-based"]
+                "best_for": ["dynamic sites", "SPAs", "vision-based"],
             },
             {
                 "id": "agent_e",
                 "name": "Agent-E",
                 "description": "Expert DOM, précis pour les formulaires",
                 "status": "planned",
-                "best_for": ["forms", "precise clicks"]
-            }
+                "best_for": ["forms", "precise clicks"],
+            },
         ]
     }
 
@@ -457,13 +455,16 @@ async def get_stats():
         "completed_tasks": completed,
         "failed_tasks": failed,
         "success_rate": (completed / total_tasks * 100) if total_tasks > 0 else 0,
-        "uptime_seconds": int((datetime.now() - _server_start_time).total_seconds()) if _server_start_time else 0,
+        "uptime_seconds": int((datetime.now() - _server_start_time).total_seconds())
+        if _server_start_time
+        else 0,
     }
 
 
 # ============================
 # Startup/Shutdown
 # ============================
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -487,10 +488,4 @@ async def shutdown_event():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(
-        "api_core:app",
-        host="0.0.0.0",
-        port=8085,
-        reload=True,
-        log_level="info"
-    )
+    uvicorn.run("api_core:app", host="0.0.0.0", port=8085, reload=True, log_level="info")

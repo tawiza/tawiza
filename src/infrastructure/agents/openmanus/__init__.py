@@ -22,14 +22,18 @@ def __getattr__(name: str):
     """Lazy import for optional components."""
     if name == "VMSandboxAdapter":
         from src.infrastructure.agents.openmanus.vm_sandbox_adapter import VMSandboxAdapter
+
         return VMSandboxAdapter
     elif name == "VMMonitor":
         from src.infrastructure.agents.openmanus.vm_monitor import VMMonitor
+
         return VMMonitor
     elif name == "VMSandboxAPI":
         from src.infrastructure.agents.openmanus.vm_sandbox_api import VMSandboxAPI
+
         return VMSandboxAPI
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "OpenManusAdapter",

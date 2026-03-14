@@ -52,7 +52,9 @@ class BasePoller(ABC):
         text_lower = text.lower()
         return any(kw.lower() in text_lower for kw in keywords)
 
-    def filter_by_keywords(self, items: list[dict], keywords: list[str], text_fields: list[str]) -> list[dict]:
+    def filter_by_keywords(
+        self, items: list[dict], keywords: list[str], text_fields: list[str]
+    ) -> list[dict]:
         """Filter items that match any keyword in specified fields.
 
         Args:

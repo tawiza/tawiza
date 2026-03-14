@@ -34,6 +34,7 @@ def get_pipeline():
     global _pipeline_instance
     if _pipeline_instance is None:
         from src.infrastructure.learning import UnifiedLearningPipeline
+
         _pipeline_instance = UnifiedLearningPipeline()
     return _pipeline_instance
 
@@ -50,7 +51,7 @@ def status():
 
     table.add_row("Examples Collected", f"[green]{stats['examples_collected']}[/green]")
     table.add_row("Candidates Queued", f"[yellow]{stats['candidates_queued']}[/yellow]")
-    table.add_row("Training Runs", str(stats['training_runs']))
+    table.add_row("Training Runs", str(stats["training_runs"]))
     table.add_row(
         "Avg Instruction Length",
         f"{stats['dataset_stats']['avg_instruction_len']:.0f} chars",
@@ -66,7 +67,9 @@ def status():
 @app.command("push")
 def push_for_annotation(
     max_candidates: int = typer.Option(50, "--max", "-m", help="Maximum candidates to push"),
-    project_name: str = typer.Option("UAA Training", "--project", "-p", help="Label Studio project name"),
+    project_name: str = typer.Option(
+        "UAA Training", "--project", "-p", help="Label Studio project name"
+    ),
 ):
     """Push candidates to Label Studio for annotation.
 
@@ -85,24 +88,26 @@ def push_for_annotation(
 
         # Create project if needed
         if not pipeline.label_studio.config.project_id:
-            project_id = run_async(
-                pipeline.label_studio.create_annotation_project(project_name)
-            )
+            project_id = run_async(pipeline.label_studio.create_annotation_project(project_name))
             if project_id:
                 console.print(f"[green]Created project: {project_id}[/green]")
 
         num_pushed = run_async(pipeline.push_for_annotation(max_candidates))
 
     if num_pushed > 0:
-        console.print(Panel(
-            f"[green]Pushed {num_pushed} candidates for annotation[/green]\n\n"
-            f"Open Label Studio to annotate:\n"
-            f"[cyan]http://localhost:8080/projects/{pipeline.label_studio.config.project_id}[/cyan]",
-            title="Success",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                f"[green]Pushed {num_pushed} candidates for annotation[/green]\n\n"
+                f"Open Label Studio to annotate:\n"
+                f"[cyan]http://localhost:8080/projects/{pipeline.label_studio.config.project_id}[/cyan]",
+                title="Success",
+                border_style="green",
+            )
+        )
     else:
-        console.print("[yellow]No candidates to push (queue empty or Label Studio unavailable)[/yellow]")
+        console.print(
+            "[yellow]No candidates to push (queue empty or Label Studio unavailable)[/yellow]"
+        )
 
 
 @app.command("pull")
@@ -124,12 +129,14 @@ def pull_annotations():
         num_pulled = run_async(pipeline.pull_annotations())
 
     if num_pulled > 0:
-        console.print(Panel(
-            f"[green]Pulled {num_pulled} quality annotations[/green]\n\n"
-            f"Total examples: {pipeline.dataset_builder.stats.total_examples}",
-            title="Success",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                f"[green]Pulled {num_pulled} quality annotations[/green]\n\n"
+                f"Total examples: {pipeline.dataset_builder.stats.total_examples}",
+                title="Success",
+                border_style="green",
+            )
+        )
     else:
         console.print("[yellow]No new annotations found[/yellow]")
 
@@ -153,14 +160,16 @@ def train(
     # Check if we have enough examples
     stats = pipeline.get_stats()
     if stats["examples_collected"] < 10:
-        console.print(Panel(
-            f"[red]Not enough examples[/red]\n\n"
-            f"Have: {stats['examples_collected']}\n"
-            f"Need: at least 10\n\n"
-            f"Use [cyan]tawiza learning push[/cyan] and annotate in Label Studio first",
-            title="Cannot Train",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"[red]Not enough examples[/red]\n\n"
+                f"Have: {stats['examples_collected']}\n"
+                f"Need: at least 10\n\n"
+                f"Use [cyan]tawiza learning push[/cyan] and annotate in Label Studio first",
+                title="Cannot Train",
+                border_style="red",
+            )
+        )
         raise typer.Exit(1)
 
     # Update config
@@ -171,16 +180,18 @@ def train(
         use_lora=use_lora,
     )
 
-    console.print(Panel(
-        f"[bold]Training Configuration[/bold]\n\n"
-        f"Base Model: {base_model}\n"
-        f"Examples: {stats['examples_collected']}\n"
-        f"Epochs: {epochs}\n"
-        f"Batch Size: {batch_size}\n"
-        f"Method: {'LoRA' if use_lora else 'Full'}",
-        title="Starting Training",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Training Configuration[/bold]\n\n"
+            f"Base Model: {base_model}\n"
+            f"Examples: {stats['examples_collected']}\n"
+            f"Epochs: {epochs}\n"
+            f"Batch Size: {batch_size}\n"
+            f"Method: {'LoRA' if use_lora else 'Full'}",
+            title="Starting Training",
+            border_style="cyan",
+        )
+    )
 
     with Progress(
         SpinnerColumn(),
@@ -191,20 +202,23 @@ def train(
         result = run_async(pipeline.train(model_name))
 
     if result.get("success"):
-        console.print(Panel(
-            f"[green]Training completed successfully![/green]\n\n"
-            f"Run ID: {result.get('run_id', 'N/A')}\n"
-            f"Output: {result.get('output_dir', 'N/A')}",
-            title="Training Complete",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                f"[green]Training completed successfully![/green]\n\n"
+                f"Run ID: {result.get('run_id', 'N/A')}\n"
+                f"Output: {result.get('output_dir', 'N/A')}",
+                title="Training Complete",
+                border_style="green",
+            )
+        )
     else:
-        console.print(Panel(
-            f"[red]Training failed[/red]\n\n"
-            f"Error: {result.get('error', 'Unknown error')}",
-            title="Training Failed",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"[red]Training failed[/red]\n\nError: {result.get('error', 'Unknown error')}",
+                title="Training Failed",
+                border_style="red",
+            )
+        )
 
 
 @app.command("export")
@@ -240,14 +254,16 @@ def export_dataset(
     output.parent.mkdir(parents=True, exist_ok=True)
     saved_path = pipeline.dataset_builder.save(str(output), format_map[format.lower()])
 
-    console.print(Panel(
-        f"[green]Dataset exported successfully![/green]\n\n"
-        f"Path: {saved_path}\n"
-        f"Format: {format}\n"
-        f"Examples: {pipeline.dataset_builder.stats.total_examples}",
-        title="Export Complete",
-        border_style="green",
-    ))
+    console.print(
+        Panel(
+            f"[green]Dataset exported successfully![/green]\n\n"
+            f"Path: {saved_path}\n"
+            f"Format: {format}\n"
+            f"Examples: {pipeline.dataset_builder.stats.total_examples}",
+            title="Export Complete",
+            border_style="green",
+        )
+    )
 
 
 @app.command("import")
@@ -300,12 +316,14 @@ def import_dataset(
                         )
                         pipeline.dataset_builder.add_example(example)
 
-        console.print(Panel(
-            f"[green]Dataset imported successfully![/green]\n\n"
-            f"Total examples: {pipeline.dataset_builder.stats.total_examples}",
-            title="Import Complete",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                f"[green]Dataset imported successfully![/green]\n\n"
+                f"Total examples: {pipeline.dataset_builder.stats.total_examples}",
+                title="Import Complete",
+                border_style="green",
+            )
+        )
 
     except Exception as e:
         console.print(f"[red]Error importing: {e}[/red]")
@@ -333,14 +351,16 @@ def add_example(
     )
     pipeline.dataset_builder.add_example(example)
 
-    console.print(Panel(
-        f"[green]Example added![/green]\n\n"
-        f"Instruction: {instruction[:50]}...\n"
-        f"Output: {output[:50]}...\n\n"
-        f"Total examples: {pipeline.dataset_builder.stats.total_examples}",
-        title="Example Added",
-        border_style="green",
-    ))
+    console.print(
+        Panel(
+            f"[green]Example added![/green]\n\n"
+            f"Instruction: {instruction[:50]}...\n"
+            f"Output: {output[:50]}...\n\n"
+            f"Total examples: {pipeline.dataset_builder.stats.total_examples}",
+            title="Example Added",
+            border_style="green",
+        )
+    )
 
 
 @app.command("full-cycle")
@@ -363,14 +383,16 @@ def full_cycle(
     # Check if we have enough
     stats = pipeline.get_stats()
     if stats["examples_collected"] < 10:
-        console.print(Panel(
-            f"[yellow]Not enough examples yet[/yellow]\n\n"
-            f"Have: {stats['examples_collected']}\n"
-            f"Need: at least 10\n\n"
-            f"Continue annotating in Label Studio",
-            title="Waiting for More Data",
-            border_style="yellow",
-        ))
+        console.print(
+            Panel(
+                f"[yellow]Not enough examples yet[/yellow]\n\n"
+                f"Have: {stats['examples_collected']}\n"
+                f"Need: at least 10\n\n"
+                f"Continue annotating in Label Studio",
+                title="Waiting for More Data",
+                border_style="yellow",
+            )
+        )
         return
 
     # Step 2: Train
@@ -385,15 +407,17 @@ def full_cycle(
         result = run_async(pipeline.train(model_name))
 
     if result.get("success"):
-        console.print(Panel(
-            f"[green]Learning cycle completed![/green]\n\n"
-            f"Model: {result.get('output_dir', 'N/A')}\n"
-            f"Examples trained: {stats['examples_collected']}\n\n"
-            f"Next steps:\n"
-            f"1. Deploy with: [cyan]tawiza uaa config --set-model {result.get('output_dir')}[/cyan]\n"
-            f"2. Continue collecting feedback",
-            title="Cycle Complete",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                f"[green]Learning cycle completed![/green]\n\n"
+                f"Model: {result.get('output_dir', 'N/A')}\n"
+                f"Examples trained: {stats['examples_collected']}\n\n"
+                f"Next steps:\n"
+                f"1. Deploy with: [cyan]tawiza uaa config --set-model {result.get('output_dir')}[/cyan]\n"
+                f"2. Continue collecting feedback",
+                title="Cycle Complete",
+                border_style="green",
+            )
+        )
     else:
         console.print(f"[red]Training failed: {result.get('error')}[/red]")

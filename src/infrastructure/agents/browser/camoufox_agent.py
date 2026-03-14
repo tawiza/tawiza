@@ -26,6 +26,7 @@ from loguru import logger
 # Optional import with fallback
 try:
     from camoufox.async_api import AsyncCamoufox
+
     CAMOUFOX_AVAILABLE = True
 except ImportError:
     CAMOUFOX_AVAILABLE = False
@@ -34,6 +35,7 @@ except ImportError:
 
 class CamoufoxAction(Enum):
     """Types of Camoufox browser actions."""
+
     NAVIGATE = "navigate"
     CLICK = "click"
     TYPE = "type"
@@ -47,6 +49,7 @@ class CamoufoxAction(Enum):
 @dataclass
 class CamoufoxResult:
     """Result of a Camoufox browser action."""
+
     success: bool
     action: CamoufoxAction
     screenshot_b64: str | None = None
@@ -64,6 +67,7 @@ class FingerprintConfig:
     Camoufox uses BrowserForge to generate realistic fingerprints.
     Unset values are auto-populated from real-world distributions.
     """
+
     # Navigator
     user_agent: str | None = None
     platform: str | None = None  # "Win32", "MacIntel", "Linux x86_64"
@@ -115,16 +119,16 @@ class FingerprintConfig:
 
 # French city coordinates for geolocation spoofing
 FRENCH_GEOLOCATIONS = {
-    "75": (48.8566, 2.3522),     # Paris
-    "69": (45.7640, 4.8357),     # Lyon
-    "13": (43.2965, 5.3698),     # Marseille
-    "31": (43.6047, 1.4442),     # Toulouse
-    "33": (44.8378, -0.5792),    # Bordeaux
-    "59": (50.6292, 3.0573),     # Lille
-    "06": (43.7102, 7.2620),     # Nice
-    "44": (47.2184, -1.5536),    # Nantes
-    "67": (48.5734, 7.7521),     # Strasbourg
-    "34": (43.6108, 3.8767),     # Montpellier
+    "75": (48.8566, 2.3522),  # Paris
+    "69": (45.7640, 4.8357),  # Lyon
+    "13": (43.2965, 5.3698),  # Marseille
+    "31": (43.6047, 1.4442),  # Toulouse
+    "33": (44.8378, -0.5792),  # Bordeaux
+    "59": (50.6292, 3.0573),  # Lille
+    "06": (43.7102, 7.2620),  # Nice
+    "44": (47.2184, -1.5536),  # Nantes
+    "67": (48.5734, 7.7521),  # Strasbourg
+    "34": (43.6108, 3.8767),  # Montpellier
 }
 
 

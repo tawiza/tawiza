@@ -364,9 +364,7 @@ async def get_retraining_conditions(
     along with a recommendation and reason.
     """
     try:
-        result = await use_case.execute(
-            model_name=model_name, model_version=model_version
-        )
+        result = await use_case.execute(model_name=model_name, model_version=model_version)
 
         return RetrainingConditionsResponse(
             model_name=result["model_name"],

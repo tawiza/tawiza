@@ -31,76 +31,110 @@ logger = logging.getLogger(__name__)
 # Security configuration
 DANGEROUS_PATTERNS = [
     # Destructive operations
-    r'\brm\s+.*-[rR]',  # rm -r, rm -R
-    r'\brm\s+.*-f',     # rm -f
-    r'\bdd\s+',         # dd (disk destroyer)
-    r'\bmkfs\.',        # mkfs.* (format filesystem)
-    r'\bformat\s+',     # format command
-    r'\b:\(\)\s*{\s*:\|\:&\s*}\s*;',  # fork bomb
-
+    r"\brm\s+.*-[rR]",  # rm -r, rm -R
+    r"\brm\s+.*-f",  # rm -f
+    r"\bdd\s+",  # dd (disk destroyer)
+    r"\bmkfs\.",  # mkfs.* (format filesystem)
+    r"\bformat\s+",  # format command
+    r"\b:\(\)\s*{\s*:\|\:&\s*}\s*;",  # fork bomb
     # Privilege escalation
-    r'\bsudo\s+',
-    r'\bsu\s+',
-    r'\bchmod\s+',
-    r'\bchown\s+',
-
+    r"\bsudo\s+",
+    r"\bsu\s+",
+    r"\bchmod\s+",
+    r"\bchown\s+",
     # Network/download
-    r'\bcurl\s+.*\|\s*bash',  # curl | bash
-    r'\bcurl\s+.*\|\s*sh',    # curl | sh
-    r'\bwget\s+.*\|\s*bash',
-    r'\bwget\s+.*\|\s*sh',
-
+    r"\bcurl\s+.*\|\s*bash",  # curl | bash
+    r"\bcurl\s+.*\|\s*sh",  # curl | sh
+    r"\bwget\s+.*\|\s*bash",
+    r"\bwget\s+.*\|\s*sh",
     # System modification
-    r'\biptables\s+',
-    r'\bufw\s+',
-    r'\bsystemctl\s+',
-    r'\bservice\s+',
-    r'\binit\s+',
-
+    r"\biptables\s+",
+    r"\bufw\s+",
+    r"\bsystemctl\s+",
+    r"\bservice\s+",
+    r"\binit\s+",
     # Process management (potentially dangerous)
-    r'\bkill\s+-9',
-    r'\bkillall\s+',
-    r'\bpkill\s+',
-
+    r"\bkill\s+-9",
+    r"\bkillall\s+",
+    r"\bpkill\s+",
     # File descriptor tricks
-    r'>\s*/dev/',
-    r'<\s*/dev/tcp',
-    r'<\s*/dev/udp',
-
+    r">\s*/dev/",
+    r"<\s*/dev/tcp",
+    r"<\s*/dev/udp",
     # Shell trickery
-    r'\beval\s+',
-    r'\bexec\s+',
-    r'\$\(',           # Command substitution
-    r'`',              # Backticks
+    r"\beval\s+",
+    r"\bexec\s+",
+    r"\$\(",  # Command substitution
+    r"`",  # Backticks
 ]
 
 # Allowed commands (whitelist approach)
 ALLOWED_COMMANDS = {
     # File inspection (read-only)
-    'ls', 'cat', 'head', 'tail', 'less', 'more',
-    'find', 'grep', 'awk', 'sed', 'cut', 'sort', 'uniq',
-    'wc', 'diff', 'file', 'stat',
-
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "less",
+    "more",
+    "find",
+    "grep",
+    "awk",
+    "sed",
+    "cut",
+    "sort",
+    "uniq",
+    "wc",
+    "diff",
+    "file",
+    "stat",
     # System info (read-only)
-    'pwd', 'whoami', 'hostname', 'uname', 'uptime',
-    'date', 'cal', 'env', 'printenv',
-    'df', 'du', 'free', 'top', 'ps', 'pstree',
-
+    "pwd",
+    "whoami",
+    "hostname",
+    "uname",
+    "uptime",
+    "date",
+    "cal",
+    "env",
+    "printenv",
+    "df",
+    "du",
+    "free",
+    "top",
+    "ps",
+    "pstree",
     # Text processing
-    'echo', 'printf', 'tr', 'rev', 'tac',
-
+    "echo",
+    "printf",
+    "tr",
+    "rev",
+    "tac",
     # Archives (read-only)
-    'tar', 'zip', 'unzip', 'gzip', 'gunzip', 'bzip2', 'bunzip2',
-
+    "tar",
+    "zip",
+    "unzip",
+    "gzip",
+    "gunzip",
+    "bzip2",
+    "bunzip2",
     # Network (read-only)
-    'ping', 'traceroute', 'nslookup', 'dig', 'whois',
-    'curl', 'wget',  # Allowed but with argument validation
-
+    "ping",
+    "traceroute",
+    "nslookup",
+    "dig",
+    "whois",
+    "curl",
+    "wget",  # Allowed but with argument validation
     # Development
-    'git', 'python3', 'node', 'npm', 'pip3',
-
+    "git",
+    "python3",
+    "node",
+    "npm",
+    "pip3",
     # Math
-    'bc', 'expr',
+    "bc",
+    "expr",
 }
 
 
@@ -129,7 +163,7 @@ class BashExecuteTool(BaseTool):
         use_vm_sandbox: bool = False,
         vm_sandbox_client: Any | None = None,
         default_timeout: int = 30,
-        strict_mode: bool = True
+        strict_mode: bool = True,
     ):
         """
         Initialize Bash execution tool.
@@ -147,8 +181,7 @@ class BashExecuteTool(BaseTool):
 
         if use_vm_sandbox and not vm_sandbox_client:
             logger.warning(
-                "VM sandbox requested but no client provided. "
-                "Falling back to local execution."
+                "VM sandbox requested but no client provided. Falling back to local execution."
             )
             self._use_vm_sandbox = False
 
@@ -176,7 +209,7 @@ class BashExecuteTool(BaseTool):
                         "Bash command to execute. "
                         "Can be a simple command or pipeline. "
                         "Dangerous operations are blocked for security."
-                    )
+                    ),
                 },
                 "timeout": {
                     "type": "integer",
@@ -185,14 +218,14 @@ class BashExecuteTool(BaseTool):
                     ),
                     "default": self._default_timeout,
                     "minimum": 1,
-                    "maximum": 300
+                    "maximum": 300,
                 },
                 "working_dir": {
                     "type": "string",
                     "description": "Working directory for command execution (optional)",
-                }
+                },
             },
-            "required": ["command"]
+            "required": ["command"],
         }
 
     @property
@@ -246,7 +279,7 @@ class BashExecuteTool(BaseTool):
             if len(working_dir) > 1000:
                 return "working_dir too long"
             # Block path traversal
-            if '..' in working_dir:
+            if ".." in working_dir:
                 return "Path traversal (..) not allowed in working_dir"
 
         return None
@@ -262,7 +295,7 @@ class BashExecuteTool(BaseTool):
             Error message if invalid command found, None otherwise
         """
         # Split command by pipes and semicolons
-        parts = re.split(r'[|;]', command)
+        parts = re.split(r"[|;]", command)
 
         for part in parts:
             part = part.strip()
@@ -275,7 +308,7 @@ class BashExecuteTool(BaseTool):
                 if not tokens:
                     continue
 
-                base_command = tokens[0].split('/')[-1]  # Handle /usr/bin/ls -> ls
+                base_command = tokens[0].split("/")[-1]  # Handle /usr/bin/ls -> ls
 
                 if base_command not in ALLOWED_COMMANDS:
                     return (
@@ -310,11 +343,7 @@ class BashExecuteTool(BaseTool):
             # Validate first
             validation_error = self.validate_input(**kwargs)
             if validation_error:
-                return ToolResult(
-                    success=False,
-                    error=validation_error,
-                    execution_time_ms=0
-                )
+                return ToolResult(success=False, error=validation_error, execution_time_ms=0)
 
             # Execute in appropriate environment
             if self._use_vm_sandbox:
@@ -331,8 +360,8 @@ class BashExecuteTool(BaseTool):
                 metadata={
                     "sandbox_type": "vm" if self._use_vm_sandbox else "local",
                     "timeout": timeout,
-                    "exit_code": result["exit_code"]
-                }
+                    "exit_code": result["exit_code"],
+                },
             )
 
         except TimeoutError:
@@ -340,7 +369,7 @@ class BashExecuteTool(BaseTool):
             return ToolResult(
                 success=False,
                 error=f"Execution timed out after {timeout} seconds",
-                execution_time_ms=execution_time_ms
+                execution_time_ms=execution_time_ms,
             )
 
         except Exception as e:
@@ -350,14 +379,11 @@ class BashExecuteTool(BaseTool):
                 success=False,
                 error=f"Execution error: {str(e)}",
                 execution_time_ms=execution_time_ms,
-                metadata={"exception_type": type(e).__name__}
+                metadata={"exception_type": type(e).__name__},
             )
 
     async def _execute_local(
-        self,
-        command: str,
-        timeout: int,
-        working_dir: str | None
+        self, command: str, timeout: int, working_dir: str | None
     ) -> dict[str, Any]:
         """
         Execute command locally with asyncio.subprocess.
@@ -379,19 +405,16 @@ class BashExecuteTool(BaseTool):
                 command,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                cwd=working_dir
+                cwd=working_dir,
             )
 
             # Wait for completion with timeout
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
 
             return {
-                "stdout": stdout.decode('utf-8', errors='replace'),
-                "stderr": stderr.decode('utf-8', errors='replace'),
-                "exit_code": process.returncode or 0
+                "stdout": stdout.decode("utf-8", errors="replace"),
+                "stderr": stderr.decode("utf-8", errors="replace"),
+                "exit_code": process.returncode or 0,
             }
 
         except TimeoutError:
@@ -404,10 +427,7 @@ class BashExecuteTool(BaseTool):
             raise
 
     async def _execute_in_vm(
-        self,
-        command: str,
-        timeout: int,
-        working_dir: str | None
+        self, command: str, timeout: int, working_dir: str | None
     ) -> dict[str, Any]:
         """
         Execute command in VM sandbox via VMSandboxClient.
@@ -432,10 +452,7 @@ class BashExecuteTool(BaseTool):
             full_command = f"cd {working_dir} && {command}"
 
         # Call VM sandbox service
-        result = await self._vm_sandbox_client.run_bash(
-            code=full_command,
-            timeout=timeout
-        )
+        result = await self._vm_sandbox_client.run_bash(code=full_command, timeout=timeout)
 
         # Log execution for monitoring
         if result.success:
@@ -444,16 +461,14 @@ class BashExecuteTool(BaseTool):
                 f"exit_code={result.exit_code}, duration={result.duration_ms}ms"
             )
         else:
-            logger.warning(
-                f"VM sandbox bash execution failed: {result.error}"
-            )
+            logger.warning(f"VM sandbox bash execution failed: {result.error}")
 
         return {
             "stdout": result.stdout,
             "stderr": result.stderr,
             "exit_code": result.exit_code,
             "vm_run_id": result.run_id,
-            "duration_ms": result.duration_ms
+            "duration_ms": result.duration_ms,
         }
 
     async def execute_stream(
@@ -461,7 +476,7 @@ class BashExecuteTool(BaseTool):
         command: str,
         on_output: Any | None = None,
         timeout: int | None = None,
-        working_dir: str | None = None
+        working_dir: str | None = None,
     ) -> ToolResult:
         """
         Execute Bash command with streaming output.
@@ -486,18 +501,14 @@ class BashExecuteTool(BaseTool):
             # Validate first
             validation_error = self.validate_input(command=command, working_dir=working_dir)
             if validation_error:
-                return ToolResult(
-                    success=False,
-                    error=validation_error,
-                    execution_time_ms=0
-                )
+                return ToolResult(success=False, error=validation_error, execution_time_ms=0)
 
             # Must use VM sandbox for streaming
             if not self._use_vm_sandbox or not self._vm_sandbox_client:
                 return ToolResult(
                     success=False,
                     error="Streaming execution requires VM sandbox mode",
-                    execution_time_ms=0
+                    execution_time_ms=0,
                 )
 
             # Prepend cd if working_dir specified
@@ -513,9 +524,7 @@ class BashExecuteTool(BaseTool):
 
             # Execute with streaming
             result = await self._vm_sandbox_client.run_bash_stream(
-                code=full_command,
-                on_output=callback,
-                timeout=timeout
+                code=full_command, on_output=callback, timeout=timeout
             )
 
             execution_time_ms = (time.time() - start_time) * 1000
@@ -527,14 +536,14 @@ class BashExecuteTool(BaseTool):
                     "stderr": result.stderr,
                     "exit_code": result.exit_code,
                     "vm_run_id": result.run_id,
-                    "duration_ms": result.duration_ms
+                    "duration_ms": result.duration_ms,
                 },
                 execution_time_ms=execution_time_ms,
                 metadata={
                     "sandbox_type": "vm_stream",
                     "timeout": timeout,
-                    "exit_code": result.exit_code
-                }
+                    "exit_code": result.exit_code,
+                },
             )
 
         except Exception as e:
@@ -544,5 +553,5 @@ class BashExecuteTool(BaseTool):
                 success=False,
                 error=f"Streaming execution error: {str(e)}",
                 execution_time_ms=execution_time_ms,
-                metadata={"exception_type": type(e).__name__}
+                metadata={"exception_type": type(e).__name__},
             )

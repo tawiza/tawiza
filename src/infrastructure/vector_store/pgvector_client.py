@@ -2,6 +2,7 @@
 PostgreSQL + pgvector client for high-performance vector search
 Optimized for AMD architecture and self-hosted deployment
 """
+
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -13,6 +14,7 @@ import asyncpg
 @dataclass
 class SearchResult:
     """Vector search result with metadata"""
+
     id: int
     document_id: str
     chunk_id: str
@@ -78,10 +80,7 @@ class PGVectorClient:
             max_size: Maximum number of connections in pool
         """
         self.pool = await asyncpg.create_pool(
-            self.dsn,
-            min_size=min_size,
-            max_size=max_size,
-            command_timeout=60
+            self.dsn, min_size=min_size, max_size=max_size, command_timeout=60
         )
         print(f"✅ Connected to pgvector (pool: {min_size}-{max_size})")
 
@@ -98,7 +97,7 @@ class PGVectorClient:
         content: str,
         embedding: list[float],
         metadata: dict[str, Any] | None = None,
-        source: str | None = None
+        source: str | None = None,
     ) -> int:
         """
         Insert or update embedding
@@ -116,8 +115,7 @@ class PGVectorClient:
         """
         if len(embedding) != self.embedding_dim:
             raise ValueError(
-                f"Embedding dimension mismatch: expected {self.embedding_dim}, "
-                f"got {len(embedding)}"
+                f"Embedding dimension mismatch: expected {self.embedding_dim}, got {len(embedding)}"
             )
 
         async with self.pool.acquire() as conn:
@@ -138,15 +136,11 @@ class PGVectorClient:
                 content,
                 embedding,
                 json.dumps(metadata or {}),
-                source
+                source,
             )
-            return row['id']
+            return row["id"]
 
-    async def bulk_insert(
-        self,
-        embeddings: list[dict[str, Any]],
-        batch_size: int = 1000
-    ) -> int:
+    async def bulk_insert(self, embeddings: list[dict[str, Any]], batch_size: int = 1000) -> int:
         """
         Bulk insert embeddings for high throughput
 
@@ -161,7 +155,7 @@ class PGVectorClient:
 
         async with self.pool.acquire() as conn:
             for i in range(0, len(embeddings), batch_size):
-                batch = embeddings[i:i + batch_size]
+                batch = embeddings[i : i + batch_size]
 
                 async with conn.transaction():
                     await conn.executemany(
@@ -182,10 +176,10 @@ class PGVectorClient:
                                 item["content"],
                                 item["embedding"],
                                 json.dumps(item.get("metadata", {})),
-                                item.get("source")
+                                item.get("source"),
                             )
                             for item in batch
-                        ]
+                        ],
                     )
 
                 total_inserted += len(batch)
@@ -198,7 +192,7 @@ class PGVectorClient:
         limit: int = 10,
         metadata_filter: dict[str, Any] | None = None,
         distance_threshold: float = 1.0,
-        source_filter: str | None = None
+        source_filter: str | None = None,
     ) -> list[SearchResult]:
         """
         Semantic search using HNSW index
@@ -260,17 +254,17 @@ class PGVectorClient:
 
         return [
             SearchResult(
-                id=row['id'],
-                document_id=row['document_id'],
-                chunk_id=row['chunk_id'],
-                content=row['content'],
-                distance=row['distance'],
-                metadata=row['metadata'],
-                source=row['source'],
-                created_at=row['created_at']
+                id=row["id"],
+                document_id=row["document_id"],
+                chunk_id=row["chunk_id"],
+                content=row["content"],
+                distance=row["distance"],
+                metadata=row["metadata"],
+                source=row["source"],
+                created_at=row["created_at"],
             )
             for row in rows
-            if row['distance'] <= distance_threshold
+            if row["distance"] <= distance_threshold
         ]
 
     async def delete_by_document_id(self, document_id: str) -> int:
@@ -285,8 +279,7 @@ class PGVectorClient:
         """
         async with self.pool.acquire() as conn:
             result = await conn.execute(
-                "DELETE FROM embeddings WHERE document_id = $1",
-                document_id
+                "DELETE FROM embeddings WHERE document_id = $1", document_id
             )
             # Extract number from "DELETE N"
             return int(result.split()[-1])
@@ -302,10 +295,7 @@ class PGVectorClient:
             Number of rows deleted
         """
         async with self.pool.acquire() as conn:
-            result = await conn.execute(
-                "DELETE FROM embeddings WHERE source = $1",
-                source
-            )
+            result = await conn.execute("DELETE FROM embeddings WHERE source = $1", source)
             return int(result.split()[-1])
 
     async def get_stats(self) -> dict[str, Any]:
@@ -319,13 +309,15 @@ class PGVectorClient:
             row = await conn.fetchrow("SELECT * FROM embedding_stats")
 
         return {
-            "total_embeddings": row['total_embeddings'],
-            "unique_documents": row['unique_documents'],
-            "unique_sources": row['unique_sources'],
-            "avg_content_length": float(row['avg_content_length']) if row['avg_content_length'] else 0,
-            "table_size": row['table_size'],
-            "latest_embedding": row['latest_embedding'],
-            "earliest_embedding": row['earliest_embedding']
+            "total_embeddings": row["total_embeddings"],
+            "unique_documents": row["unique_documents"],
+            "unique_sources": row["unique_sources"],
+            "avg_content_length": float(row["avg_content_length"])
+            if row["avg_content_length"]
+            else 0,
+            "table_size": row["table_size"],
+            "latest_embedding": row["latest_embedding"],
+            "earliest_embedding": row["earliest_embedding"],
         }
 
     async def get_by_document_id(self, document_id: str) -> list[SearchResult]:
@@ -346,28 +338,25 @@ class PGVectorClient:
                 WHERE document_id = $1
                 ORDER BY chunk_id
                 """,
-                document_id
+                document_id,
             )
 
         return [
             SearchResult(
-                id=row['id'],
-                document_id=row['document_id'],
-                chunk_id=row['chunk_id'],
-                content=row['content'],
+                id=row["id"],
+                document_id=row["document_id"],
+                chunk_id=row["chunk_id"],
+                content=row["content"],
                 distance=0.0,  # Not a search result
-                metadata=row['metadata'],
-                source=row['source'],
-                created_at=row['created_at']
+                metadata=row["metadata"],
+                source=row["source"],
+                created_at=row["created_at"],
             )
             for row in rows
         ]
 
     async def get_all_chunks(
-        self,
-        source: str | None = None,
-        batch_size: int = 100,
-        offset: int = 0
+        self, source: str | None = None, batch_size: int = 100, offset: int = 0
     ) -> list[SearchResult]:
         """
         Get all chunks, optionally filtered by source.
@@ -405,23 +394,20 @@ class PGVectorClient:
 
         return [
             SearchResult(
-                id=row['id'],
-                document_id=row['document_id'],
-                chunk_id=row['chunk_id'],
-                content=row['content'],
+                id=row["id"],
+                document_id=row["document_id"],
+                chunk_id=row["chunk_id"],
+                content=row["content"],
                 distance=0.0,
-                metadata=row['metadata'],
-                source=row['source'],
-                created_at=row['created_at']
+                metadata=row["metadata"],
+                source=row["source"],
+                created_at=row["created_at"],
             )
             for row in rows
         ]
 
     async def update_embedding(
-        self,
-        chunk_id: str,
-        document_id: str,
-        embedding: list[float]
+        self, chunk_id: str, document_id: str, embedding: list[float]
     ) -> bool:
         """
         Update embedding for an existing chunk.
@@ -438,8 +424,7 @@ class PGVectorClient:
         """
         if len(embedding) != self.embedding_dim:
             raise ValueError(
-                f"Embedding dimension mismatch: expected {self.embedding_dim}, "
-                f"got {len(embedding)}"
+                f"Embedding dimension mismatch: expected {self.embedding_dim}, got {len(embedding)}"
             )
 
         async with self.pool.acquire() as conn:
@@ -451,7 +436,7 @@ class PGVectorClient:
                 """,
                 embedding,
                 document_id,
-                chunk_id
+                chunk_id,
             )
             # Result is "UPDATE N"
             return int(result.split()[-1]) > 0
@@ -469,9 +454,8 @@ class PGVectorClient:
         async with self.pool.acquire() as conn:
             if source:
                 row = await conn.fetchrow(
-                    "SELECT COUNT(*) as count FROM embeddings WHERE source = $1",
-                    source
+                    "SELECT COUNT(*) as count FROM embeddings WHERE source = $1", source
                 )
             else:
                 row = await conn.fetchrow("SELECT COUNT(*) as count FROM embeddings")
-            return row['count']
+            return row["count"]

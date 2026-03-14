@@ -48,9 +48,9 @@ class ToolCategory(Enum):
     CARTO = "carto"
     UTILITY = "utility"
     # Territorial intelligence categories
-    DATA = "data"          # Sirene, subventions, public data
+    DATA = "data"  # Sirene, subventions, public data
     DOCUMENT = "document"  # PDF/HTML extraction and analysis
-    GEO = "geo"            # Geolocation and mapping
+    GEO = "geo"  # Geolocation and mapping
     STRATEGY = "strategy"  # Network analysis, benchmarks, trends
 
 
@@ -96,6 +96,7 @@ class ToolRegistry:
             async def navigate(url: str) -> dict:
                 ...
         """
+
         def decorator(func: Callable) -> Callable:
             tool = Tool(
                 name=name,
@@ -106,6 +107,7 @@ class ToolRegistry:
             self._tools[name] = tool
             logger.debug(f"Registered tool: {name}")
             return func
+
         return decorator
 
     def get(self, name: str) -> Tool | None:

@@ -15,6 +15,7 @@ from rich.text import Text
 
 class AgentMood(Enum):
     """Agent mood states."""
+
     IDLE = "idle"
     THINKING = "thinking"
     WORKING = "working"
@@ -61,6 +62,7 @@ def get_mascot_art(eyes: str, mouth: str, bar1: str, bar2: str) -> str:
 @dataclass
 class AgentState:
     """Current state of the agent display."""
+
     mood: AgentMood = AgentMood.IDLE
     thought: str = ""
     action: str | None = None
@@ -152,7 +154,9 @@ class AgentDisplay:
         parts.append(Text(""))
 
         # Footer
-        step_info = f"Step {self.state.step}/{self.state.total_steps}" if self.state.total_steps else "..."
+        step_info = (
+            f"Step {self.state.step}/{self.state.total_steps}" if self.state.total_steps else "..."
+        )
         footer = Text(f"{step_info} • {self.state.elapsed:.1f}s • {self.state.model}", style="dim")
         parts.append(Align.center(footer))
 

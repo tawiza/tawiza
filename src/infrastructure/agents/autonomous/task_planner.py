@@ -16,6 +16,7 @@ from loguru import logger
 
 class ActionType(StrEnum):
     """Supported browser automation actions."""
+
     NAVIGATE = "navigate"
     EXTRACT = "extract"
     FILL_FORM = "fill_form"
@@ -28,6 +29,7 @@ class ActionType(StrEnum):
 @dataclass
 class PlannedStep:
     """A single step in the execution plan."""
+
     step_id: str
     action: str
     description: str
@@ -59,6 +61,7 @@ class PlannedStep:
 @dataclass
 class TaskPlan:
     """Complete execution plan for a task."""
+
     plan_id: str
     original_task: str
     steps: list[PlannedStep]
@@ -69,9 +72,7 @@ class TaskPlan:
     def __post_init__(self):
         """Calculate total duration after init."""
         if self.estimated_total_duration == 0:
-            self.estimated_total_duration = sum(
-                s.estimated_duration_seconds for s in self.steps
-            )
+            self.estimated_total_duration = sum(s.estimated_duration_seconds for s in self.steps)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -444,13 +445,13 @@ class TaskPlanningEngine:
 
         # Enforce max steps
         if len(plan.steps) > self.max_steps:
-            logger.warning(f"Plan exceeds max steps ({len(plan.steps)} > {self.max_steps}), truncating")
-            plan.steps = plan.steps[:self.max_steps]
+            logger.warning(
+                f"Plan exceeds max steps ({len(plan.steps)} > {self.max_steps}), truncating"
+            )
+            plan.steps = plan.steps[: self.max_steps]
 
         # Recalculate total duration
-        plan.estimated_total_duration = sum(
-            s.estimated_duration_seconds for s in plan.steps
-        )
+        plan.estimated_total_duration = sum(s.estimated_duration_seconds for s in plan.steps)
 
         return plan
 
@@ -466,7 +467,7 @@ async def test_planner():
     # Test planning
     plan = await planner.create_plan(
         task_description="Go to news.ycombinator.com and extract the top 5 article titles",
-        starting_url="https://news.ycombinator.com"
+        starting_url="https://news.ycombinator.com",
     )
 
     print(json.dumps(plan.to_dict(), indent=2))

@@ -102,9 +102,7 @@ class HouseholdAgent:
             + self.pref_cost * cost_score
         )
 
-    def decide_consumption(
-        self, local_offer: dict[str, float]
-    ) -> dict[str, float]:
+    def decide_consumption(self, local_offer: dict[str, float]) -> dict[str, float]:
         """
         Répartit consommation locale/externe.
 
@@ -126,9 +124,7 @@ class HouseholdAgent:
 
         return {"local_pct": local_pct, "external_pct": 1 - local_pct}
 
-    def decide_job_search(
-        self, offers: list[dict[str, Any]]
-    ) -> dict[str, Any] | None:
+    def decide_job_search(self, offers: list[dict[str, Any]]) -> dict[str, Any] | None:
         """
         Accepte/refuse offres d'emploi.
 
@@ -201,9 +197,7 @@ class HouseholdAgent:
             if accepted:
                 self.update_employment(found_job=True, lost_job=False)
                 self.income = accepted.get("salary", self.income)
-                actions["actions"].append(
-                    {"action": "job_found", "salary": self.income}
-                )
+                actions["actions"].append({"action": "job_found", "salary": self.income})
             else:
                 self.months_unemployed += 1
 
@@ -236,9 +230,7 @@ class HouseholdAgent:
         }
 
     @classmethod
-    def create_random(
-        cls, territory_code: str, income_median: float = 30000
-    ) -> HouseholdAgent:
+    def create_random(cls, territory_code: str, income_median: float = 30000) -> HouseholdAgent:
         """Create a random household agent."""
         # Random income around median
         income = max(15000, income_median * random.gauss(1, 0.3))

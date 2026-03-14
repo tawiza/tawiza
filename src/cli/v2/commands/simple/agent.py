@@ -21,7 +21,9 @@ def agent_command(
     max_steps: int = typer.Option(20, "--max-steps", help="Maximum ReAct steps"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show agent reasoning"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Plan without executing"),
-    interactive: bool = typer.Option(False, "--interactive", "-i", help="Interactive conversation mode"),
+    interactive: bool = typer.Option(
+        False, "--interactive", "-i", help="Interactive conversation mode"
+    ),
 ):
     """Run the unified AI agent to accomplish a task.
 
@@ -35,27 +37,31 @@ def agent_command(
         tawiza agent --interactive  # Start conversation mode
     """
     if interactive:
-        asyncio.run(_run_interactive(
-            model=model,
-            output=output,
-            max_steps=max_steps,
-            verbose=verbose,
-            initial_task=task,
-            initial_data=data,
-        ))
+        asyncio.run(
+            _run_interactive(
+                model=model,
+                output=output,
+                max_steps=max_steps,
+                verbose=verbose,
+                initial_task=task,
+                initial_data=data,
+            )
+        )
     else:
         if not task:
             console.print("[yellow]No task provided. Use --interactive for conversation mode.[/]")
             return
-        asyncio.run(_run_agent(
-            task=task,
-            data=data,
-            output=output,
-            model=model,
-            max_steps=max_steps,
-            verbose=verbose,
-            dry_run=dry_run,
-        ))
+        asyncio.run(
+            _run_agent(
+                task=task,
+                data=data,
+                output=output,
+                model=model,
+                max_steps=max_steps,
+                verbose=verbose,
+                dry_run=dry_run,
+            )
+        )
 
 
 async def _run_agent(
@@ -93,10 +99,12 @@ async def _run_agent(
         # Health check (quick, no display yet)
         healthy = await ollama.health_check()
         if not healthy:
-            console.print(msg.error(
-                "Ollama not available",
-                ["Start with: ollama serve", "Or: tawiza pro ollama-start"]
-            ))
+            console.print(
+                msg.error(
+                    "Ollama not available",
+                    ["Start with: ollama serve", "Or: tawiza pro ollama-start"],
+                )
+            )
             return
 
         planner = ReActPlanner(ollama_client=ollama, model=model)
@@ -177,7 +185,7 @@ async def _run_agent(
 
         # Smart display threshold: show more for terminal-friendly lengths
         DISPLAY_THRESHOLD = 1500  # Characters to show in terminal
-        FILE_THRESHOLD = 500      # Save to file if longer than this
+        FILE_THRESHOLD = 500  # Save to file if longer than this
 
         # Show result panel with more content
         display_answer = answer[:DISPLAY_THRESHOLD]
@@ -197,7 +205,9 @@ async def _run_agent(
 
         # Stats
         console.print()
-        console.print(f"  [dim]{len(result.steps)} steps • {result.duration_seconds:.1f}s • {model}[/dim]")
+        console.print(
+            f"  [dim]{len(result.steps)} steps • {result.duration_seconds:.1f}s • {model}[/dim]"
+        )
     else:
         display.show_result(result.error or "Unknown error", success=False)
 
@@ -239,14 +249,17 @@ async def _run_interactive(
     # Initialize components
     try:
         from src.infrastructure.llm.ollama_client import OllamaClient
+
         ollama = OllamaClient(model=model)
 
         healthy = await ollama.health_check()
         if not healthy:
-            console.print(msg.error(
-                "Ollama not available",
-                ["Start with: ollama serve", "Or: tawiza pro ollama-start"]
-            ))
+            console.print(
+                msg.error(
+                    "Ollama not available",
+                    ["Start with: ollama serve", "Or: tawiza pro ollama-start"],
+                )
+            )
             return
 
         planner = ReActPlanner(ollama_client=ollama, model=model)
@@ -260,17 +273,19 @@ async def _run_interactive(
     # Session context for conversation continuity
     session_context = {
         "history": [],  # Previous Q&A pairs
-        "files": [],    # Generated files
-        "data": {},     # Collected data (enterprises, locations, etc.)
+        "files": [],  # Generated files
+        "data": {},  # Collected data (enterprises, locations, etc.)
     }
 
     # Prompt session with history
     history_file = Path.home() / ".tawiza" / "agent_history"
     history_file.parent.mkdir(parents=True, exist_ok=True)
 
-    prompt_style = Style.from_dict({
-        "prompt": "ansicyan bold",
-    })
+    prompt_style = Style.from_dict(
+        {
+            "prompt": "ansicyan bold",
+        }
+    )
     session = PromptSession(
         history=FileHistory(str(history_file)),
         style=prompt_style,
@@ -294,10 +309,7 @@ async def _run_interactive(
     # Interactive loop
     while True:
         try:
-            user_input = await asyncio.to_thread(
-                session.prompt,
-                [("class:prompt", "agent ► ")]
-            )
+            user_input = await asyncio.to_thread(session.prompt, [("class:prompt", "agent ► ")])
             user_input = user_input.strip()
 
             if not user_input:
@@ -424,17 +436,20 @@ async def _process_interactive_query(
         answer = result.answer or ""
 
         # Update session context
-        session_context["history"].append({
-            "query": query,
-            "answer": answer[:500],  # Truncate for context
-            "steps": len(result.steps),
-        })
+        session_context["history"].append(
+            {
+                "query": query,
+                "answer": answer[:500],  # Truncate for context
+                "steps": len(result.steps),
+            }
+        )
 
         # Track generated files
         for step in result.steps:
             if step.result and "file_path" in str(step.result):
                 # Extract file paths from results
                 import re
+
                 paths = re.findall(r"['\"]([^'\"]+\.(html|csv|json|md))['\"]", str(step.result))
                 for path, _ in paths:
                     if path not in session_context["files"]:

@@ -33,7 +33,7 @@ def get_progress_tracker() -> ProgressTracker:
         settings = get_settings()
         _progress_tracker = ProgressTracker(
             cleanup_after=settings.monitoring.progress_cleanup_after,
-            max_events_per_task=settings.monitoring.progress_max_events_per_task
+            max_events_per_task=settings.monitoring.progress_max_events_per_task,
         )
         logger.info(
             f"ProgressTracker initialized with settings: "
@@ -45,8 +45,7 @@ def get_progress_tracker() -> ProgressTracker:
 
 @router.get("/stream/{task_id}")
 async def stream_task_progress(
-    task_id: str,
-    tracker: ProgressTracker = Depends(get_progress_tracker)
+    task_id: str, tracker: ProgressTracker = Depends(get_progress_tracker)
 ):
     """
     Stream real-time progress updates for a task via Server-Sent Events (SSE).
@@ -97,7 +96,7 @@ async def stream_task_progress(
                 if event.status in [
                     ProgressStatus.COMPLETED,
                     ProgressStatus.FAILED,
-                    ProgressStatus.CANCELLED
+                    ProgressStatus.CANCELLED,
                 ]:
                     logger.info(f"Task {task_id} finished, closing stream")
                     break
@@ -110,7 +109,7 @@ async def stream_task_progress(
             raise
         except Exception as e:
             logger.error(f"Error streaming progress for {task_id}: {e}")
-            yield f"event: error\ndata: {{\"error\": \"{str(e)}\"}}\n\n"
+            yield f'event: error\ndata: {{"error": "{str(e)}"}}\n\n'
 
     return StreamingResponse(
         event_generator(),
@@ -119,14 +118,13 @@ async def stream_task_progress(
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",  # Disable nginx buffering
-        }
+        },
     )
 
 
 @router.get("/latest/{task_id}")
 async def get_latest_progress(
-    task_id: str,
-    tracker: ProgressTracker = Depends(get_progress_tracker)
+    task_id: str, tracker: ProgressTracker = Depends(get_progress_tracker)
 ) -> dict[str, Any]:
     """
     Get the latest progress event for a task.
@@ -150,9 +148,7 @@ async def get_latest_progress(
 
 @router.get("/history/{task_id}")
 async def get_progress_history(
-    task_id: str,
-    limit: int = 100,
-    tracker: ProgressTracker = Depends(get_progress_tracker)
+    task_id: str, limit: int = 100, tracker: ProgressTracker = Depends(get_progress_tracker)
 ) -> dict[str, Any]:
     """
     Get progress history for a task.
@@ -175,13 +171,13 @@ async def get_progress_history(
     return {
         "task_id": task_id,
         "event_count": len(history),
-        "events": [event.to_dict() for event in history]
+        "events": [event.to_dict() for event in history],
     }
 
 
 @router.get("/active")
 async def get_active_tasks(
-    tracker: ProgressTracker = Depends(get_progress_tracker)
+    tracker: ProgressTracker = Depends(get_progress_tracker),
 ) -> dict[str, Any]:
     """
     Get list of currently active tasks.
@@ -191,15 +187,12 @@ async def get_active_tasks(
     """
     active_tasks = await tracker.get_active_tasks()
 
-    return {
-        "active_task_count": len(active_tasks),
-        "task_ids": active_tasks
-    }
+    return {"active_task_count": len(active_tasks), "task_ids": active_tasks}
 
 
 @router.get("/stats")
 async def get_tracker_stats(
-    tracker: ProgressTracker = Depends(get_progress_tracker)
+    tracker: ProgressTracker = Depends(get_progress_tracker),
 ) -> dict[str, Any]:
     """
     Get progress tracker statistics.
@@ -209,15 +202,12 @@ async def get_tracker_stats(
     """
     stats = await tracker.get_stats()
 
-    return {
-        "status": "operational",
-        "tracker": stats
-    }
+    return {"status": "operational", "tracker": stats}
 
 
 @router.post("/cleanup")
 async def cleanup_old_tasks(
-    tracker: ProgressTracker = Depends(get_progress_tracker)
+    tracker: ProgressTracker = Depends(get_progress_tracker),
 ) -> dict[str, str]:
     """
     Manually trigger cleanup of old completed tasks.
@@ -227,10 +217,7 @@ async def cleanup_old_tasks(
     """
     try:
         await tracker.cleanup_old_tasks()
-        return {
-            "status": "success",
-            "message": "Old tasks cleaned up successfully"
-        }
+        return {"status": "success", "message": "Old tasks cleaned up successfully"}
     except Exception as e:
         logger.error(f"Failed to cleanup old tasks: {e}")
         raise HTTPException(status_code=500, detail=str(e))

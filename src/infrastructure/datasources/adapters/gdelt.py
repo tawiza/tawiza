@@ -152,11 +152,13 @@ class GdeltAdapter(BaseAdapter):
         days = 1 if since is None else (datetime.utcnow() - since).days
 
         try:
-            results = await self.search({
-                "country": "FR",
-                "days": min(days, 7),
-                "limit": 100,
-            })
+            results = await self.search(
+                {
+                    "country": "FR",
+                    "days": min(days, 7),
+                    "limit": 100,
+                }
+            )
 
             return SyncStatus(
                 adapter_name=self.name,
@@ -216,9 +218,11 @@ class GdeltAdapter(BaseAdapter):
         Returns:
             List of articles mentioning the company
         """
-        return await self.search({
-            "keywords": f'"{company_name}"',
-            "country": "FR",
-            "days": days,
-            "limit": limit,
-        })
+        return await self.search(
+            {
+                "keywords": f'"{company_name}"',
+                "country": "FR",
+                "days": days,
+                "limit": limit,
+            }
+        )

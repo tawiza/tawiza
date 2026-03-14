@@ -64,6 +64,7 @@ def _load_state() -> dict:
     try:
         if MASCOT_STATE_FILE.exists():
             import json
+
             return json.loads(MASCOT_STATE_FILE.read_text())
     except:
         pass
@@ -75,6 +76,7 @@ def _save_state(state: dict):
     try:
         MASCOT_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
         import json
+
         MASCOT_STATE_FILE.write_text(json.dumps(state))
     except:
         pass
@@ -109,6 +111,7 @@ def mark_mascot_shown():
 # ═══════════════════════════════════════════════════════════
 # Hook Functions - Call these at key moments in your CLI
 # ═══════════════════════════════════════════════════════════
+
 
 def on_first_run():
     """Show welcome mascot on first run."""
@@ -202,6 +205,7 @@ def inline_error(message: str = "Erreur"):
 # Context-aware mascot
 # ═══════════════════════════════════════════════════════════
 
+
 def contextual_mascot(context: str):
     """Show mascot based on context."""
     contexts = {
@@ -255,62 +259,57 @@ AGENT_MASCOTS = {
         "mood": "coding",
         "icon": "🌐",
         "mini": "(=^･ω･^=)🌐",
-        "message": "Navigation en cours..."
+        "message": "Navigation en cours...",
     },
-    "ml": {
-        "mood": "thinking",
-        "icon": "🧠",
-        "mini": "(=^◔ω◔^=)🧠",
-        "message": "Analyse ML..."
-    },
+    "ml": {"mood": "thinking", "icon": "🧠", "mini": "(=^◔ω◔^=)🧠", "message": "Analyse ML..."},
     "code": {
         "mood": "coding",
         "icon": "💻",
         "mini": "(=^･ｪ･^=)💻",
-        "message": "Génération de code..."
+        "message": "Génération de code...",
     },
     "data": {
         "mood": "working",
         "icon": "📊",
         "mini": "(=^･ω･^=)📊",
-        "message": "Traitement des données..."
+        "message": "Traitement des données...",
     },
     "optimizer": {
         "mood": "working",
         "icon": "⚡",
         "mini": "(=^▶◀^=)⚡",
-        "message": "Optimisation GPU..."
+        "message": "Optimisation GPU...",
     },
     "scraper": {
         "mood": "coding",
         "icon": "🕷️",
         "mini": "(=^･ω･^=)🕷️",
-        "message": "Extraction web..."
+        "message": "Extraction web...",
     },
     "autonomous": {
         "mood": "thinking",
         "icon": "🤖",
         "mini": "(=^◔ω◔^=)🤖",
-        "message": "Agent autonome en action..."
+        "message": "Agent autonome en action...",
     },
     "planning": {
         "mood": "thinking",
         "icon": "📋",
         "mini": "(=^-*-^=)📋",
-        "message": "Planification en cours..."
+        "message": "Planification en cours...",
     },
     "executing": {
         "mood": "working",
         "icon": "▶️",
         "mini": "(=^･ω･^=)▶️",
-        "message": "Exécution du plan..."
+        "message": "Exécution du plan...",
     },
     "default": {
         "mood": "default",
         "icon": "🤖",
         "mini": "(=^･ω･^=)🤖",
-        "message": "Agent actif..."
-    }
+        "message": "Agent actif...",
+    },
 }
 
 
@@ -393,7 +392,10 @@ def chat_response_mascot(response_type: str = "success", console: Console = None
 
     mood, msg = reactions.get(response_type, ("default", ""))
     if msg:
-        console.print(f"{mini_mascot(mood if mood in ['happy', 'sad', 'working'] else 'default')} {msg}", style="cyan")
+        console.print(
+            f"{mini_mascot(mood if mood in ['happy', 'sad', 'working'] else 'default')} {msg}",
+            style="cyan",
+        )
 
 
 def live_mascot_status(action: str, console: Console = None) -> str:

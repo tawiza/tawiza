@@ -1,6 +1,5 @@
 """Spinner Widget - Animated loading indicators."""
 
-
 from textual.reactive import reactive
 from textual.timer import Timer
 from textual.widget import Widget
@@ -47,12 +46,7 @@ class Spinner(Widget):
     frame = reactive(0)
 
     def __init__(
-        self,
-        style: str = "dots",
-        text: str = "",
-        color: str = "cyan",
-        speed: float = 0.1,
-        **kwargs
+        self, style: str = "dots", text: str = "", color: str = "cyan", speed: float = 0.1, **kwargs
     ):
         super().__init__(**kwargs)
         self._style = style
@@ -123,7 +117,7 @@ class LoadingBar(Widget):
         color: str = "cyan",
         label: str = "",
         show_percent: bool = True,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._width = width
@@ -289,11 +283,7 @@ class TaskProgress(Widget):
     current_step = reactive(0)
     total_steps = reactive(1)
 
-    def __init__(
-        self,
-        steps: list | None = None,
-        **kwargs
-    ):
+    def __init__(self, steps: list | None = None, **kwargs):
         super().__init__(**kwargs)
         self._steps = steps or ["Processing..."]
         self.total_steps = len(self._steps)

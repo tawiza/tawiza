@@ -36,41 +36,25 @@ class TaskStatus(StrEnum):
 class AgentTaskCreate(BaseModel):
     """Create agent task request."""
 
-    agent_type: AgentType = Field(
-        default=AgentType.OPENMANUS,
-        description="Type of agent to use"
-    )
-    url: HttpUrl = Field(
-        ...,
-        description="Target URL for the task"
-    )
-    action: TaskAction = Field(
-        ...,
-        description="Action to perform"
-    )
-    selectors: dict[str, str] | None = Field(
-        default=None,
-        description="CSS selectors for elements"
-    )
+    agent_type: AgentType = Field(default=AgentType.OPENMANUS, description="Type of agent to use")
+    url: HttpUrl = Field(..., description="Target URL for the task")
+    action: TaskAction = Field(..., description="Action to perform")
+    selectors: dict[str, str] | None = Field(default=None, description="CSS selectors for elements")
     data: dict[str, Any] | None = Field(
-        default=None,
-        description="Data for the action (e.g., form fields, extraction targets)"
+        default=None, description="Data for the action (e.g., form fields, extraction targets)"
     )
-    options: dict[str, Any] | None = Field(
-        default=None,
-        description="Additional options"
-    )
+    options: dict[str, Any] | None = Field(default=None, description="Additional options")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "agent_type": "openmanus",
-            "url": "https://example.com",
-            "action": "extract",
-            "data": {
-                "target": "main content"
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "agent_type": "openmanus",
+                "url": "https://example.com",
+                "action": "extract",
+                "data": {"target": "main content"},
             }
         }
-    })
+    )
 
 
 class AgentTaskResponse(BaseModel):

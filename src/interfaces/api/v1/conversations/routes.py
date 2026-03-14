@@ -47,9 +47,7 @@ class ConversationCreate(BaseModel):
 
     title: str | None = Field(default=None, description="Conversation title")
     level: str = Field(default="analytical", description="Cognitive level")
-    department_code: str | None = Field(
-        default=None, description="Department code (e.g., '75')"
-    )
+    department_code: str | None = Field(default=None, description="Department code (e.g., '75')")
 
 
 class ConversationUpdate(BaseModel):
@@ -125,9 +123,7 @@ async def list_conversations(
     page: int = Query(default=1, ge=1),
     per_page: int = Query(default=20, ge=1, le=100),
     level: str | None = Query(default=None, description="Filter by cognitive level"),
-    department_code: str | None = Query(
-        default=None, description="Filter by department"
-    ),
+    department_code: str | None = Query(default=None, description="Filter by department"),
     current_user: AuthUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ):
@@ -160,9 +156,7 @@ async def list_conversations(
         messages = await msg_repo.get_by_conversation(conv.id, limit=1)
         if messages:
             last_content = messages[-1].content
-            preview = (
-                last_content[:100] + "..." if len(last_content) > 100 else last_content
-            )
+            preview = last_content[:100] + "..." if len(last_content) > 100 else last_content
 
         summaries.append(
             ConversationSummary(
@@ -521,9 +515,7 @@ async def search_conversations(
         messages = await msg_repo.get_by_conversation(conv.id, limit=1)
         if messages:
             last_content = messages[-1].content
-            preview = (
-                last_content[:100] + "..." if len(last_content) > 100 else last_content
-            )
+            preview = last_content[:100] + "..." if len(last_content) > 100 else last_content
 
         summaries.append(
             ConversationSummary(

@@ -71,11 +71,17 @@ class RetrainingTriggerService(IRetrainingTrigger):
 
         # Check error rate
         if conditions["error_rate"] > self._error_threshold:
-            return True, f"Error rate ({conditions['error_rate']:.2%}) exceeds threshold ({self._error_threshold:.2%})"
+            return (
+                True,
+                f"Error rate ({conditions['error_rate']:.2%}) exceeds threshold ({self._error_threshold:.2%})",
+            )
 
         # Check new samples
         if conditions["new_samples_count"] >= self._min_samples:
-            return True, f"Sufficient new samples ({conditions['new_samples_count']}) available for retraining"
+            return (
+                True,
+                f"Sufficient new samples ({conditions['new_samples_count']}) available for retraining",
+            )
 
         # Check time since last training
         if conditions["days_since_training"] > self._max_days:
@@ -123,9 +129,7 @@ class RetrainingTriggerService(IRetrainingTrigger):
             "feedback_volume": RetrainingTriggerReason.FEEDBACK_VOLUME,
         }
 
-        trigger_enum = reason_map.get(
-            trigger_reason.lower(), RetrainingTriggerReason.MANUAL
-        )
+        trigger_enum = reason_map.get(trigger_reason.lower(), RetrainingTriggerReason.MANUAL)
 
         # Create retraining job
         job = RetrainingJob(
@@ -142,9 +146,7 @@ class RetrainingTriggerService(IRetrainingTrigger):
 
         return job
 
-    async def get_retraining_conditions(
-        self, model_name: str, model_version: str
-    ) -> dict:
+    async def get_retraining_conditions(self, model_name: str, model_version: str) -> dict:
         """Get retraining condition metrics.
 
         Args:

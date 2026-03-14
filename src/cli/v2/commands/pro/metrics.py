@@ -42,9 +42,12 @@ def collect_gpu_metrics() -> dict:
 
     try:
         import subprocess
+
         result = subprocess.run(
             ["rocm-smi", "--showuse", "--showmeminfo", "vram", "--showtemp", "--json"],
-            capture_output=True, text=True, timeout=5
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
 
         if result.returncode == 0:
@@ -57,7 +60,9 @@ def collect_gpu_metrics() -> dict:
                     if "GPU use (%)" in card_data:
                         metrics["utilization"] = float(card_data["GPU use (%)"].rstrip("%"))
                     if "GPU memory use (%)" in card_data:
-                        metrics["memory_percent"] = float(card_data["GPU memory use (%)"].rstrip("%"))
+                        metrics["memory_percent"] = float(
+                            card_data["GPU memory use (%)"].rstrip("%")
+                        )
                     if "Temperature (Sensor edge) (C)" in card_data:
                         metrics["temperature"] = float(card_data["Temperature (Sensor edge) (C)"])
                     break  # Only first GPU for now
@@ -89,13 +94,13 @@ def collect_system_metrics() -> dict:
 
         mem = psutil.virtual_memory()
         metrics["memory_percent"] = mem.percent
-        metrics["memory_used_gb"] = mem.used / (1024 ** 3)
-        metrics["memory_total_gb"] = mem.total / (1024 ** 3)
+        metrics["memory_used_gb"] = mem.used / (1024**3)
+        metrics["memory_total_gb"] = mem.total / (1024**3)
 
         disk = psutil.disk_usage("/")
         metrics["disk_percent"] = disk.percent
-        metrics["disk_used_gb"] = disk.used / (1024 ** 3)
-        metrics["disk_total_gb"] = disk.total / (1024 ** 3)
+        metrics["disk_used_gb"] = disk.used / (1024**3)
+        metrics["disk_total_gb"] = disk.total / (1024**3)
 
     except ImportError:
         pass
@@ -159,6 +164,7 @@ def collect_model_metrics() -> dict:
 
     try:
         import httpx
+
         response = httpx.get("http://localhost:11434/api/tags", timeout=5)
         if response.status_code == 200:
             data = response.json()
@@ -174,7 +180,9 @@ def register(app: typer.Typer) -> None:
 
     @app.command("metrics")
     def show_metrics(
-        category: str | None = typer.Option(None, "--category", "-c", help="Filter: gpu, system, agent, model"),
+        category: str | None = typer.Option(
+            None, "--category", "-c", help="Filter: gpu, system, agent, model"
+        ),
         json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
     ):
         """Show comprehensive system and agent metrics."""
@@ -202,11 +210,21 @@ def register(app: typer.Typer) -> None:
             if gpu["available"]:
                 bar = ProgressBar(width=20)
 
-                console.print(f"    Utilization   {bar.render(gpu.get('utilization', 0) / 100)}  {gpu.get('utilization', 0):.1f}%")
+                console.print(
+                    f"    Utilization   {bar.render(gpu.get('utilization', 0) / 100)}  {gpu.get('utilization', 0):.1f}%"
+                )
                 if "memory_percent" in gpu:
-                    console.print(f"    Memory        {bar.render(gpu.get('memory_percent', 0) / 100)}  {gpu.get('memory_percent', 0):.1f}%")
+                    console.print(
+                        f"    Memory        {bar.render(gpu.get('memory_percent', 0) / 100)}  {gpu.get('memory_percent', 0):.1f}%"
+                    )
                 if gpu.get("temperature"):
-                    temp_color = "green" if gpu["temperature"] < 70 else "yellow" if gpu["temperature"] < 85 else "red"
+                    temp_color = (
+                        "green"
+                        if gpu["temperature"] < 70
+                        else "yellow"
+                        if gpu["temperature"] < 85
+                        else "red"
+                    )
                     console.print(f"    Temperature   [{temp_color}]{gpu['temperature']:.0f}°C[/]")
             else:
                 console.print("    [dim]GPU not available[/]")
@@ -219,9 +237,15 @@ def register(app: typer.Typer) -> None:
             sys = all_metrics["system"]
             bar = ProgressBar(width=20)
 
-            console.print(f"    CPU           {bar.render(sys['cpu_percent'] / 100)}  {sys['cpu_percent']:.1f}%")
-            console.print(f"    Memory        {bar.render(sys['memory_percent'] / 100)}  {sys['memory_used_gb']:.1f}/{sys['memory_total_gb']:.1f} GB")
-            console.print(f"    Disk          {bar.render(sys['disk_percent'] / 100)}  {sys['disk_used_gb']:.0f}/{sys['disk_total_gb']:.0f} GB")
+            console.print(
+                f"    CPU           {bar.render(sys['cpu_percent'] / 100)}  {sys['cpu_percent']:.1f}%"
+            )
+            console.print(
+                f"    Memory        {bar.render(sys['memory_percent'] / 100)}  {sys['memory_used_gb']:.1f}/{sys['memory_total_gb']:.1f} GB"
+            )
+            console.print(
+                f"    Disk          {bar.render(sys['disk_percent'] / 100)}  {sys['disk_used_gb']:.0f}/{sys['disk_total_gb']:.0f} GB"
+            )
 
         # Agent Metrics
         if not category or category == "agent":
@@ -234,8 +258,16 @@ def register(app: typer.Typer) -> None:
             console.print(f"    Failed            {agent['failed_tasks']}")
 
             if agent["total_tasks"] > 0:
-                success_color = "green" if agent["success_rate"] > 80 else "yellow" if agent["success_rate"] > 50 else "red"
-                console.print(f"    Success Rate      [{success_color}]{agent['success_rate']:.1f}%[/]")
+                success_color = (
+                    "green"
+                    if agent["success_rate"] > 80
+                    else "yellow"
+                    if agent["success_rate"] > 50
+                    else "red"
+                )
+                console.print(
+                    f"    Success Rate      [{success_color}]{agent['success_rate']:.1f}%[/]"
+                )
 
             if agent["avg_duration_seconds"] > 0:
                 console.print(f"    Avg Duration      {agent['avg_duration_seconds']:.1f}s")
@@ -265,9 +297,7 @@ def register(app: typer.Typer) -> None:
             layout = Layout()
 
             layout.split_column(
-                Layout(name="header", size=3),
-                Layout(name="body"),
-                Layout(name="footer", size=3)
+                Layout(name="header", size=3), Layout(name="body"), Layout(name="footer", size=3)
             )
 
             # Header
@@ -278,9 +308,7 @@ def register(app: typer.Typer) -> None:
 
             # Body with GPU and System metrics
             layout["body"].split_row(
-                Layout(name="gpu"),
-                Layout(name="system"),
-                Layout(name="agents")
+                Layout(name="gpu"), Layout(name="system"), Layout(name="agents")
             )
 
             # GPU Panel
@@ -297,9 +325,7 @@ def register(app: typer.Typer) -> None:
             else:
                 gpu_table.add_row("Status", "N/A")
 
-            layout["body"]["gpu"].update(
-                Panel(gpu_table, title="GPU", border_style="yellow")
-            )
+            layout["body"]["gpu"].update(Panel(gpu_table, title="GPU", border_style="yellow"))
 
             # System Panel
             sys = collect_system_metrics()
@@ -311,9 +337,7 @@ def register(app: typer.Typer) -> None:
             sys_table.add_row("RAM", f"{sys['memory_percent']:.1f}%")
             sys_table.add_row("Disk", f"{sys['disk_percent']:.1f}%")
 
-            layout["body"]["system"].update(
-                Panel(sys_table, title="System", border_style="blue")
-            )
+            layout["body"]["system"].update(Panel(sys_table, title="System", border_style="blue"))
 
             # Agents Panel
             agent = collect_agent_metrics()
@@ -414,7 +438,7 @@ def register(app: typer.Typer) -> None:
     ):
         """Record metrics to history file for later analysis."""
         console.print(header("record metrics", 50))
-        console.print(f"  Recording every {interval}s for {duration//60} minutes")
+        console.print(f"  Recording every {interval}s for {duration // 60} minutes")
         console.print("  Press Ctrl+C to stop\n")
 
         # Load or create history

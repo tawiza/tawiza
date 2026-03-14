@@ -21,16 +21,18 @@ from textual.widgets import Button, Label, Static
 
 class GrowthCategory(Enum):
     """Growth category for color coding."""
-    STRONG_GROWTH = "strong_growth"      # > 20%
+
+    STRONG_GROWTH = "strong_growth"  # > 20%
     MODERATE_GROWTH = "moderate_growth"  # 5-20%
-    STABLE = "stable"                    # -5% to 5%
+    STABLE = "stable"  # -5% to 5%
     MODERATE_DECLINE = "moderate_decline"  # -20% to -5%
-    STRONG_DECLINE = "strong_decline"    # < -20%
+    STRONG_DECLINE = "strong_decline"  # < -20%
 
 
 @dataclass
 class RegionMetrics:
     """Real metrics for a region."""
+
     code: str
     name: str
     companies_count: int = 0
@@ -151,11 +153,7 @@ class RegionButton(Button):
     """
 
     def __init__(
-        self,
-        region_code: str,
-        region_name: str,
-        metrics: RegionMetrics | None = None,
-        **kwargs
+        self, region_code: str, region_name: str, metrics: RegionMetrics | None = None, **kwargs
     ):
         self.region_code = region_code
         self.region_name = region_name
@@ -178,8 +176,9 @@ class RegionButton(Button):
         self._metrics = metrics
 
         # Update CSS class based on growth category
-        self.remove_class("strong-growth", "moderate-growth", "stable",
-                          "moderate-decline", "strong-decline")
+        self.remove_class(
+            "strong-growth", "moderate-growth", "stable", "moderate-decline", "strong-decline"
+        )
         css_class = metrics.category.value.replace("_", "-")
         self.add_class(css_class)
 
@@ -227,6 +226,7 @@ class InteractiveMap(Container):
 
     class RegionSelected(Message):
         """Message sent when a region is selected."""
+
         def __init__(self, region_code: str, metrics: RegionMetrics | None) -> None:
             super().__init__()
             self.region_code = region_code
@@ -238,7 +238,7 @@ class InteractiveMap(Container):
         self,
         country: str = "france",
         on_region_click: Callable[[str, RegionMetrics | None], None] | None = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.country = country
@@ -280,7 +280,7 @@ class InteractiveMap(Container):
             "[yellow]██[/] ±5% "
             "[red]██[/] -5 à -20% "
             "[bright_red]██[/] <-20%",
-            classes="map-legend"
+            classes="map-legend",
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -350,24 +350,39 @@ class InteractiveMap(Container):
 
         # France mappings
         france_mappings = {
-            "paris": "IDF", "ile-de-france": "IDF", "île-de-france": "IDF",
-            "lyon": "ARA", "rhone-alpes": "ARA", "auvergne": "ARA",
-            "marseille": "PAC", "provence": "PAC", "paca": "PAC",
-            "toulouse": "OCC", "occitanie": "OCC",
-            "bordeaux": "NAQ", "aquitaine": "NAQ",
-            "lille": "HDF", "nord": "HDF",
-            "strasbourg": "GES", "alsace": "GES",
-            "nantes": "PDL", "loire": "PDL",
-            "rennes": "BRE", "bretagne": "BRE",
+            "paris": "IDF",
+            "ile-de-france": "IDF",
+            "île-de-france": "IDF",
+            "lyon": "ARA",
+            "rhone-alpes": "ARA",
+            "auvergne": "ARA",
+            "marseille": "PAC",
+            "provence": "PAC",
+            "paca": "PAC",
+            "toulouse": "OCC",
+            "occitanie": "OCC",
+            "bordeaux": "NAQ",
+            "aquitaine": "NAQ",
+            "lille": "HDF",
+            "nord": "HDF",
+            "strasbourg": "GES",
+            "alsace": "GES",
+            "nantes": "PDL",
+            "loire": "PDL",
+            "rennes": "BRE",
+            "bretagne": "BRE",
         }
 
         # Morocco mappings
         morocco_mappings = {
-            "casablanca": "CSB", "casa": "CSB",
+            "casablanca": "CSB",
+            "casa": "CSB",
             "rabat": "RSK",
             "marrakech": "MTD",
-            "fes": "FME", "fès": "FME",
-            "tanger": "TTA", "tangier": "TTA",
+            "fes": "FME",
+            "fès": "FME",
+            "tanger": "TTA",
+            "tangier": "TTA",
             "agadir": "SMD",
             "oujda": "ORI",
         }
@@ -401,10 +416,7 @@ class RegionDetailPanel(Static):
     def render(self) -> str:
         """Render region details."""
         if not self._metrics:
-            return (
-                "[dim]Sélectionnez une région sur la carte[/]\n"
-                "[dim]pour voir les détails...[/]"
-            )
+            return "[dim]Sélectionnez une région sur la carte[/]\n[dim]pour voir les détails...[/]"
 
         m = self._metrics
         growth_pct = m.growth_rate * 100
@@ -416,8 +428,8 @@ class RegionDetailPanel(Static):
             "─" * 30,
             f"Entreprises: [cyan]{m.companies_count:,}[/]",
             f"Croissance: [{color}]{sign}{growth_pct:.1f}%[/]",
-            f"Confiance: [yellow]{m.confidence*100:.0f}%[/]",
-            f"Score TAJINE: [magenta]{m.cognitive_score*100:.0f}%[/]",
+            f"Confiance: [yellow]{m.confidence * 100:.0f}%[/]",
+            f"Score TAJINE: [magenta]{m.cognitive_score * 100:.0f}%[/]",
         ]
 
         if m.top_sector:

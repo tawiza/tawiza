@@ -16,6 +16,7 @@ from loguru import logger
 
 class PlanStatus(StrEnum):
     """Status of a plan execution."""
+
     DRAFT = "draft"
     APPROVED = "approved"
     EXECUTING = "executing"
@@ -28,6 +29,7 @@ class PlanStatus(StrEnum):
 @dataclass
 class ExecutionContext:
     """Current execution context/state."""
+
     plan_id: str
     current_url: str | None = None
     page_html: str | None = None
@@ -96,6 +98,7 @@ class ExecutionContext:
 @dataclass
 class ExecutionRecord:
     """Record of a plan execution for history."""
+
     plan_id: str
     original_task: str
     status: str
@@ -387,7 +390,7 @@ class ExecutionStateManager:
 
             if len(records) > self.max_history:
                 # Remove oldest records
-                for record in records[self.max_history:]:
+                for record in records[self.max_history :]:
                     filepath = self.history_dir / f"{record.plan_id}.json"
                     if filepath.exists():
                         filepath.unlink()

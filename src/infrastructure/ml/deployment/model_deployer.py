@@ -68,25 +68,18 @@ class ModelDeployer(IModelDeployer):
             RuntimeError: If deployment fails
         """
         logger.info(
-            f"Deploying model {model_id} with {strategy} strategy "
-            f"({traffic_percentage}% traffic)"
+            f"Deploying model {model_id} with {strategy} strategy ({traffic_percentage}% traffic)"
         )
 
         try:
             if strategy == "direct":
-                endpoint = await self._deploy_direct(
-                    model_path, model_id, traffic_percentage
-                )
+                endpoint = await self._deploy_direct(model_path, model_id, traffic_percentage)
             elif strategy == "canary":
-                endpoint = await self._deploy_canary(
-                    model_path, model_id, traffic_percentage
-                )
+                endpoint = await self._deploy_canary(model_path, model_id, traffic_percentage)
             elif strategy == "blue_green":
                 endpoint = await self._deploy_blue_green(model_path, model_id)
             elif strategy == "a_b_test":
-                endpoint = await self._deploy_ab_test(
-                    model_path, model_id, traffic_percentage
-                )
+                endpoint = await self._deploy_ab_test(model_path, model_id, traffic_percentage)
             else:
                 raise ValueError(f"Unknown deployment strategy: {strategy}")
 
@@ -100,9 +93,7 @@ class ModelDeployer(IModelDeployer):
             }
             self._traffic_routing[model_id] = traffic_percentage
 
-            logger.info(
-                f"Model {model_id} deployed successfully at {endpoint}"
-            )
+            logger.info(f"Model {model_id} deployed successfully at {endpoint}")
 
             return endpoint
 
@@ -306,10 +297,7 @@ class ModelDeployer(IModelDeployer):
         Returns:
             Endpoint URL
         """
-        logger.info(
-            f"Deploying model {model_id} for A/B testing "
-            f"({traffic_percentage}% traffic)"
-        )
+        logger.info(f"Deploying model {model_id} for A/B testing ({traffic_percentage}% traffic)")
 
         # Similar to canary but with different routing logic
         # A/B testing typically routes based on user ID or session
@@ -385,9 +373,7 @@ class ModelDeployer(IModelDeployer):
         Note:
             This would integrate with Kubernetes HPA or similar
         """
-        logger.info(
-            f"Auto-scaling model {model_id} to handle {target_rps} RPS"
-        )
+        logger.info(f"Auto-scaling model {model_id} to handle {target_rps} RPS")
 
         # In production, this would:
         # 1. Calculate required replicas

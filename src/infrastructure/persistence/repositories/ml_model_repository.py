@@ -6,10 +6,10 @@ from uuid import UUID
 from loguru import logger
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.ml_model import MLModelDB
 
 from src.domain.entities.ml_model import DeploymentStrategy, MLModel, ModelMetrics, ModelStatus
 from src.domain.repositories.ml_repositories import IMLModelRepository
+from src.infrastructure.persistence.models.ml_model import MLModelDB
 
 
 class SQLAlchemyMLModelRepository(IMLModelRepository):
@@ -152,7 +152,9 @@ class SQLAlchemyMLModelRepository(IMLModelRepository):
             List of model entities
         """
         async with self._session_factory() as session:
-            query = select(MLModelDB).offset(skip).limit(limit).order_by(MLModelDB.created_at.desc())
+            query = (
+                select(MLModelDB).offset(skip).limit(limit).order_by(MLModelDB.created_at.desc())
+            )
             result = await session.execute(query)
             db_models = result.scalars().all()
             return [self._to_domain(db_model) for db_model in db_models]
@@ -238,9 +240,7 @@ class SQLAlchemyMLModelRepository(IMLModelRepository):
             List of deployed models
         """
         async with self._session_factory() as session:
-            query = select(MLModelDB).where(
-                MLModelDB.status == ModelStatus.DEPLOYED.value
-            )
+            query = select(MLModelDB).where(MLModelDB.status == ModelStatus.DEPLOYED.value)
             result = await session.execute(query)
             db_models = result.scalars().all()
             return [self._to_domain(db_model) for db_model in db_models]

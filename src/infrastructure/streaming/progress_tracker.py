@@ -26,6 +26,7 @@ from loguru import logger
 
 class ProgressStatus(StrEnum):
     """Progress status enumeration."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -40,6 +41,7 @@ class ProgressEvent:
 
     Contains information about a single progress update.
     """
+
     event_id: str
     task_id: str
     timestamp: datetime
@@ -83,7 +85,7 @@ class ProgressTracker:
     def __init__(
         self,
         cleanup_after: int = 3600,  # 1 hour
-        max_events_per_task: int = 1000
+        max_events_per_task: int = 1000,
     ):
         """
         Initialize progress tracker.
@@ -114,9 +116,7 @@ class ProgressTracker:
         )
 
     async def create_task(
-        self,
-        task_id: str | None = None,
-        metadata: dict[str, Any] | None = None
+        self, task_id: str | None = None, metadata: dict[str, Any] | None = None
     ) -> str:
         """
         Create a new tracked task.
@@ -139,7 +139,7 @@ class ProgressTracker:
                 task_id=task_id,
                 status=ProgressStatus.PENDING,
                 progress=0,
-                current_step="Task created"
+                current_step="Task created",
             )
 
         logger.info(f"Created tracked task: {task_id}")
@@ -155,7 +155,7 @@ class ProgressTracker:
         step_number: int | None = None,
         screenshot_url: str | None = None,
         metadata: dict[str, Any] | None = None,
-        error: str | None = None
+        error: str | None = None,
     ) -> ProgressEvent:
         """
         Update task progress.
@@ -184,15 +184,13 @@ class ProgressTracker:
                 step_number=step_number,
                 screenshot_url=screenshot_url,
                 metadata=metadata,
-                error=error
+                error=error,
             )
 
             # Notify all listeners
             await self._notify_listeners(task_id, event)
 
-        logger.debug(
-            f"Progress updated: {task_id} - {progress}% - {current_step}"
-        )
+        logger.debug(f"Progress updated: {task_id} - {progress}% - {current_step}")
 
         return event
 
@@ -206,7 +204,7 @@ class ProgressTracker:
         step_number: int | None = None,
         screenshot_url: str | None = None,
         metadata: dict[str, Any] | None = None,
-        error: str | None = None
+        error: str | None = None,
     ) -> ProgressEvent:
         """
         Add a progress event (internal).
@@ -228,7 +226,7 @@ class ProgressTracker:
             step_number=step_number,
             screenshot_url=screenshot_url,
             metadata=metadata,
-            error=error
+            error=error,
         )
 
         # Add to event list
@@ -237,7 +235,7 @@ class ProgressTracker:
         # Cleanup old events if needed
         if len(self._events[task_id]) > self._max_events_per_task:
             # Keep only the latest events
-            self._events[task_id] = self._events[task_id][-self._max_events_per_task:]
+            self._events[task_id] = self._events[task_id][-self._max_events_per_task :]
 
         return event
 
@@ -267,9 +265,7 @@ class ProgressTracker:
                 self._listeners[task_id].pop(i)
 
     async def stream_progress(
-        self,
-        task_id: str,
-        send_history: bool = True
+        self, task_id: str, send_history: bool = True
     ) -> AsyncIterator[ProgressEvent]:
         """
         Stream progress updates for a task.
@@ -307,11 +303,9 @@ class ProgressTracker:
                     if event.status in [
                         ProgressStatus.COMPLETED,
                         ProgressStatus.FAILED,
-                        ProgressStatus.CANCELLED
+                        ProgressStatus.CANCELLED,
                     ]:
-                        logger.info(
-                            f"Task {task_id} finished with status: {event.status}"
-                        )
+                        logger.info(f"Task {task_id} finished with status: {event.status}")
                         break
 
                 except TimeoutError:
@@ -343,11 +337,7 @@ class ProgressTracker:
                 return self._events[task_id][-1]
             return None
 
-    async def get_progress_history(
-        self,
-        task_id: str,
-        limit: int = 100
-    ) -> list[ProgressEvent]:
+    async def get_progress_history(self, task_id: str, limit: int = 100) -> list[ProgressEvent]:
         """
         Get progress history for a task.
 
@@ -384,7 +374,7 @@ class ProgressTracker:
                 if latest_event.status in [
                     ProgressStatus.COMPLETED,
                     ProgressStatus.FAILED,
-                    ProgressStatus.CANCELLED
+                    ProgressStatus.CANCELLED,
                 ]:
                     age = (now - latest_event.timestamp).total_seconds()
                     if age > self._cleanup_after:
@@ -440,5 +430,5 @@ class ProgressTracker:
             "total_events": total_events,
             "total_listeners": total_listeners,
             "cleanup_after": self._cleanup_after,
-            "max_events_per_task": self._max_events_per_task
+            "max_events_per_task": self._max_events_per_task,
         }

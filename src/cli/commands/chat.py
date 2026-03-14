@@ -57,11 +57,7 @@ def _save_message(session_id: str, role: str, content: str):
         except json.JSONDecodeError:
             history = []
 
-    history.append({
-        "role": role,
-        "content": content,
-        "timestamp": datetime.now().isoformat()
-    })
+    history.append({"role": role, "content": content, "timestamp": datetime.now().isoformat()})
 
     history_file.write_text(json.dumps(history, indent=2, ensure_ascii=False))
 
@@ -121,11 +117,13 @@ def _list_sessions() -> list[dict]:
         try:
             history = json.loads(history_file.read_text())
             if history:
-                sessions.append({
-                    "id": history_file.stem,
-                    "messages": len(history),
-                    "last_activity": history[-1].get("timestamp", "unknown")
-                })
+                sessions.append(
+                    {
+                        "id": history_file.stem,
+                        "messages": len(history),
+                        "last_activity": history[-1].get("timestamp", "unknown"),
+                    }
+                )
         except (json.JSONDecodeError, IndexError):
             pass
 
@@ -134,38 +132,22 @@ def _list_sessions() -> list[dict]:
 
 @app.command()
 def start(
-    model: str = typer.Option(
-        "mistral:latest",
-        "--model",
-        "-m",
-        help="LLM model to use for chat"
-    ),
-    session: str | None = typer.Option(
-        None,
-        "--session",
-        "-s",
-        help="Resume existing session ID"
-    ),
+    model: str = typer.Option("mistral:latest", "--model", "-m", help="LLM model to use for chat"),
+    session: str | None = typer.Option(None, "--session", "-s", help="Resume existing session ID"),
     rag: bool = typer.Option(
         False,
         "--rag",
-        help="Enable RAG (Retrieval-Augmented Generation) for knowledge-enhanced responses"
+        help="Enable RAG (Retrieval-Augmented Generation) for knowledge-enhanced responses",
     ),
     show_metadata: bool = typer.Option(
-        False,
-        "--show-metadata",
-        help="Show response metadata (model, timing, etc.)"
+        False, "--show-metadata", help="Show response metadata (model, timing, etc.)"
     ),
     stream: bool = typer.Option(
-        True,
-        "--stream/--no-stream",
-        help="Enable/disable real-time streaming of responses"
+        True, "--stream/--no-stream", help="Enable/disable real-time streaming of responses"
     ),
     context: bool = typer.Option(
-        True,
-        "--context/--no-context",
-        help="Include automatic project context"
-    )
+        True, "--context/--no-context", help="Include automatic project context"
+    ),
 ):
     """
     Start an interactive chat session with the AI assistant
@@ -193,12 +175,14 @@ def start(
 
     # Welcome message
     console.print()
-    console.print(Panel.fit(
-        "[bold cyan]Tawiza AI Assistant[/bold cyan]\n\n"
-        "Ask me anything about the Tawiza platform!\n"
-        "Type [bold]'help'[/bold] for guidance, [bold]'exit'[/bold] to quit.",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel.fit(
+            "[bold cyan]Tawiza AI Assistant[/bold cyan]\n\n"
+            "Ask me anything about the Tawiza platform!\n"
+            "Type [bold]'help'[/bold] for guidance, [bold]'exit'[/bold] to quit.",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     # Initialize session
@@ -210,14 +194,16 @@ def start(
         console.print(f"[dim]New session: {current_session_id}[/dim]\n")
 
     # Run chat loop
-    asyncio.run(_chat_loop(
-        session_id=current_session_id,
-        model=model,
-        use_rag=rag,
-        show_metadata=show_metadata,
-        use_stream=stream,
-        use_context=context
-    ))
+    asyncio.run(
+        _chat_loop(
+            session_id=current_session_id,
+            model=model,
+            use_rag=rag,
+            show_metadata=show_metadata,
+            use_stream=stream,
+            use_context=context,
+        )
+    )
 
 
 async def _chat_loop(
@@ -226,7 +212,7 @@ async def _chat_loop(
     use_rag: bool,
     show_metadata: bool,
     use_stream: bool = True,
-    use_context: bool = True
+    use_context: bool = True,
 ):
     """Main chat loop with streaming and persistent history."""
 
@@ -236,17 +222,16 @@ async def _chat_loop(
     settings = get_settings()
 
     # Initialize Ollama client
-    console.print(Panel(
-        "[dim]Initializing AI assistant...[/dim]",
-        border_style=SUNSET_THEME.accent_color,
-        padding=(0, 1)
-    ))
+    console.print(
+        Panel(
+            "[dim]Initializing AI assistant...[/dim]",
+            border_style=SUNSET_THEME.accent_color,
+            padding=(0, 1),
+        )
+    )
 
     try:
-        ollama = OllamaClient(
-            base_url=settings.ollama.base_url,
-            model=model
-        )
+        ollama = OllamaClient(base_url=settings.ollama.base_url, model=model)
 
         # Health check
         if not await ollama.health_check():
@@ -256,10 +241,13 @@ async def _chat_loop(
 
         # Display GPU status
         from src.cli.ui.gpu_monitor import get_gpu_status
+
         gpu_status = get_gpu_status()
         if gpu_status.available:
             location = "Host" if gpu_status.location.value == "host" else "VM 400"
-            console.print(f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire[/dim]")
+            console.print(
+                f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire[/dim]"
+            )
 
         # Get project context if enabled
         project_context = ""
@@ -312,7 +300,9 @@ Be concise, helpful, and provide code examples when relevant."""
     while True:
         try:
             # Get user input
-            user_input = Prompt.ask(f"\n[bold {SUNSET_THEME.accent_color}]You[/bold {SUNSET_THEME.accent_color}]")
+            user_input = Prompt.ask(
+                f"\n[bold {SUNSET_THEME.accent_color}]You[/bold {SUNSET_THEME.accent_color}]"
+            )
 
             # Check for exit
             if user_input.lower().strip() in ["exit", "quit", "bye", "q"]:
@@ -329,7 +319,9 @@ Be concise, helpful, and provide code examples when relevant."""
 
             if user_input.lower().strip() == "/context":
                 console.print("\n[dim]Project context:[/dim]")
-                console.print(project_context if project_context else "[yellow]No context loaded[/yellow]")
+                console.print(
+                    project_context if project_context else "[yellow]No context loaded[/yellow]"
+                )
                 continue
 
             # Add user message
@@ -348,7 +340,9 @@ Be concise, helpful, and provide code examples when relevant."""
 
                 # Use Live for real-time display with mascot
                 response_text = Text()
-                with Live(response_text, console=console, refresh_per_second=15, transient=False) as live:
+                with Live(
+                    response_text, console=console, refresh_per_second=15, transient=False
+                ) as live:
                     async for chunk in stream_gen:
                         if chunk:
                             full_response += chunk
@@ -383,7 +377,9 @@ Be concise, helpful, and provide code examples when relevant."""
 
             # Show metadata if requested
             if show_metadata:
-                console.print(f"\n[dim]Model: {model} | Messages: {len(messages)} | Stream: {use_stream}[/dim]")
+                console.print(
+                    f"\n[dim]Model: {model} | Messages: {len(messages)} | Stream: {use_stream}[/dim]"
+                )
 
         except KeyboardInterrupt:
             console.print("\n\n[yellow]Chat interrupted.[/yellow]")
@@ -402,7 +398,7 @@ Be concise, helpful, and provide code examples when relevant."""
 @app.command()
 def history(
     session: str = typer.Argument(..., help="Session ID to view"),
-    limit: int = typer.Option(10, "--limit", "-n", help="Number of messages to show")
+    limit: int = typer.Option(10, "--limit", "-n", help="Number of messages to show"),
 ):
     """
     View conversation history for a session
@@ -429,7 +425,9 @@ def history(
         timestamp = msg.get("timestamp", "")[:19].replace("T", " ")
 
         if role == "user":
-            console.print(f"[bold {SUNSET_THEME.accent_color}]You[/bold {SUNSET_THEME.accent_color}] [dim]({timestamp})[/dim]")
+            console.print(
+                f"[bold {SUNSET_THEME.accent_color}]You[/bold {SUNSET_THEME.accent_color}] [dim]({timestamp})[/dim]"
+            )
         else:
             console.print(f"[cyan]Assistant[/cyan] [dim]({timestamp})[/dim]")
 
@@ -457,9 +455,7 @@ def sessions():
     from rich.table import Table
 
     table = Table(
-        title="Saved Chat Sessions",
-        border_style=SUNSET_THEME.accent_color,
-        show_header=True
+        title="Saved Chat Sessions", border_style=SUNSET_THEME.accent_color, show_header=True
     )
     table.add_column("Session ID", style="cyan")
     table.add_column("Messages", justify="right")
@@ -470,7 +466,7 @@ def sessions():
         table.add_row(
             session["id"][:36] + "..." if len(session["id"]) > 36 else session["id"],
             str(session["messages"]),
-            last_activity
+            last_activity,
         )
 
     console.print()
@@ -481,7 +477,7 @@ def sessions():
 @app.command()
 def clear(
     session: str = typer.Argument(..., help="Session ID to clear"),
-    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation")
+    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation"),
 ):
     """
     Clear a chat session
@@ -501,9 +497,7 @@ def clear(
 
     if not force:
         confirm = Prompt.ask(
-            f"Are you sure you want to clear session {session}?",
-            choices=["y", "n"],
-            default="n"
+            f"Are you sure you want to clear session {session}?", choices=["y", "n"], default="n"
         )
         if confirm != "y":
             console.print("[yellow]Cancelled[/yellow]")
@@ -519,18 +513,8 @@ def clear(
 @app.command()
 def export(
     session: str = typer.Argument(..., help="Session ID to export"),
-    output: str = typer.Option(
-        "conversation.json",
-        "--output",
-        "-o",
-        help="Output file path"
-    ),
-    format: str = typer.Option(
-        "json",
-        "--format",
-        "-f",
-        help="Export format: json, markdown, txt"
-    )
+    output: str = typer.Option("conversation.json", "--output", "-o", help="Output file path"),
+    format: str = typer.Option("json", "--format", "-f", help="Export format: json, markdown, txt"),
 ):
     """
     Export conversation to file
@@ -583,9 +567,7 @@ def export(
 
 
 @app.command()
-def suggest(
-    query: str = typer.Argument(..., help="Natural language query")
-):
+def suggest(query: str = typer.Argument(..., help="Natural language query")):
     """
     Get command suggestion from natural language
 
@@ -606,7 +588,11 @@ def suggest(
         console.print(f"[dim]$ {suggestion}[/dim]\n")
     else:
         console.print(f"[yellow]Could not parse command from: {query}[/yellow]")
-        console.print(get_sunset_banner("[dim]Try being more specific or use 'tawiza chat start' for interactive help[/dim]"))
+        console.print(
+            get_sunset_banner(
+                "[dim]Try being more specific or use 'tawiza chat start' for interactive help[/dim]"
+            )
+        )
 
 
 if __name__ == "__main__":

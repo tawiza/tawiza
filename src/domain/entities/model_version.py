@@ -137,7 +137,9 @@ class ModelVersionSnapshot:
     id: UUID = field(default_factory=uuid4)
     model_name: str = ""
     version: AutoIncrementVersion = field(default_factory=lambda: AutoIncrementVersion(1))
-    metadata: VersionMetadata = field(default_factory=lambda: VersionMetadata("", AutoIncrementVersion(1), ""))
+    metadata: VersionMetadata = field(
+        default_factory=lambda: VersionMetadata("", AutoIncrementVersion(1), "")
+    )
     modelfile_content: str = ""
     snapshot_created_at: datetime = field(default_factory=datetime.utcnow)
     snapshot_reason: str = "backup"

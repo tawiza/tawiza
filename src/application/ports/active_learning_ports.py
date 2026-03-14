@@ -111,9 +111,7 @@ class IDriftDetector(ABC):
         pass
 
     @abstractmethod
-    async def get_baseline_metrics(
-        self, model_name: str, model_version: str
-    ) -> dict[str, float]:
+    async def get_baseline_metrics(self, model_name: str, model_version: str) -> dict[str, float]:
         """Get baseline metrics for a model.
 
         Baseline metrics are typically from training/validation data
@@ -184,9 +182,7 @@ class IRetrainingTrigger(ABC):
         pass
 
     @abstractmethod
-    async def get_retraining_conditions(
-        self, model_name: str, model_version: str
-    ) -> dict:
+    async def get_retraining_conditions(self, model_name: str, model_version: str) -> dict:
         """Get current retraining condition metrics for a model.
 
         Returns metrics used to determine if retraining should be triggered:
@@ -217,9 +213,7 @@ class IActiveLearningOrchestrator(ABC):
     """
 
     @abstractmethod
-    async def run_active_learning_cycle(
-        self, model_name: str, model_version: str
-    ) -> dict:
+    async def run_active_learning_cycle(self, model_name: str, model_version: str) -> dict:
         """Run a complete active learning cycle for a model.
 
         This includes:
@@ -241,9 +235,7 @@ class IActiveLearningOrchestrator(ABC):
         pass
 
     @abstractmethod
-    async def get_model_health_status(
-        self, model_name: str, model_version: str
-    ) -> dict:
+    async def get_model_health_status(self, model_name: str, model_version: str) -> dict:
         """Get comprehensive health status for a model.
 
         Includes drift status, error rates, pending samples, etc.

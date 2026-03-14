@@ -60,9 +60,7 @@ class EnterpriseAgent:
         # Facteurs influençant l'embauche
         # Demande croissante + bonne santé + attractivité = embauche
         hiring_pressure = (
-            demand_growth * 0.4
-            + self.health_score * 0.3
-            + (attractiveness - 50) / 100 * 0.3
+            demand_growth * 0.4 + self.health_score * 0.3 + (attractiveness - 50) / 100 * 0.3
         )
 
         # Coût embauche inversement proportionnel au chômage
@@ -269,7 +267,9 @@ class EnterpriseAgent:
         return cls(
             siren=data.get("siren", ""),
             denomination=data.get("denomination", ""),
-            secteur=data.get("activite_principale", "")[:2] if data.get("activite_principale") else "",
+            secteur=data.get("activite_principale", "")[:2]
+            if data.get("activite_principale")
+            else "",
             effectif=cls._parse_effectif(data.get("tranche_effectif_salarie")),
             territory_code=data.get("code_postal", "")[:2] if data.get("code_postal") else "",
             age_months=cls._compute_age(data.get("date_creation")),

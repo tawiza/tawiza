@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 router = APIRouter(
     prefix="/ecocartographe",
     tags=["EcoCartographe"],
-    responses={404: {"description": "Projet non trouvé"}}
+    responses={404: {"description": "Projet non trouvé"}},
 )
 
 # Instance globale de l'adapter
@@ -27,45 +27,62 @@ def get_adapter():
     global _adapter
     if _adapter is None:
         from src.infrastructure.agents.ecocartographe import EcoCartographeAdapter
+
         _adapter = EcoCartographeAdapter()
     return _adapter
 
 
 # ==================== Modèles Pydantic ====================
 
+
 class SourceDonneesRequest(BaseModel):
     """Requête pour une source de données"""
+
     type: str = Field(..., description="Type de source: csv, excel, json, texte, web")
     chemin: str | None = Field(None, description="Chemin vers le fichier")
     url: str | None = Field(None, description="URL de la source web")
-    configuration: dict[str, Any] = Field(default_factory=dict, description="Configuration additionnelle")
+    configuration: dict[str, Any] = Field(
+        default_factory=dict, description="Configuration additionnelle"
+    )
 
 
 class ConfigurationExtractionRequest(BaseModel):
     """Configuration pour l'extraction"""
+
     modele_spacy: str = Field("fr_core_news_lg", description="Modèle spaCy pour l'extraction NLP")
-    modele_ollama: str = Field("llama3.2:latest", description="Modèle Ollama pour l'analyse sémantique")
+    modele_ollama: str = Field(
+        "llama3.2:latest", description="Modèle Ollama pour l'analyse sémantique"
+    )
     seuil_proximite_km: float = Field(50.0, description="Seuil de proximité géographique en km")
-    seuil_similarite_thematique: float = Field(0.7, description="Seuil de similarité thématique (0-1)")
-    types_entites: list[str] = Field(["ORG", "LOC", "PERSON"], description="Types d'entités à extraire")
+    seuil_similarite_thematique: float = Field(
+        0.7, description="Seuil de similarité thématique (0-1)"
+    )
+    types_entites: list[str] = Field(
+        ["ORG", "LOC", "PERSON"], description="Types d'entités à extraire"
+    )
 
 
 class CreerProjetRequest(BaseModel):
     """Requête pour créer un nouveau projet"""
+
     nom: str = Field(..., description="Nom du projet")
     description: str | None = Field(None, description="Description du projet")
     territoire: str | None = Field(None, description="Territoire ciblé (ex: Nouvelle-Aquitaine)")
     thematique: str | None = Field(None, description="Thématique (ex: AgriTech, HealthTech)")
-    configuration: ConfigurationExtractionRequest | None = Field(None, description="Configuration d'extraction")
+    configuration: ConfigurationExtractionRequest | None = Field(
+        None, description="Configuration d'extraction"
+    )
 
 
 class IngererSourcesRequest(BaseModel):
     """Requête pour ingérer des sources"""
+
     sources: list[SourceDonneesRequest] = Field(..., description="Liste des sources à ingérer")
 
 
 class PipelineCompletRequest(BaseModel):
     """Requête pour le pipeline complet"""
+
     nom: str = Field(..., description="Nom du projet")
     description: str | None = Field(None)
     territoire: str | None = Field(None)
@@ -76,6 +93,7 @@ class PipelineCompletRequest(BaseModel):
 
 class ProjetResponse(BaseModel):
     """Réponse avec les informations d'un projet"""
+
     id: str
     nom: str
     description: str | None
@@ -95,6 +113,7 @@ class ProjetResponse(BaseModel):
 
 class TaskResponse(BaseModel):
     """Réponse pour une tâche asynchrone"""
+
     task_id: str
     projet_id: str
     status: str
@@ -103,6 +122,7 @@ class TaskResponse(BaseModel):
 
 class AnalyseReseauResponse(BaseModel):
     """Réponse avec l'analyse du réseau"""
+
     nb_noeuds: int
     nb_aretes: int
     densite: float
@@ -114,6 +134,7 @@ class AnalyseReseauResponse(BaseModel):
 
 class VisualisationsResponse(BaseModel):
     """Réponse avec les fichiers de visualisation"""
+
     projet_id: str
     fichier_carte: str | None
     fichier_graphe: str | None
@@ -122,11 +143,9 @@ class VisualisationsResponse(BaseModel):
 
 # ==================== Endpoints ====================
 
+
 @router.post("/projets", response_model=TaskResponse, status_code=202)
-async def creer_projet(
-    request: CreerProjetRequest,
-    background_tasks: BackgroundTasks
-):
+async def creer_projet(request: CreerProjetRequest, background_tasks: BackgroundTasks):
     """
     Crée un nouveau projet de cartographie.
 
@@ -135,28 +154,30 @@ async def creer_projet(
     adapter = get_adapter()
 
     config = {
-        'action': 'creer_projet',
-        'nom': request.nom,
-        'description': request.description,
-        'territoire': request.territoire,
-        'thematique': request.thematique
+        "action": "creer_projet",
+        "nom": request.nom,
+        "description": request.description,
+        "territoire": request.territoire,
+        "thematique": request.thematique,
     }
 
     if request.configuration:
-        config.update({
-            'modele_spacy': request.configuration.modele_spacy,
-            'modele_ollama': request.configuration.modele_ollama,
-            'seuil_proximite_km': request.configuration.seuil_proximite_km,
-            'seuil_similarite': request.configuration.seuil_similarite_thematique
-        })
+        config.update(
+            {
+                "modele_spacy": request.configuration.modele_spacy,
+                "modele_ollama": request.configuration.modele_ollama,
+                "seuil_proximite_km": request.configuration.seuil_proximite_km,
+                "seuil_similarite": request.configuration.seuil_similarite_thematique,
+            }
+        )
 
     try:
         result = await adapter.execute_task(config)
         return TaskResponse(
             task_id="sync",
-            projet_id=result['projet_id'],
+            projet_id=result["projet_id"],
             status="created",
-            message=f"Projet '{request.nom}' créé avec succès"
+            message=f"Projet '{request.nom}' créé avec succès",
         )
     except Exception as e:
         logger.exception("Erreur création projet")
@@ -167,7 +188,7 @@ async def creer_projet(
 async def lister_projets(
     statut: str | None = Query(None, description="Filtrer par statut"),
     limit: int = Query(100, ge=1, le=1000),
-    offset: int = Query(0, ge=0)
+    offset: int = Query(0, ge=0),
 ):
     """
     Liste tous les projets de cartographie.
@@ -176,9 +197,9 @@ async def lister_projets(
     projets = await adapter.lister_projets()
 
     if statut:
-        projets = [p for p in projets if p['statut'] == statut]
+        projets = [p for p in projets if p["statut"] == statut]
 
-    return projets[offset:offset + limit]
+    return projets[offset : offset + limit]
 
 
 @router.get("/projets/{projet_id}", response_model=ProjetResponse)
@@ -211,9 +232,7 @@ async def supprimer_projet(projet_id: str):
 
 @router.post("/projets/{projet_id}/ingest", response_model=TaskResponse, status_code=202)
 async def ingerer_sources(
-    projet_id: str,
-    request: IngererSourcesRequest,
-    background_tasks: BackgroundTasks
+    projet_id: str, request: IngererSourcesRequest, background_tasks: BackgroundTasks
 ):
     """
     Ingère des sources de données dans un projet existant.
@@ -232,17 +251,15 @@ async def ingerer_sources(
         raise HTTPException(status_code=404, detail=f"Projet {projet_id} non trouvé")
 
     sources = [
-        {'type': s.type, 'chemin': s.chemin, 'url': s.url, 'configuration': s.configuration}
+        {"type": s.type, "chemin": s.chemin, "url": s.url, "configuration": s.configuration}
         for s in request.sources
     ]
 
     async def _ingerer():
         try:
-            await adapter.execute_task({
-                'action': 'ingerer',
-                'projet_id': projet_id,
-                'sources': sources
-            })
+            await adapter.execute_task(
+                {"action": "ingerer", "projet_id": projet_id, "sources": sources}
+            )
         except Exception:
             logger.exception(f"Erreur ingestion projet {projet_id}")
 
@@ -252,15 +269,12 @@ async def ingerer_sources(
         task_id="background",
         projet_id=projet_id,
         status="processing",
-        message=f"Ingestion de {len(sources)} source(s) démarrée"
+        message=f"Ingestion de {len(sources)} source(s) démarrée",
     )
 
 
 @router.post("/projets/{projet_id}/extract", response_model=TaskResponse, status_code=202)
-async def extraire_entites(
-    projet_id: str,
-    background_tasks: BackgroundTasks
-):
+async def extraire_entites(projet_id: str, background_tasks: BackgroundTasks):
     """
     Lance l'extraction des entités avec spaCy.
 
@@ -277,10 +291,7 @@ async def extraire_entites(
 
     async def _extraire():
         try:
-            await adapter.execute_task({
-                'action': 'extraire',
-                'projet_id': projet_id
-            })
+            await adapter.execute_task({"action": "extraire", "projet_id": projet_id})
         except Exception:
             logger.exception(f"Erreur extraction projet {projet_id}")
 
@@ -290,15 +301,12 @@ async def extraire_entites(
         task_id="background",
         projet_id=projet_id,
         status="processing",
-        message="Extraction des entités démarrée"
+        message="Extraction des entités démarrée",
     )
 
 
 @router.post("/projets/{projet_id}/analyze", response_model=TaskResponse, status_code=202)
-async def analyser_reseau(
-    projet_id: str,
-    background_tasks: BackgroundTasks
-):
+async def analyser_reseau(projet_id: str, background_tasks: BackgroundTasks):
     """
     Lance l'analyse du réseau avec NetworkX.
 
@@ -315,10 +323,7 @@ async def analyser_reseau(
 
     async def _analyser():
         try:
-            await adapter.execute_task({
-                'action': 'analyser',
-                'projet_id': projet_id
-            })
+            await adapter.execute_task({"action": "analyser", "projet_id": projet_id})
         except Exception:
             logger.exception(f"Erreur analyse projet {projet_id}")
 
@@ -328,7 +333,7 @@ async def analyser_reseau(
         task_id="background",
         projet_id=projet_id,
         status="processing",
-        message="Analyse du réseau démarrée"
+        message="Analyse du réseau démarrée",
     )
 
 
@@ -349,21 +354,22 @@ async def obtenir_donnees_reseau(projet_id: str):
 
     # Récupérer le projet complet avec les métadonnées
     projet_complet = adapter.projets.get(projet_id)
-    if not projet_complet or not hasattr(projet_complet, 'metadata'):
-        raise HTTPException(status_code=400, detail="Données réseau non disponibles. Exécutez d'abord l'analyse.")
+    if not projet_complet or not hasattr(projet_complet, "metadata"):
+        raise HTTPException(
+            status_code=400, detail="Données réseau non disponibles. Exécutez d'abord l'analyse."
+        )
 
-    analyseur = projet_complet.metadata.get('analyseur_reseau')
+    analyseur = projet_complet.metadata.get("analyseur_reseau")
     if not analyseur:
         raise HTTPException(status_code=400, detail="Analyse non effectuée")
 
     return analyseur.exporter_json()
 
 
-@router.post("/projets/{projet_id}/visualize", response_model=VisualisationsResponse, status_code=202)
-async def generer_visualisations(
-    projet_id: str,
-    background_tasks: BackgroundTasks
-):
+@router.post(
+    "/projets/{projet_id}/visualize", response_model=VisualisationsResponse, status_code=202
+)
+async def generer_visualisations(projet_id: str, background_tasks: BackgroundTasks):
     """
     Génère les visualisations (carte et graphe).
 
@@ -379,16 +385,13 @@ async def generer_visualisations(
         raise HTTPException(status_code=404, detail=f"Projet {projet_id} non trouvé")
 
     try:
-        result = await adapter.execute_task({
-            'action': 'visualiser',
-            'projet_id': projet_id
-        })
+        result = await adapter.execute_task({"action": "visualiser", "projet_id": projet_id})
 
         return VisualisationsResponse(
             projet_id=projet_id,
-            fichier_carte=result['fichiers'].get('carte'),
-            fichier_graphe=result['fichiers'].get('graphe'),
-            fichier_rapport=result['fichiers'].get('rapport')
+            fichier_carte=result["fichiers"].get("carte"),
+            fichier_graphe=result["fichiers"].get("graphe"),
+            fichier_rapport=result["fichiers"].get("rapport"),
         )
     except Exception as e:
         logger.exception(f"Erreur visualisation projet {projet_id}")
@@ -410,11 +413,7 @@ async def telecharger_carte(projet_id: str):
     if not fichier or not Path(fichier).exists():
         raise HTTPException(status_code=404, detail="Fichier carte non trouvé")
 
-    return FileResponse(
-        fichier,
-        media_type="text/html",
-        filename=f"{projet_id}_carte.html"
-    )
+    return FileResponse(fichier, media_type="text/html", filename=f"{projet_id}_carte.html")
 
 
 @router.get("/projets/{projet_id}/visualizations/graph")
@@ -432,11 +431,7 @@ async def telecharger_graphe(projet_id: str):
     if not fichier or not Path(fichier).exists():
         raise HTTPException(status_code=404, detail="Fichier graphe non trouvé")
 
-    return FileResponse(
-        fichier,
-        media_type="text/html",
-        filename=f"{projet_id}_graphe.html"
-    )
+    return FileResponse(fichier, media_type="text/html", filename=f"{projet_id}_graphe.html")
 
 
 @router.get("/projets/{projet_id}/visualizations/report")
@@ -454,18 +449,11 @@ async def telecharger_rapport(projet_id: str):
     if not fichier or not Path(fichier).exists():
         raise HTTPException(status_code=404, detail="Fichier rapport non trouvé")
 
-    return FileResponse(
-        fichier,
-        media_type="text/markdown",
-        filename=f"{projet_id}_rapport.md"
-    )
+    return FileResponse(fichier, media_type="text/markdown", filename=f"{projet_id}_rapport.md")
 
 
 @router.post("/pipeline", response_model=TaskResponse, status_code=202)
-async def pipeline_complet(
-    request: PipelineCompletRequest,
-    background_tasks: BackgroundTasks
-):
+async def pipeline_complet(request: PipelineCompletRequest, background_tasks: BackgroundTasks):
     """
     Exécute le pipeline complet de cartographie.
 
@@ -479,26 +467,28 @@ async def pipeline_complet(
     adapter = get_adapter()
 
     sources = [
-        {'type': s.type, 'chemin': s.chemin, 'url': s.url, 'configuration': s.configuration}
+        {"type": s.type, "chemin": s.chemin, "url": s.url, "configuration": s.configuration}
         for s in request.sources
     ]
 
     config = {
-        'action': 'pipeline_complet',
-        'nom': request.nom,
-        'description': request.description,
-        'territoire': request.territoire,
-        'thematique': request.thematique,
-        'sources': sources
+        "action": "pipeline_complet",
+        "nom": request.nom,
+        "description": request.description,
+        "territoire": request.territoire,
+        "thematique": request.thematique,
+        "sources": sources,
     }
 
     if request.configuration:
-        config.update({
-            'modele_spacy': request.configuration.modele_spacy,
-            'modele_ollama': request.configuration.modele_ollama,
-            'seuil_proximite_km': request.configuration.seuil_proximite_km,
-            'seuil_similarite': request.configuration.seuil_similarite_thematique
-        })
+        config.update(
+            {
+                "modele_spacy": request.configuration.modele_spacy,
+                "modele_ollama": request.configuration.modele_ollama,
+                "seuil_proximite_km": request.configuration.seuil_proximite_km,
+                "seuil_similarite": request.configuration.seuil_similarite_thematique,
+            }
+        )
 
     # Exécuter en arrière-plan
     async def _pipeline():
@@ -509,34 +499,36 @@ async def pipeline_complet(
             logger.exception("Erreur pipeline")
 
     # Créer d'abord le projet pour obtenir l'ID
-    result_creation = await adapter.execute_task({
-        'action': 'creer_projet',
-        'nom': request.nom,
-        'description': request.description,
-        'territoire': request.territoire,
-        'thematique': request.thematique
-    })
+    result_creation = await adapter.execute_task(
+        {
+            "action": "creer_projet",
+            "nom": request.nom,
+            "description": request.description,
+            "territoire": request.territoire,
+            "thematique": request.thematique,
+        }
+    )
 
-    projet_id = result_creation['projet_id']
-    config['projet_id'] = projet_id
+    projet_id = result_creation["projet_id"]
+    config["projet_id"] = projet_id
 
     # Lancer le reste en arrière-plan
     async def _suite_pipeline():
         try:
             # Ingestion
-            config['action'] = 'ingerer'
+            config["action"] = "ingerer"
             await adapter.execute_task(config)
 
             # Extraction
-            config['action'] = 'extraire'
+            config["action"] = "extraire"
             await adapter.execute_task(config)
 
             # Analyse
-            config['action'] = 'analyser'
+            config["action"] = "analyser"
             await adapter.execute_task(config)
 
             # Visualisation
-            config['action'] = 'visualiser'
+            config["action"] = "visualiser"
             await adapter.execute_task(config)
 
             logger.info(f"Pipeline terminé: {projet_id}")
@@ -549,12 +541,13 @@ async def pipeline_complet(
         task_id="background",
         projet_id=projet_id,
         status="processing",
-        message=f"Pipeline démarré pour le projet '{request.nom}'"
+        message=f"Pipeline démarré pour le projet '{request.nom}'",
     )
 
 
 class PipelineAutoRequest(BaseModel):
     """Requête pour le pipeline automatique avec collecte"""
+
     nom: str | None = Field(None, description="Nom du projet")
     territoire: str = Field(..., description="Territoire à cartographier")
     thematique: str | None = Field(None, description="Thématique (ex: AgriTech)")
@@ -577,29 +570,32 @@ async def pipeline_auto(request: PipelineAutoRequest):
     adapter = get_adapter()
 
     config = {
-        'action': 'pipeline_auto',
-        'nom': request.nom or f"Cartographie {request.territoire} {request.thematique or ''}".strip(),
-        'territoire': request.territoire,
-        'thematique': request.thematique,
-        'limite': request.limite
+        "action": "pipeline_auto",
+        "nom": request.nom
+        or f"Cartographie {request.territoire} {request.thematique or ''}".strip(),
+        "territoire": request.territoire,
+        "thematique": request.thematique,
+        "limite": request.limite,
     }
 
     if request.configuration:
-        config.update({
-            'modele_spacy': request.configuration.modele_spacy,
-            'modele_ollama': request.configuration.modele_ollama,
-            'seuil_proximite_km': request.configuration.seuil_proximite_km,
-            'seuil_similarite': request.configuration.seuil_similarite_thematique
-        })
+        config.update(
+            {
+                "modele_spacy": request.configuration.modele_spacy,
+                "modele_ollama": request.configuration.modele_ollama,
+                "seuil_proximite_km": request.configuration.seuil_proximite_km,
+                "seuil_similarite": request.configuration.seuil_similarite_thematique,
+            }
+        )
 
     try:
         result = await adapter.execute_task(config)
         return {
-            "projet_id": result.get('projet_id'),
+            "projet_id": result.get("projet_id"),
             "status": "completed",
-            "statistiques": result.get('statistiques', {}),
-            "fichiers": result.get('fichiers', {}),
-            "message": f"Cartographie de {request.territoire} terminée"
+            "statistiques": result.get("statistiques", {}),
+            "fichiers": result.get("fichiers", {}),
+            "message": f"Cartographie de {request.territoire} terminée",
         }
     except Exception as e:
         logger.exception("Erreur pipeline auto")
@@ -617,17 +613,19 @@ async def lister_fichiers_sortie():
 
     fichiers = []
     for fichier in output_dir.glob("*.*"):
-        if fichier.suffix in ['.html', '.md', '.gexf', '.json']:
-            fichiers.append({
-                "nom": fichier.name,
-                "type": fichier.suffix[1:],
-                "taille": fichier.stat().st_size,
-                "date_modification": fichier.stat().st_mtime,
-                "url": f"/ecocartographe/outputs/{fichier.name}"
-            })
+        if fichier.suffix in [".html", ".md", ".gexf", ".json"]:
+            fichiers.append(
+                {
+                    "nom": fichier.name,
+                    "type": fichier.suffix[1:],
+                    "taille": fichier.stat().st_size,
+                    "date_modification": fichier.stat().st_mtime,
+                    "url": f"/ecocartographe/outputs/{fichier.name}",
+                }
+            )
 
     # Trier par date (plus récent d'abord)
-    fichiers.sort(key=lambda f: f['date_modification'], reverse=True)
+    fichiers.sort(key=lambda f: f["date_modification"], reverse=True)
 
     return {"fichiers": fichiers}
 
@@ -645,19 +643,15 @@ async def telecharger_fichier_sortie(filename: str):
 
     # Déterminer le type MIME
     media_types = {
-        '.html': 'text/html',
-        '.md': 'text/markdown',
-        '.gexf': 'application/xml',
-        '.json': 'application/json'
+        ".html": "text/html",
+        ".md": "text/markdown",
+        ".gexf": "application/xml",
+        ".json": "application/json",
     }
 
-    media_type = media_types.get(fichier_path.suffix, 'application/octet-stream')
+    media_type = media_types.get(fichier_path.suffix, "application/octet-stream")
 
-    return FileResponse(
-        fichier_path,
-        media_type=media_type,
-        filename=filename
-    )
+    return FileResponse(fichier_path, media_type=media_type, filename=filename)
 
 
 @router.get("/health")
@@ -675,6 +669,6 @@ async def health_check():
             "relationship_detection",
             "network_analysis",
             "geographic_mapping",
-            "interactive_visualization"
-        ]
+            "interactive_visualization",
+        ],
     }

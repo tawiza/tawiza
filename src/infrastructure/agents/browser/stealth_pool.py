@@ -37,14 +37,16 @@ from src.infrastructure.agents.browser.nodriver_agent import (
 
 class BrowserType(Enum):
     """Available stealth browser types."""
-    NODRIVER = "nodriver"      # Chrome-based, CDP direct
-    CAMOUFOX = "camoufox"      # Firefox-based, C++ hooks
+
+    NODRIVER = "nodriver"  # Chrome-based, CDP direct
+    CAMOUFOX = "camoufox"  # Firefox-based, C++ hooks
     PLAYWRIGHT = "playwright"  # Standard fallback
 
 
 @dataclass
 class StealthFetchResult:
     """Unified result from stealth browser pool."""
+
     success: bool
     content: str | None = None
     screenshot_b64: str | None = None
@@ -58,6 +60,7 @@ class StealthFetchResult:
 @dataclass
 class DomainPreference:
     """Learned browser preference for a domain."""
+
     domain: str
     preferred_browser: BrowserType
     success_count: int = 0
@@ -79,13 +82,11 @@ KNOWN_DOMAIN_PREFERENCES: dict[str, BrowserType] = {
     "caf.fr": BrowserType.CAMOUFOX,
     "pole-emploi.fr": BrowserType.CAMOUFOX,
     "francetravail.fr": BrowserType.CAMOUFOX,
-
     # Sites that work better with Chrome (nodriver)
     "societe.com": BrowserType.NODRIVER,
     "pappers.fr": BrowserType.NODRIVER,
     "infogreffe.fr": BrowserType.NODRIVER,
     "verif.com": BrowserType.NODRIVER,
-
     # Cloudflare-protected (try nodriver first)
     "bodacc.fr": BrowserType.NODRIVER,
     "boamp.fr": BrowserType.NODRIVER,
@@ -147,6 +148,7 @@ class StealthBrowserPool:
     def _extract_domain(self, url: str) -> str:
         """Extract domain from URL."""
         from urllib.parse import urlparse
+
         parsed = urlparse(url)
         return parsed.netloc.lower()
 
@@ -186,7 +188,12 @@ class StealthBrowserPool:
         # Filter by availability
         available = []
         for b in all_browsers:
-            if b == BrowserType.NODRIVER and NODRIVER_AVAILABLE or b == BrowserType.CAMOUFOX and CAMOUFOX_AVAILABLE:
+            if (
+                b == BrowserType.NODRIVER
+                and NODRIVER_AVAILABLE
+                or b == BrowserType.CAMOUFOX
+                and CAMOUFOX_AVAILABLE
+            ):
                 available.append(b)
             elif b == BrowserType.PLAYWRIGHT:
                 available.append(b)  # Always available as last resort
@@ -325,7 +332,7 @@ class StealthBrowserPool:
             domain = self._extract_domain(url)
             retries = 0
 
-            for browser_type in browser_chain[:max_retries + 1]:
+            for browser_type in browser_chain[: max_retries + 1]:
                 logger.info(f"Attempting {browser_type.value} for {domain}")
 
                 if browser_type == BrowserType.NODRIVER:
@@ -349,9 +356,7 @@ class StealthBrowserPool:
                     return result
 
                 retries += 1
-                logger.warning(
-                    f"{browser_type.value} failed for {domain}: {result.error}"
-                )
+                logger.warning(f"{browser_type.value} failed for {domain}: {result.error}")
 
             # All browsers failed
             total_duration = int((datetime.now() - start_time).total_seconds() * 1000)

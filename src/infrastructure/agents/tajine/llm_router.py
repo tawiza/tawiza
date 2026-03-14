@@ -9,6 +9,7 @@ Routing Strategy:
 - High uncertainty → CoALM + human validation
 - Critical decisions → CoALM 405B (maximum capability)
 """
+
 import os
 import time
 from abc import ABC, abstractmethod
@@ -21,21 +22,23 @@ from loguru import logger
 
 class ModelTier(StrEnum):
     """Model capability tiers."""
-    LOCAL = "local"           # Ollama local models (fast, free)
-    STANDARD = "standard"     # CoALM 8B (balanced)
-    POWERFUL = "powerful"     # CoALM 70B (high capability)
-    MAXIMUM = "maximum"       # CoALM 405B (maximum capability)
+
+    LOCAL = "local"  # Ollama local models (fast, free)
+    STANDARD = "standard"  # CoALM 8B (balanced)
+    POWERFUL = "powerful"  # CoALM 70B (high capability)
+    MAXIMUM = "maximum"  # CoALM 405B (maximum capability)
 
 
 class AnalysisMode(StrEnum):
     """User-selectable analysis modes mapped to model tiers."""
-    FAST = "fast"             # Quick response, local model (llama3.1:8b or qwen3.5:27b)
-    COMPLETE = "complete"     # Full PPDSL cycle with powerful model (32b+)
+
+    FAST = "fast"  # Quick response, local model (llama3.1:8b or qwen3.5:27b)
+    COMPLETE = "complete"  # Full PPDSL cycle with powerful model (32b+)
 
 
 # Mode to tier mapping - key for differentiating Fast vs Complet
 MODE_TIER_MAPPING: dict[AnalysisMode, ModelTier] = {
-    AnalysisMode.FAST: ModelTier.LOCAL,       # qwen3.5:27b
+    AnalysisMode.FAST: ModelTier.LOCAL,  # qwen3.5:27b
     AnalysisMode.COMPLETE: ModelTier.POWERFUL,  # qwen3.5:27b or coalm-70b
 }
 
@@ -44,27 +47,29 @@ MODE_TIER_MAPPING: dict[AnalysisMode, ModelTier] = {
 # Note: qwen3.5:27b used for LOCAL tier - llama3.1:8b was too restrictive
 # (refused legitimate queries about "radiations" = business cessations)
 OLLAMA_MODEL_BY_TIER: dict[ModelTier, str] = {
-    ModelTier.LOCAL: "qwen3.5:27b",              # Fast streaming (mode rapide) - optimized prompt
-    ModelTier.STANDARD: "qwen3.5:27b",          # Standard reasoning
-    ModelTier.POWERFUL: "qwen3.5:27b",          # Complex analysis (mode complet) - 31 tok/s
-    ModelTier.MAXIMUM: "qwen3.5:27b",           # Maximum capability - 31 tok/s on RX 7900 XTX
+    ModelTier.LOCAL: "qwen3.5:27b",  # Fast streaming (mode rapide) - optimized prompt
+    ModelTier.STANDARD: "qwen3.5:27b",  # Standard reasoning
+    ModelTier.POWERFUL: "qwen3.5:27b",  # Complex analysis (mode complet) - 31 tok/s
+    ModelTier.MAXIMUM: "qwen3.5:27b",  # Maximum capability - 31 tok/s on RX 7900 XTX
 }
 
 # Vision model for captcha solving, screenshots, computer use
-OLLAMA_VISION_MODEL: str = "qwen3-vl:8b"     # 89 tok/s on RX 7900 XTX
+OLLAMA_VISION_MODEL: str = "qwen3-vl:8b"  # 89 tok/s on RX 7900 XTX
 
 
 class TaskComplexity(StrEnum):
     """Task complexity levels."""
-    SIMPLE = "simple"         # Direct answer, no reasoning needed
-    MODERATE = "moderate"     # Some reasoning, single step
-    COMPLEX = "complex"       # Multi-step reasoning
-    CRITICAL = "critical"     # High-stakes decision
+
+    SIMPLE = "simple"  # Direct answer, no reasoning needed
+    MODERATE = "moderate"  # Some reasoning, single step
+    COMPLEX = "complex"  # Multi-step reasoning
+    CRITICAL = "critical"  # High-stakes decision
 
 
 @dataclass
 class RoutingDecision:
     """Decision about which model to use."""
+
     tier: ModelTier
     model_name: str
     reason: str
@@ -76,6 +81,7 @@ class RoutingDecision:
 @dataclass
 class LLMRequest:
     """Request to an LLM."""
+
     prompt: str
     system_prompt: str | None = None
     context: dict[str, Any] | None = None
@@ -91,6 +97,7 @@ class LLMRequest:
 @dataclass
 class LLMResponse:
     """Response from an LLM."""
+
     content: str
     model_used: str
     tier_used: ModelTier
@@ -123,7 +130,7 @@ class LLMProvider(ABC):
         system_prompt: str | None = None,
         max_tokens: int = 2048,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Generate response."""
         pass
@@ -137,11 +144,7 @@ class LLMProvider(ABC):
 class OllamaProvider(LLMProvider):
     """Ollama local model provider."""
 
-    def __init__(
-        self,
-        model: str = "qwen3.5:27b",
-        host: str = "http://localhost:11434"
-    ):
+    def __init__(self, model: str = "qwen3.5:27b", host: str = "http://localhost:11434"):
         self._model = model
         self._host = host
         self._client = None
@@ -157,10 +160,8 @@ class OllamaProvider(LLMProvider):
     async def _get_client(self):
         if self._client is None:
             from src.infrastructure.llm.ollama_client import OllamaClient
-            self._client = OllamaClient(
-                model=self._model,
-                base_url=self._host
-            )
+
+            self._client = OllamaClient(model=self._model, base_url=self._host)
         return self._client
 
     async def generate(
@@ -169,7 +170,7 @@ class OllamaProvider(LLMProvider):
         system_prompt: str | None = None,
         max_tokens: int = 2048,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         client = await self._get_client()
 
@@ -180,9 +181,7 @@ class OllamaProvider(LLMProvider):
 
         start = time.time()
         response = await client.chat(
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=temperature
+            messages=messages, max_tokens=max_tokens, temperature=temperature
         )
         latency = (time.time() - start) * 1000
 
@@ -191,7 +190,7 @@ class OllamaProvider(LLMProvider):
             "content": response.get("content", ""),
             "tokens": response.get("eval_count", 0),
             "latency_ms": latency,
-            "model": self._model
+            "model": self._model,
         }
 
     async def is_available(self) -> bool:
@@ -209,7 +208,7 @@ class OumiProvider(LLMProvider):
         self,
         model: str = "coalm-8b",
         api_key: str | None = None,
-        tier: ModelTier = ModelTier.STANDARD
+        tier: ModelTier = ModelTier.STANDARD,
     ):
         self._model = model
         self._api_key = api_key
@@ -230,7 +229,7 @@ class OumiProvider(LLMProvider):
         system_prompt: str | None = None,
         max_tokens: int = 2048,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Generate using Oumi.ai API.
 
@@ -246,7 +245,7 @@ class OumiProvider(LLMProvider):
             prompt=prompt,
             system_prompt=system_prompt,
             max_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
         )
 
     async def is_available(self) -> bool:
@@ -280,7 +279,7 @@ class HybridLLMRouter:
         standard_provider: LLMProvider | None = None,
         powerful_provider: LLMProvider | None = None,
         maximum_provider: LLMProvider | None = None,
-        ollama_host: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        ollama_host: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
     ):
         """Initialize router with providers.
 
@@ -321,8 +320,7 @@ class HybridLLMRouter:
         # 1. Decide routing
         decision = self._make_routing_decision(request)
         logger.debug(
-            f"Routing decision: {decision.tier.value} "
-            f"({decision.model_name}) - {decision.reason}"
+            f"Routing decision: {decision.tier.value} ({decision.model_name}) - {decision.reason}"
         )
 
         # 2. Try primary provider
@@ -347,12 +345,10 @@ class HybridLLMRouter:
                 model_name=fallback_provider.name,
                 reason=f"Fallback from {decision.tier.value}",
                 confidence=decision.confidence * 0.9,
-                requires_validation=True
+                requires_validation=True,
             )
 
-            response = await self._try_provider(
-                fallback_provider, request, fallback_decision
-            )
+            response = await self._try_provider(fallback_provider, request, fallback_decision)
             if response:
                 self._tier_usage[decision.fallback_tier] += 1
                 return response
@@ -367,7 +363,7 @@ class HybridLLMRouter:
             latency_ms=0,
             confidence=0.0,
             routing_decision=decision,
-            metadata={"error": "All providers failed"}
+            metadata={"error": "All providers failed"},
         )
 
     def _make_routing_decision(self, request: LLMRequest) -> RoutingDecision:
@@ -391,8 +387,10 @@ class HybridLLMRouter:
                 model_name=provider.name,
                 reason=f"Tier override requested ({base_tier.value})",
                 confidence=self._estimate_confidence(base_tier, request.complexity),
-                fallback_tier=self._downgrade_tier(base_tier) if base_tier != ModelTier.LOCAL else None,
-                requires_validation=False
+                fallback_tier=self._downgrade_tier(base_tier)
+                if base_tier != ModelTier.LOCAL
+                else None,
+                requires_validation=False,
             )
 
         complexity = request.complexity
@@ -434,7 +432,7 @@ class HybridLLMRouter:
             reason=self._build_reason(complexity, trust, confidence_needed),
             confidence=self._estimate_confidence(base_tier, complexity),
             fallback_tier=fallback,
-            requires_validation=trust < 0.5 or complexity == TaskComplexity.CRITICAL
+            requires_validation=trust < 0.5 or complexity == TaskComplexity.CRITICAL,
         )
 
     def _upgrade_tier(self, tier: ModelTier) -> ModelTier:
@@ -449,12 +447,7 @@ class HybridLLMRouter:
         idx = order.index(tier)
         return order[max(idx - 1, 0)]
 
-    def _build_reason(
-        self,
-        complexity: TaskComplexity,
-        trust: float,
-        confidence: float
-    ) -> str:
+    def _build_reason(self, complexity: TaskComplexity, trust: float, confidence: float) -> str:
         """Build human-readable routing reason."""
         parts = []
 
@@ -479,18 +472,14 @@ class HybridLLMRouter:
 
         return ", ".join(parts)
 
-    def _estimate_confidence(
-        self,
-        tier: ModelTier,
-        complexity: TaskComplexity
-    ) -> float:
+    def _estimate_confidence(self, tier: ModelTier, complexity: TaskComplexity) -> float:
         """Estimate expected confidence from tier/complexity combination."""
         # Base confidence by tier
         tier_confidence = {
             ModelTier.LOCAL: 0.7,
             ModelTier.STANDARD: 0.8,
             ModelTier.POWERFUL: 0.9,
-            ModelTier.MAXIMUM: 0.95
+            ModelTier.MAXIMUM: 0.95,
         }
 
         # Reduce for higher complexity
@@ -498,7 +487,7 @@ class HybridLLMRouter:
             TaskComplexity.SIMPLE: 0.0,
             TaskComplexity.MODERATE: 0.05,
             TaskComplexity.COMPLEX: 0.1,
-            TaskComplexity.CRITICAL: 0.15
+            TaskComplexity.CRITICAL: 0.15,
         }
 
         base = tier_confidence[tier]
@@ -507,10 +496,7 @@ class HybridLLMRouter:
         return max(0.5, base - penalty)
 
     async def _try_provider(
-        self,
-        provider: LLMProvider,
-        request: LLMRequest,
-        decision: RoutingDecision
+        self, provider: LLMProvider, request: LLMRequest, decision: RoutingDecision
     ) -> LLMResponse | None:
         """Try to get response from a provider.
 
@@ -528,7 +514,7 @@ class HybridLLMRouter:
                 prompt=request.prompt,
                 system_prompt=request.system_prompt,
                 max_tokens=request.max_tokens,
-                temperature=request.temperature
+                temperature=request.temperature,
             )
             latency = (time.time() - start) * 1000
 
@@ -544,8 +530,8 @@ class HybridLLMRouter:
                 routing_decision=decision,
                 metadata={
                     "provider": provider.name,
-                    "requires_validation": decision.requires_validation
-                }
+                    "requires_validation": decision.requires_validation,
+                },
             )
 
         except Exception as e:
@@ -559,13 +545,11 @@ class HybridLLMRouter:
             "tier_usage": {t.value: c for t, c in self._tier_usage.items()},
             "fallback_count": self._fallback_count,
             "fallback_rate": (
-                self._fallback_count / self._request_count
-                if self._request_count > 0 else 0
+                self._fallback_count / self._request_count if self._request_count > 0 else 0
             ),
             "avg_latency_ms": (
-                self._total_latency_ms / self._request_count
-                if self._request_count > 0 else 0
-            )
+                self._total_latency_ms / self._request_count if self._request_count > 0 else 0
+            ),
         }
 
     def get_tier_for_mode(self, mode: str) -> ModelTier:
@@ -609,9 +593,9 @@ class HybridLLMRouter:
 # Factory Functions
 # ============================================================================
 
+
 def get_model_for_mode(
-    mode: str,
-    ollama_host: str = "http://localhost:11434"
+    mode: str, ollama_host: str = "http://localhost:11434"
 ) -> tuple[str, ModelTier]:
     """Get the appropriate Ollama model name and tier for an analysis mode.
 
@@ -649,7 +633,7 @@ def get_model_for_mode(
 def create_hybrid_router(
     local_model: str = "qwen3.5:27b",
     ollama_host: str = "http://localhost:11434",
-    oumi_api_key: str | None = None
+    oumi_api_key: str | None = None,
 ) -> HybridLLMRouter:
     """Create a HybridLLMRouter with default configuration.
 
@@ -668,5 +652,5 @@ def create_hybrid_router(
         standard_provider=ollama,
         powerful_provider=ollama,
         maximum_provider=ollama,
-        ollama_host=ollama_host
+        ollama_host=ollama_host,
     )

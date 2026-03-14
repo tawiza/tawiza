@@ -69,10 +69,20 @@ class SkyvernEnrichmentService:
 
     # Domains to exclude from company website detection
     EXCLUDED_DOMAINS = [
-        "societe.com", "pappers.fr", "infogreffe.fr", "verif.com",
-        "manageo.fr", "linkedin.com", "facebook.com", "twitter.com",
-        "youtube.com", "wikipedia.org", "pagesjaunes.fr", "google.com",
-        "bing.com", "duckduckgo.com",
+        "societe.com",
+        "pappers.fr",
+        "infogreffe.fr",
+        "verif.com",
+        "manageo.fr",
+        "linkedin.com",
+        "facebook.com",
+        "twitter.com",
+        "youtube.com",
+        "wikipedia.org",
+        "pagesjaunes.fr",
+        "google.com",
+        "bing.com",
+        "duckduckgo.com",
     ]
 
     def __init__(
@@ -92,6 +102,7 @@ class SkyvernEnrichmentService:
         if self._browser_agent is None and self.use_playwright:
             try:
                 from src.infrastructure.agents.skyvern.skyvern_adapter import SkyvernAdapter
+
                 self._browser_agent = SkyvernAdapter(headless=True)
                 logger.info("Initialized Skyvern browser agent")
             except Exception as e:
@@ -131,7 +142,7 @@ class SkyvernEnrichmentService:
             name = name.replace(suffix, "")
 
         # Remove special characters
-        name = re.sub(r'[^a-z0-9\s]', '', name)
+        name = re.sub(r"[^a-z0-9\s]", "", name)
         name = name.strip()
 
         # Generate possible domains
@@ -148,12 +159,14 @@ class SkyvernEnrichmentService:
             hyphenated = "-".join(words)
             first_letters = "".join(w[0] for w in words if w)
 
-            domains.extend([
-                f"{joined}.fr",
-                f"{joined}.com",
-                f"{hyphenated}.fr",
-                f"{words[0]}.fr",
-            ])
+            domains.extend(
+                [
+                    f"{joined}.fr",
+                    f"{joined}.com",
+                    f"{hyphenated}.fr",
+                    f"{words[0]}.fr",
+                ]
+            )
 
             # Known company patterns
             if len(first_letters) >= 3:
@@ -181,9 +194,7 @@ class SkyvernEnrichmentService:
 
             search_url = f"https://www.pappers.fr/recherche?q={quote_plus(company_name)}"
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
             async with httpx.AsyncClient(timeout=15.0, headers=headers) as client:
                 response = await client.get(search_url, follow_redirects=True)
@@ -223,9 +234,7 @@ class SkyvernEnrichmentService:
 
             search_url = f"https://html.duckduckgo.com/html/?q={quote_plus(query)}"
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
             async with httpx.AsyncClient(timeout=15.0, headers=headers) as client:
                 response = await client.get(search_url, follow_redirects=True)
@@ -289,13 +298,15 @@ class SkyvernEnrichmentService:
 
             if agent:
                 # Use Skyvern/Playwright for extraction
-                result = await agent.execute_task({
-                    "url": url,
-                    "action": "extract",
-                    "data": {
-                        "target": f"Extract company description, services, and contact info for {company_name}"
+                result = await agent.execute_task(
+                    {
+                        "url": url,
+                        "action": "extract",
+                        "data": {
+                            "target": f"Extract company description, services, and contact info for {company_name}"
+                        },
                     }
-                })
+                )
 
                 if result.get("status") == "completed":
                     extracted = result.get("result", {}).get("extracted_data", {})
@@ -325,9 +336,7 @@ class SkyvernEnrichmentService:
         }
 
         try:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
             async with httpx.AsyncClient(timeout=15.0, headers=headers) as client:
                 response = await client.get(url, follow_redirects=True)
@@ -344,7 +353,11 @@ class SkyvernEnrichmentService:
                             if isinstance(ld_data, list):
                                 ld_data = ld_data[0] if ld_data else {}
 
-                            if ld_data.get("@type") in ["Organization", "LocalBusiness", "Corporation"]:
+                            if ld_data.get("@type") in [
+                                "Organization",
+                                "LocalBusiness",
+                                "Corporation",
+                            ]:
                                 if ld_data.get("description") and not data["description"]:
                                     data["description"] = ld_data["description"][:500]
                                 if ld_data.get("telephone"):
@@ -390,7 +403,8 @@ class SkyvernEnrichmentService:
                             p_text = p.get_text(strip=True)
                             # Must be substantial and not navigation
                             if len(p_text) > 80 and not any(
-                                x in p_text.lower() for x in ["cookie", "cliquez", "accepter", "connexion"]
+                                x in p_text.lower()
+                                for x in ["cookie", "cliquez", "accepter", "connexion"]
                             ):
                                 data["description"] = p_text[:500]
                                 break
@@ -399,7 +413,14 @@ class SkyvernEnrichmentService:
                     services = []
 
                     # Look for services/solutions/offerings sections
-                    service_keywords = ["service", "solution", "offre", "expertise", "métier", "activité"]
+                    service_keywords = [
+                        "service",
+                        "solution",
+                        "offre",
+                        "expertise",
+                        "métier",
+                        "activité",
+                    ]
                     for h in soup.find_all(["h2", "h3", "h4"]):
                         h_text = h.get_text(strip=True).lower()
                         if any(kw in h_text for kw in service_keywords):
@@ -412,7 +433,9 @@ class SkyvernEnrichmentService:
                                         services.append(service)
 
                     # Also look for nav items that might be services
-                    nav_services = soup.find_all("a", href=re.compile(r"/services?/|/solutions?/|/offres?/"))
+                    nav_services = soup.find_all(
+                        "a", href=re.compile(r"/services?/|/solutions?/|/offres?/")
+                    )
                     for a in nav_services[:5]:
                         service_name = a.get_text(strip=True)
                         if 3 < len(service_name) < 50 and service_name not in services:
@@ -425,18 +448,18 @@ class SkyvernEnrichmentService:
                         # Look for email in mailto links first
                         mailto = soup.find("a", href=re.compile(r"^mailto:"))
                         if mailto:
-                            email_match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', mailto["href"])
+                            email_match = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", mailto["href"])
                             if email_match:
                                 data["contact"]["email"] = email_match.group()
                         else:
                             # Fallback to regex on text
-                            email = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', text)
+                            email = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", text)
                             if email:
                                 data["contact"]["email"] = email.group()
 
                     if "phone" not in data["contact"]:
                         # French phone numbers
-                        phone = re.search(r'(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4}', text)
+                        phone = re.search(r"(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4}", text)
                         if phone:
                             data["contact"]["phone"] = phone.group()
 
@@ -485,8 +508,7 @@ class SkyvernEnrichmentService:
             try:
                 # Find website
                 url = await asyncio.wait_for(
-                    self.find_company_website(nom, city),
-                    timeout=self.timeout_per_site
+                    self.find_company_website(nom, city), timeout=self.timeout_per_site
                 )
 
                 if url:
@@ -495,8 +517,7 @@ class SkyvernEnrichmentService:
 
                     # Extract data
                     data = await asyncio.wait_for(
-                        self.extract_company_data(url, nom),
-                        timeout=self.timeout_per_site
+                        self.extract_company_data(url, nom), timeout=self.timeout_per_site
                     )
 
                     result.description = data.get("description")

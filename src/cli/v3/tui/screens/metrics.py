@@ -79,7 +79,7 @@ class StatsPanel(Static):
         running: int = 0,
         failed: int = 0,
         tokens: int = 0,
-        cost: float = 0.0
+        cost: float = 0.0,
     ) -> None:
         self.tasks_completed = completed
         self.tasks_running = running
@@ -111,7 +111,9 @@ class GPUInfoPanel(Static):
     def render(self) -> str:
         vram_percent = (self.vram_used / self.vram_total) * 100 if self.vram_total > 0 else 0
         vram_color = "green" if vram_percent < 50 else "yellow" if vram_percent < 80 else "red"
-        temp_color = "green" if self.temperature < 60 else "yellow" if self.temperature < 80 else "red"
+        temp_color = (
+            "green" if self.temperature < 60 else "yellow" if self.temperature < 80 else "red"
+        )
 
         return (
             f"[bold]VRAM:[/] [{vram_color}]{self.vram_used:.1f} / {self.vram_total:.0f} GB "
@@ -121,11 +123,7 @@ class GPUInfoPanel(Static):
         )
 
     def update_info(
-        self,
-        vram_used: float = 0,
-        vram_total: float = 24,
-        temperature: int = 0,
-        fan_speed: int = 0
+        self, vram_used: float = 0, vram_total: float = 24, temperature: int = 0, fan_speed: int = 0
     ) -> None:
         self.vram_used = vram_used
         self.vram_total = vram_total
@@ -244,8 +242,8 @@ class MetricsScreen(Container):
                 name="metrics_update",
                 callback=self._update_metrics,
                 priority=RefreshPriority.HIGH,
-                active_interval=2.0,   # 2s when visible
-                idle_interval=5.0,     # 5s when idle
+                active_interval=2.0,  # 2s when visible
+                idle_interval=5.0,  # 5s when idle
                 background_interval=30.0,  # 30s when not visible
             )
             refresh_manager.start_timer("metrics_update")
@@ -293,7 +291,7 @@ class MetricsScreen(Container):
                     gpu_metrics.vram_used_gb,
                     gpu_metrics.vram_total_gb,
                     gpu_metrics.temperature,
-                    gpu_metrics.fan_speed
+                    gpu_metrics.fan_speed,
                 )
             except Exception:
                 pass
@@ -308,11 +306,7 @@ class MetricsScreen(Container):
 
             # Performance metrics
             perf_chart = self.query_one("#perf-chart", PerformanceChart)
-            perf_chart.update_metrics(
-                tokens_per_sec=0,
-                avg_duration=0,
-                success_rate=0
-            )
+            perf_chart.update_metrics(tokens_per_sec=0, avg_duration=0, success_rate=0)
 
         except Exception:
             pass
@@ -321,6 +315,7 @@ class MetricsScreen(Container):
         """Load task statistics from Redis if available."""
         try:
             import redis
+
             r = redis.Redis(host="localhost", port=6379, socket_timeout=1)
 
             # Try to get stats from Redis
@@ -334,11 +329,7 @@ class MetricsScreen(Container):
 
             stats = self.query_one("#stats-panel", StatsPanel)
             stats.update_stats(
-                completed=completed,
-                running=running,
-                failed=failed,
-                tokens=tokens,
-                cost=cost
+                completed=completed, running=running, failed=failed, tokens=tokens, cost=cost
             )
 
         except Exception:
@@ -371,7 +362,7 @@ class MetricsScreen(Container):
                     gpu_metrics.vram_used_gb,
                     gpu_metrics.vram_total_gb,
                     gpu_metrics.temperature,
-                    gpu_metrics.fan_speed
+                    gpu_metrics.fan_speed,
                 )
             except Exception:
                 gpu_chart = self.query_one("#gpu-chart", GPUChart)
@@ -406,6 +397,7 @@ class MetricsScreen(Container):
 
         try:
             from src.cli.constants import PROJECT_ROOT
+
             export_path = PROJECT_ROOT / "logs" / "metrics_export.csv"
 
             gpu_chart = self.query_one("#gpu-chart", GPUChart)

@@ -1,6 +1,5 @@
 """Specialized chart types for ML metrics and system monitoring."""
 
-
 import plotext as plt
 from rich.panel import Panel
 from rich.table import Table
@@ -21,7 +20,7 @@ class TrainingMetricsChart:
         epochs: list[int],
         train_loss: list[float],
         val_loss: list[float] | None = None,
-        title: str = "Training Loss"
+        title: str = "Training Loss",
     ) -> str:
         """
         Plot training and validation loss curves.
@@ -38,24 +37,11 @@ class TrainingMetricsChart:
         graph = LineGraph(self.width, self.height)
 
         if val_loss:
-            data = {
-                "Train Loss": (epochs, train_loss),
-                "Val Loss": (epochs, val_loss)
-            }
-            return graph.plot_multiple(
-                data,
-                title=title,
-                xlabel="Epoch",
-                ylabel="Loss"
-            )
+            data = {"Train Loss": (epochs, train_loss), "Val Loss": (epochs, val_loss)}
+            return graph.plot_multiple(data, title=title, xlabel="Epoch", ylabel="Loss")
         else:
             return graph.plot(
-                epochs,
-                train_loss,
-                title=title,
-                xlabel="Epoch",
-                ylabel="Loss",
-                color="error"
+                epochs, train_loss, title=title, xlabel="Epoch", ylabel="Loss", color="error"
             )
 
     def plot_accuracy_curve(
@@ -63,7 +49,7 @@ class TrainingMetricsChart:
         epochs: list[int],
         train_acc: list[float],
         val_acc: list[float] | None = None,
-        title: str = "Training Accuracy"
+        title: str = "Training Accuracy",
     ) -> str:
         """
         Plot training and validation accuracy curves.
@@ -80,16 +66,8 @@ class TrainingMetricsChart:
         graph = LineGraph(self.width, self.height)
 
         if val_acc:
-            data = {
-                "Train Acc": (epochs, train_acc),
-                "Val Acc": (epochs, val_acc)
-            }
-            return graph.plot_multiple(
-                data,
-                title=title,
-                xlabel="Epoch",
-                ylabel="Accuracy (%)"
-            )
+            data = {"Train Acc": (epochs, train_acc), "Val Acc": (epochs, val_acc)}
+            return graph.plot_multiple(data, title=title, xlabel="Epoch", ylabel="Accuracy (%)")
         else:
             return graph.plot(
                 epochs,
@@ -97,14 +75,11 @@ class TrainingMetricsChart:
                 title=title,
                 xlabel="Epoch",
                 ylabel="Accuracy (%)",
-                color="success"
+                color="success",
             )
 
     def plot_learning_rate(
-        self,
-        steps: list[int],
-        learning_rates: list[float],
-        title: str = "Learning Rate Schedule"
+        self, steps: list[int], learning_rates: list[float], title: str = "Learning Rate Schedule"
     ) -> str:
         """
         Plot learning rate schedule.
@@ -124,13 +99,11 @@ class TrainingMetricsChart:
             title=title,
             xlabel="Step",
             ylabel="Learning Rate",
-            color="warning"
+            color="warning",
         )
 
     def plot_metrics_comparison(
-        self,
-        metrics: dict[str, float],
-        title: str = "Model Metrics"
+        self, metrics: dict[str, float], title: str = "Model Metrics"
     ) -> str:
         """
         Plot multiple metrics as bar chart.
@@ -147,12 +120,7 @@ class TrainingMetricsChart:
         values = list(metrics.values())
 
         return graph.plot(
-            labels,
-            values,
-            title=title,
-            ylabel="Score",
-            color="primary",
-            horizontal=True
+            labels, values, title=title, ylabel="Score", color="primary", horizontal=True
         )
 
 
@@ -165,10 +133,7 @@ class SystemMetricsChart:
         self.height = height
 
     def plot_gpu_usage(
-        self,
-        timestamps: list[str],
-        usage_percent: list[float],
-        title: str = "GPU Utilization"
+        self, timestamps: list[str], usage_percent: list[float], title: str = "GPU Utilization"
     ) -> str:
         """
         Plot GPU usage over time.
@@ -187,12 +152,7 @@ class SystemMetricsChart:
         x_data = list(range(len(timestamps)))
 
         return graph.plot(
-            x_data,
-            usage_percent,
-            title=title,
-            xlabel="Time",
-            ylabel="Usage (%)",
-            color="accent"
+            x_data, usage_percent, title=title, xlabel="Time", ylabel="Usage (%)", color="accent"
         )
 
     def plot_memory_usage(
@@ -200,7 +160,7 @@ class SystemMetricsChart:
         timestamps: list[str],
         memory_gb: list[float],
         total_gb: float,
-        title: str = "Memory Usage"
+        title: str = "Memory Usage",
     ) -> str:
         """
         Plot memory usage over time.
@@ -227,14 +187,11 @@ class SystemMetricsChart:
             title=f"{title} (Total: {total_gb:.1f} GB)",
             xlabel="Time",
             ylabel="Memory (GB)",
-            color="warning"
+            color="warning",
         )
 
     def plot_cpu_usage(
-        self,
-        timestamps: list[str],
-        cpu_percent: list[float],
-        title: str = "CPU Usage"
+        self, timestamps: list[str], cpu_percent: list[float], title: str = "CPU Usage"
     ) -> str:
         """
         Plot CPU usage over time.
@@ -252,19 +209,14 @@ class SystemMetricsChart:
         x_data = list(range(len(timestamps)))
 
         return graph.plot(
-            x_data,
-            cpu_percent,
-            title=title,
-            xlabel="Time",
-            ylabel="Usage (%)",
-            color="info"
+            x_data, cpu_percent, title=title, xlabel="Time", ylabel="Usage (%)", color="info"
         )
 
     def plot_multi_gpu(
         self,
         timestamps: list[str],
         gpu_data: dict[str, list[float]],
-        title: str = "Multi-GPU Utilization"
+        title: str = "Multi-GPU Utilization",
     ) -> str:
         """
         Plot multiple GPU usage curves.
@@ -286,12 +238,7 @@ class SystemMetricsChart:
         for gpu_name, usage in gpu_data.items():
             data[gpu_name] = (x_data, usage)
 
-        return graph.plot_multiple(
-            data,
-            title=title,
-            xlabel="Time",
-            ylabel="Usage (%)"
-        )
+        return graph.plot_multiple(data, title=title, xlabel="Time", ylabel="Usage (%)")
 
 
 class ModelComparisonChart:
@@ -306,7 +253,7 @@ class ModelComparisonChart:
         self,
         model_names: list[str],
         metrics: dict[str, list[float]],
-        title: str = "Model Performance Comparison"
+        title: str = "Model Performance Comparison",
     ) -> str:
         """
         Plot grouped bar chart comparing models across metrics.
@@ -321,19 +268,13 @@ class ModelComparisonChart:
         """
         graph = BarGraph(self.width, self.height)
 
-        return graph.plot_grouped(
-            model_names,
-            metrics,
-            title=title,
-            xlabel="Model",
-            ylabel="Score"
-        )
+        return graph.plot_grouped(model_names, metrics, title=title, xlabel="Model", ylabel="Score")
 
     def plot_training_time_comparison(
         self,
         model_names: list[str],
         training_hours: list[float],
-        title: str = "Training Time Comparison"
+        title: str = "Training Time Comparison",
     ) -> str:
         """
         Plot training time comparison.
@@ -354,14 +295,11 @@ class ModelComparisonChart:
             title=title,
             ylabel="Hours",
             color="warning",
-            horizontal=True
+            horizontal=True,
         )
 
     def plot_model_size_comparison(
-        self,
-        model_names: list[str],
-        sizes_gb: list[float],
-        title: str = "Model Size Comparison"
+        self, model_names: list[str], sizes_gb: list[float], title: str = "Model Size Comparison"
     ) -> str:
         """
         Plot model size comparison.
@@ -377,12 +315,7 @@ class ModelComparisonChart:
         graph = BarGraph(self.width, self.height)
 
         return graph.plot(
-            model_names,
-            sizes_gb,
-            title=title,
-            ylabel="Size (GB)",
-            color="info",
-            horizontal=False
+            model_names, sizes_gb, title=title, ylabel="Size (GB)", color="info", horizontal=False
         )
 
 
@@ -395,10 +328,7 @@ class DatasetChart:
         self.height = height
 
     def plot_class_distribution(
-        self,
-        class_names: list[str],
-        counts: list[int],
-        title: str = "Class Distribution"
+        self, class_names: list[str], counts: list[int], title: str = "Class Distribution"
     ) -> str:
         """
         Plot class distribution as bar chart.
@@ -414,19 +344,11 @@ class DatasetChart:
         graph = BarGraph(self.width, self.height)
 
         return graph.plot(
-            class_names,
-            counts,
-            title=title,
-            ylabel="Samples",
-            color="primary",
-            horizontal=True
+            class_names, counts, title=title, ylabel="Samples", color="primary", horizontal=True
         )
 
     def plot_data_split(
-        self,
-        split_names: list[str],
-        sizes: list[int],
-        title: str = "Dataset Split"
+        self, split_names: list[str], sizes: list[int], title: str = "Dataset Split"
     ) -> str:
         """
         Plot dataset split (train/val/test).
@@ -441,13 +363,7 @@ class DatasetChart:
         """
         graph = BarGraph(self.width, self.height)
 
-        return graph.plot(
-            split_names,
-            sizes,
-            title=title,
-            ylabel="Samples",
-            color="success"
-        )
+        return graph.plot(split_names, sizes, title=title, ylabel="Samples", color="success")
 
 
 class ProgressChart:
@@ -463,7 +379,7 @@ class ProgressChart:
         job_names: list[str],
         start_times: list[int],
         durations: list[int],
-        title: str = "Job Timeline"
+        title: str = "Job Timeline",
     ) -> str:
         """
         Plot job timeline (Gantt-style).
@@ -485,22 +401,15 @@ class ProgressChart:
 
         graph.configure_plot(title, xlabel="Time", ylabel="")
 
-        for _i, (name, _start, duration) in enumerate(zip(job_names, start_times, durations, strict=False)):
-            plt.bar(
-                [name],
-                [duration],
-                orientation='h',
-                color="cyan"
-            )
+        for _i, (name, _start, duration) in enumerate(
+            zip(job_names, start_times, durations, strict=False)
+        ):
+            plt.bar([name], [duration], orientation="h", color="cyan")
 
         return graph.render()
 
     def create_progress_bar_text(
-        self,
-        current: int,
-        total: int,
-        width: int = 40,
-        label: str = "Progress"
+        self, current: int, total: int, width: int = 40, label: str = "Progress"
     ) -> str:
         """
         Create text-based progress bar.
@@ -538,12 +447,7 @@ class RichChartWrapper:
         Returns:
             Rich Panel with chart
         """
-        return Panel(
-            chart,
-            title=title,
-            border_style=border_style,
-            padding=(1, 2)
-        )
+        return Panel(chart, title=title, border_style=border_style, padding=(1, 2))
 
     @staticmethod
     def create_chart_table(charts: list[tuple[str, str]]) -> Table:
@@ -562,7 +466,6 @@ class RichChartWrapper:
             table.add_column()
 
         # Add charts as row
-        table.add_row(*[Panel(chart, title=title, border_style="cyan")
-                        for title, chart in charts])
+        table.add_row(*[Panel(chart, title=title, border_style="cyan") for title, chart in charts])
 
         return table

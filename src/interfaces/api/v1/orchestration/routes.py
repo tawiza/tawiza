@@ -45,7 +45,7 @@ async def get_orchestrator() -> ServiceOrchestrator:
             # MLflow
             mlflow_adapter = MLflowAdapter(
                 tracking_uri=str(settings.mlflow.tracking_uri),
-                experiment_name=settings.mlflow.experiment_name
+                experiment_name=settings.mlflow.experiment_name,
             )
             _orchestrator.services["mlflow"] = mlflow_adapter
             logger.info("Registered MLflow service")
@@ -60,8 +60,7 @@ async def get_orchestrator() -> ServiceOrchestrator:
 
         _initialized = True
         logger.info(
-            f"Orchestrator initialized with services: "
-            f"{list(_orchestrator.services.keys())}"
+            f"Orchestrator initialized with services: {list(_orchestrator.services.keys())}"
         )
 
     return _orchestrator
@@ -69,8 +68,7 @@ async def get_orchestrator() -> ServiceOrchestrator:
 
 @router.get("/pipelines")
 async def list_pipelines(
-    limit: int = 10,
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
+    limit: int = 10, orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
 ):
     """List all pipelines.
 
@@ -81,25 +79,23 @@ async def list_pipelines(
 
         # Get all pipelines from orchestrator
         for pipeline_id, pipeline_data in orchestrator.pipelines.items():
-            pipelines.append({
-                "pipeline_id": pipeline_id,
-                "name": pipeline_data.get("name", "Unknown"),
-                "status": pipeline_data.get("status", "unknown"),
-                "steps_total": pipeline_data.get("steps_total", 0),
-                "steps_completed": pipeline_data.get("steps_completed", 0),
-                "created_at": pipeline_data.get("created_at", ""),
-                "updated_at": pipeline_data.get("updated_at", "")
-            })
+            pipelines.append(
+                {
+                    "pipeline_id": pipeline_id,
+                    "name": pipeline_data.get("name", "Unknown"),
+                    "status": pipeline_data.get("status", "unknown"),
+                    "steps_total": pipeline_data.get("steps_total", 0),
+                    "steps_completed": pipeline_data.get("steps_completed", 0),
+                    "created_at": pipeline_data.get("created_at", ""),
+                    "updated_at": pipeline_data.get("updated_at", ""),
+                }
+            )
 
         # Sort by created_at (most recent first) and apply limit
         pipelines.sort(key=lambda x: x.get("created_at", ""), reverse=True)
         pipelines = pipelines[:limit]
 
-        return {
-            "pipelines": pipelines,
-            "total": len(orchestrator.pipelines),
-            "limit": limit
-        }
+        return {"pipelines": pipelines, "total": len(orchestrator.pipelines), "limit": limit}
 
     except Exception as e:
         logger.error(f"Failed to list pipelines: {e}")
@@ -110,7 +106,7 @@ async def list_pipelines(
 async def create_pipeline(
     pipeline: PipelineCreate,
     background_tasks: BackgroundTasks,
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
+    orchestrator: ServiceOrchestrator = Depends(get_orchestrator),
 ):
     """Create and execute a multi-service pipeline.
 
@@ -152,14 +148,12 @@ async def create_pipeline(
         pipeline_config = pipeline.model_dump()
 
         # Start pipeline in background
-        background_tasks.add_task(
-            orchestrator.execute_pipeline,
-            pipeline_config
-        )
+        background_tasks.add_task(orchestrator.execute_pipeline, pipeline_config)
 
         # Create temporary pipeline ID for immediate response
         # (actual execution creates real ID)
         import uuid
+
         temp_id = str(uuid.uuid4())[:8]
 
         return PipelineResponse(
@@ -171,7 +165,7 @@ async def create_pipeline(
             current_step=None,
             errors=[],
             created_at="",
-            updated_at=""
+            updated_at="",
         )
 
     except Exception as e:
@@ -181,8 +175,7 @@ async def create_pipeline(
 
 @router.get("/pipelines/{pipeline_id}", response_model=PipelineResponse)
 async def get_pipeline_status(
-    pipeline_id: str,
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
+    pipeline_id: str, orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
 ):
     """Get pipeline status."""
     try:
@@ -196,8 +189,7 @@ async def get_pipeline_status(
 
 @router.get("/pipelines/{pipeline_id}/result", response_model=PipelineResult)
 async def get_pipeline_result(
-    pipeline_id: str,
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
+    pipeline_id: str, orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
 ):
     """Get complete pipeline result.
 
@@ -205,10 +197,7 @@ async def get_pipeline_result(
     """
     try:
         if pipeline_id not in orchestrator.pipelines:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Pipeline {pipeline_id} not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Pipeline {pipeline_id} not found")
 
         pipeline = orchestrator.pipelines[pipeline_id]
 
@@ -221,7 +210,7 @@ async def get_pipeline_result(
             results=pipeline.get("results", []),
             errors=pipeline.get("errors", []),
             created_at=pipeline["created_at"],
-            updated_at=pipeline["updated_at"]
+            updated_at=pipeline["updated_at"],
         )
 
     except HTTPException:
@@ -233,8 +222,7 @@ async def get_pipeline_result(
 
 @router.delete("/pipelines/{pipeline_id}")
 async def cancel_pipeline(
-    pipeline_id: str,
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
+    pipeline_id: str, orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
 ):
     """Cancel running pipeline."""
     try:
@@ -243,7 +231,7 @@ async def cancel_pipeline(
         return {
             "pipeline_id": pipeline_id,
             "cancelled": success,
-            "message": f"Pipeline {pipeline_id} cancelled"
+            "message": f"Pipeline {pipeline_id} cancelled",
         }
 
     except Exception as e:
@@ -253,8 +241,7 @@ async def cancel_pipeline(
 
 @router.get("/pipelines/{pipeline_id}/stream")
 async def stream_pipeline_progress(
-    pipeline_id: str,
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
+    pipeline_id: str, orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
 ):
     """Stream pipeline progress via Server-Sent Events.
 
@@ -270,16 +257,15 @@ async def stream_pipeline_progress(
     ```
     """
     try:
+
         async def event_stream():
             """Generate SSE events."""
             async for progress in orchestrator.stream_pipeline_progress(pipeline_id):
                 import json
+
                 yield f"data: {json.dumps(progress)}\n\n"
 
-        return StreamingResponse(
-            event_stream(),
-            media_type="text/event-stream"
-        )
+        return StreamingResponse(event_stream(), media_type="text/event-stream")
 
     except Exception as e:
         logger.error(f"Failed to stream pipeline progress: {e}")
@@ -287,9 +273,7 @@ async def stream_pipeline_progress(
 
 
 @router.get("/services", response_model=ServicesListResponse)
-async def list_services(
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
-):
+async def list_services(orchestrator: ServiceOrchestrator = Depends(get_orchestrator)):
     """List registered services.
 
     Returns all services available for pipeline orchestration.
@@ -303,14 +287,11 @@ async def list_services(
                 name=name,
                 type=_get_service_type(name),
                 status="active",
-                description=_get_service_description(name)
+                description=_get_service_description(name),
             )
             services.append(service_info)
 
-        return ServicesListResponse(
-            services=services,
-            total=len(services)
-        )
+        return ServicesListResponse(services=services, total=len(services))
 
     except Exception as e:
         logger.error(f"Failed to list services: {e}")
@@ -318,17 +299,11 @@ async def list_services(
 
 
 @router.get("/health")
-async def health_check(
-    orchestrator: ServiceOrchestrator = Depends(get_orchestrator)
-):
+async def health_check(orchestrator: ServiceOrchestrator = Depends(get_orchestrator)):
     """Orchestration service health check."""
     services = await orchestrator.get_registered_services()
 
-    return {
-        "status": "healthy",
-        "services_registered": len(services),
-        "services": services
-    }
+    return {"status": "healthy", "services_registered": len(services), "services": services}
 
 
 def _get_service_type(service_name: str) -> str:
@@ -337,7 +312,7 @@ def _get_service_type(service_name: str) -> str:
         "openmanus": "agent",
         "skyvern": "agent",
         "mlflow": "ml_tracking",
-        "label_studio": "annotation"
+        "label_studio": "annotation",
     }
     return type_map.get(service_name, "unknown")
 
@@ -348,6 +323,6 @@ def _get_service_description(service_name: str) -> str:
         "openmanus": "Web automation agent for data collection",
         "skyvern": "Production-ready web automation with vision AI",
         "mlflow": "ML experiment tracking and model registry",
-        "label_studio": "Data annotation and labeling platform"
+        "label_studio": "Data annotation and labeling platform",
     }
     return descriptions.get(service_name, "")

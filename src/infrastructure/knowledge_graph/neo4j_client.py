@@ -1,4 +1,5 @@
 """Neo4j client for graph database operations."""
+
 import asyncio
 from dataclasses import dataclass
 from typing import Any
@@ -7,6 +8,7 @@ from loguru import logger
 
 try:
     from neo4j import GraphDatabase
+
     HAS_NEO4J = True
 except ImportError:
     HAS_NEO4J = False
@@ -15,6 +17,7 @@ except ImportError:
 @dataclass
 class Neo4jConfig:
     """Neo4j connection configuration."""
+
     uri: str = "bolt://localhost:7687"
     user: str = "neo4j"
     password: str = ""
@@ -59,7 +62,7 @@ class Neo4jClient:
                 self._driver = GraphDatabase.driver(
                     self.config.uri,
                     auth=(self.config.user, self.config.password),
-                    max_connection_pool_size=self.config.max_connection_pool_size
+                    max_connection_pool_size=self.config.max_connection_pool_size,
                 )
                 # Verify connectivity
                 self._driver.verify_connectivity()
@@ -71,9 +74,7 @@ class Neo4jClient:
                 return False
 
     async def execute(
-        self,
-        query: str,
-        parameters: dict[str, Any] | None = None
+        self, query: str, parameters: dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
         """
         Execute a Cypher query.
@@ -98,9 +99,7 @@ class Neo4jClient:
         return await loop.run_in_executor(None, _run_query)
 
     async def execute_write(
-        self,
-        query: str,
-        parameters: dict[str, Any] | None = None
+        self, query: str, parameters: dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
         """Execute a write query."""
         if not self._driver:

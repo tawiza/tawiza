@@ -37,10 +37,7 @@ class GeoCache:
         """Check if all cache files exist."""
         if not self.config.cache_dir.exists():
             return False
-        return all(
-            (self.config.cache_dir / filename).exists()
-            for filename in self.config.files
-        )
+        return all((self.config.cache_dir / filename).exists() for filename in self.config.files)
 
     def get_path(self, name: str) -> Path:
         """Get path to a cached file."""

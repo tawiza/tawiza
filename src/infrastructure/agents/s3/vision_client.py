@@ -27,6 +27,7 @@ from loguru import logger
 
 class ElementType(Enum):
     """Types of UI elements that can be detected."""
+
     BUTTON = "button"
     TEXT_FIELD = "text_field"
     LINK = "link"
@@ -43,6 +44,7 @@ class ElementType(Enum):
 @dataclass
 class UIElement:
     """Represents a detected UI element."""
+
     element_type: ElementType
     text: str
     x: int
@@ -69,6 +71,7 @@ class UIElement:
 @dataclass
 class VisionAnalysis:
     """Result of vision analysis."""
+
     elements: list[UIElement]
     suggested_action: str | None = None
     action_target: UIElement | None = None
@@ -200,11 +203,7 @@ Skip decorative elements and static text."""
         # Prepare messages for chat endpoint
         messages = [
             {"role": "system", "content": system_prompt},
-            {
-                "role": "user",
-                "content": user_prompt,
-                "images": [image_b64]
-            }
+            {"role": "user", "content": user_prompt, "images": [image_b64]},
         ]
 
         payload = {
@@ -213,7 +212,7 @@ Skip decorative elements and static text."""
             "stream": False,
             "options": {
                 "temperature": temperature,
-            }
+            },
         }
 
         logger.debug(f"Sending vision request to {self.model}...")
@@ -230,7 +229,7 @@ Skip decorative elements and static text."""
     def _parse_json_response(self, response: str) -> dict[str, Any]:
         """Extract JSON from model response."""
         # Try to find JSON block
-        json_match = re.search(r'```json\s*(.*?)\s*```', response, re.DOTALL)
+        json_match = re.search(r"```json\s*(.*?)\s*```", response, re.DOTALL)
         if json_match:
             try:
                 return json.loads(json_match.group(1))
@@ -238,7 +237,7 @@ Skip decorative elements and static text."""
                 pass
 
         # Try to find raw JSON object
-        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        json_match = re.search(r"\{.*\}", response, re.DOTALL)
         if json_match:
             try:
                 return json.loads(json_match.group(0))
@@ -416,14 +415,16 @@ Skip decorative elements and static text."""
             y = elem_data.get("y", 0)
             x, y = self._normalize_coordinates(x, y)
 
-            elements.append(UIElement(
-                element_type=element_type,
-                text=elem_data.get("text", ""),
-                x=x,
-                y=y,
-                width=elem_data.get("width"),
-                height=elem_data.get("height"),
-            ))
+            elements.append(
+                UIElement(
+                    element_type=element_type,
+                    text=elem_data.get("text", ""),
+                    x=x,
+                    y=y,
+                    width=elem_data.get("width"),
+                    height=elem_data.get("height"),
+                )
+            )
 
         return VisionAnalysis(
             elements=elements,

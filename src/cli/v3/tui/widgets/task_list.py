@@ -11,6 +11,7 @@ from textual.widgets import Static
 
 class TaskStatus(Enum):
     """Task status enumeration."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -22,6 +23,7 @@ class TaskStatus(Enum):
 @dataclass
 class TaskInfo:
     """Task information dataclass."""
+
     task_id: str
     agent: str
     description: str
@@ -127,9 +129,9 @@ class TaskListItem(Static):
         if duration < 60:
             return f" [{color}]{duration:.0f}s[/]"
         elif duration < 3600:
-            return f" [{color}]{duration/60:.1f}m[/]"
+            return f" [{color}]{duration / 60:.1f}m[/]"
         else:
-            return f" [{color}]{duration/3600:.1f}h[/]"
+            return f" [{color}]{duration / 3600:.1f}h[/]"
 
 
 class TaskList(Vertical):
@@ -164,23 +166,20 @@ class TaskList(Vertical):
 
     class TaskSelected(Message):
         """Message emitted when a task is selected."""
+
         def __init__(self, task: TaskInfo):
             super().__init__()
             self.task = task
 
     class TaskAction(Message):
         """Message emitted when an action is requested on a task."""
+
         def __init__(self, task: TaskInfo, action: str):
             super().__init__()
             self.task = task
             self.action = action
 
-    def __init__(
-        self,
-        title: str = "Active Agents",
-        tasks: list[TaskInfo] | None = None,
-        **kwargs
-    ):
+    def __init__(self, title: str = "Active Agents", tasks: list[TaskInfo] | None = None, **kwargs):
         super().__init__(**kwargs)
         self.title_text = title
         self._tasks = tasks or []

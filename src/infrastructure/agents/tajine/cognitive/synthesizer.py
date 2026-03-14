@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 @dataclass
 class SynthesizedSection:
     """Une section de la synthese unifiee."""
+
     level: str
     title: str
     summary: str
@@ -34,13 +35,14 @@ class SynthesizedSection:
             "summary": self.summary,
             "key_points": self.key_points,
             "confidence": round(self.confidence, 2),
-            "data": self.data
+            "data": self.data,
         }
 
 
 @dataclass
 class UnifiedSynthesis:
     """Resultat de la synthese unifiee des 5 niveaux."""
+
     executive_summary: str
     sections: list[SynthesizedSection]
     recommendations: list[dict[str, Any]]
@@ -57,7 +59,7 @@ class UnifiedSynthesis:
             "overall_confidence": round(self.overall_confidence, 2),
             "territory": self.territory,
             "sector": self.sector,
-            "cognitive_signature": {k: round(v, 2) for k, v in self.cognitive_signature.items()}
+            "cognitive_signature": {k: round(v, 2) for k, v in self.cognitive_signature.items()},
         }
 
     def to_markdown(self) -> str:
@@ -94,7 +96,13 @@ class UnifiedSynthesis:
         lines.append("")
 
         # Score de confiance global
-        confidence_emoji = "🟢" if self.overall_confidence >= 0.7 else "🟡" if self.overall_confidence >= 0.5 else "🔴"
+        confidence_emoji = (
+            "🟢"
+            if self.overall_confidence >= 0.7
+            else "🟡"
+            if self.overall_confidence >= 0.5
+            else "🔴"
+        )
         lines.append(f"**Confiance globale:** {confidence_emoji} {self.overall_confidence:.0%}")
         lines.append("")
 
@@ -105,7 +113,7 @@ class UnifiedSynthesis:
                 "causal": "🔗",
                 "scenario": "📊",
                 "strategy": "🎯",
-                "theoretical": "📚"
+                "theoretical": "📚",
             }.get(section.level, "📌")
 
             lines.append(f"### {level_emoji} {_ensure_str(section.title)}")
@@ -128,9 +136,9 @@ class UnifiedSynthesis:
                         "critical": "🔴",
                         "high": "🟠",
                         "medium": "🟡",
-                        "low": "🟢"
+                        "low": "🟢",
                     }.get(rec.get("priority", "medium"), "⚪")
-                    desc = rec.get('description', 'Recommandation')
+                    desc = rec.get("description", "Recommandation")
                     lines.append(f"{i}. {priority_emoji} **{_ensure_str(desc)}**")
                     if rec.get("rationale"):
                         lines.append(f"   > {_ensure_str(rec['rationale'])}")
@@ -147,7 +155,7 @@ LEVEL_TITLES = {
     "causal": "Analyse Causale",
     "scenario": "Scenarios Prospectifs",
     "strategy": "Recommandations Strategiques",
-    "theoretical": "Validation Theorique"
+    "theoretical": "Validation Theorique",
 }
 
 
@@ -166,9 +174,7 @@ class UnifiedSynthesizer:
         logger.debug(f"UnifiedSynthesizer initialized (LLM: {llm_provider is not None})")
 
     async def synthesize(
-        self,
-        cognitive_outputs: dict[str, dict[str, Any]],
-        context: dict[str, Any] | None = None
+        self, cognitive_outputs: dict[str, dict[str, Any]], context: dict[str, Any] | None = None
     ) -> UnifiedSynthesis:
         """
         Synthetise les outputs de tous les niveaux cognitifs.
@@ -193,9 +199,7 @@ class UnifiedSynthesizer:
         return self._synthesize_rule_based(cognitive_outputs, context)
 
     async def _synthesize_with_llm(
-        self,
-        cognitive_outputs: dict[str, dict[str, Any]],
-        context: dict[str, Any]
+        self, cognitive_outputs: dict[str, dict[str, Any]], context: dict[str, Any]
     ) -> UnifiedSynthesis:
         """Synthese utilisant le LLM pour une reponse naturelle."""
         # Preparer le contexte pour le LLM
@@ -208,9 +212,9 @@ class UnifiedSynthesizer:
         prompt = f"""Synthetise les analyses suivantes en une reponse structuree et coherente.
 
 Contexte:
-- Territoire: {context.get('territory', 'Non specifie')}
-- Secteur: {context.get('sector', 'Non specifie')}
-- Question originale: {context.get('query', 'Analyse territoriale')}
+- Territoire: {context.get("territory", "Non specifie")}
+- Secteur: {context.get("sector", "Non specifie")}
+- Question originale: {context.get("query", "Analyse territoriale")}
 
 Analyses par niveau:
 {chr(10).join(levels_summary)}
@@ -238,18 +242,13 @@ Genere un objet JSON strict avec la structure suivante:
 Reponds UNIQUEMENT avec le JSON valide."""
 
         # Appeler le LLM
-        response = await self._llm_provider.generate(
-            prompt=prompt,
-            task_type="synthesis"
-        )
+        response = await self._llm_provider.generate(prompt=prompt, task_type="synthesis")
 
         # Parser la reponse LLM et construire UnifiedSynthesis
         return self._parse_llm_response(response, cognitive_outputs, context)
 
     def _synthesize_rule_based(
-        self,
-        cognitive_outputs: dict[str, dict[str, Any]],
-        context: dict[str, Any]
+        self, cognitive_outputs: dict[str, dict[str, Any]], context: dict[str, Any]
     ) -> UnifiedSynthesis:
         """Synthese rule-based sans LLM."""
         sections = []
@@ -274,16 +273,15 @@ Reponds UNIQUEMENT avec le JSON valide."""
         # Calculer confiance globale (moyenne ponderee)
         weights = {"discovery": 1, "causal": 2, "scenario": 3, "strategy": 4, "theoretical": 5}
         total_weight = sum(weights.values())
-        overall_confidence = sum(
-            confidences.get(level, 0.5) * weight
-            for level, weight in weights.items()
-        ) / total_weight
+        overall_confidence = (
+            sum(confidences.get(level, 0.5) * weight for level, weight in weights.items())
+            / total_weight
+        )
 
         # Trier recommandations par priorite
         priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         sorted_recs = sorted(
-            all_recommendations,
-            key=lambda r: priority_order.get(r.get("priority", "medium"), 2)
+            all_recommendations, key=lambda r: priority_order.get(r.get("priority", "medium"), 2)
         )
 
         return UnifiedSynthesis(
@@ -293,14 +291,10 @@ Reponds UNIQUEMENT avec le JSON valide."""
             overall_confidence=overall_confidence,
             territory=context.get("territory"),
             sector=context.get("sector"),
-            cognitive_signature=confidences
+            cognitive_signature=confidences,
         )
 
-    def _build_section(
-        self,
-        level_name: str,
-        output: dict[str, Any]
-    ) -> SynthesizedSection:
+    def _build_section(self, level_name: str, output: dict[str, Any]) -> SynthesizedSection:
         """Construit une section a partir d'un output de niveau."""
         title = LEVEL_TITLES.get(level_name, level_name.title())
         confidence = output.get("confidence", 0.5)
@@ -317,7 +311,9 @@ Reponds UNIQUEMENT avec le JSON valide."""
                     key_points.append(str(signal))
             for trend in trends[:2]:
                 if isinstance(trend, dict):
-                    key_points.append(f"Tendance: {trend.get('type', '')} ({trend.get('direction', '')})")
+                    key_points.append(
+                        f"Tendance: {trend.get('type', '')} ({trend.get('direction', '')})"
+                    )
                 else:
                     key_points.append(str(trend))
 
@@ -350,7 +346,9 @@ Reponds UNIQUEMENT avec le JSON valide."""
             recommendations = output.get("recommendations", [])
             for rec in recommendations[:3]:
                 if isinstance(rec, dict):
-                    key_points.append(f"{rec.get('type', '').title()}: {rec.get('description', '')}")
+                    key_points.append(
+                        f"{rec.get('type', '').title()}: {rec.get('description', '')}"
+                    )
                 else:
                     key_points.append(str(rec))
             actions = output.get("actions", [])
@@ -376,14 +374,10 @@ Reponds UNIQUEMENT avec le JSON valide."""
             summary=summary,
             key_points=key_points,
             confidence=confidence,
-            data=output
+            data=output,
         )
 
-    def _extract_level_summary(
-        self,
-        level_name: str,
-        output: dict[str, Any]
-    ) -> str:
+    def _extract_level_summary(self, level_name: str, output: dict[str, Any]) -> str:
         """Extrait un resume du niveau."""
         # Chercher un champ summary existant
         if "summary" in output:
@@ -427,9 +421,7 @@ Reponds UNIQUEMENT avec le JSON valide."""
         return "Analyse en cours."
 
     def _generate_executive_summary(
-        self,
-        sections: list[SynthesizedSection],
-        context: dict[str, Any]
+        self, sections: list[SynthesizedSection], context: dict[str, Any]
     ) -> str:
         """Genere un resume executif a partir des sections."""
         territory = context.get("territory", "le territoire analyse")
@@ -449,15 +441,14 @@ Reponds UNIQUEMENT avec le JSON valide."""
             parts.append(f"Perspectives: {scenario.key_points[0]}" if scenario.key_points else "")
 
         if strategy and strategy.key_points:
-            parts.append(f"Strategie recommandee: {strategy.key_points[0]}" if strategy.key_points else "")
+            parts.append(
+                f"Strategie recommandee: {strategy.key_points[0]}" if strategy.key_points else ""
+            )
 
         return " ".join(filter(None, parts))
 
     def _parse_llm_response(
-        self,
-        response: str,
-        cognitive_outputs: dict[str, dict[str, Any]],
-        context: dict[str, Any]
+        self, response: str, cognitive_outputs: dict[str, dict[str, Any]], context: dict[str, Any]
     ) -> UnifiedSynthesis:
         """Parse la reponse LLM pour construire UnifiedSynthesis."""
         import json
@@ -482,14 +473,18 @@ Reponds UNIQUEMENT avec le JSON valide."""
                 # Recuperer les donnees brutes originales pour ce niveau
                 original_data = cognitive_outputs.get(level, {})
 
-                sections.append(SynthesizedSection(
-                    level=level,
-                    title=sec.get("title", LEVEL_TITLES.get(level, level)),
-                    summary=sec.get("summary", ""),
-                    key_points=sec.get("key_points", []),
-                    confidence=original_data.get("confidence", 0.8), # Confiance par defaut si non dispo
-                    data=original_data
-                ))
+                sections.append(
+                    SynthesizedSection(
+                        level=level,
+                        title=sec.get("title", LEVEL_TITLES.get(level, level)),
+                        summary=sec.get("summary", ""),
+                        key_points=sec.get("key_points", []),
+                        confidence=original_data.get(
+                            "confidence", 0.8
+                        ),  # Confiance par defaut si non dispo
+                        data=original_data,
+                    )
+                )
 
             # Convertir les recommandations
             recommendations = data.get("recommendations", [])
@@ -498,10 +493,12 @@ Reponds UNIQUEMENT avec le JSON valide."""
                 executive_summary=data.get("executive_summary", ""),
                 sections=sections,
                 recommendations=recommendations,
-                overall_confidence=0.9, # Confiance elevee car synthese LLM
+                overall_confidence=0.9,  # Confiance elevee car synthese LLM
                 territory=context.get("territory"),
                 sector=context.get("sector"),
-                cognitive_signature={k: v.get("confidence", 0.5) for k, v in cognitive_outputs.items()}
+                cognitive_signature={
+                    k: v.get("confidence", 0.5) for k, v in cognitive_outputs.items()
+                },
             )
 
         except json.JSONDecodeError as e:
@@ -510,14 +507,14 @@ Reponds UNIQUEMENT avec le JSON valide."""
 
             # Fallback en utilisant la reponse brute comme resume si possible
             rule_based = self._synthesize_rule_based(cognitive_outputs, context)
-            if len(response) < 2000: # Si la reponse n'est pas trop longue, l'utiliser comme resume
-                 return UnifiedSynthesis(
+            if len(response) < 2000:  # Si la reponse n'est pas trop longue, l'utiliser comme resume
+                return UnifiedSynthesis(
                     executive_summary=response,
                     sections=rule_based.sections,
                     recommendations=rule_based.recommendations,
                     overall_confidence=rule_based.overall_confidence,
                     territory=context.get("territory"),
                     sector=context.get("sector"),
-                    cognitive_signature=rule_based.cognitive_signature
+                    cognitive_signature=rule_based.cognitive_signature,
                 )
             return rule_based

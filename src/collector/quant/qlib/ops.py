@@ -173,7 +173,7 @@ def ROC(data: Series | DataFrame, n: int) -> Series:
     return (series - ref_value) / (ref_value + 1e-6)  # Avoid division by zero
 
 
-def Rank(data: Series | DataFrame, method: str = 'average') -> Series:
+def Rank(data: Series | DataFrame, method: str = "average") -> Series:
     """
     Cross-sectional rank among territories.
 
@@ -196,19 +196,18 @@ def Rank(data: Series | DataFrame, method: str = 'average') -> Series:
             if group.isna().all():
                 return group
             return pd.Series(
-                rankdata(group, method=method, nan_policy='omit') / len(group.dropna()),
-                index=group.index
+                rankdata(group, method=method, nan_policy="omit") / len(group.dropna()),
+                index=group.index,
             )
 
         return series.groupby(level=0).apply(rank_group)
     else:
         # Simple ranking
-        ranks = rankdata(series, method=method, nan_policy='omit')
+        ranks = rankdata(series, method=method, nan_policy="omit")
         return pd.Series(ranks / len(series.dropna()), index=series.index)
 
 
-def Corr(data1: Series | DataFrame, data2: Series | DataFrame,
-         window: int) -> Series:
+def Corr(data1: Series | DataFrame, data2: Series | DataFrame, window: int) -> Series:
     """
     Rolling correlation between two series.
 
@@ -241,9 +240,9 @@ def Corr(data1: Series | DataFrame, data2: Series | DataFrame,
 
 
 # Territorial-specific operators
-def PerCapita(data: Series | DataFrame,
-              population: pd.Series | None = None,
-              per_n: int = 10000) -> Series:
+def PerCapita(
+    data: Series | DataFrame, population: pd.Series | None = None, per_n: int = 10000
+) -> Series:
     """
     Normalize by population (per 10k inhabitants).
 
@@ -265,6 +264,7 @@ def PerCapita(data: Series | DataFrame,
         # Try to load from our population module
         try:
             from ..population import get_population_data
+
             population = get_population_data()
         except ImportError:
             warnings.warn("Population data not available. Using raw values.")
@@ -415,8 +415,7 @@ def Volatility(data: Series | DataFrame, window: int = 6) -> Series:
     return std_val / (mean_val + 1e-6)
 
 
-def HealthRatio(liquidations: Series | DataFrame,
-                creations: Series | DataFrame) -> Series:
+def HealthRatio(liquidations: Series | DataFrame, creations: Series | DataFrame) -> Series:
     """
     Business health ratio: liquidations / (creations + 1).
 
@@ -452,7 +451,7 @@ def evaluate_expression(expression: str, data: DataFrame) -> Series:
     import re
 
     # Find all $variable references
-    variables = re.findall(r'\$(\w+)', expression)
+    variables = re.findall(r"\$(\w+)", expression)
 
     # Build evaluation context
     context = {}
@@ -464,29 +463,31 @@ def evaluate_expression(expression: str, data: DataFrame) -> Series:
             context[var] = pd.Series(0, index=data.index)
 
     # Add operator functions to context
-    context.update({
-        'Mean': Mean,
-        'Ref': Ref,
-        'Std': Std,
-        'Rank': Rank,
-        'Delta': Delta,
-        'ROC': ROC,
-        'Max': Max,
-        'Min': Min,
-        'Corr': Corr,
-        'PerCapita': PerCapita,
-        'CSZScore': CSZScore,
-        'CSRank': CSRank,
-        'Slope': Slope,
-        'Momentum': Momentum,
-        'Volatility': Volatility,
-        'HealthRatio': HealthRatio,
-    })
+    context.update(
+        {
+            "Mean": Mean,
+            "Ref": Ref,
+            "Std": Std,
+            "Rank": Rank,
+            "Delta": Delta,
+            "ROC": ROC,
+            "Max": Max,
+            "Min": Min,
+            "Corr": Corr,
+            "PerCapita": PerCapita,
+            "CSZScore": CSZScore,
+            "CSRank": CSRank,
+            "Slope": Slope,
+            "Momentum": Momentum,
+            "Volatility": Volatility,
+            "HealthRatio": HealthRatio,
+        }
+    )
 
     # Replace $variables with context access
     eval_expr = expression
     for var in variables:
-        eval_expr = eval_expr.replace(f'${var}', f'context["{var}"]')
+        eval_expr = eval_expr.replace(f"${var}", f'context["{var}"]')
 
     try:
         # Note: In production, use a safe expression evaluator like simpleeval

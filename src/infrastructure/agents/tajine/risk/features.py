@@ -81,18 +81,15 @@ class EnterpriseFeatures:
             "nb_jugements_12m": self.bodacc.nb_jugements_12m,
             "has_procedure_collective": int(self.bodacc.has_procedure_collective),
             "has_plan_sauvegarde": int(self.bodacc.has_plan_sauvegarde),
-
             # SIRENE features
             "age_years": self.sirene.age_years,
             "effectif_actuel": self.sirene.effectif_actuel,
             "nb_etablissements": self.sirene.nb_etablissements,
             "is_active": int(self.sirene.is_active),
-
             # Categorical (will be one-hot encoded)
             "forme_juridique": self.sirene.forme_juridique,
             "code_naf_2": self.sirene.code_naf[:2] if self.sirene.code_naf else "00",
             "departement": self.sirene.departement,
-
             # Derived
             "ratio_age_privileges": self.ratio_age_privileges,
             "secteur_risque_national": self.secteur_risque_national,
@@ -146,6 +143,7 @@ class FeatureExtractor:
 
         # Fetch data in parallel
         import asyncio
+
         sirene_task = self.fetch_sirene(siren)
         bodacc_task = self.fetch_bodacc(siren)
 
@@ -164,18 +162,16 @@ class FeatureExtractor:
 
         # Calculate derived features
         ratio_age_privileges = self._calc_ratio_age_privileges(
-            bodacc_signals.nb_privileges_24m,
-            sirene_signals.age_years
+            bodacc_signals.nb_privileges_24m, sirene_signals.age_years
         )
 
         secteur_risque = SECTOR_RISK_RATES.get(
             sirene_signals.code_naf[:2] if sirene_signals.code_naf else "default",
-            SECTOR_RISK_RATES["default"]
+            SECTOR_RISK_RATES["default"],
         )
 
         region_risque = REGION_RISK_RATES.get(
-            sirene_signals.departement,
-            REGION_RISK_RATES["default"]
+            sirene_signals.departement, REGION_RISK_RATES["default"]
         )
 
         # Assess data quality
@@ -195,10 +191,7 @@ class FeatureExtractor:
     async def fetch_sirene(self, siren: str) -> SIRENESignals:
         """Fetch enterprise data from SIRENE API."""
         try:
-            response = await self.client.get(
-                self.SIRENE_API,
-                params={"q": siren, "per_page": 1}
-            )
+            response = await self.client.get(self.SIRENE_API, params={"q": siren, "per_page": 1})
             response.raise_for_status()
             data = response.json()
 
@@ -226,10 +219,20 @@ class FeatureExtractor:
             if tranche:
                 # Map tranche codes to approximate values
                 tranche_map = {
-                    "00": 0, "01": 1, "02": 3, "03": 6,
-                    "11": 15, "12": 30, "21": 75, "22": 150,
-                    "31": 300, "32": 500, "41": 1500, "42": 3500,
-                    "51": 7500, "52": 10000,
+                    "00": 0,
+                    "01": 1,
+                    "02": 3,
+                    "03": 6,
+                    "11": 15,
+                    "12": 30,
+                    "21": 75,
+                    "22": 150,
+                    "31": 300,
+                    "32": 500,
+                    "41": 1500,
+                    "42": 3500,
+                    "51": 7500,
+                    "52": 10000,
                 }
                 effectif = tranche_map.get(tranche, 0)
 
@@ -268,7 +271,7 @@ class FeatureExtractor:
                     "where": f'registre LIKE "{siren}%" AND dateparution >= "{date_limit}"',
                     "limit": 100,
                     "order_by": "dateparution DESC",
-                }
+                },
             )
             response.raise_for_status()
             data = response.json()
@@ -323,17 +326,13 @@ class FeatureExtractor:
             logger.error(f"BODACC API error: {e}")
             raise
 
-    def _calc_ratio_age_privileges(
-        self, nb_privileges: int, age_years: float
-    ) -> float:
+    def _calc_ratio_age_privileges(self, nb_privileges: int, age_years: float) -> float:
         """Calculate privilege/age ratio (higher = worse)."""
         if age_years <= 0:
             return nb_privileges * 2.0  # Young company with privileges = very bad
         return nb_privileges / age_years
 
-    def _assess_data_quality(
-        self, sirene: SIRENESignals, bodacc: BODACCSignals
-    ) -> float:
+    def _assess_data_quality(self, sirene: SIRENESignals, bodacc: BODACCSignals) -> float:
         """Assess completeness of extracted data (0-1)."""
         quality = 1.0
 

@@ -38,7 +38,7 @@ class OllamaAdapter:
         base_url: str = "http://localhost:11434",
         use_gpu: bool = True,
         pool_connections: int = 10,
-        pool_maxsize: int = 20
+        pool_maxsize: int = 20,
     ):
         """
         Initialize Ollama adapter with connection pooling.
@@ -58,7 +58,7 @@ class OllamaAdapter:
             pool_connections=pool_connections,
             pool_maxsize=pool_maxsize,
             enable_cache=True,
-            http2=True
+            http2=True,
         )
 
         logger.info(
@@ -117,11 +117,7 @@ class OllamaAdapter:
         """
         try:
             # Note: OllamaClient.post() already has @with_retry
-            info = await self.client.post(
-                "/api/show",
-                json={"name": model_name},
-                timeout=10.0
-            )
+            info = await self.client.post("/api/show", json={"name": model_name}, timeout=10.0)
             logger.info(f"Got info for model: {model_name}")
             return info
         except Exception as e:
@@ -141,10 +137,7 @@ class OllamaAdapter:
             dict: Progress updates
         """
         try:
-            async for progress in self.client.stream_post(
-                "/api/pull",
-                json={"name": model_name}
-            ):
+            async for progress in self.client.stream_post("/api/pull", json={"name": model_name}):
                 logger.info(f"Pull progress: {progress.get('status', 'Unknown')}")
                 yield progress
         except Exception as e:
@@ -158,7 +151,7 @@ class OllamaAdapter:
         system: str | None = None,
         temperature: float = 0.7,
         max_tokens: int | None = None,
-        stream: bool = False
+        stream: bool = False,
     ) -> dict[str, Any]:
         """
         Generate completion from a model.
@@ -182,12 +175,7 @@ class OllamaAdapter:
         if max_tokens:
             options["num_predict"] = max_tokens
 
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "stream": stream,
-            "options": options
-        }
+        payload = {"model": model, "prompt": prompt, "stream": stream, "options": options}
 
         if system:
             payload["system"] = system
@@ -196,19 +184,10 @@ class OllamaAdapter:
             # Note: OllamaClient.post() already has @with_retry
             if stream:
                 # For streaming, use stream_post (returns async iterator)
-                raise NotImplementedError(
-                    "Streaming mode should use generate_stream() method"
-                )
+                raise NotImplementedError("Streaming mode should use generate_stream() method")
             else:
-                result = await self.client.post(
-                    "/api/generate",
-                    json=payload,
-                    timeout=120.0
-                )
-                logger.info(
-                    f"Generated {len(result.get('response', ''))} chars "
-                    f"from {model}"
-                )
+                result = await self.client.post("/api/generate", json=payload, timeout=120.0)
+                logger.info(f"Generated {len(result.get('response', ''))} chars from {model}")
                 return result
         except Exception as e:
             logger.error(f"Failed to generate with {model}: {e}")
@@ -219,7 +198,7 @@ class OllamaAdapter:
         model: str,
         messages: list[dict[str, str]],
         temperature: float = 0.7,
-        stream: bool = False
+        stream: bool = False,
     ) -> dict[str, Any]:
         """
         Chat completion with conversation history.
@@ -239,34 +218,22 @@ class OllamaAdapter:
             "model": model,
             "messages": messages,
             "stream": stream,
-            "options": {
-                "temperature": temperature
-            }
+            "options": {"temperature": temperature},
         }
 
         try:
             # Note: OllamaClient.post() already has @with_retry
             if stream:
-                raise NotImplementedError(
-                    "Streaming mode should use chat_stream() method"
-                )
+                raise NotImplementedError("Streaming mode should use chat_stream() method")
             else:
-                result = await self.client.post(
-                    "/api/chat",
-                    json=payload,
-                    timeout=120.0
-                )
+                result = await self.client.post("/api/chat", json=payload, timeout=120.0)
                 logger.info(f"Chat completed with {model}")
                 return result
         except Exception as e:
             logger.error(f"Failed to chat with {model}: {e}")
             raise
 
-    async def create_model(
-        self,
-        name: str,
-        modelfile: str
-    ) -> dict[str, Any]:
+    async def create_model(self, name: str, modelfile: str) -> dict[str, Any]:
         """
         Create a custom model from a Modelfile.
 
@@ -284,18 +251,11 @@ class OllamaAdapter:
             PARAMETER temperature 0.8
             SYSTEM You are a helpful assistant.
         """
-        payload = {
-            "name": name,
-            "modelfile": modelfile
-        }
+        payload = {"name": name, "modelfile": modelfile}
 
         try:
             # Note: OllamaClient.post() already has @with_retry
-            result = await self.client.post(
-                "/api/create",
-                json=payload,
-                timeout=300.0
-            )
+            result = await self.client.post("/api/create", json=payload, timeout=300.0)
             logger.info(f"Created custom model: {name}")
             return result
         except Exception as e:
@@ -315,10 +275,7 @@ class OllamaAdapter:
             bool: True if deleted successfully
         """
         try:
-            success = await self.client.delete(
-                "/api/delete",
-                json={"name": name}
-            )
+            success = await self.client.delete("/api/delete", json={"name": name})
             if success:
                 logger.info(f"Deleted model: {name}")
             return success
@@ -330,7 +287,7 @@ class OllamaAdapter:
         self,
         annotations: list[dict[str, Any]],
         output_path: Path,
-        task_type: str = "classification"
+        task_type: str = "classification",
     ) -> Path:
         """
         Prepare training data from Label Studio annotations.
@@ -371,10 +328,7 @@ class OllamaAdapter:
                         labels = item.get("value", {}).get("choices", [])
                         if labels:
                             label = labels[0]
-                            training_example = {
-                                "text": text,
-                                "label": label
-                            }
+                            training_example = {"text": text, "label": label}
                             training_data.append(training_example)
                             break
 
@@ -384,17 +338,18 @@ class OllamaAdapter:
                 for item in result:
                     if item.get("type") == "labels":
                         value = item.get("value", {})
-                        entities.append({
-                            "start": value.get("start"),
-                            "end": value.get("end"),
-                            "label": value.get("labels", [])[0] if value.get("labels") else None,
-                            "text": value.get("text", "")
-                        })
+                        entities.append(
+                            {
+                                "start": value.get("start"),
+                                "end": value.get("end"),
+                                "label": value.get("labels", [])[0]
+                                if value.get("labels")
+                                else None,
+                                "text": value.get("text", ""),
+                            }
+                        )
 
-                training_example = {
-                    "text": text,
-                    "entities": entities
-                }
+                training_example = {"text": text, "entities": entities}
                 training_data.append(training_example)
 
         # Write to JSONL
@@ -403,10 +358,7 @@ class OllamaAdapter:
             for example in training_data:
                 f.write(json.dumps(example) + "\n")
 
-        logger.info(
-            f"Prepared {len(training_data)} training examples "
-            f"at {output_path}"
-        )
+        logger.info(f"Prepared {len(training_data)} training examples at {output_path}")
         return output_path
 
     async def finetune_with_qlora(
@@ -420,7 +372,7 @@ class OllamaAdapter:
         lora_r: int = 16,
         lora_alpha: int = 32,
         max_seq_length: int = 2048,
-        progress_callback: Callable | None = None
+        progress_callback: Callable | None = None,
     ) -> dict[str, Any]:
         """
         Finetune a model using QLoRA (Quantized LoRA).
@@ -532,8 +484,7 @@ class OllamaAdapter:
             # Train
             logger.info(f"Starting QLoRA training: {epochs} epochs, {len(training_data)} examples")
             result = await tuner.train(
-                train_data=training_data,
-                experiment_name=f"qlora-{output_model_name}"
+                train_data=training_data, experiment_name=f"qlora-{output_model_name}"
             )
 
             # Save model
@@ -570,11 +521,7 @@ class OllamaAdapter:
                 "output_model": output_model_name,
             }
 
-    async def get_embedding(
-        self,
-        model: str,
-        text: str
-    ) -> list[float]:
+    async def get_embedding(self, model: str, text: str) -> list[float]:
         """
         Get embedding vector for text.
 
@@ -587,18 +534,11 @@ class OllamaAdapter:
         Returns:
             list: Embedding vector
         """
-        payload = {
-            "model": model,
-            "prompt": text
-        }
+        payload = {"model": model, "prompt": text}
 
         try:
             # Note: OllamaClient.post() already has @with_retry
-            result = await self.client.post(
-                "/api/embed",
-                json=payload,
-                timeout=30.0
-            )
+            result = await self.client.post("/api/embed", json=payload, timeout=30.0)
             embedding = result.get("embedding", [])
             logger.info(f"Got embedding of dimension {len(embedding)}")
             return embedding

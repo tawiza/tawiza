@@ -19,6 +19,7 @@ from loguru import logger
 from scipy import stats
 from scipy.signal import correlate
 from scipy.special import digamma
+
 from src.infrastructure.persistence.models.territorial_timeseries import (
     GranularityType,
     IndicatorType,
@@ -27,6 +28,7 @@ from src.infrastructure.persistence.models.territorial_timeseries import (
 
 class CausalityStrength(StrEnum):
     """Force de la relation causale détectée."""
+
     NONE = "none"
     WEAK = "weak"
     MODERATE = "moderate"
@@ -143,20 +145,13 @@ class CausalResult:
     @property
     def is_causal(self) -> bool:
         """Relation causale statistiquement significative ?"""
-        return (
-            self.granger_significant
-            and self.lag_months > 0
-            and abs(self.correlation) > 0.3
-        )
+        return self.granger_significant and self.lag_months > 0 and abs(self.correlation) > 0.3
 
     @property
     def is_nonlinear(self) -> bool:
         """Relation non-linéaire détectée ?"""
         # MI élevée mais corrélation faible → relation non-linéaire
-        return (
-            self.mutual_info_normalized > 0.3
-            and abs(self.correlation) < 0.3
-        )
+        return self.mutual_info_normalized > 0.3 and abs(self.correlation) < 0.3
 
     def to_dict(self) -> dict:
         return {
@@ -200,22 +195,17 @@ class CorrelationEngine:
         (IndicatorType.DVF_TRANSACTIONS, IndicatorType.SIRENE_CREATIONS),
         (IndicatorType.DVF_VOLUME, IndicatorType.BODACC_PROCEDURES),
         (IndicatorType.DVF_PRICE_M2_APT, IndicatorType.SIRENE_NET_CREATIONS),
-
         # Immobilier → Emploi
         (IndicatorType.DVF_TRANSACTIONS, IndicatorType.FT_OFFRES),
         (IndicatorType.DVF_VOLUME, IndicatorType.FT_DEMANDEURS),
-
         # Entreprises → Procédures
         (IndicatorType.SIRENE_RADIATIONS, IndicatorType.BODACC_PROCEDURES),
         (IndicatorType.SIRENE_NET_CREATIONS, IndicatorType.BODACC_LIQUIDATIONS),
-
         # Emploi → Entreprises
         (IndicatorType.FT_TENSION, IndicatorType.SIRENE_CREATIONS),
         (IndicatorType.FT_DEMANDEURS, IndicatorType.BODACC_PROCEDURES),
-
         # Subventions → Croissance
         (IndicatorType.SUB_ACCORDEES, IndicatorType.SIRENE_CREATIONS),
-
         # Démographie → Immobilier
         (IndicatorType.INSEE_POPULATION, IndicatorType.DVF_TRANSACTIONS),
         (IndicatorType.INSEE_REVENU_MEDIAN, IndicatorType.DVF_PRICE_M2_APT),
@@ -316,28 +306,26 @@ class CorrelationEngine:
             n_obs = len(y)
 
             # Lags de effect (modèle restreint)
-            X_restricted = np.column_stack([
-                effect_series[max_lag - i - 1:n - i - 1]
-                for i in range(max_lag)
-            ])
+            X_restricted = np.column_stack(
+                [effect_series[max_lag - i - 1 : n - i - 1] for i in range(max_lag)]
+            )
             X_restricted = np.column_stack([np.ones(n_obs), X_restricted])
 
             # Lags de effect + lags de cause (modèle complet)
-            X_full = np.column_stack([
-                X_restricted,
-                *[cause_series[max_lag - i - 1:n - i - 1] for i in range(max_lag)]
-            ])
+            X_full = np.column_stack(
+                [X_restricted, *[cause_series[max_lag - i - 1 : n - i - 1] for i in range(max_lag)]]
+            )
 
             # Régression OLS pour chaque modèle
             # Modèle restreint
             beta_r = np.linalg.lstsq(X_restricted, y, rcond=None)[0]
             resid_r = y - X_restricted @ beta_r
-            rss_r = np.sum(resid_r ** 2)
+            rss_r = np.sum(resid_r**2)
 
             # Modèle complet
             beta_f = np.linalg.lstsq(X_full, y, rcond=None)[0]
             resid_f = y - X_full @ beta_f
-            rss_f = np.sum(resid_f ** 2)
+            rss_f = np.sum(resid_f**2)
 
             # F-test
             df1 = max_lag  # Degrés de liberté numérateur
@@ -396,9 +384,7 @@ class CorrelationEngine:
             for i in range(n_bins):
                 for j in range(n_bins):
                     if joint_prob[i, j] > 0 and p_x[i] > 0 and p_y[j] > 0:
-                        mi += joint_prob[i, j] * np.log(
-                            joint_prob[i, j] / (p_x[i] * p_y[j])
-                        )
+                        mi += joint_prob[i, j] * np.log(joint_prob[i, j] / (p_x[i] * p_y[j]))
 
             # Normaliser par min des entropies (0-1)
             h_x = -np.sum(p_x[p_x > 0] * np.log(p_x[p_x > 0]))
@@ -551,9 +537,7 @@ class CorrelationEngine:
         corr, lag, p_val = self.compute_lag_correlation(source_series, target_series)
 
         # 2. Test de Granger
-        f_stat, granger_p, granger_sig = self.granger_causality_test(
-            source_series, target_series
-        )
+        f_stat, granger_p, granger_sig = self.granger_causality_test(source_series, target_series)
 
         # 3. Information mutuelle
         mi_raw, mi_norm = self.mutual_information(source_series, target_series)
@@ -561,9 +545,7 @@ class CorrelationEngine:
         # 4. Corrélation partielle
         confounder_list = list(confounders.values()) if confounders else []
         confounder_names = list(confounders.keys()) if confounders else []
-        partial_corr = self.partial_correlation(
-            source_series, target_series, confounder_list
-        )
+        partial_corr = self.partial_correlation(source_series, target_series, confounder_list)
 
         # 5. Score combiné
         causal_score, strength = self.compute_causal_score(
@@ -609,10 +591,7 @@ class CorrelationEngine:
         territories = {key[1] for key in timeseries_data}
 
         for territory in territories:
-            territory_data = {
-                k[0]: v for k, v in timeseries_data.items()
-                if k[1] == territory
-            }
+            territory_data = {k[0]: v for k, v in timeseries_data.items() if k[1] == territory}
 
             # Tester chaque paire
             for source_ind, target_ind in self.INDICATOR_PAIRS:
@@ -679,7 +658,7 @@ class CorrelationEngine:
 
         for i in range(window, len(series)):
             # Fenêtre précédente (sans la valeur actuelle)
-            window_data = series[i - window:i]
+            window_data = series[i - window : i]
             current_value = series[i]
 
             mean = np.mean(window_data)
@@ -694,16 +673,18 @@ class CorrelationEngine:
                 anomaly_type = "spike" if z_score > 0 else "drop"
                 severity = min(1.0, abs(z_score) / 5.0)
 
-                anomalies.append(AnomalyResult(
-                    indicator=indicator,
-                    territory_code=territory_code,
-                    anomaly_type=anomaly_type,
-                    severity=severity,
-                    expected_value=mean,
-                    actual_value=current_value,
-                    deviation_sigma=abs(z_score),
-                    period=periods[i] if i < len(periods) else datetime.now(),
-                ))
+                anomalies.append(
+                    AnomalyResult(
+                        indicator=indicator,
+                        territory_code=territory_code,
+                        anomaly_type=anomaly_type,
+                        severity=severity,
+                        expected_value=mean,
+                        actual_value=current_value,
+                        deviation_sigma=abs(z_score),
+                        period=periods[i] if i < len(periods) else datetime.now(),
+                    )
+                )
 
         return anomalies
 
@@ -727,12 +708,12 @@ class CorrelationEngine:
         for i in range(min_segment, len(series) - min_segment):
             # Tendance avant
             x_before = np.arange(min_segment)
-            y_before = series[i - min_segment:i]
+            y_before = series[i - min_segment : i]
             slope_before, _, _, _, _ = stats.linregress(x_before, y_before)
 
             # Tendance après
             x_after = np.arange(min_segment)
-            y_after = series[i:i + min_segment]
+            y_after = series[i : i + min_segment]
             slope_after, _, _, _, _ = stats.linregress(x_after, y_after)
 
             # Changement de signe ou magnitude
@@ -740,16 +721,18 @@ class CorrelationEngine:
                 severity = min(1.0, abs(slope_before - slope_after) / (abs(slope_before) + 1e-10))
 
                 if severity > 0.3:
-                    anomalies.append(AnomalyResult(
-                        indicator=indicator,
-                        territory_code=territory_code,
-                        anomaly_type="trend_break",
-                        severity=severity,
-                        expected_value=slope_before,
-                        actual_value=slope_after,
-                        deviation_sigma=severity * 3,
-                        period=periods[i] if i < len(periods) else datetime.now(),
-                    ))
+                    anomalies.append(
+                        AnomalyResult(
+                            indicator=indicator,
+                            territory_code=territory_code,
+                            anomaly_type="trend_break",
+                            severity=severity,
+                            expected_value=slope_before,
+                            actual_value=slope_after,
+                            deviation_sigma=severity * 3,
+                            period=periods[i] if i < len(periods) else datetime.now(),
+                        )
+                    )
 
         return anomalies
 
@@ -771,10 +754,7 @@ class CorrelationEngine:
         territories = {key[1] for key in timeseries_data}
 
         for territory in territories:
-            territory_data = {
-                k[0]: v for k, v in timeseries_data.items()
-                if k[1] == territory
-            }
+            territory_data = {k[0]: v for k, v in timeseries_data.items() if k[1] == territory}
 
             # Tester chaque paire
             for source_ind, target_ind in self.INDICATOR_PAIRS:
@@ -784,23 +764,23 @@ class CorrelationEngine:
                 source_values, _ = territory_data[source_ind]
                 target_values, _ = territory_data[target_ind]
 
-                corr, lag, pval = self.compute_lag_correlation(
-                    source_values, target_values
-                )
+                corr, lag, pval = self.compute_lag_correlation(source_values, target_values)
 
                 if abs(corr) > 0.2 and pval < 0.1:
                     confidence = (1 - pval) * min(1.0, len(source_values) / 24)
 
-                    results.append(CorrelationResult(
-                        source_indicator=source_ind,
-                        target_indicator=target_ind,
-                        correlation=corr,
-                        lag_months=lag,
-                        p_value=pval,
-                        n_observations=min(len(source_values), len(target_values)),
-                        confidence=confidence,
-                        territory_code=territory,
-                    ))
+                    results.append(
+                        CorrelationResult(
+                            source_indicator=source_ind,
+                            target_indicator=target_ind,
+                            correlation=corr,
+                            lag_months=lag,
+                            p_value=pval,
+                            n_observations=min(len(source_values), len(target_values)),
+                            confidence=confidence,
+                            territory_code=territory,
+                        )
+                    )
 
         # Trier par corrélation absolue
         results.sort(key=lambda x: abs(x.correlation), reverse=True)
@@ -822,17 +802,19 @@ class CorrelationEngine:
         # Insight 1: Corrélations prédictives fortes
         for corr in correlations:
             if corr.lag_months >= 3 and abs(corr.correlation) > 0.5:
-                insights.append({
-                    "type": "predictive_correlation",
-                    "severity": abs(corr.correlation),
-                    "message": (
-                        f"{corr.source_indicator.value} prédit "
-                        f"{corr.target_indicator.value} avec {corr.lag_months} mois d'avance "
-                        f"(r={corr.correlation:.2f}, p={corr.p_value:.3f})"
-                    ),
-                    "territory": corr.territory_code,
-                    "actionable": True,
-                })
+                insights.append(
+                    {
+                        "type": "predictive_correlation",
+                        "severity": abs(corr.correlation),
+                        "message": (
+                            f"{corr.source_indicator.value} prédit "
+                            f"{corr.target_indicator.value} avec {corr.lag_months} mois d'avance "
+                            f"(r={corr.correlation:.2f}, p={corr.p_value:.3f})"
+                        ),
+                        "territory": corr.territory_code,
+                        "actionable": True,
+                    }
+                )
 
         # Insight 2: Anomalies sur indicateurs corrélés
         corr_sources = {c.source_indicator for c in correlations if c.is_significant}
@@ -847,17 +829,19 @@ class CorrelationEngine:
                 ]
 
                 if impacted:
-                    insights.append({
-                        "type": "cascade_risk",
-                        "severity": anomaly.severity,
-                        "message": (
-                            f"Anomalie {anomaly.anomaly_type} sur {anomaly.indicator.value} "
-                            f"({anomaly.deviation_sigma:.1f}σ) - "
-                            f"Impact probable sur: {', '.join(impacted)}"
-                        ),
-                        "territory": anomaly.territory_code,
-                        "actionable": True,
-                    })
+                    insights.append(
+                        {
+                            "type": "cascade_risk",
+                            "severity": anomaly.severity,
+                            "message": (
+                                f"Anomalie {anomaly.anomaly_type} sur {anomaly.indicator.value} "
+                                f"({anomaly.deviation_sigma:.1f}σ) - "
+                                f"Impact probable sur: {', '.join(impacted)}"
+                            ),
+                            "territory": anomaly.territory_code,
+                            "actionable": True,
+                        }
+                    )
 
         # Insight 3: Clusters d'anomalies
         territory_anomalies: dict[str, list] = {}
@@ -869,16 +853,18 @@ class CorrelationEngine:
                 indicators = [a.indicator.value for a in anoms]
                 avg_severity = sum(a.severity for a in anoms) / len(anoms)
 
-                insights.append({
-                    "type": "anomaly_cluster",
-                    "severity": avg_severity,
-                    "message": (
-                        f"Cluster de {len(anoms)} anomalies sur {territory}: "
-                        f"{', '.join(set(indicators))}"
-                    ),
-                    "territory": territory,
-                    "actionable": True,
-                })
+                insights.append(
+                    {
+                        "type": "anomaly_cluster",
+                        "severity": avg_severity,
+                        "message": (
+                            f"Cluster de {len(anoms)} anomalies sur {territory}: "
+                            f"{', '.join(set(indicators))}"
+                        ),
+                        "territory": territory,
+                        "actionable": True,
+                    }
+                )
 
         # Trier par sévérité
         insights.sort(key=lambda x: x["severity"], reverse=True)
@@ -888,6 +874,7 @@ class CorrelationEngine:
 
 # Singleton
 _engine: CorrelationEngine | None = None
+
 
 def get_correlation_engine() -> CorrelationEngine:
     """Get singleton instance."""

@@ -37,18 +37,102 @@ _state: dict[str, Any] = {
 
 # ── Source definitions ───────────────────────────────────────
 SOURCES = [
-    {"id": "bodacc", "name": "BODACC", "type": "api", "description": "Annonces legales (creations, liquidations, radiations)", "schedule": "daily", "enabled": True},
-    {"id": "france_travail", "name": "France Travail", "type": "api", "description": "Offres d'emploi par departement", "schedule": "daily", "enabled": True},
-    {"id": "sirene", "name": "SIRENE", "type": "api", "description": "Creations d'entreprises (data.gouv.fr)", "schedule": "daily", "enabled": True},
-    {"id": "insee", "name": "INSEE", "type": "api", "description": "Chomage, population", "schedule": "weekly", "enabled": True},
-    {"id": "ofgl", "name": "OFGL", "type": "api", "description": "Finances locales", "schedule": "weekly", "enabled": True},
-    {"id": "dvf", "name": "DVF", "type": "api", "description": "Transactions immobilieres", "schedule": "daily", "enabled": True},
-    {"id": "banque_france", "name": "Banque de France", "type": "api", "description": "Defaillances d'entreprises", "schedule": "weekly", "enabled": False},
-    {"id": "presse_locale", "name": "Presse Locale", "type": "rss", "description": "Flux RSS presse regionale", "schedule": "6h", "enabled": True},
-    {"id": "urssaf", "name": "URSSAF", "type": "api", "description": "Declarations d'embauche", "schedule": "weekly", "enabled": True},
-    {"id": "google_trends", "name": "Google Trends", "type": "scraper", "description": "Tendances de recherche", "schedule": "daily", "enabled": True},
-    {"id": "sitadel", "name": "Sitadel", "type": "api", "description": "Permis de construire (SDES DiDo)", "schedule": "monthly", "enabled": True},
-    {"id": "gdelt", "name": "GDELT", "type": "api", "description": "Evenements mediatiques internationaux", "schedule": "daily", "enabled": False},
+    {
+        "id": "bodacc",
+        "name": "BODACC",
+        "type": "api",
+        "description": "Annonces legales (creations, liquidations, radiations)",
+        "schedule": "daily",
+        "enabled": True,
+    },
+    {
+        "id": "france_travail",
+        "name": "France Travail",
+        "type": "api",
+        "description": "Offres d'emploi par departement",
+        "schedule": "daily",
+        "enabled": True,
+    },
+    {
+        "id": "sirene",
+        "name": "SIRENE",
+        "type": "api",
+        "description": "Creations d'entreprises (data.gouv.fr)",
+        "schedule": "daily",
+        "enabled": True,
+    },
+    {
+        "id": "insee",
+        "name": "INSEE",
+        "type": "api",
+        "description": "Chomage, population",
+        "schedule": "weekly",
+        "enabled": True,
+    },
+    {
+        "id": "ofgl",
+        "name": "OFGL",
+        "type": "api",
+        "description": "Finances locales",
+        "schedule": "weekly",
+        "enabled": True,
+    },
+    {
+        "id": "dvf",
+        "name": "DVF",
+        "type": "api",
+        "description": "Transactions immobilieres",
+        "schedule": "daily",
+        "enabled": True,
+    },
+    {
+        "id": "banque_france",
+        "name": "Banque de France",
+        "type": "api",
+        "description": "Defaillances d'entreprises",
+        "schedule": "weekly",
+        "enabled": False,
+    },
+    {
+        "id": "presse_locale",
+        "name": "Presse Locale",
+        "type": "rss",
+        "description": "Flux RSS presse regionale",
+        "schedule": "6h",
+        "enabled": True,
+    },
+    {
+        "id": "urssaf",
+        "name": "URSSAF",
+        "type": "api",
+        "description": "Declarations d'embauche",
+        "schedule": "weekly",
+        "enabled": True,
+    },
+    {
+        "id": "google_trends",
+        "name": "Google Trends",
+        "type": "scraper",
+        "description": "Tendances de recherche",
+        "schedule": "daily",
+        "enabled": True,
+    },
+    {
+        "id": "sitadel",
+        "name": "Sitadel",
+        "type": "api",
+        "description": "Permis de construire (SDES DiDo)",
+        "schedule": "monthly",
+        "enabled": True,
+    },
+    {
+        "id": "gdelt",
+        "name": "GDELT",
+        "type": "api",
+        "description": "Evenements mediatiques internationaux",
+        "schedule": "daily",
+        "enabled": False,
+    },
 ]
 
 
@@ -112,6 +196,7 @@ async def _run_collection(source: str | None, departments: list[str] | None, day
 
 # ── Routes ───────────────────────────────────────────────────
 
+
 @router.get("/config")
 async def get_config() -> CrawlerConfig:
     """Return crawler configuration (sources and schedules)."""
@@ -162,11 +247,15 @@ async def get_stats():
 
         sources_stats = []
         for row in by_source:
-            sources_stats.append({
-                "source": row["source"],
-                "count": row["cnt"],
-                "last_collected": row["last_collected"].isoformat() if row["last_collected"] else None,
-            })
+            sources_stats.append(
+                {
+                    "source": row["source"],
+                    "count": row["cnt"],
+                    "last_collected": row["last_collected"].isoformat()
+                    if row["last_collected"]
+                    else None,
+                }
+            )
 
         return {
             "total_signals": total,
@@ -202,7 +291,8 @@ async def collection_history(limit: int = 20):
     """Return recent signal collection activity (grouped by collection batch)."""
     conn = await _get_db()
     try:
-        rows = await conn.fetch("""
+        rows = await conn.fetch(
+            """
             SELECT
                 source,
                 date_trunc('hour', collected_at) as batch_time,
@@ -213,7 +303,9 @@ async def collection_history(limit: int = 20):
             GROUP BY source, date_trunc('hour', collected_at)
             ORDER BY batch_time DESC
             LIMIT $1
-        """, limit)
+        """,
+            limit,
+        )
         return [
             {
                 "source": r["source"],

@@ -19,7 +19,9 @@ class FranceTravailCollector(BaseCollector):
     - Contract type distribution shifts
     """
 
-    TOKEN_URL = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire"
+    TOKEN_URL = (
+        "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire"
+    )
     BASE_URL = "https://api.francetravail.io/partenaire/offresdemploi/v2"
 
     def __init__(

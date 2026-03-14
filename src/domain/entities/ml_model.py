@@ -245,7 +245,9 @@ class MLModel(AggregateRoot):
                 model_id=self.id,
                 model_name=self.name,
                 version=self.version,
-                deployment_strategy=self._deployment_strategy.value if self._deployment_strategy else "",
+                deployment_strategy=self._deployment_strategy.value
+                if self._deployment_strategy
+                else "",
                 traffic_percentage=self._traffic_percentage,
             )
         )
@@ -300,7 +302,9 @@ class MLModel(AggregateRoot):
             "metrics": self.metrics.to_dict() if self.metrics else None,
             "mlflow_run_id": self.mlflow_run_id,
             "model_path": self.model_path,
-            "deployment_strategy": self.deployment_strategy.value if self.deployment_strategy else None,
+            "deployment_strategy": self.deployment_strategy.value
+            if self.deployment_strategy
+            else None,
             "traffic_percentage": self.traffic_percentage,
             "deployed_at": self._deployed_at.isoformat() if self._deployed_at else None,
             "retired_at": self._retired_at.isoformat() if self._retired_at else None,

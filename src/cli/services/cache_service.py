@@ -8,6 +8,7 @@ Fournit un cache thread-safe avec:
 - Statistiques d'utilisation
 - Support async
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -19,7 +20,7 @@ from typing import Any, TypeVar
 
 from loguru import logger
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 # ==============================================================================
@@ -35,13 +36,17 @@ CLEANUP_INTERVAL = 60  # 1 minute
 # MODÈLES
 # ==============================================================================
 
+
 @dataclass
 class CacheEntry[T]:
     """Entrée de cache avec métadonnées"""
+
     key: str
     value: T
     created_at: datetime = field(default_factory=datetime.now)
-    expires_at: datetime = field(default_factory=lambda: datetime.now() + timedelta(seconds=DEFAULT_TTL))
+    expires_at: datetime = field(
+        default_factory=lambda: datetime.now() + timedelta(seconds=DEFAULT_TTL)
+    )
     access_count: int = 0
     last_accessed: datetime = field(default_factory=datetime.now)
 
@@ -63,6 +68,7 @@ class CacheEntry[T]:
 @dataclass
 class CacheStats:
     """Statistiques du cache"""
+
     hits: int = 0
     misses: int = 0
     evictions: int = 0
@@ -83,13 +89,14 @@ class CacheStats:
             "evictions": self.evictions,
             "expirations": self.expirations,
             "size": self.size,
-            "hit_rate": f"{self.hit_rate:.2%}"
+            "hit_rate": f"{self.hit_rate:.2%}",
         }
 
 
 # ==============================================================================
 # SERVICE DE CACHE
 # ==============================================================================
+
 
 class CacheService:
     """Service de cache thread-safe avec support async"""
@@ -98,7 +105,7 @@ class CacheService:
         self,
         default_ttl: int = DEFAULT_TTL,
         max_size: int = DEFAULT_MAX_SIZE,
-        cleanup_interval: int = CLEANUP_INTERVAL
+        cleanup_interval: int = CLEANUP_INTERVAL,
     ):
         self._cache: dict[str, CacheEntry] = {}
         self._lock = asyncio.Lock()
@@ -137,10 +144,7 @@ class CacheService:
     async def _cleanup_expired(self) -> int:
         """Nettoyer les entrées expirées"""
         async with self._lock:
-            expired_keys = [
-                key for key, entry in self._cache.items()
-                if entry.is_expired()
-            ]
+            expired_keys = [key for key, entry in self._cache.items() if entry.is_expired()]
 
             for key in expired_keys:
                 del self._cache[key]
@@ -173,12 +177,7 @@ class CacheService:
             self._stats.hits += 1
             return entry.value
 
-    async def set(
-        self,
-        key: str,
-        value: Any,
-        ttl: int | None = None
-    ) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Stocker une valeur dans le cache"""
         async with self._lock:
             # Vérifier la taille max
@@ -188,11 +187,7 @@ class CacheService:
             ttl_seconds = ttl if ttl is not None else self._default_ttl
             expires_at = datetime.now() + timedelta(seconds=ttl_seconds)
 
-            self._cache[key] = CacheEntry(
-                key=key,
-                value=value,
-                expires_at=expires_at
-            )
+            self._cache[key] = CacheEntry(key=key, value=value, expires_at=expires_at)
             self._stats.size = len(self._cache)
 
     async def _evict_lru(self) -> None:
@@ -201,10 +196,7 @@ class CacheService:
             return
 
         # Trouver l'entrée LRU
-        lru_key = min(
-            self._cache.keys(),
-            key=lambda k: self._cache[k].last_accessed
-        )
+        lru_key = min(self._cache.keys(), key=lambda k: self._cache[k].last_accessed)
 
         del self._cache[lru_key]
         self._stats.evictions += 1
@@ -239,12 +231,7 @@ class CacheService:
                 return False
             return True
 
-    async def get_or_set(
-        self,
-        key: str,
-        factory: Callable[[], Any],
-        ttl: int | None = None
-    ) -> Any:
+    async def get_or_set(self, key: str, factory: Callable[[], Any], ttl: int | None = None) -> Any:
         """Récupérer du cache ou créer avec factory"""
         value = await self.get(key)
         if value is not None:
@@ -276,27 +263,21 @@ class CacheService:
                 "expires_at": entry.expires_at.isoformat(),
                 "ttl_remaining": entry.ttl_remaining(),
                 "access_count": entry.access_count,
-                "last_accessed": entry.last_accessed.isoformat()
+                "last_accessed": entry.last_accessed.isoformat(),
             }
 
     async def keys(self) -> list:
         """Obtenir toutes les clés non expirées"""
         async with self._lock:
-            return [
-                key for key, entry in self._cache.items()
-                if not entry.is_expired()
-            ]
+            return [key for key, entry in self._cache.items() if not entry.is_expired()]
 
 
 # ==============================================================================
 # DÉCORATEUR DE CACHE
 # ==============================================================================
 
-def cached(
-    ttl: int = DEFAULT_TTL,
-    key_prefix: str = "",
-    cache_service: CacheService | None = None
-):
+
+def cached(ttl: int = DEFAULT_TTL, key_prefix: str = "", cache_service: CacheService | None = None):
     """Décorateur pour mettre en cache les résultats d'une fonction"""
 
     def decorator(func: Callable):
@@ -304,7 +285,9 @@ def cached(
 
         async def async_wrapper(*args, **kwargs):
             # Générer la clé de cache
-            cache_key = f"{key_prefix}:{func.__name__}:{hash((args, tuple(sorted(kwargs.items()))))}"
+            cache_key = (
+                f"{key_prefix}:{func.__name__}:{hash((args, tuple(sorted(kwargs.items()))))}"
+            )
 
             # Vérifier le cache
             cached_value = await _cache.get(cache_key)

@@ -13,6 +13,7 @@ from loguru import logger
 
 class TaskStatus(Enum):
     """Task execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     PAUSED = "paused"
@@ -23,6 +24,7 @@ class TaskStatus(Enum):
 
 class TaskPriority(Enum):
     """Task priority levels."""
+
     LOW = 1
     NORMAL = 5
     HIGH = 8
@@ -32,6 +34,7 @@ class TaskPriority(Enum):
 @dataclass
 class TaskStep:
     """A step in task execution."""
+
     index: int
     name: str
     status: str = "pending"  # pending, running, completed, failed
@@ -43,6 +46,7 @@ class TaskStep:
 @dataclass
 class Task:
     """Represents a task in the TUI."""
+
     id: str
     agent: str
     prompt: str
@@ -95,6 +99,7 @@ class Task:
 
 class TaskEvent(Enum):
     """Task lifecycle events."""
+
     CREATED = "created"
     STARTED = "started"
     PROGRESS = "progress"
@@ -142,17 +147,13 @@ class TaskManager:
         agent: str,
         prompt: str,
         priority: TaskPriority = TaskPriority.NORMAL,
-        context: dict | None = None
+        context: dict | None = None,
     ) -> Task:
         """Create a new task."""
         task_id = str(uuid.uuid4())[:8]
 
         task = Task(
-            id=task_id,
-            agent=agent,
-            prompt=prompt,
-            priority=priority,
-            context=context or {}
+            id=task_id, agent=agent, prompt=prompt, priority=priority, context=context or {}
         )
 
         self._tasks[task_id] = task
@@ -179,12 +180,7 @@ class TaskManager:
         return True
 
     def update_progress(
-        self,
-        task_id: str,
-        step: int,
-        total_steps: int,
-        message: str,
-        percent: float | None = None
+        self, task_id: str, step: int, total_steps: int, message: str, percent: float | None = None
     ) -> bool:
         """Update task progress."""
         task = self._tasks.get(task_id)
@@ -207,12 +203,16 @@ class TaskManager:
                 task.steps[i].status = "completed"
                 task.steps[i].completed_at = datetime.now()
 
-        self._emit(TaskEvent.PROGRESS, task, {
-            "step": step,
-            "total_steps": total_steps,
-            "message": message,
-            "percent": task.progress
-        })
+        self._emit(
+            TaskEvent.PROGRESS,
+            task,
+            {
+                "step": step,
+                "total_steps": total_steps,
+                "message": message,
+                "percent": task.progress,
+            },
+        )
         return True
 
     def add_thinking(self, task_id: str, content: str) -> bool:
@@ -226,11 +226,7 @@ class TaskManager:
         return True
 
     def add_tool_call(
-        self,
-        task_id: str,
-        tool: str,
-        args: dict[str, Any],
-        result: Any | None = None
+        self, task_id: str, tool: str, args: dict[str, Any], result: Any | None = None
     ) -> bool:
         """Record a tool call."""
         task = self._tasks.get(task_id)
@@ -241,7 +237,7 @@ class TaskManager:
             "tool": tool,
             "args": args,
             "result": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
         task.tool_calls.append(call)
 
@@ -327,10 +323,7 @@ class TaskManager:
 
     def clear_completed(self) -> int:
         """Remove all completed/failed/cancelled tasks."""
-        to_remove = [
-            tid for tid, task in self._tasks.items()
-            if not task.is_active
-        ]
+        to_remove = [tid for tid, task in self._tasks.items() if not task.is_active]
         for tid in to_remove:
             del self._tasks[tid]
         return len(to_remove)
@@ -348,16 +341,9 @@ class TaskManager:
     def off(self, event: TaskEvent, callback: Callable) -> None:
         """Remove an event listener."""
         if event in self._listeners:
-            self._listeners[event] = [
-                cb for cb in self._listeners[event] if cb != callback
-            ]
+            self._listeners[event] = [cb for cb in self._listeners[event] if cb != callback]
 
-    def _emit(
-        self,
-        event: TaskEvent,
-        task: Task,
-        data: dict | None = None
-    ) -> None:
+    def _emit(self, event: TaskEvent, task: Task, data: dict | None = None) -> None:
         """Emit an event to all listeners."""
         listeners = self._listeners.get(event, [])
         for listener in listeners:

@@ -198,13 +198,11 @@ class LabelStudioAdapter(IDataAnnotator):
         }
 
         # Calculate in_progress
-        progress["in_progress"] = (
-            progress["total"] - progress["completed"] - progress["skipped"]
-        )
+        progress["in_progress"] = progress["total"] - progress["completed"] - progress["skipped"]
 
         logger.info(
             f"Progress: {progress['completed']}/{progress['total']} completed "
-            f"({progress['completed']/progress['total']*100:.1f}%)"
+            f"({progress['completed'] / progress['total'] * 100:.1f}%)"
             if progress["total"] > 0
             else "Progress: No tasks"
         )
@@ -226,9 +224,7 @@ class LabelStudioAdapter(IDataAnnotator):
             The ML backend should implement Label Studio's ML Backend API.
             It will be called to generate predictions for new tasks.
         """
-        logger.info(
-            f"Enabling ML backend for project {project_id} at {model_url}"
-        )
+        logger.info(f"Enabling ML backend for project {project_id} at {model_url}")
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             # First, create the ML backend
@@ -353,9 +349,7 @@ class LabelStudioAdapter(IDataAnnotator):
         Returns:
             XML labeling configuration
         """
-        choices = "\n    ".join(
-            f'<Choice value="{cls}"/>' for cls in classes
-        )
+        choices = "\n    ".join(f'<Choice value="{cls}"/>' for cls in classes)
 
         return f"""<View>
   <Text name="{field_name}" value="${field_name}"/>

@@ -68,17 +68,11 @@ except ImportError:
 
 # ===== CUSTOM WIDGETS =====
 
+
 class MetricCard(Static):
     """Widget pour afficher une métrique"""
 
-    def __init__(
-        self,
-        title: str,
-        value: str = "0",
-        unit: str = "",
-        color: str = "cyan",
-        **kwargs
-    ):
+    def __init__(self, title: str, value: str = "0", unit: str = "", color: str = "cyan", **kwargs):
         super().__init__(**kwargs)
         self.title = title
         self.metric_value = value
@@ -265,6 +259,7 @@ class AgentsTable(Static):
 
 # ===== SCREENS =====
 
+
 class DashboardScreen(Screen):
     """Écran principal de dashboard"""
 
@@ -323,14 +318,14 @@ class AgentsScreen(Screen):
                 yield Select(
                     [("ML Engineer", "ml"), ("Data Analyst", "data"), ("Optimizer", "opt")],
                     prompt="Select agent type",
-                    id="agent-type-select"
+                    id="agent-type-select",
                 )
 
                 yield Label("Priority:")
                 yield Select(
                     [("High", "high"), ("Medium", "medium"), ("Low", "low")],
                     prompt="Select priority",
-                    id="priority-select"
+                    id="priority-select",
                 )
 
                 yield Label("Max Retries:")
@@ -412,7 +407,7 @@ class SettingsScreen(Screen):
                     yield Select(
                         [("Sunset", "sunset"), ("Ocean", "ocean"), ("Forest", "forest")],
                         prompt="Select theme",
-                        id="theme-select"
+                        id="theme-select",
                     )
 
                 with Horizontal():
@@ -443,7 +438,7 @@ class SettingsScreen(Screen):
                 yield Select(
                     [("DEBUG", "debug"), ("INFO", "info"), ("WARNING", "warning")],
                     prompt="Select log level",
-                    id="loglevel-select"
+                    id="loglevel-select",
                 )
 
                 yield Label("Timeout (seconds):")
@@ -475,6 +470,7 @@ class SettingsScreen(Screen):
 
 
 # ===== MAIN APP =====
+
 
 class TawizaTUI(App):
     """Application TUI principale Tawiza-V2"""
@@ -593,6 +589,7 @@ class TawizaTUI(App):
 
 
 # ===== MAIN =====
+
 
 def main():
     """Run the TUI app"""

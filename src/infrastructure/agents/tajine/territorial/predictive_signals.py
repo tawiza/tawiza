@@ -22,14 +22,16 @@ from loguru import logger
 
 class SignalSeverity(Enum):
     """Niveau de sévérité d'un signal."""
-    INFO = "info"           # Observation, pas d'action requise
-    WARNING = "warning"     # À surveiller
-    ALERT = "alert"         # Action recommandée
-    CRITICAL = "critical"   # Action urgente
+
+    INFO = "info"  # Observation, pas d'action requise
+    WARNING = "warning"  # À surveiller
+    ALERT = "alert"  # Action recommandée
+    CRITICAL = "critical"  # Action urgente
 
 
 class SignalType(Enum):
     """Types de signaux prédictifs."""
+
     STRESS_ENTREPRISES = "stress_entreprises"
     HEMORRAGIE = "hemorragie"
     TENSION_EMPLOI = "tension_emploi"
@@ -47,6 +49,7 @@ class SignalType(Enum):
 @dataclass
 class PredictiveSignal:
     """Un signal prédictif détecté."""
+
     signal_type: SignalType
     severity: SignalSeverity
     territory_code: str
@@ -97,14 +100,14 @@ class PredictiveSignalDetector:
 
     # Seuils de détection
     THRESHOLDS = {
-        "stress_ratio": 3.0,           # modifications / créations
-        "hemorragie_ratio": 1.5,       # fermetures / créations
-        "tension_emploi": 0.3,         # offres / demandeurs
-        "procedures_variation": 0.5,   # +50% vs période précédente
-        "chomage_critique": 12.0,      # Taux de chômage %
-        "prix_immo_variation": 0.15,   # +15% vs M-3
-        "vitality_drop": 10.0,         # Chute de vitalité en 30j
-        "dynamisme_exceptionnel": 70.0, # Vitalité exceptionnelle
+        "stress_ratio": 3.0,  # modifications / créations
+        "hemorragie_ratio": 1.5,  # fermetures / créations
+        "tension_emploi": 0.3,  # offres / demandeurs
+        "procedures_variation": 0.5,  # +50% vs période précédente
+        "chomage_critique": 12.0,  # Taux de chômage %
+        "prix_immo_variation": 0.15,  # +15% vs M-3
+        "vitality_drop": 10.0,  # Chute de vitalité en 30j
+        "dynamisme_exceptionnel": 70.0,  # Vitalité exceptionnelle
     }
 
     def __init__(self):
@@ -115,6 +118,7 @@ class PredictiveSignalDetector:
         """Lazy loading du store d'historique."""
         if self._history_store is None:
             from src.infrastructure.persistence.territorial_history import get_history_store
+
             self._history_store = get_history_store()
         return self._history_store
 
@@ -152,24 +156,18 @@ class PredictiveSignalDetector:
             signals.append(signal)
 
         # 2. Signal HEMORRAGIE
-        signal = self._check_hemorragie(
-            territory_code, territory_name, current_metrics, now
-        )
+        signal = self._check_hemorragie(territory_code, territory_name, current_metrics, now)
         if signal:
             signals.append(signal)
 
         # 3. Signal CHOMAGE_CRITIQUE
-        signal = self._check_chomage_critique(
-            territory_code, territory_name, current_metrics, now
-        )
+        signal = self._check_chomage_critique(territory_code, territory_name, current_metrics, now)
         if signal:
             signals.append(signal)
 
         # 4. Signal ACCELERATION_NEGATIVE (si historique disponible)
         if trends:
-            signal = self._check_acceleration_negative(
-                territory_code, territory_name, trends, now
-            )
+            signal = self._check_acceleration_negative(territory_code, territory_name, trends, now)
             if signal:
                 signals.append(signal)
 
@@ -222,7 +220,7 @@ class PredictiveSignalDetector:
                 detected_at=now,
                 title="Stress entreprises élevé",
                 description=f"Ratio modifications/créations de {ratio:.1f} (seuil: {threshold}). "
-                           f"Les entreprises existantes subissent beaucoup de changements.",
+                f"Les entreprises existantes subissent beaucoup de changements.",
                 value=ratio,
                 threshold=threshold,
                 recommendation="Analyser les types de modifications (changement d'activité, restructuration, etc.)",
@@ -241,7 +239,7 @@ class PredictiveSignalDetector:
             return None
 
         if creations == 0:
-            ratio = float('inf')
+            ratio = float("inf")
         else:
             ratio = closures / creations
 
@@ -257,7 +255,7 @@ class PredictiveSignalDetector:
                 detected_at=now,
                 title="Hémorragie entrepreneuriale",
                 description=f"Ratio fermetures/créations de {ratio:.1f} (seuil: {threshold}). "
-                           f"Le territoire perd plus d'entreprises qu'il n'en crée.",
+                f"Le territoire perd plus d'entreprises qu'il n'en crée.",
                 value=ratio,
                 threshold=threshold,
                 trend="falling",
@@ -282,7 +280,7 @@ class PredictiveSignalDetector:
                 detected_at=now,
                 title="Chômage critique",
                 description=f"Taux de chômage de {unemployment:.1f}% (seuil: {threshold}%). "
-                           f"Bien au-dessus de la moyenne nationale (~7%).",
+                f"Bien au-dessus de la moyenne nationale (~7%).",
                 value=unemployment,
                 threshold=threshold,
                 recommendation="Analyser les secteurs porteurs et les formations disponibles",
@@ -307,7 +305,7 @@ class PredictiveSignalDetector:
                 detected_at=now,
                 title="Dégradation rapide",
                 description=f"La vitalité a chuté de {abs(vitality_change):.1f} points en 30 jours. "
-                           f"Tendance préoccupante.",
+                f"Tendance préoccupante.",
                 value=vitality_change,
                 threshold=threshold,
                 trend="falling",
@@ -332,7 +330,7 @@ class PredictiveSignalDetector:
                 detected_at=now,
                 title="🌟 Dynamisme exceptionnel",
                 description=f"Indice de vitalité de {vitality:.1f} (seuil: {threshold}). "
-                           f"Territoire particulièrement attractif.",
+                f"Territoire particulièrement attractif.",
                 value=vitality,
                 threshold=threshold,
                 trend="rising",
@@ -351,43 +349,47 @@ class PredictiveSignalDetector:
         in_crisis = sector_analysis.get("summary", {}).get("in_crisis", [])
         for sector in in_crisis:
             if sector.get("net_creation", 0) <= -3:  # Au moins 3 fermetures nettes
-                signals.append(PredictiveSignal(
-                    signal_type=SignalType.SECTEUR_CRISE,
-                    severity=SignalSeverity.WARNING,
-                    territory_code=code,
-                    territory_name=name,
-                    detected_at=now,
-                    title=f"Secteur en crise : {sector['short_name']}",
-                    description=f"Le secteur {sector['name']} affiche un solde de "
-                               f"{sector['net_creation']} (créations - fermetures).",
-                    value=float(sector["net_creation"]),
-                    threshold=-3.0,
-                    sector=sector["code"],
-                    trend="falling",
-                    recommendation=f"Analyser les causes spécifiques au secteur {sector['short_name']}",
-                    data_sources=["BODACC"],
-                ))
+                signals.append(
+                    PredictiveSignal(
+                        signal_type=SignalType.SECTEUR_CRISE,
+                        severity=SignalSeverity.WARNING,
+                        territory_code=code,
+                        territory_name=name,
+                        detected_at=now,
+                        title=f"Secteur en crise : {sector['short_name']}",
+                        description=f"Le secteur {sector['name']} affiche un solde de "
+                        f"{sector['net_creation']} (créations - fermetures).",
+                        value=float(sector["net_creation"]),
+                        threshold=-3.0,
+                        sector=sector["code"],
+                        trend="falling",
+                        recommendation=f"Analyser les causes spécifiques au secteur {sector['short_name']}",
+                        data_sources=["BODACC"],
+                    )
+                )
 
         # Secteurs émergents (beaucoup de créations, peu de fermetures)
         top_creators = sector_analysis.get("summary", {}).get("top_creators", [])
         for sector in top_creators[:2]:  # Top 2
             if sector.get("creations", 0) >= 5 and sector.get("closures", 0) == 0:
-                signals.append(PredictiveSignal(
-                    signal_type=SignalType.SECTEUR_EMERGENT,
-                    severity=SignalSeverity.INFO,
-                    territory_code=code,
-                    territory_name=name,
-                    detected_at=now,
-                    title=f"🚀 Secteur émergent : {sector['short_name']}",
-                    description=f"Le secteur {sector['name']} affiche {sector['creations']} "
-                               f"créations sans fermeture.",
-                    value=float(sector["creations"]),
-                    threshold=5.0,
-                    sector=sector["code"],
-                    trend="rising",
-                    recommendation=f"Opportunité : accompagner le développement du secteur {sector['short_name']}",
-                    data_sources=["BODACC"],
-                ))
+                signals.append(
+                    PredictiveSignal(
+                        signal_type=SignalType.SECTEUR_EMERGENT,
+                        severity=SignalSeverity.INFO,
+                        territory_code=code,
+                        territory_name=name,
+                        detected_at=now,
+                        title=f"🚀 Secteur émergent : {sector['short_name']}",
+                        description=f"Le secteur {sector['name']} affiche {sector['creations']} "
+                        f"créations sans fermeture.",
+                        value=float(sector["creations"]),
+                        threshold=5.0,
+                        sector=sector["code"],
+                        trend="rising",
+                        recommendation=f"Opportunité : accompagner le développement du secteur {sector['short_name']}",
+                        data_sources=["BODACC"],
+                    )
+                )
 
         return signals
 

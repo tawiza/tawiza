@@ -7,15 +7,17 @@ from enum import Enum
 
 class InteractionMode(Enum):
     """Available interaction modes."""
-    QUICK = "quick"              # Simple, instant response
-    AUTONOMOUS = "autonomous"    # Multi-step, agent handles it
-    SUPERVISED = "supervised"    # Human-in-the-loop for risky ops
+
+    QUICK = "quick"  # Simple, instant response
+    AUTONOMOUS = "autonomous"  # Multi-step, agent handles it
+    SUPERVISED = "supervised"  # Human-in-the-loop for risky ops
     CONVERSATIONAL = "conversational"  # Exploratory dialogue
 
 
 @dataclass
 class DetectionResult:
     """Result of mode detection."""
+
     mode: InteractionMode
     confidence: float  # 0.0 to 1.0
     reasoning: str

@@ -1,4 +1,5 @@
 """AdaptiveCrawler - Intelligent web crawling with MAB optimization."""
+
 from collections.abc import Callable
 from typing import Any
 
@@ -73,7 +74,9 @@ class AdaptiveCrawler:
                     requires_js=src.get("requires_js"),  # None = auto-detect
                 )
 
-        logger.info(f"AdaptiveCrawler initialized with {len(self.scheduler.arms)} sources (playwright={enable_playwright})")
+        logger.info(
+            f"AdaptiveCrawler initialized with {len(self.scheduler.arms)} sources (playwright={enable_playwright})"
+        )
 
     def add_source(
         self,
@@ -149,8 +152,7 @@ class AdaptiveCrawler:
 
         if result.success:
             parser = self._parser_registry.get_parser(
-                "application/json" if arm.source_type == SourceType.API else "text/html",
-                arm.url
+                "application/json" if arm.source_type == SourceType.API else "text/html", arm.url
             )
             if parser and result.content:
                 parsed = await parser.parse(result.content, arm.url)
@@ -164,23 +166,29 @@ class AdaptiveCrawler:
 
             arm.content_hash = result.content_hash
 
-            event_type = CrawlerEvent.SOURCE_CHANGED if content_changed else CrawlerEvent.SOURCE_CRAWLED
-            self._emit(CrawlerCallback(
-                event=event_type,
-                source_id=source_id,
-                url=arm.url,
-                data=result.extracted_data,
-                quality_score=quality
-            ))
+            event_type = (
+                CrawlerEvent.SOURCE_CHANGED if content_changed else CrawlerEvent.SOURCE_CRAWLED
+            )
+            self._emit(
+                CrawlerCallback(
+                    event=event_type,
+                    source_id=source_id,
+                    url=arm.url,
+                    data=result.extracted_data,
+                    quality_score=quality,
+                )
+            )
         else:
             self.scheduler.record_result(source_id, False)
 
-            self._emit(CrawlerCallback(
-                event=CrawlerEvent.SOURCE_ERROR,
-                source_id=source_id,
-                url=arm.url,
-                error=result.error
-            ))
+            self._emit(
+                CrawlerCallback(
+                    event=CrawlerEvent.SOURCE_ERROR,
+                    source_id=source_id,
+                    url=arm.url,
+                    error=result.error,
+                )
+            )
 
         return result.to_dict()
 

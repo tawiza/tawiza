@@ -25,6 +25,7 @@ from pydantic import BaseModel
 
 class CaptchaType(StrEnum):
     """CAPTCHA types supported."""
+
     RECAPTCHA_V2 = "recaptcha_v2"
     RECAPTCHA_V3 = "recaptcha_v3"
     HCAPTCHA = "hcaptcha"
@@ -35,6 +36,7 @@ class CaptchaType(StrEnum):
 
 class CaptchaSolution(BaseModel):
     """CAPTCHA solution result."""
+
     success: bool
     solution: str | None = None
     error: str | None = None
@@ -58,39 +60,22 @@ class CaptchaSolver:
         self.timeout = timeout
         self.client = httpx.AsyncClient(timeout=timeout)
 
-    async def solve_recaptcha_v2(
-        self,
-        site_key: str,
-        page_url: str,
-        **kwargs
-    ) -> CaptchaSolution:
+    async def solve_recaptcha_v2(self, site_key: str, page_url: str, **kwargs) -> CaptchaSolution:
         """Solve reCAPTCHA v2."""
         raise NotImplementedError
 
     async def solve_recaptcha_v3(
-        self,
-        site_key: str,
-        page_url: str,
-        action: str = "submit",
-        min_score: float = 0.3,
-        **kwargs
+        self, site_key: str, page_url: str, action: str = "submit", min_score: float = 0.3, **kwargs
     ) -> CaptchaSolution:
         """Solve reCAPTCHA v3."""
         raise NotImplementedError
 
-    async def solve_hcaptcha(
-        self,
-        site_key: str,
-        page_url: str,
-        **kwargs
-    ) -> CaptchaSolution:
+    async def solve_hcaptcha(self, site_key: str, page_url: str, **kwargs) -> CaptchaSolution:
         """Solve hCaptcha."""
         raise NotImplementedError
 
     async def solve_image_captcha(
-        self,
-        image_data: bytes | str | Path,
-        **kwargs
+        self, image_data: bytes | str | Path, **kwargs
     ) -> CaptchaSolution:
         """Solve image-based CAPTCHA."""
         raise NotImplementedError
@@ -109,14 +94,10 @@ class TwoCaptchaSolver(CaptchaSolver):
 
     BASE_URL = "https://2captcha.com"
 
-    async def solve_recaptcha_v2(
-        self,
-        site_key: str,
-        page_url: str,
-        **kwargs
-    ) -> CaptchaSolution:
+    async def solve_recaptcha_v2(self, site_key: str, page_url: str, **kwargs) -> CaptchaSolution:
         """Solve reCAPTCHA v2 using 2Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -129,7 +110,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     "googlekey": site_key,
                     "pageurl": page_url,
                     "json": 1,
-                }
+                },
             )
 
             submit_data = submit_response.json()
@@ -141,7 +122,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="2captcha",
-                    captcha_type=CaptchaType.RECAPTCHA_V2
+                    captcha_type=CaptchaType.RECAPTCHA_V2,
                 )
 
             task_id = submit_data["request"]
@@ -159,7 +140,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         "action": "get",
                         "id": task_id,
                         "json": 1,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -174,7 +155,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="2captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V2
+                        captcha_type=CaptchaType.RECAPTCHA_V2,
                     )
 
                 if result_data.get("request") != "CAPCHA_NOT_READY":
@@ -184,14 +165,14 @@ class TwoCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="2captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V2
+                        captcha_type=CaptchaType.RECAPTCHA_V2,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="2captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V2
+                captcha_type=CaptchaType.RECAPTCHA_V2,
             )
 
         except Exception as e:
@@ -200,19 +181,15 @@ class TwoCaptchaSolver(CaptchaSolver):
                 success=False,
                 error=str(e),
                 provider="2captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V2
+                captcha_type=CaptchaType.RECAPTCHA_V2,
             )
 
     async def solve_recaptcha_v3(
-        self,
-        site_key: str,
-        page_url: str,
-        action: str = "submit",
-        min_score: float = 0.3,
-        **kwargs
+        self, site_key: str, page_url: str, action: str = "submit", min_score: float = 0.3, **kwargs
     ) -> CaptchaSolution:
         """Solve reCAPTCHA v3 using 2Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -227,7 +204,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     "action": action,
                     "min_score": min_score,
                     "json": 1,
-                }
+                },
             )
 
             submit_data = submit_response.json()
@@ -238,7 +215,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="2captcha",
-                    captcha_type=CaptchaType.RECAPTCHA_V3
+                    captcha_type=CaptchaType.RECAPTCHA_V3,
                 )
 
             task_id = submit_data["request"]
@@ -256,7 +233,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         "action": "get",
                         "id": task_id,
                         "json": 1,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -271,7 +248,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="2captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V3
+                        captcha_type=CaptchaType.RECAPTCHA_V3,
                     )
 
                 if result_data.get("request") != "CAPCHA_NOT_READY":
@@ -280,14 +257,14 @@ class TwoCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="2captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V3
+                        captcha_type=CaptchaType.RECAPTCHA_V3,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="2captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V3
+                captcha_type=CaptchaType.RECAPTCHA_V3,
             )
 
         except Exception as e:
@@ -296,17 +273,13 @@ class TwoCaptchaSolver(CaptchaSolver):
                 success=False,
                 error=str(e),
                 provider="2captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V3
+                captcha_type=CaptchaType.RECAPTCHA_V3,
             )
 
-    async def solve_hcaptcha(
-        self,
-        site_key: str,
-        page_url: str,
-        **kwargs
-    ) -> CaptchaSolution:
+    async def solve_hcaptcha(self, site_key: str, page_url: str, **kwargs) -> CaptchaSolution:
         """Solve hCaptcha using 2Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -318,7 +291,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     "sitekey": site_key,
                     "pageurl": page_url,
                     "json": 1,
-                }
+                },
             )
 
             submit_data = submit_response.json()
@@ -329,7 +302,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="2captcha",
-                    captcha_type=CaptchaType.HCAPTCHA
+                    captcha_type=CaptchaType.HCAPTCHA,
                 )
 
             task_id = submit_data["request"]
@@ -347,7 +320,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         "action": "get",
                         "id": task_id,
                         "json": 1,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -362,7 +335,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="2captcha",
-                        captcha_type=CaptchaType.HCAPTCHA
+                        captcha_type=CaptchaType.HCAPTCHA,
                     )
 
                 if result_data.get("request") != "CAPCHA_NOT_READY":
@@ -371,32 +344,28 @@ class TwoCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="2captcha",
-                        captcha_type=CaptchaType.HCAPTCHA
+                        captcha_type=CaptchaType.HCAPTCHA,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="2captcha",
-                captcha_type=CaptchaType.HCAPTCHA
+                captcha_type=CaptchaType.HCAPTCHA,
             )
 
         except Exception as e:
             logger.exception("2Captcha hCaptcha solving error")
             return CaptchaSolution(
-                success=False,
-                error=str(e),
-                provider="2captcha",
-                captcha_type=CaptchaType.HCAPTCHA
+                success=False, error=str(e), provider="2captcha", captcha_type=CaptchaType.HCAPTCHA
             )
 
     async def solve_image_captcha(
-        self,
-        image_data: bytes | str | Path,
-        **kwargs
+        self, image_data: bytes | str | Path, **kwargs
     ) -> CaptchaSolution:
         """Solve image CAPTCHA using 2Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -416,7 +385,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     "method": "base64",
                     "body": image_b64,
                     "json": 1,
-                }
+                },
             )
 
             submit_data = submit_response.json()
@@ -427,7 +396,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="2captcha",
-                    captcha_type=CaptchaType.IMAGE
+                    captcha_type=CaptchaType.IMAGE,
                 )
 
             task_id = submit_data["request"]
@@ -445,7 +414,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         "action": "get",
                         "id": task_id,
                         "json": 1,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -460,7 +429,7 @@ class TwoCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="2captcha",
-                        captcha_type=CaptchaType.IMAGE
+                        captcha_type=CaptchaType.IMAGE,
                     )
 
                 if result_data.get("request") != "CAPCHA_NOT_READY":
@@ -469,23 +438,20 @@ class TwoCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="2captcha",
-                        captcha_type=CaptchaType.IMAGE
+                        captcha_type=CaptchaType.IMAGE,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="2captcha",
-                captcha_type=CaptchaType.IMAGE
+                captcha_type=CaptchaType.IMAGE,
             )
 
         except Exception as e:
             logger.exception("2Captcha image solving error")
             return CaptchaSolution(
-                success=False,
-                error=str(e),
-                provider="2captcha",
-                captcha_type=CaptchaType.IMAGE
+                success=False, error=str(e), provider="2captcha", captcha_type=CaptchaType.IMAGE
             )
 
 
@@ -498,14 +464,10 @@ class AntiCaptchaSolver(CaptchaSolver):
 
     BASE_URL = "https://api.anti-captcha.com"
 
-    async def solve_recaptcha_v2(
-        self,
-        site_key: str,
-        page_url: str,
-        **kwargs
-    ) -> CaptchaSolution:
+    async def solve_recaptcha_v2(self, site_key: str, page_url: str, **kwargs) -> CaptchaSolution:
         """Solve reCAPTCHA v2 using Anti-Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -518,8 +480,8 @@ class AntiCaptchaSolver(CaptchaSolver):
                         "type": "NoCaptchaTaskProxyless",
                         "websiteURL": page_url,
                         "websiteKey": site_key,
-                    }
-                }
+                    },
+                },
             )
 
             create_data = create_response.json()
@@ -531,7 +493,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="anti-captcha",
-                    captcha_type=CaptchaType.RECAPTCHA_V2
+                    captcha_type=CaptchaType.RECAPTCHA_V2,
                 )
 
             task_id = create_data["taskId"]
@@ -547,7 +509,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     json={
                         "clientKey": self.api_key,
                         "taskId": task_id,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -558,7 +520,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V2
+                        captcha_type=CaptchaType.RECAPTCHA_V2,
                     )
 
                 if result_data.get("status") == "ready":
@@ -571,14 +533,14 @@ class AntiCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V2
+                        captcha_type=CaptchaType.RECAPTCHA_V2,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="anti-captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V2
+                captcha_type=CaptchaType.RECAPTCHA_V2,
             )
 
         except Exception as e:
@@ -587,19 +549,15 @@ class AntiCaptchaSolver(CaptchaSolver):
                 success=False,
                 error=str(e),
                 provider="anti-captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V2
+                captcha_type=CaptchaType.RECAPTCHA_V2,
             )
 
     async def solve_recaptcha_v3(
-        self,
-        site_key: str,
-        page_url: str,
-        action: str = "submit",
-        min_score: float = 0.3,
-        **kwargs
+        self, site_key: str, page_url: str, action: str = "submit", min_score: float = 0.3, **kwargs
     ) -> CaptchaSolution:
         """Solve reCAPTCHA v3 using Anti-Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -613,8 +571,8 @@ class AntiCaptchaSolver(CaptchaSolver):
                         "websiteKey": site_key,
                         "minScore": min_score,
                         "pageAction": action,
-                    }
-                }
+                    },
+                },
             )
 
             create_data = create_response.json()
@@ -625,7 +583,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="anti-captcha",
-                    captcha_type=CaptchaType.RECAPTCHA_V3
+                    captcha_type=CaptchaType.RECAPTCHA_V3,
                 )
 
             task_id = create_data["taskId"]
@@ -641,7 +599,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     json={
                         "clientKey": self.api_key,
                         "taskId": task_id,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -652,7 +610,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V3
+                        captcha_type=CaptchaType.RECAPTCHA_V3,
                     )
 
                 if result_data.get("status") == "ready":
@@ -665,14 +623,14 @@ class AntiCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.RECAPTCHA_V3
+                        captcha_type=CaptchaType.RECAPTCHA_V3,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="anti-captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V3
+                captcha_type=CaptchaType.RECAPTCHA_V3,
             )
 
         except Exception as e:
@@ -681,17 +639,13 @@ class AntiCaptchaSolver(CaptchaSolver):
                 success=False,
                 error=str(e),
                 provider="anti-captcha",
-                captcha_type=CaptchaType.RECAPTCHA_V3
+                captcha_type=CaptchaType.RECAPTCHA_V3,
             )
 
-    async def solve_hcaptcha(
-        self,
-        site_key: str,
-        page_url: str,
-        **kwargs
-    ) -> CaptchaSolution:
+    async def solve_hcaptcha(self, site_key: str, page_url: str, **kwargs) -> CaptchaSolution:
         """Solve hCaptcha using Anti-Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -703,8 +657,8 @@ class AntiCaptchaSolver(CaptchaSolver):
                         "type": "HCaptchaTaskProxyless",
                         "websiteURL": page_url,
                         "websiteKey": site_key,
-                    }
-                }
+                    },
+                },
             )
 
             create_data = create_response.json()
@@ -715,7 +669,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="anti-captcha",
-                    captcha_type=CaptchaType.HCAPTCHA
+                    captcha_type=CaptchaType.HCAPTCHA,
                 )
 
             task_id = create_data["taskId"]
@@ -731,7 +685,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     json={
                         "clientKey": self.api_key,
                         "taskId": task_id,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -742,7 +696,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.HCAPTCHA
+                        captcha_type=CaptchaType.HCAPTCHA,
                     )
 
                 if result_data.get("status") == "ready":
@@ -755,14 +709,14 @@ class AntiCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.HCAPTCHA
+                        captcha_type=CaptchaType.HCAPTCHA,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="anti-captcha",
-                captcha_type=CaptchaType.HCAPTCHA
+                captcha_type=CaptchaType.HCAPTCHA,
             )
 
         except Exception as e:
@@ -771,16 +725,15 @@ class AntiCaptchaSolver(CaptchaSolver):
                 success=False,
                 error=str(e),
                 provider="anti-captcha",
-                captcha_type=CaptchaType.HCAPTCHA
+                captcha_type=CaptchaType.HCAPTCHA,
             )
 
     async def solve_image_captcha(
-        self,
-        image_data: bytes | str | Path,
-        **kwargs
+        self, image_data: bytes | str | Path, **kwargs
     ) -> CaptchaSolution:
         """Solve image CAPTCHA using Anti-Captcha."""
         import time
+
         start_time = time.time()
 
         try:
@@ -807,8 +760,8 @@ class AntiCaptchaSolver(CaptchaSolver):
                         "math": kwargs.get("math", False),
                         "minLength": kwargs.get("min_length", 0),
                         "maxLength": kwargs.get("max_length", 0),
-                    }
-                }
+                    },
+                },
             )
 
             create_data = create_response.json()
@@ -820,7 +773,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     success=False,
                     error=error_msg,
                     provider="anti-captcha",
-                    captcha_type=CaptchaType.IMAGE
+                    captcha_type=CaptchaType.IMAGE,
                 )
 
             task_id = create_data["taskId"]
@@ -836,7 +789,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                     json={
                         "clientKey": self.api_key,
                         "taskId": task_id,
-                    }
+                    },
                 )
 
                 result_data = result_response.json()
@@ -847,7 +800,7 @@ class AntiCaptchaSolver(CaptchaSolver):
                         success=False,
                         error=error_msg,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.IMAGE
+                        captcha_type=CaptchaType.IMAGE,
                     )
 
                 if result_data.get("status") == "ready":
@@ -860,23 +813,20 @@ class AntiCaptchaSolver(CaptchaSolver):
                         solution=solution,
                         solve_time=solve_time,
                         provider="anti-captcha",
-                        captcha_type=CaptchaType.IMAGE
+                        captcha_type=CaptchaType.IMAGE,
                     )
 
             return CaptchaSolution(
                 success=False,
                 error="Timeout waiting for solution",
                 provider="anti-captcha",
-                captcha_type=CaptchaType.IMAGE
+                captcha_type=CaptchaType.IMAGE,
             )
 
         except Exception as e:
             logger.exception("Anti-Captcha image solving error")
             return CaptchaSolution(
-                success=False,
-                error=str(e),
-                provider="anti-captcha",
-                captcha_type=CaptchaType.IMAGE
+                success=False, error=str(e), provider="anti-captcha", captcha_type=CaptchaType.IMAGE
             )
 
 
@@ -885,9 +835,7 @@ _solver_instance: CaptchaSolver | None = None
 
 
 def get_captcha_solver(
-    provider: str = "2captcha",
-    api_key: str | None = None,
-    timeout: int = 120
+    provider: str = "2captcha", api_key: str | None = None, timeout: int = 120
 ) -> CaptchaSolver:
     """
     Get CAPTCHA solver instance.
@@ -923,7 +871,7 @@ if __name__ == "__main__":
         # Solve reCAPTCHA v2
         result = await solver.solve_recaptcha_v2(
             site_key="6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-",
-            page_url="https://www.google.com/recaptcha/api2/demo"
+            page_url="https://www.google.com/recaptcha/api2/demo",
         )
 
         print(f"Success: {result.success}")

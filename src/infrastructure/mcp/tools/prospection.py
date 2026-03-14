@@ -18,6 +18,7 @@ from mcp.server.fastmcp import Context, FastMCP
 @dataclass
 class Lead:
     """A scored and enriched lead."""
+
     siret: str
     nom: str
     score: int  # 0-100
@@ -61,21 +62,21 @@ class Lead:
 
 # Scoring weights
 SCORING_WEIGHTS = {
-    "effectif": 30,        # Company size
-    "recent_creation": 15, # Created in last 3 years
-    "sector_match": 25,    # Matches target sectors
-    "location": 15,        # In target location
-    "web_presence": 15,    # Has website/digital presence
+    "effectif": 30,  # Company size
+    "recent_creation": 15,  # Created in last 3 years
+    "sector_match": 25,  # Matches target sectors
+    "location": 15,  # In target location
+    "web_presence": 15,  # Has website/digital presence
 }
 
 TARGET_SECTORS = [
-    "62",   # Programmation, conseil informatique
-    "63",   # Services d'information
-    "70",   # Conseil de gestion
-    "71",   # Architecture, ingénierie
-    "72",   # R&D scientifique
-    "73",   # Publicité, études de marché
-    "74",   # Autres activités spécialisées
+    "62",  # Programmation, conseil informatique
+    "63",  # Services d'information
+    "70",  # Conseil de gestion
+    "71",  # Architecture, ingénierie
+    "72",  # R&D scientifique
+    "73",  # Publicité, études de marché
+    "74",  # Autres activités spécialisées
 ]
 
 
@@ -108,17 +109,21 @@ async def check_financial_health(siren: str) -> dict:
         adapter = BodaccAdapter()
 
         # Check for collective procedures (bankruptcy, liquidation)
-        procedures = await adapter.search({
-            "siren": siren,
-            "type": "procedure",
-            "limit": 5,
-        })
+        procedures = await adapter.search(
+            {
+                "siren": siren,
+                "type": "procedure",
+                "limit": 5,
+            }
+        )
 
         if procedures:
             # RED FLAG: Company has collective procedures
             recent_procedure = procedures[0]
             result["score"] = 0
-            result["detail"] = f"⚠️ Procédure collective détectée: {recent_procedure.get('type_label', 'procédure')}"
+            result["detail"] = (
+                f"⚠️ Procédure collective détectée: {recent_procedure.get('type_label', 'procédure')}"
+            )
             result["risk_level"] = "critical"
             result["events"] = [
                 {
@@ -131,18 +136,22 @@ async def check_financial_health(siren: str) -> dict:
             return result
 
         # Check for recent modifications (capital changes, etc.)
-        modifications = await adapter.search({
-            "siren": siren,
-            "type": "modification",
-            "limit": 5,
-        })
+        modifications = await adapter.search(
+            {
+                "siren": siren,
+                "type": "modification",
+                "limit": 5,
+            }
+        )
 
         # Check for radiation (closure)
-        radiations = await adapter.search({
-            "siren": siren,
-            "type": "radiation",
-            "limit": 1,
-        })
+        radiations = await adapter.search(
+            {
+                "siren": siren,
+                "type": "radiation",
+                "limit": 1,
+            }
+        )
 
         if radiations:
             result["score"] = 0
@@ -174,11 +183,13 @@ async def check_financial_health(siren: str) -> dict:
         else:
             # No recent events - stable but check if company exists
             # Check for creation to confirm company exists
-            creations = await adapter.search({
-                "siren": siren,
-                "type": "creation",
-                "limit": 1,
-            })
+            creations = await adapter.search(
+                {
+                    "siren": siren,
+                    "type": "creation",
+                    "limit": 1,
+                }
+            )
 
             if creations:
                 result["score"] = 15
@@ -286,6 +297,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         if not enterprises:
             # Fallback to orchestrator
             from src.application.orchestration.data_orchestrator import DataOrchestrator
+
             orchestrator = DataOrchestrator()
             orch_result = await orchestrator.search(query=full_query, limit_per_source=limit * 2)
             for sr in orch_result.source_results:
@@ -294,10 +306,13 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         notify(f"[1/4] {len(enterprises)} entreprises trouvees", 20)
 
         if not enterprises:
-            return json.dumps({
-                "success": False,
-                "error": "Aucune entreprise trouvee",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Aucune entreprise trouvee",
+                },
+                ensure_ascii=False,
+            )
 
         # Step 2: Score leads
         notify("[2/4] Scoring des leads...", 30)
@@ -412,10 +427,14 @@ def register_prospection_tools(mcp: FastMCP) -> None:
 
                     if search_results:
                         # Extract website from first result
-                        first_result = search_results[0] if isinstance(search_results, list) else None
+                        first_result = (
+                            search_results[0] if isinstance(search_results, list) else None
+                        )
                         if first_result:
                             lead.website = first_result.get("url", first_result.get("link"))
-                            lead.description = first_result.get("snippet", first_result.get("description", ""))[:200]
+                            lead.description = first_result.get(
+                                "snippet", first_result.get("description", "")
+                            )[:200]
 
                             # Update web presence score
                             lead.score_details["web_presence"] = 15
@@ -433,7 +452,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
 
                 if i % 5 == 0:
                     progress = 50 + (30 * i / min(20, len(leads)))
-                    notify(f"[3/4] Enrichi {i+1}/{min(20, len(leads))}...", int(progress))
+                    notify(f"[3/4] Enrichi {i + 1}/{min(20, len(leads))}...", int(progress))
 
             notify(f"[3/4] {enriched_count} leads enrichis", 80)
         else:
@@ -445,6 +464,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
 
             try:
                 from src.infrastructure.llm import OllamaClient
+
                 client = OllamaClient(model="qwen3.5:27b")
 
                 for lead in leads[:10]:  # Limit to top 10
@@ -518,16 +538,22 @@ def register_prospection_tools(mcp: FastMCP) -> None:
             data = json.loads(leads_json)
             leads = data.get("leads", [])
         except json.JSONDecodeError:
-            return json.dumps({
-                "success": False,
-                "error": "JSON invalide",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "JSON invalide",
+                },
+                ensure_ascii=False,
+            )
 
         if not leads:
-            return json.dumps({
-                "success": False,
-                "error": "Aucun lead a exporter",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Aucun lead a exporter",
+                },
+                ensure_ascii=False,
+            )
 
         # Create export directory
         export_dir = Path.home() / ".tawiza" / "exports" / "prospects"
@@ -539,8 +565,19 @@ def register_prospection_tools(mcp: FastMCP) -> None:
             filename = f"leads_{timestamp}.csv"
             filepath = export_dir / filename
 
-            fieldnames = ["nom", "siret", "score", "tier", "commune", "effectif",
-                         "activite", "website", "email", "phone", "message"]
+            fieldnames = [
+                "nom",
+                "siret",
+                "score",
+                "tier",
+                "commune",
+                "effectif",
+                "activite",
+                "website",
+                "email",
+                "phone",
+                "message",
+            ]
 
             with open(filepath, "w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
@@ -553,22 +590,31 @@ def register_prospection_tools(mcp: FastMCP) -> None:
             filepath = export_dir / filename
 
             # HubSpot format mapping
-            fieldnames = ["Company name", "Company Domain Name", "Phone Number",
-                         "City", "Industry", "Number of Employees", "Description"]
+            fieldnames = [
+                "Company name",
+                "Company Domain Name",
+                "Phone Number",
+                "City",
+                "Industry",
+                "Number of Employees",
+                "Description",
+            ]
 
             with open(filepath, "w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 for lead in leads:
-                    writer.writerow({
-                        "Company name": lead.get("nom"),
-                        "Company Domain Name": lead.get("website", ""),
-                        "Phone Number": lead.get("phone", ""),
-                        "City": lead.get("commune"),
-                        "Industry": lead.get("activite"),
-                        "Number of Employees": lead.get("effectif"),
-                        "Description": lead.get("description", ""),
-                    })
+                    writer.writerow(
+                        {
+                            "Company name": lead.get("nom"),
+                            "Company Domain Name": lead.get("website", ""),
+                            "Phone Number": lead.get("phone", ""),
+                            "City": lead.get("commune"),
+                            "Industry": lead.get("activite"),
+                            "Number of Employees": lead.get("effectif"),
+                            "Description": lead.get("description", ""),
+                        }
+                    )
 
         else:  # json
             filename = f"leads_{timestamp}.json"
@@ -580,13 +626,16 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         if ctx:
             ctx.info(f"[Export] {len(leads)} leads exportes vers {filepath}")
 
-        return json.dumps({
-            "success": True,
-            "format": format,
-            "path": str(filepath),
-            "filename": filename,
-            "leads_count": len(leads),
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "success": True,
+                "format": format,
+                "path": str(filepath),
+                "filename": filename,
+                "leads_count": len(leads),
+            },
+            ensure_ascii=False,
+        )
 
     @mcp.tool()
     async def tawiza_generate_message(
@@ -609,6 +658,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         """
         try:
             from src.infrastructure.llm import OllamaClient
+
             client = OllamaClient(model="qwen3.5:27b")
 
             ton_desc = {
@@ -622,7 +672,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
 Entreprise cible: {entreprise}
 Secteur: {secteur}
 Offre: {offre}
-Ton: {ton_desc.get(ton, ton_desc['expert'])}
+Ton: {ton_desc.get(ton, ton_desc["expert"])}
 
 Contraintes:
 - 100-150 mots maximum
@@ -638,18 +688,25 @@ Message:"""
             if ctx:
                 ctx.info(f"[Message] Genere pour {entreprise}")
 
-            return json.dumps({
-                "success": True,
-                "entreprise": entreprise,
-                "message": response.strip(),
-                "ton": ton,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "entreprise": entreprise,
+                    "message": response.strip(),
+                    "ton": ton,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def tawiza_lead_score(
@@ -672,10 +729,13 @@ Message:"""
         try:
             result = sirene_get(siret=siret)
             if not result.get("success"):
-                return json.dumps({
-                    "success": False,
-                    "error": "Entreprise non trouvee",
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": "Entreprise non trouvee",
+                    },
+                    ensure_ascii=False,
+                )
 
             ent = result.get("enterprise", result)
 
@@ -756,7 +816,9 @@ Message:"""
                 scores["sante_financiere"]["score"] = financial_health["score"]
                 scores["sante_financiere"]["detail"] = financial_health["detail"]
                 # Add risk level and events to response
-                scores["sante_financiere"]["risk_level"] = financial_health.get("risk_level", "unknown")
+                scores["sante_financiere"]["risk_level"] = financial_health.get(
+                    "risk_level", "unknown"
+                )
                 if financial_health.get("events"):
                     scores["sante_financiere"]["events"] = financial_health["events"]
             else:
@@ -779,23 +841,30 @@ Message:"""
                 tier = "D"
                 recommendation = "Lead faible - nurturing long terme"
 
-            return json.dumps({
-                "success": True,
-                "siret": siret,
-                "nom": ent.get("nom", ent.get("name", "N/A")),
-                "score": total_score,
-                "max_score": max_score,
-                "percentage": round(total_score / max_score * 100),
-                "tier": tier,
-                "scores_detail": scores,
-                "recommendation": recommendation,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "siret": siret,
+                    "nom": ent.get("nom", ent.get("name", "N/A")),
+                    "score": total_score,
+                    "max_score": max_score,
+                    "percentage": round(total_score / max_score * 100),
+                    "tier": tier,
+                    "scores_detail": scores,
+                    "recommendation": recommendation,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def tawiza_financial_health(
@@ -825,6 +894,7 @@ Message:"""
 
             # Enrich with company name if possible
             from src.infrastructure.agents.camel.tools.territorial_tools import sirene_get
+
             try:
                 company_data = sirene_get(siret=siret)
                 if company_data.get("success"):
@@ -845,8 +915,7 @@ Message:"""
                 "unknown": "ℹ️ Données insuffisantes - vérification manuelle recommandée",
             }
             result["recommendation"] = risk_recommendations.get(
-                result.get("risk_level", "unknown"),
-                risk_recommendations["unknown"]
+                result.get("risk_level", "unknown"), risk_recommendations["unknown"]
             )
 
             if ctx:
@@ -855,8 +924,11 @@ Message:"""
             return json.dumps(result, ensure_ascii=False, indent=2, default=str)
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "siret": siret,
-                "error": str(e),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "siret": siret,
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )

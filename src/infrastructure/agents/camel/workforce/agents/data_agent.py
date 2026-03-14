@@ -3,7 +3,6 @@
 Collects enterprise data from Sirene API and other French public databases.
 """
 
-
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import FunctionTool
@@ -111,8 +110,7 @@ toute l'analyse.
 
 
 def create_data_agent(
-    model_id: str = "qwen3.5:27b",
-    base_url: str = "http://localhost:11434/v1"
+    model_id: str = "qwen3.5:27b", base_url: str = "http://localhost:11434/v1"
 ) -> ChatAgent:
     """Create a DataAgent for territorial data collection.
 

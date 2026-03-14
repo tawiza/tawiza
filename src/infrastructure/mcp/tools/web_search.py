@@ -35,7 +35,8 @@ def register_web_search_tools(mcp: FastMCP) -> None:
             import warnings
 
             from duckduckgo_search import DDGS
-            warnings.filterwarnings('ignore')
+
+            warnings.filterwarnings("ignore")
 
             if ctx:
                 ctx.info(f"[WebSearch] Searching: {query}")
@@ -51,12 +52,14 @@ def register_web_search_tools(mcp: FastMCP) -> None:
                         # Filter out non-French/English results for French queries
                         url = r.get("href", "")
                         if ".cn" not in url and "baidu" not in url:
-                            results.append({
-                                "title": r.get("title", ""),
-                                "url": url,
-                                "description": r.get("body", ""),
-                                "type": "web",
-                            })
+                            results.append(
+                                {
+                                    "title": r.get("title", ""),
+                                    "url": url,
+                                    "description": r.get("body", ""),
+                                    "type": "web",
+                                }
+                            )
                 except Exception as e:
                     logger.debug(f"Text search failed: {e}")
                     pass
@@ -65,14 +68,16 @@ def register_web_search_tools(mcp: FastMCP) -> None:
             if (search_type == "auto" and len(results) < 3) or search_type == "news":
                 try:
                     for r in ddgs.news(query, region=region, max_results=limit):
-                        results.append({
-                            "title": r.get("title", ""),
-                            "url": r.get("url", ""),
-                            "description": r.get("body", ""),
-                            "source": r.get("source", ""),
-                            "date": r.get("date", ""),
-                            "type": "news",
-                        })
+                        results.append(
+                            {
+                                "title": r.get("title", ""),
+                                "url": r.get("url", ""),
+                                "description": r.get("body", ""),
+                                "source": r.get("source", ""),
+                                "date": r.get("date", ""),
+                                "type": "news",
+                            }
+                        )
                 except Exception as e:
                     logger.debug(f"News search failed: {e}")
                     pass
@@ -91,19 +96,26 @@ def register_web_search_tools(mcp: FastMCP) -> None:
                 ctx.info(f"[WebSearch] Found {len(results)} results")
                 ctx.report_progress(100, 100, f"Found {len(results)} results")
 
-            return json.dumps({
-                "success": True,
-                "query": query,
-                "count": len(results),
-                "results": results,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "query": query,
+                    "count": len(results),
+                    "results": results,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "query": query,
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "query": query,
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def web_search_news(
@@ -131,31 +143,40 @@ def register_web_search_tools(mcp: FastMCP) -> None:
             results = []
             with DDGS() as ddgs:
                 for r in ddgs.news(query, region=region, max_results=limit):
-                    results.append({
-                        "title": r.get("title", ""),
-                        "url": r.get("url", ""),
-                        "source": r.get("source", ""),
-                        "date": r.get("date", ""),
-                        "description": r.get("body", ""),
-                        "image": r.get("image", ""),
-                    })
+                    results.append(
+                        {
+                            "title": r.get("title", ""),
+                            "url": r.get("url", ""),
+                            "source": r.get("source", ""),
+                            "date": r.get("date", ""),
+                            "description": r.get("body", ""),
+                            "image": r.get("image", ""),
+                        }
+                    )
 
             if ctx:
                 ctx.info(f"[WebSearch] Found {len(results)} news articles")
 
-            return json.dumps({
-                "success": True,
-                "query": query,
-                "count": len(results),
-                "results": results,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "query": query,
+                    "count": len(results),
+                    "results": results,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "query": query,
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "query": query,
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def web_search_images(
@@ -183,31 +204,40 @@ def register_web_search_tools(mcp: FastMCP) -> None:
             results = []
             with DDGS() as ddgs:
                 for r in ddgs.images(query, region=region, max_results=limit):
-                    results.append({
-                        "title": r.get("title", ""),
-                        "url": r.get("image", ""),
-                        "thumbnail": r.get("thumbnail", ""),
-                        "source": r.get("source", ""),
-                        "width": r.get("width"),
-                        "height": r.get("height"),
-                    })
+                    results.append(
+                        {
+                            "title": r.get("title", ""),
+                            "url": r.get("image", ""),
+                            "thumbnail": r.get("thumbnail", ""),
+                            "source": r.get("source", ""),
+                            "width": r.get("width"),
+                            "height": r.get("height"),
+                        }
+                    )
 
             if ctx:
                 ctx.info(f"[WebSearch] Found {len(results)} images")
 
-            return json.dumps({
-                "success": True,
-                "query": query,
-                "count": len(results),
-                "results": results,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "query": query,
+                    "count": len(results),
+                    "results": results,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "query": query,
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "query": query,
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def web_search_maps(
@@ -237,32 +267,41 @@ def register_web_search_tools(mcp: FastMCP) -> None:
             results = []
             with DDGS() as ddgs:
                 for r in ddgs.maps(search_query, max_results=limit):
-                    results.append({
-                        "name": r.get("title", ""),
-                        "address": r.get("address", ""),
-                        "phone": r.get("phone", ""),
-                        "url": r.get("url", ""),
-                        "latitude": r.get("latitude"),
-                        "longitude": r.get("longitude"),
-                        "hours": r.get("hours", {}),
-                        "rating": r.get("rating"),
-                        "reviews": r.get("reviews"),
-                        "category": r.get("category", ""),
-                    })
+                    results.append(
+                        {
+                            "name": r.get("title", ""),
+                            "address": r.get("address", ""),
+                            "phone": r.get("phone", ""),
+                            "url": r.get("url", ""),
+                            "latitude": r.get("latitude"),
+                            "longitude": r.get("longitude"),
+                            "hours": r.get("hours", {}),
+                            "rating": r.get("rating"),
+                            "reviews": r.get("reviews"),
+                            "category": r.get("category", ""),
+                        }
+                    )
 
             if ctx:
                 ctx.info(f"[WebSearch] Found {len(results)} places")
 
-            return json.dumps({
-                "success": True,
-                "query": search_query,
-                "count": len(results),
-                "results": results,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "query": search_query,
+                    "count": len(results),
+                    "results": results,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "query": query,
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "query": query,
+                },
+                ensure_ascii=False,
+            )

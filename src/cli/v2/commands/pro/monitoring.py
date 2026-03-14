@@ -38,9 +38,12 @@ def register(app: typer.Typer) -> None:
                 # Get GPU stats
                 try:
                     import subprocess
+
                     result = subprocess.run(
                         ["rocm-smi", "--showuse", "--showtemp", "--showmeminfo", "vram"],
-                        capture_output=True, text=True, timeout=5
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
                     )
 
                     if result.returncode == 0:
@@ -80,6 +83,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("logs", 40))
 
         from src.cli.v2.utils.config import get_logs_dir
+
         log_file = get_logs_dir() / "tawiza.log"
 
         if not log_file.exists():
@@ -116,6 +120,7 @@ def register(app: typer.Typer) -> None:
                 console.print("  [dim]Following... Press Ctrl+C to stop[/]")
                 try:
                     import subprocess
+
                     subprocess.run(["tail", "-f", str(log_file)])
                 except KeyboardInterrupt:
                     pass
@@ -134,6 +139,7 @@ def register(app: typer.Typer) -> None:
         console.print(header("logs clear", 40))
 
         from src.cli.v2.utils.config import get_logs_dir
+
         log_file = get_logs_dir() / "tawiza.log"
 
         if not log_file.exists():
@@ -143,6 +149,7 @@ def register(app: typer.Typer) -> None:
 
         if not force:
             from rich.prompt import Confirm
+
             if not Confirm.ask("  Clear all logs?"):
                 console.print("  [dim]Cancelled.[/]")
                 console.print(footer(40))
@@ -171,6 +178,7 @@ def register(app: typer.Typer) -> None:
         # Collect system metrics
         try:
             import psutil
+
             metrics["system"] = {
                 "cpu_percent": psutil.cpu_percent(),
                 "memory_percent": psutil.virtual_memory().percent,
@@ -182,12 +190,16 @@ def register(app: typer.Typer) -> None:
         # Collect GPU metrics
         try:
             import subprocess
+
             result = subprocess.run(
                 ["rocm-smi", "--showuse", "--showtemp", "--json"],
-                capture_output=True, text=True, timeout=5
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
             if result.returncode == 0:
                 import json
+
                 metrics["gpu"] = json.loads(result.stdout)
         except Exception:
             metrics["gpu"] = {"error": "GPU data unavailable"}
@@ -196,9 +208,11 @@ def register(app: typer.Typer) -> None:
         try:
             if format == "json":
                 import json
+
                 output.write_text(json.dumps(metrics, indent=2))
             elif format == "csv":
                 import csv
+
                 with open(output, "w", newline="") as f:
                     writer = csv.writer(f)
                     writer.writerow(["metric", "value"])

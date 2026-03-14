@@ -13,6 +13,7 @@ from pathlib import Path
 
 class BrowserState(Enum):
     """Browser sandbox state."""
+
     STOPPED = "stopped"
     STARTING = "starting"
     RUNNING = "running"
@@ -22,6 +23,7 @@ class BrowserState(Enum):
 @dataclass
 class BrowserInfo:
     """Browser sandbox information."""
+
     state: BrowserState
     novnc_url: str
     current_url: str | None = None
@@ -122,7 +124,7 @@ class BrowserManager:
                 capture_output=True,
                 text=True,
                 timeout=30,
-                cwd=Path.home() / "Tawiza-V2"
+                cwd=Path.home() / "Tawiza-V2",
             )
 
             if result.returncode == 0:
@@ -150,7 +152,7 @@ class BrowserManager:
                 ["docker-compose", "-f", "docker/docker-compose.browser.yml", "down"],
                 capture_output=True,
                 timeout=30,
-                cwd=Path.home() / "Tawiza-V2"
+                cwd=Path.home() / "Tawiza-V2",
             )
             self._state = BrowserState.STOPPED
             self._notify_listeners()

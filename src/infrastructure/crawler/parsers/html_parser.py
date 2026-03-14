@@ -1,4 +1,5 @@
 """HTML content parser using BeautifulSoup."""
+
 import re
 from typing import Any
 from urllib.parse import urljoin
@@ -7,6 +8,7 @@ from .registry import BaseParser
 
 try:
     from bs4 import BeautifulSoup
+
     HAS_BS4 = True
 except ImportError:
     HAS_BS4 = False

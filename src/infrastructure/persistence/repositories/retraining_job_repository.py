@@ -5,7 +5,6 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.retraining_job_model import RetrainingJobDB
 
 from src.domain.entities.retraining_job import (
     RetrainingJob,
@@ -13,6 +12,7 @@ from src.domain.entities.retraining_job import (
     RetrainingTriggerReason,
 )
 from src.domain.repositories.ml_repositories import IRetrainingJobRepository
+from src.infrastructure.persistence.models.retraining_job_model import RetrainingJobDB
 
 
 class SQLAlchemyRetrainingJobRepository(IRetrainingJobRepository):
@@ -128,9 +128,7 @@ class SQLAlchemyRetrainingJobRepository(IRetrainingJobRepository):
     async def exists(self, entity_id: UUID) -> bool:
         """Check if retraining job exists."""
         async with self._session_factory() as session:
-            query = select(func.count(RetrainingJobDB.id)).where(
-                RetrainingJobDB.id == entity_id
-            )
+            query = select(func.count(RetrainingJobDB.id)).where(RetrainingJobDB.id == entity_id)
             result = await session.execute(query)
             count = result.scalar() or 0
             return count > 0

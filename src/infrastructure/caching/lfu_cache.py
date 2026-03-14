@@ -80,9 +80,7 @@ class LFUCache[K, V]:
 
         # Core data structures
         self.cache: dict[K, LFUEntry[V]] = {}  # key → entry
-        self.freq_map: dict[int, OrderedDict[K, None]] = defaultdict(
-            OrderedDict
-        )  # freq → keys
+        self.freq_map: dict[int, OrderedDict[K, None]] = defaultdict(OrderedDict)  # freq → keys
         self.min_freq = 0  # Current minimum frequency
 
         # Statistics

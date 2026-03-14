@@ -7,14 +7,16 @@ from typing import Any
 
 class RiskLevel(Enum):
     """Risk levels for operations."""
-    SAFE = "safe"        # Auto-execute, no approval needed
+
+    SAFE = "safe"  # Auto-execute, no approval needed
     MODERATE = "moderate"  # Notify user, continue unless stopped
-    HIGH = "high"        # Require explicit approval
+    HIGH = "high"  # Require explicit approval
 
 
 @dataclass
 class RiskAssessment:
     """Result of risk assessment."""
+
     level: RiskLevel
     reason: str
     requires_approval: bool

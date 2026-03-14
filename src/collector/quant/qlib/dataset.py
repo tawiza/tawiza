@@ -30,10 +30,12 @@ class TerritorialDataset:
         metadata: Optional metadata dictionary
     """
 
-    def __init__(self,
-                 features_df: pd.DataFrame,
-                 labels_df: pd.DataFrame | None = None,
-                 metadata: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        features_df: pd.DataFrame,
+        labels_df: pd.DataFrame | None = None,
+        metadata: dict[str, Any] | None = None,
+    ):
 
         self.features = features_df.copy()
         self.labels = labels_df.copy() if labels_df is not None else None
@@ -108,7 +110,7 @@ class TerritorialDataset:
         """Get number of samples."""
         return len(self.features)
 
-    def __getitem__(self, key) -> 'TerritorialDataset':
+    def __getitem__(self, key) -> "TerritorialDataset":
         """Subset the dataset."""
         if isinstance(key, (slice, list, np.ndarray)):
             features_subset = self.features.iloc[key]
@@ -141,7 +143,7 @@ class TerritorialDataset:
 
         return territory_data
 
-    def get_date_range(self, start_date, end_date) -> 'TerritorialDataset':
+    def get_date_range(self, start_date, end_date) -> "TerritorialDataset":
         """
         Get data for a specific date range.
 
@@ -153,9 +155,8 @@ class TerritorialDataset:
             TerritorialDataset with data in the specified date range
         """
         if isinstance(self.features.index, pd.MultiIndex):
-            mask = (
-                (self.features.index.get_level_values(0) >= start_date) &
-                (self.features.index.get_level_values(0) <= end_date)
+            mask = (self.features.index.get_level_values(0) >= start_date) & (
+                self.features.index.get_level_values(0) <= end_date
             )
             features_subset = self.features.loc[mask]
             labels_subset = self.labels.loc[mask] if self.labels is not None else None
@@ -166,7 +167,7 @@ class TerritorialDataset:
 
         return TerritorialDataset(features_subset, labels_subset, self.metadata)
 
-    def get_latest_data(self, n_periods: int = 1) -> 'TerritorialDataset':
+    def get_latest_data(self, n_periods: int = 1) -> "TerritorialDataset":
         """
         Get the latest n periods of data.
 
@@ -204,7 +205,9 @@ class TerritorialDataset:
         y = self.labels.values if self.labels is not None else None
         return X, y
 
-    def split_temporal(self, train_ratio: float = 0.8) -> tuple['TerritorialDataset', 'TerritorialDataset']:
+    def split_temporal(
+        self, train_ratio: float = 0.8
+    ) -> tuple["TerritorialDataset", "TerritorialDataset"]:
         """
         Split dataset temporally (respecting time ordering).
 
@@ -250,7 +253,9 @@ class TerritorialDataset:
 
         return train_dataset, test_dataset
 
-    def split_by_territory(self, test_territories: list[str]) -> tuple['TerritorialDataset', 'TerritorialDataset']:
+    def split_by_territory(
+        self, test_territories: list[str]
+    ) -> tuple["TerritorialDataset", "TerritorialDataset"]:
         """
         Split dataset by territory (spatial split).
 
@@ -285,7 +290,9 @@ class TerritorialDataset:
 
         return train_dataset, test_dataset
 
-    def cross_validate_temporal(self, n_splits: int = 5) -> list[tuple['TerritorialDataset', 'TerritorialDataset']]:
+    def cross_validate_temporal(
+        self, n_splits: int = 5
+    ) -> list[tuple["TerritorialDataset", "TerritorialDataset"]]:
         """
         Create temporal cross-validation splits.
 
@@ -330,11 +337,15 @@ class TerritorialDataset:
         Returns:
             DataFrame with missing data statistics
         """
-        missing_stats = pd.DataFrame({
-            'missing_count': self.features.isnull().sum(),
-            'missing_percentage': (self.features.isnull().sum() / len(self.features) * 100).round(2)
-        })
-        return missing_stats.sort_values('missing_percentage', ascending=False)
+        missing_stats = pd.DataFrame(
+            {
+                "missing_count": self.features.isnull().sum(),
+                "missing_percentage": (
+                    self.features.isnull().sum() / len(self.features) * 100
+                ).round(2),
+            }
+        )
+        return missing_stats.sort_values("missing_percentage", ascending=False)
 
     def get_correlation_matrix(self) -> pd.DataFrame:
         """
@@ -345,7 +356,7 @@ class TerritorialDataset:
         """
         return self.features.corr()
 
-    def add_feature(self, name: str, data: pd.Series) -> 'TerritorialDataset':
+    def add_feature(self, name: str, data: pd.Series) -> "TerritorialDataset":
         """
         Add a new feature to the dataset.
 
@@ -361,7 +372,7 @@ class TerritorialDataset:
 
         return TerritorialDataset(new_features, self.labels, self.metadata)
 
-    def select_features(self, feature_names: list[str]) -> 'TerritorialDataset':
+    def select_features(self, feature_names: list[str]) -> "TerritorialDataset":
         """
         Select subset of features.
 
@@ -379,7 +390,7 @@ class TerritorialDataset:
         new_features = self.features[available_features]
         return TerritorialDataset(new_features, self.labels, self.metadata)
 
-    def normalize_features(self, method: str = 'zscore') -> 'TerritorialDataset':
+    def normalize_features(self, method: str = "zscore") -> "TerritorialDataset":
         """
         Normalize features using specified method.
 
@@ -391,11 +402,11 @@ class TerritorialDataset:
         """
         from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 
-        if method == 'zscore':
+        if method == "zscore":
             scaler = StandardScaler()
-        elif method == 'minmax':
+        elif method == "minmax":
             scaler = MinMaxScaler()
-        elif method == 'robust':
+        elif method == "robust":
             scaler = RobustScaler()
         else:
             raise ValueError(f"Unknown normalization method: {method}")
@@ -403,7 +414,7 @@ class TerritorialDataset:
         normalized_features = pd.DataFrame(
             scaler.fit_transform(self.features),
             index=self.features.index,
-            columns=self.features.columns
+            columns=self.features.columns,
         )
 
         return TerritorialDataset(normalized_features, self.labels, self.metadata)
@@ -450,16 +461,16 @@ class TerritorialDataset:
             Dictionary with dataset information
         """
         return {
-            'n_samples': len(self.features),
-            'n_features': len(self.feature_names),
-            'n_territories': len(self.territories),
-            'n_dates': len(self.dates),
-            'date_range': (min(self.dates), max(self.dates)) if self.dates else None,
-            'feature_names': self.feature_names,
-            'territories': self.territories,
-            'has_labels': self.labels is not None,
-            'label_names': self.label_names,
-            'memory_usage_mb': (self.features.memory_usage(deep=True).sum() / 1024 / 1024).round(2)
+            "n_samples": len(self.features),
+            "n_features": len(self.feature_names),
+            "n_territories": len(self.territories),
+            "n_dates": len(self.dates),
+            "date_range": (min(self.dates), max(self.dates)) if self.dates else None,
+            "feature_names": self.feature_names,
+            "territories": self.territories,
+            "has_labels": self.labels is not None,
+            "label_names": self.label_names,
+            "memory_usage_mb": (self.features.memory_usage(deep=True).sum() / 1024 / 1024).round(2),
         }
 
     def __repr__(self) -> str:

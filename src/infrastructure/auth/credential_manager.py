@@ -133,8 +133,7 @@ class CredentialManager:
             credentials_dict = json.loads(decrypted_data.decode())
 
             self._credentials = {
-                name: Credential(**cred_data)
-                for name, cred_data in credentials_dict.items()
+                name: Credential(**cred_data) for name, cred_data in credentials_dict.items()
             }
 
             logger.info(f"Loaded {len(self._credentials)} credentials from storage")
@@ -145,10 +144,7 @@ class CredentialManager:
     def _save_credentials(self):
         """Encrypt and save credentials to storage."""
         try:
-            credentials_dict = {
-                name: cred.model_dump()
-                for name, cred in self._credentials.items()
-            }
+            credentials_dict = {name: cred.model_dump() for name, cred in self._credentials.items()}
 
             json_data = json.dumps(credentials_dict, indent=2)
             encrypted_data = self._cipher.encrypt(json_data.encode())
@@ -166,7 +162,7 @@ class CredentialManager:
         username: str | None = None,
         password: str | None = None,
         auth_type: str = "form",
-        **kwargs
+        **kwargs,
     ) -> Credential:
         """
         Add or update a credential.
@@ -188,7 +184,7 @@ class CredentialManager:
             username=username,
             password=password,
             auth_type=auth_type,
-            **kwargs
+            **kwargs,
         )
 
         self._credentials[site_name] = credential
@@ -239,10 +235,7 @@ class CredentialManager:
             List of site names
         """
         if tag:
-            return [
-                name for name, cred in self._credentials.items()
-                if tag in cred.tags
-            ]
+            return [name for name, cred in self._credentials.items() if tag in cred.tags]
 
         return list(self._credentials.keys())
 
@@ -267,7 +260,9 @@ class CredentialManager:
                 # Redact sensitive fields
                 cred_dict["password"] = "***REDACTED***" if cred_dict["password"] else None
                 cred_dict["api_key"] = "***REDACTED***" if cred_dict.get("api_key") else None
-                cred_dict["oauth_token"] = "***REDACTED***" if cred_dict.get("oauth_token") else None
+                cred_dict["oauth_token"] = (
+                    "***REDACTED***" if cred_dict.get("oauth_token") else None
+                )
 
             credentials_export[name] = cred_dict
 
@@ -320,7 +315,7 @@ if __name__ == "__main__":
             username=github_user,
             password=github_pass,
             auth_type="form",
-            tags=["dev", "code"]
+            tags=["dev", "code"],
         )
 
     # Add API key authentication (from env)
@@ -331,7 +326,7 @@ if __name__ == "__main__":
             url="https://api.openai.com",
             auth_type="api_key",
             api_key=openai_key,
-            tags=["api", "llm"]
+            tags=["api", "llm"],
         )
 
     # Retrieve credential

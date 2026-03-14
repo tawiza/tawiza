@@ -29,7 +29,7 @@ class GDELTCollector(BaseCollector):
         "fermeture": "negatif",
         "investissement": "positif",
         "création": "positif",
-        "implantation": "positif"
+        "implantation": "positif",
     }
 
     def __init__(self) -> None:
@@ -55,14 +55,16 @@ class GDELTCollector(BaseCollector):
             logger.info(f"[gdelt] Querying '{query}'")
 
             params = {
-                "query": f'sourcelang:french {query}',
+                "query": f"sourcelang:french {query}",
                 "mode": "artlist",
                 "maxrecords": "25",
                 "format": "json",
-                "timespan": "7d"
+                "timespan": "7d",
             }
 
-            response = await self._request_with_retry("GET", self.BASE_URL, params=params, timeout=30.0)
+            response = await self._request_with_retry(
+                "GET", self.BASE_URL, params=params, timeout=30.0
+            )
             if not response:
                 logger.warning(f"[gdelt] No response for query '{query}'")
                 continue
@@ -87,7 +89,9 @@ class GDELTCollector(BaseCollector):
         logger.info(f"[gdelt] Collected {len(signals)} total signals")
         return signals
 
-    async def _process_article(self, article: dict, query: str, signal_type: str) -> CollectedSignal | None:
+    async def _process_article(
+        self, article: dict, query: str, signal_type: str
+    ) -> CollectedSignal | None:
         """Process a single article into a signal."""
         try:
             title = article.get("title", "")
@@ -116,8 +120,8 @@ class GDELTCollector(BaseCollector):
                     "query": query,
                     "domain": domain,
                     "title": title,
-                    "detected_location": dept_info.get("detected_location")
-                }
+                    "detected_location": dept_info.get("detected_location"),
+                },
             )
 
             return signal
@@ -130,10 +134,10 @@ class GDELTCollector(BaseCollector):
         """Extract department from article title or domain using city names."""
         # Common French city patterns
         city_patterns = [
-            r'\b(Paris|Marseille|Lyon|Toulouse|Nice|Nantes|Strasbourg|Montpellier|Bordeaux|Lille)\b',
-            r'\b([A-Z][a-z]+-[A-Z][a-z]+)\b',  # Hyphenated city names
-            r'\b([A-Z][a-z]+(?:-sur-[A-Z][a-z]+)?)\b',  # Cities with -sur-
-            r'\b([A-Z][a-z]{3,})\b'  # General capitalized words (potential cities)
+            r"\b(Paris|Marseille|Lyon|Toulouse|Nice|Nantes|Strasbourg|Montpellier|Bordeaux|Lille)\b",
+            r"\b([A-Z][a-z]+-[A-Z][a-z]+)\b",  # Hyphenated city names
+            r"\b([A-Z][a-z]+(?:-sur-[A-Z][a-z]+)?)\b",  # Cities with -sur-
+            r"\b([A-Z][a-z]{3,})\b",  # General capitalized words (potential cities)
         ]
 
         text_to_search = f"{title} {domain}"
@@ -158,12 +162,8 @@ class GDELTCollector(BaseCollector):
             return {
                 "code_dept": geo_info.get("code_dept"),
                 "code_commune": geo_info.get("code_commune"),
-                "detected_location": detected_location
+                "detected_location": detected_location,
             }
         except Exception as e:
             logger.debug(f"[gdelt] Could not resolve location '{detected_location}': {e}")
-            return {
-                "code_dept": None,
-                "code_commune": None,
-                "detected_location": detected_location
-            }
+            return {"code_dept": None, "code_commune": None, "detected_location": detected_location}

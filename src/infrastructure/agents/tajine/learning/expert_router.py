@@ -35,60 +35,161 @@ EXPERT_DEFINITIONS = {
     ExpertDomain.IMMOBILIER: {
         "description": "Expert transactions, DVF, prix m2, marché immobilier",
         "keywords": [
-            "maison", "appartement", "prix", "m2", "dvf", "immobilier",
-            "logement", "loyer", "achat", "vente", "transaction", "mutation",
-            "terrain", "construction", "habitat", "propriétaire", "locataire",
-            "foncier", "cadastre", "notaire",
+            "maison",
+            "appartement",
+            "prix",
+            "m2",
+            "dvf",
+            "immobilier",
+            "logement",
+            "loyer",
+            "achat",
+            "vente",
+            "transaction",
+            "mutation",
+            "terrain",
+            "construction",
+            "habitat",
+            "propriétaire",
+            "locataire",
+            "foncier",
+            "cadastre",
+            "notaire",
         ],
         "sources": ["DVF", "INSEE", "Notaires"],
     },
     ExpertDomain.EMPLOI: {
         "description": "Expert France Travail, offres, chômage, marché du travail",
         "keywords": [
-            "travail", "emploi", "chômage", "offre", "recrutement", "embauche",
-            "salaire", "métier", "formation", "compétence", "pôle emploi",
-            "france travail", "demandeur", "CDI", "CDD", "intérim", "stage",
-            "apprentissage", "qualification", "DPAE",
+            "travail",
+            "emploi",
+            "chômage",
+            "offre",
+            "recrutement",
+            "embauche",
+            "salaire",
+            "métier",
+            "formation",
+            "compétence",
+            "pôle emploi",
+            "france travail",
+            "demandeur",
+            "CDI",
+            "CDD",
+            "intérim",
+            "stage",
+            "apprentissage",
+            "qualification",
+            "DPAE",
         ],
         "sources": ["France Travail", "DARES", "URSSAF"],
     },
     ExpertDomain.ENTREPRISES: {
         "description": "Expert SIRENE, BODACC, créations, défaillances",
         "keywords": [
-            "société", "entreprise", "création", "siret", "siren", "bodacc",
-            "rcs", "kbis", "défaillance", "liquidation", "redressement",
-            "établissement", "dirigeant", "effectif", "CA", "activité",
-            "naf", "ape", "commerce", "industrie", "PME", "startup",
+            "société",
+            "entreprise",
+            "création",
+            "siret",
+            "siren",
+            "bodacc",
+            "rcs",
+            "kbis",
+            "défaillance",
+            "liquidation",
+            "redressement",
+            "établissement",
+            "dirigeant",
+            "effectif",
+            "CA",
+            "activité",
+            "naf",
+            "ape",
+            "commerce",
+            "industrie",
+            "PME",
+            "startup",
         ],
         "sources": ["SIRENE", "BODACC", "INPI"],
     },
     ExpertDomain.FINANCES_LOCALES: {
         "description": "Expert OFGL, budgets, fiscalité locale, finances publiques",
         "keywords": [
-            "budget", "impôt", "taxe", "commune", "fiscalité", "recette",
-            "dépense", "dette", "investissement", "fonctionnement", "dotation",
-            "DGF", "CVAE", "CFE", "TFPB", "TFPNB", "DMTO", "intercommunalité",
-            "EPCI", "trésorerie", "emprunt", "capacité",
+            "budget",
+            "impôt",
+            "taxe",
+            "commune",
+            "fiscalité",
+            "recette",
+            "dépense",
+            "dette",
+            "investissement",
+            "fonctionnement",
+            "dotation",
+            "DGF",
+            "CVAE",
+            "CFE",
+            "TFPB",
+            "TFPNB",
+            "DMTO",
+            "intercommunalité",
+            "EPCI",
+            "trésorerie",
+            "emprunt",
+            "capacité",
         ],
         "sources": ["OFGL", "DGFiP", "Bercy"],
     },
     ExpertDomain.DEMOGRAPHIE: {
         "description": "Expert INSEE, population, migrations, structure démographique",
         "keywords": [
-            "population", "habitant", "naissance", "décès", "migration",
-            "âge", "pyramide", "ménage", "famille", "recensement", "densité",
-            "vieillissement", "solde migratoire", "fécondité", "espérance",
-            "ruralité", "urbain", "périurbain", "résidence",
+            "population",
+            "habitant",
+            "naissance",
+            "décès",
+            "migration",
+            "âge",
+            "pyramide",
+            "ménage",
+            "famille",
+            "recensement",
+            "densité",
+            "vieillissement",
+            "solde migratoire",
+            "fécondité",
+            "espérance",
+            "ruralité",
+            "urbain",
+            "périurbain",
+            "résidence",
         ],
         "sources": ["INSEE", "État civil", "Recensement"],
     },
     ExpertDomain.INFRASTRUCTURE: {
         "description": "Expert BAN, équipements, transport, services publics",
         "keywords": [
-            "route", "école", "hôpital", "gare", "transport", "équipement",
-            "service", "mairie", "bibliothèque", "sport", "culture",
-            "accessibilité", "réseau", "fibre", "4G", "5G", "eau", "assainissement",
-            "déchets", "énergie", "BAN", "adresse",
+            "route",
+            "école",
+            "hôpital",
+            "gare",
+            "transport",
+            "équipement",
+            "service",
+            "mairie",
+            "bibliothèque",
+            "sport",
+            "culture",
+            "accessibilité",
+            "réseau",
+            "fibre",
+            "4G",
+            "5G",
+            "eau",
+            "assainissement",
+            "déchets",
+            "énergie",
+            "BAN",
+            "adresse",
         ],
         "sources": ["BAN", "BPE", "OpenStreetMap"],
     },
@@ -197,12 +298,8 @@ class TerritorialExpertRouter:
         self.model = model
 
         # Map domains to expert indices
-        self.domain_to_index = {
-            domain: i for i, domain in enumerate(ExpertDomain)
-        }
-        self.index_to_domain = {
-            i: domain for domain, i in self.domain_to_index.items()
-        }
+        self.domain_to_index = {domain: i for i, domain in enumerate(ExpertDomain)}
+        self.index_to_domain = {i: domain for domain, i in self.domain_to_index.items()}
 
         # Expert statistics
         self.stats: dict[ExpertDomain, ExpertStats] = {
@@ -215,9 +312,7 @@ class TerritorialExpertRouter:
         }
 
         self._init_keyword_index()
-        logger.info(
-            f"TerritorialExpertRouter initialized with {len(ExpertDomain)} experts"
-        )
+        logger.info(f"TerritorialExpertRouter initialized with {len(ExpertDomain)} experts")
 
     def _init_keyword_index(self) -> None:
         """Build inverted index from keywords to domains."""
@@ -279,9 +374,7 @@ class TerritorialExpertRouter:
         # Normalize scores
         max_score = max(domain_scores.values()) if domain_scores else 1.0
         if max_score > 0:
-            domain_scores = {
-                d: s / max_score for d, s in domain_scores.items()
-            }
+            domain_scores = {d: s / max_score for d, s in domain_scores.items()}
 
         # Get top-k domains
         sorted_domains = sorted(
@@ -291,7 +384,8 @@ class TerritorialExpertRouter:
         )
 
         top_domains = [
-            d for d, s in sorted_domains[: self.config.top_k]
+            d
+            for d, s in sorted_domains[: self.config.top_k]
             if s > 0.1  # Minimum threshold
         ]
 
@@ -346,8 +440,7 @@ class TerritorialExpertRouter:
         )
 
         logger.debug(
-            f"Routed to experts: {[d.value for d in domains]} "
-            f"(confidence: {confidence:.2f})"
+            f"Routed to experts: {[d.value for d in domains]} (confidence: {confidence:.2f})"
         )
 
         return result
@@ -432,9 +525,7 @@ class TerritorialExpertRouter:
             List of domains ready for training
         """
         return [
-            domain
-            for domain, queue in self.training_queues.items()
-            if len(queue) >= min_examples
+            domain for domain, queue in self.training_queues.items() if len(queue) >= min_examples
         ]
 
     def get_training_data(
@@ -478,9 +569,7 @@ class TerritorialExpertRouter:
                 domain.value: {
                     "activation_count": stats.activation_count,
                     "activation_rate": (
-                        stats.activation_count / total_activations
-                        if total_activations > 0
-                        else 0.0
+                        stats.activation_count / total_activations if total_activations > 0 else 0.0
                     ),
                     "training_queue_size": len(self.training_queues[domain]),
                     "training_examples": stats.training_examples,
@@ -511,7 +600,6 @@ class TerritorialExpertRouter:
             "training_examples": stats.training_examples,
             "queue_size": len(self.training_queues[domain]),
         }
-
 
     async def check_and_trigger_training(
         self,
@@ -552,7 +640,9 @@ class TerritorialExpertRouter:
             return results
 
         results["triggered"] = True
-        logger.info(f"Training triggered for {len(ready_domains)} domains: {[d.value for d in ready_domains]}")
+        logger.info(
+            f"Training triggered for {len(ready_domains)} domains: {[d.value for d in ready_domains]}"
+        )
 
         for domain in ready_domains:
             training_data = self.get_training_data(domain)
@@ -589,35 +679,39 @@ class TerritorialExpertRouter:
                         self.stats[domain].last_trained = (
                             __import__("datetime").datetime.now().isoformat()
                         )
-                        results["domains_trained"].append({
-                            "domain": domain.value,
-                            "examples_used": cleared,
-                            "result": train_result,
-                        })
-                        logger.info(
-                            f"Successfully trained {domain.value} with {cleared} examples"
+                        results["domains_trained"].append(
+                            {
+                                "domain": domain.value,
+                                "examples_used": cleared,
+                                "result": train_result,
+                            }
                         )
+                        logger.info(f"Successfully trained {domain.value} with {cleared} examples")
                     else:
-                        results["errors"].append({
-                            "domain": domain.value,
-                            "error": train_result.get("error", "Unknown error"),
-                        })
+                        results["errors"].append(
+                            {
+                                "domain": domain.value,
+                                "error": train_result.get("error", "Unknown error"),
+                            }
+                        )
                 else:
                     # No fine-tuner - just log and keep data
-                    logger.warning(
-                        f"No fine-tuner provided, skipping training for {domain.value}"
+                    logger.warning(f"No fine-tuner provided, skipping training for {domain.value}")
+                    results["errors"].append(
+                        {
+                            "domain": domain.value,
+                            "error": "No fine-tuner available",
+                        }
                     )
-                    results["errors"].append({
-                        "domain": domain.value,
-                        "error": "No fine-tuner available",
-                    })
 
             except Exception as e:
                 logger.error(f"Training failed for {domain.value}: {e}")
-                results["errors"].append({
-                    "domain": domain.value,
-                    "error": str(e),
-                })
+                results["errors"].append(
+                    {
+                        "domain": domain.value,
+                        "error": str(e),
+                    }
+                )
 
         return results
 

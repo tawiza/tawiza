@@ -340,7 +340,9 @@ class AnnotationService(IAnnotationService):
             AnnotationError: If preparation fails
         """
         try:
-            logger.info(f"Preparing dataset {dataset_id} for annotation (sample_size={sample_size})")
+            logger.info(
+                f"Preparing dataset {dataset_id} for annotation (sample_size={sample_size})"
+            )
 
             # Load dataset from database
             repo = await self._get_dataset_repository()
@@ -441,13 +443,14 @@ class AnnotationService(IAnnotationService):
 
             # Count completed annotations (those with at least one annotation)
             completed_count = sum(
-                1 for ann in annotations
-                if ann.get("annotations") and len(ann["annotations"]) > 0
+                1 for ann in annotations if ann.get("annotations") and len(ann["annotations"]) > 0
             )
 
             # Save annotations to a file alongside the dataset
             if dataset.storage_path:
-                annotations_path = Path(dataset.storage_path).parent / f"{dataset.name}_annotations.json"
+                annotations_path = (
+                    Path(dataset.storage_path).parent / f"{dataset.name}_annotations.json"
+                )
                 async with aiofiles.open(annotations_path, "w", encoding="utf-8") as f:
                     await f.write(json.dumps(annotations, indent=2, ensure_ascii=False))
                 logger.info(f"Saved {len(annotations)} annotations to {annotations_path}")

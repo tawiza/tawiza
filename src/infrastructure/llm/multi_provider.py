@@ -16,6 +16,7 @@ from loguru import logger
 
 class ProviderType(Enum):
     """Supported LLM providers."""
+
     OLLAMA = "ollama"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
@@ -24,6 +25,7 @@ class ProviderType(Enum):
 @dataclass
 class ProviderConfig:
     """Configuration for an LLM provider."""
+
     provider_type: ProviderType
     model: str
     api_key: str | None = None
@@ -37,6 +39,7 @@ class ProviderConfig:
 @dataclass
 class ChatMessage:
     """Chat message for multi-turn conversations."""
+
     role: str  # system, user, assistant
     content: str
 
@@ -44,6 +47,7 @@ class ChatMessage:
 @dataclass
 class LLMResponse:
     """Response from LLM generation."""
+
     content: str
     provider: ProviderType
     model: str
@@ -225,10 +229,12 @@ class AnthropicLLMClient(BaseLLMClient):
             if msg.role == "system":
                 system_prompt = msg.content
             else:
-                anthropic_messages.append({
-                    "role": msg.role,
-                    "content": msg.content,
-                })
+                anthropic_messages.append(
+                    {
+                        "role": msg.role,
+                        "content": msg.content,
+                    }
+                )
 
         payload = {
             "model": self.config.model,
@@ -260,14 +266,16 @@ class AnthropicLLMClient(BaseLLMClient):
             if part["type"] == "text":
                 text_content += part["text"]
             elif part["type"] == "tool_use":
-                tool_calls.append({
-                    "id": part["id"],
-                    "type": "function",
-                    "function": {
-                        "name": part["name"],
-                        "arguments": part["input"],
-                    },
-                })
+                tool_calls.append(
+                    {
+                        "id": part["id"],
+                        "type": "function",
+                        "function": {
+                            "name": part["name"],
+                            "arguments": part["input"],
+                        },
+                    }
+                )
 
         return LLMResponse(
             content=text_content,
@@ -283,11 +291,13 @@ class AnthropicLLMClient(BaseLLMClient):
         for tool in openai_tools:
             if tool.get("type") == "function":
                 func = tool["function"]
-                anthropic_tools.append({
-                    "name": func["name"],
-                    "description": func.get("description", ""),
-                    "input_schema": func.get("parameters", {"type": "object"}),
-                })
+                anthropic_tools.append(
+                    {
+                        "name": func["name"],
+                        "description": func.get("description", ""),
+                        "input_schema": func.get("parameters", {"type": "object"}),
+                    }
+                )
         return anthropic_tools
 
     async def health_check(self) -> bool:
@@ -428,28 +438,34 @@ def create_default_multi_provider() -> MultiProviderLLM:
     llm = MultiProviderLLM()
 
     # Primary: Ollama (always available locally)
-    llm.add_provider(ProviderConfig(
-        provider_type=ProviderType.OLLAMA,
-        model="qwen3-coder:30b",
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-        priority=1,
-    ))
+    llm.add_provider(
+        ProviderConfig(
+            provider_type=ProviderType.OLLAMA,
+            model="qwen3-coder:30b",
+            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            priority=1,
+        )
+    )
 
     # Fallback: OpenAI (if configured)
     if os.getenv("OPENAI_API_KEY"):
-        llm.add_provider(ProviderConfig(
-            provider_type=ProviderType.OPENAI,
-            model="gpt-4-turbo",
-            priority=2,
-        ))
+        llm.add_provider(
+            ProviderConfig(
+                provider_type=ProviderType.OPENAI,
+                model="gpt-4-turbo",
+                priority=2,
+            )
+        )
 
     # Fallback: Anthropic (if configured)
     if os.getenv("ANTHROPIC_API_KEY"):
-        llm.add_provider(ProviderConfig(
-            provider_type=ProviderType.ANTHROPIC,
-            model="claude-3-5-sonnet-20241022",
-            priority=3,
-        ))
+        llm.add_provider(
+            ProviderConfig(
+                provider_type=ProviderType.ANTHROPIC,
+                model="claude-3-5-sonnet-20241022",
+                priority=3,
+            )
+        )
 
     return llm
 
@@ -490,10 +506,7 @@ class CAMELModelBackend:
         Returns:
             Response dict compatible with CAMEL expectations
         """
-        chat_messages = [
-            ChatMessage(role=m["role"], content=m["content"])
-            for m in messages
-        ]
+        chat_messages = [ChatMessage(role=m["role"], content=m["content"]) for m in messages]
 
         response = await self.llm.generate(
             messages=chat_messages,

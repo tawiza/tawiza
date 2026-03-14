@@ -47,10 +47,9 @@ def run_command(
 
     if agent not in AGENTS:
         msg = MessageBox()
-        console.print(msg.error(
-            f"Unknown agent: {agent}",
-            [f"Available: {', '.join(AGENTS.keys())}"]
-        ))
+        console.print(
+            msg.error(f"Unknown agent: {agent}", [f"Available: {', '.join(AGENTS.keys())}"])
+        )
         return
 
     # If no task, prompt for it
@@ -63,14 +62,16 @@ def run_command(
         return
 
     # Run the agent
-    result = asyncio.run(_run_agent_async(
-        agent=agent,
-        task=task,
-        data=data,
-        url=url,
-        model=model,
-        output_json=output_json,
-    ))
+    result = asyncio.run(
+        _run_agent_async(
+            agent=agent,
+            task=task,
+            data=data,
+            url=url,
+            model=model,
+            output_json=output_json,
+        )
+    )
 
     if result and output_json:
         console.print_json(data=result)
@@ -88,12 +89,11 @@ def _select_agent() -> str:
 
     console.print()
     choice = Prompt.ask(
-        "  Choice",
-        choices=[str(i) for i in range(1, len(AGENTS)+1)] + list(AGENTS.keys())
+        "  Choice", choices=[str(i) for i in range(1, len(AGENTS) + 1)] + list(AGENTS.keys())
     )
 
     if choice.isdigit():
-        return list(AGENTS.keys())[int(choice)-1]
+        return list(AGENTS.keys())[int(choice) - 1]
     return choice
 
 
@@ -143,10 +143,11 @@ async def _run_agent_async(
     msg = MessageBox()
 
     if result.status == "success":
-        console.print(msg.success(
-            f"Task completed in {result.duration_seconds:.1f}s",
-            f"Agent: {result.agent}"
-        ))
+        console.print(
+            msg.success(
+                f"Task completed in {result.duration_seconds:.1f}s", f"Agent: {result.agent}"
+            )
+        )
 
         # Show result summary based on agent type
         if result.result:
@@ -162,10 +163,7 @@ async def _run_agent_async(
             }
 
     else:
-        console.print(msg.error(
-            "Task failed",
-            [result.error or "Unknown error"]
-        ))
+        console.print(msg.error("Task failed", [result.error or "Unknown error"]))
 
         # Show logs if available
         if result.logs:

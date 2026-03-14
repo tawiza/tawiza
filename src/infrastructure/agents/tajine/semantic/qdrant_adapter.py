@@ -3,6 +3,7 @@
 Fallback vector store when PGVector is unavailable.
 Enhances the existing stub in src/infrastructure/storage/qdrant/.
 """
+
 import uuid
 from typing import Any
 
@@ -153,8 +154,7 @@ class QdrantAdapter(VectorStoreProtocol):
             from qdrant_client.models import FieldCondition, Filter, MatchValue
 
             conditions = [
-                FieldCondition(key=k, match=MatchValue(value=v))
-                for k, v in metadata_filter.items()
+                FieldCondition(key=k, match=MatchValue(value=v)) for k, v in metadata_filter.items()
             ]
             query_filter = Filter(must=conditions)
 
@@ -168,13 +168,17 @@ class QdrantAdapter(VectorStoreProtocol):
 
         semantic_results = []
         for hit in results:
-            semantic_results.append(SemanticResult(
-                id=hit.payload.get("doc_id", str(hit.id)),
-                content=hit.payload.get("content", ""),
-                score=hit.score,
-                metadata={k: v for k, v in hit.payload.items() if k not in ("doc_id", "content")},
-                source_store="qdrant",
-            ))
+            semantic_results.append(
+                SemanticResult(
+                    id=hit.payload.get("doc_id", str(hit.id)),
+                    content=hit.payload.get("content", ""),
+                    score=hit.score,
+                    metadata={
+                        k: v for k, v in hit.payload.items() if k not in ("doc_id", "content")
+                    },
+                    source_store="qdrant",
+                )
+            )
 
         return semantic_results
 

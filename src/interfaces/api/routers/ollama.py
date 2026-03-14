@@ -15,12 +15,14 @@ router = APIRouter()
 # Pydantic models
 class Message(BaseModel):
     """Chat message."""
+
     role: str = Field(..., description="Role: user or assistant")
     content: str = Field(..., description="Message content")
 
 
 class ChatRequest(BaseModel):
     """Chat completion request."""
+
     messages: list[Message] = Field(..., description="Chat messages")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
     temperature: float = Field(0.7, ge=0.0, le=2.0, description="Sampling temperature")
@@ -29,6 +31,7 @@ class ChatRequest(BaseModel):
 
 class CompletionRequest(BaseModel):
     """Text completion request."""
+
     prompt: str = Field(..., description="Input prompt")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
     temperature: float = Field(0.7, ge=0.0, le=2.0, description="Sampling temperature")
@@ -37,6 +40,7 @@ class CompletionRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     """Chat completion response."""
+
     id: str
     model: str
     message: str
@@ -45,6 +49,7 @@ class ChatResponse(BaseModel):
 
 class CompletionResponse(BaseModel):
     """Completion response."""
+
     id: str
     model: str
     text: str
@@ -53,6 +58,7 @@ class CompletionResponse(BaseModel):
 
 class ModelInfo(BaseModel):
     """Model information."""
+
     name: str
     size: str
     parameter_count: str
@@ -62,12 +68,14 @@ class ModelInfo(BaseModel):
 
 class ModelsListResponse(BaseModel):
     """List of available models."""
+
     models: list[ModelInfo]
     total: int
 
 
 class TemplateInferenceRequest(BaseModel):
     """Template-based inference request."""
+
     template_name: str = Field(..., description="Name of the prompt template")
     variables: dict = Field(..., description="Variables to render the template with")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
@@ -77,14 +85,18 @@ class TemplateInferenceRequest(BaseModel):
 
 class ClassificationRequest(BaseModel):
     """Text classification request."""
+
     text: str = Field(..., description="Text to classify")
     categories: str = Field(..., description="Comma-separated list of categories")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
-    temperature: float = Field(0.3, ge=0.0, le=2.0, description="Sampling temperature (lower for classification)")
+    temperature: float = Field(
+        0.3, ge=0.0, le=2.0, description="Sampling temperature (lower for classification)"
+    )
 
 
 class EntityExtractionRequest(BaseModel):
     """Named entity extraction request."""
+
     text: str = Field(..., description="Text to analyze")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
     temperature: float = Field(0.3, ge=0.0, le=2.0, description="Sampling temperature")
@@ -92,6 +104,7 @@ class EntityExtractionRequest(BaseModel):
 
 class SummarizationRequest(BaseModel):
     """Text summarization request."""
+
     text: str = Field(..., description="Text to summarize")
     max_words: int = Field(100, ge=10, le=500, description="Maximum words in summary")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
@@ -100,6 +113,7 @@ class SummarizationRequest(BaseModel):
 
 class TemplateInferenceResponse(BaseModel):
     """Template-based inference response."""
+
     id: str
     model: str
     text: str
@@ -110,6 +124,7 @@ class TemplateInferenceResponse(BaseModel):
 
 class SentimentAnalysisRequest(BaseModel):
     """Sentiment analysis request."""
+
     text: str = Field(..., description="Text to analyze")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
     temperature: float = Field(0.3, ge=0.0, le=2.0, description="Sampling temperature")
@@ -117,6 +132,7 @@ class SentimentAnalysisRequest(BaseModel):
 
 class QuestionAnsweringRequest(BaseModel):
     """Question answering request."""
+
     question: str = Field(..., description="Question to answer")
     context: str = Field(..., description="Context to use for answering")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
@@ -125,6 +141,7 @@ class QuestionAnsweringRequest(BaseModel):
 
 class TranslationRequest(BaseModel):
     """Translation request."""
+
     text: str = Field(..., description="Text to translate")
     source_lang: str = Field(..., description="Source language (e.g., 'English', 'French')")
     target_lang: str = Field(..., description="Target language")
@@ -134,6 +151,7 @@ class TranslationRequest(BaseModel):
 
 class CodeReviewRequest(BaseModel):
     """Code review request."""
+
     code: str = Field(..., description="Code to review")
     language: str = Field(..., description="Programming language (e.g., 'Python', 'JavaScript')")
     model: str = Field("qwen3.5:27b", description="Ollama model name")
@@ -142,6 +160,7 @@ class CodeReviewRequest(BaseModel):
 
 class ErrorAnalysisRequest(BaseModel):
     """Error analysis request."""
+
     error_type: str = Field(..., description="Error type (e.g., 'ValueError', 'TypeError')")
     error_message: str = Field(..., description="Error message")
     stack_trace: str = Field(..., description="Stack trace")
@@ -167,7 +186,7 @@ async def get_ollama_service() -> OllamaInferenceService:
     response_model=ChatResponse,
     status_code=status.HTTP_200_OK,
     summary="Chat completion",
-    description="Generate a chat completion using Ollama"
+    description="Generate a chat completion using Ollama",
 )
 async def chat_completion(
     request: ChatRequest,
@@ -191,21 +210,18 @@ async def chat_completion(
         result = await service.predict(
             model_id=request.model,
             input_data={"messages": messages},
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return ChatResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            message=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], message=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Chat completion failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Chat completion failed: {str(e)}"
+            detail=f"Chat completion failed: {str(e)}",
         )
 
 
@@ -214,7 +230,7 @@ async def chat_completion(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Text completion",
-    description="Generate a text completion using Ollama"
+    description="Generate a text completion using Ollama",
 )
 async def text_completion(
     request: CompletionRequest,
@@ -235,24 +251,18 @@ async def text_completion(
         result = await service.predict(
             model_id=request.model,
             input_data={"prompt": request.prompt},
-            parameters={
-                "temperature": request.temperature,
-                "max_tokens": request.max_tokens
-            }
+            parameters={"temperature": request.temperature, "max_tokens": request.max_tokens},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Text completion failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Text completion failed: {str(e)}"
+            detail=f"Text completion failed: {str(e)}",
         )
 
 
@@ -261,7 +271,7 @@ async def text_completion(
     response_model=ModelsListResponse,
     status_code=status.HTTP_200_OK,
     summary="List models",
-    description="List all available Ollama models"
+    description="List all available Ollama models",
 )
 async def list_models(
     service: OllamaInferenceService = Depends(get_ollama_service),
@@ -287,24 +297,23 @@ async def list_models(
             size = m.get("size", "Unknown")
             if isinstance(size, int):
                 size = str(size)
-            models.append(ModelInfo(
-                name=m["name"],
-                size=size,
-                parameter_count=details.get("parameter_size", "Unknown"),
-                quantization=details.get("quantization_level", "Unknown"),
-                family=details.get("family", "Unknown")
-            ))
+            models.append(
+                ModelInfo(
+                    name=m["name"],
+                    size=size,
+                    parameter_count=details.get("parameter_size", "Unknown"),
+                    quantization=details.get("quantization_level", "Unknown"),
+                    family=details.get("family", "Unknown"),
+                )
+            )
 
-        return ModelsListResponse(
-            models=models,
-            total=len(models)
-        )
+        return ModelsListResponse(models=models, total=len(models))
 
     except Exception as e:
         logger.error(f"Failed to list models: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list models: {str(e)}"
+            detail=f"Failed to list models: {str(e)}",
         )
 
 
@@ -312,7 +321,7 @@ async def list_models(
     "/health",
     status_code=status.HTTP_200_OK,
     summary="Health check",
-    description="Check Ollama service health"
+    description="Check Ollama service health",
 )
 async def health_check(
     service: OllamaInferenceService = Depends(get_ollama_service),
@@ -330,15 +339,11 @@ async def health_check(
         is_healthy = await service.ollama.health_check()
 
         if is_healthy:
-            return {
-                "status": "healthy",
-                "service": "ollama",
-                "url": service.ollama.base_url
-            }
+            return {"status": "healthy", "service": "ollama", "url": service.ollama.base_url}
         else:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Ollama service is not healthy"
+                detail="Ollama service is not healthy",
             )
 
     except HTTPException:
@@ -346,8 +351,7 @@ async def health_check(
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Health check failed: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"Health check failed: {str(e)}"
         )
 
 
@@ -356,7 +360,7 @@ async def health_check(
     response_model=TemplateInferenceResponse,
     status_code=status.HTTP_200_OK,
     summary="Inference with template",
-    description="Run inference using a prompt template"
+    description="Run inference using a prompt template",
 )
 async def infer_with_template(
     request: TemplateInferenceRequest,
@@ -381,10 +385,7 @@ async def infer_with_template(
             model_id=request.model,
             template_name=request.template_name,
             template_variables=request.variables,
-            parameters={
-                "temperature": request.temperature,
-                "max_tokens": request.max_tokens
-            }
+            parameters={"temperature": request.temperature, "max_tokens": request.max_tokens},
         )
 
         return TemplateInferenceResponse(
@@ -393,19 +394,16 @@ async def infer_with_template(
             text=result["text"],
             usage=result["usage"],
             template_used=result["template_used"],
-            template_variables=result["template_variables"]
+            template_variables=result["template_variables"],
         )
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Template inference failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Template inference failed: {str(e)}"
+            detail=f"Template inference failed: {str(e)}",
         )
 
 
@@ -414,7 +412,7 @@ async def infer_with_template(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Text classification",
-    description="Classify text into predefined categories using templates"
+    description="Classify text into predefined categories using templates",
 )
 async def classify_text(
     request: ClassificationRequest,
@@ -438,21 +436,18 @@ async def classify_text(
             model_id=request.model,
             text=request.text,
             categories=request.categories,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Text classification failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Text classification failed: {str(e)}"
+            detail=f"Text classification failed: {str(e)}",
         )
 
 
@@ -461,7 +456,7 @@ async def classify_text(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Named entity recognition",
-    description="Extract named entities from text using templates"
+    description="Extract named entities from text using templates",
 )
 async def extract_entities(
     request: EntityExtractionRequest,
@@ -484,21 +479,18 @@ async def extract_entities(
         result = await service.extract_entities(
             model_id=request.model,
             text=request.text,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Entity extraction failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Entity extraction failed: {str(e)}"
+            detail=f"Entity extraction failed: {str(e)}",
         )
 
 
@@ -507,7 +499,7 @@ async def extract_entities(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Text summarization",
-    description="Summarize text using templates"
+    description="Summarize text using templates",
 )
 async def summarize_text(
     request: SummarizationRequest,
@@ -531,21 +523,18 @@ async def summarize_text(
             model_id=request.model,
             text=request.text,
             max_words=request.max_words,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Text summarization failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Text summarization failed: {str(e)}"
+            detail=f"Text summarization failed: {str(e)}",
         )
 
 
@@ -554,7 +543,7 @@ async def summarize_text(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Sentiment analysis",
-    description="Analyze sentiment of text using templates"
+    description="Analyze sentiment of text using templates",
 )
 async def analyze_sentiment(
     request: SentimentAnalysisRequest,
@@ -577,21 +566,18 @@ async def analyze_sentiment(
         result = await service.analyze_sentiment(
             model_id=request.model,
             text=request.text,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Sentiment analysis failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Sentiment analysis failed: {str(e)}"
+            detail=f"Sentiment analysis failed: {str(e)}",
         )
 
 
@@ -600,7 +586,7 @@ async def analyze_sentiment(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Question answering",
-    description="Answer questions based on context using templates"
+    description="Answer questions based on context using templates",
 )
 async def answer_question(
     request: QuestionAnsweringRequest,
@@ -624,21 +610,18 @@ async def answer_question(
             model_id=request.model,
             question=request.question,
             context=request.context,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Question answering failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Question answering failed: {str(e)}"
+            detail=f"Question answering failed: {str(e)}",
         )
 
 
@@ -647,7 +630,7 @@ async def answer_question(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Translation",
-    description="Translate text between languages using templates"
+    description="Translate text between languages using templates",
 )
 async def translate_text(
     request: TranslationRequest,
@@ -672,21 +655,18 @@ async def translate_text(
             text=request.text,
             source_lang=request.source_lang,
             target_lang=request.target_lang,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Translation failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Translation failed: {str(e)}"
+            detail=f"Translation failed: {str(e)}",
         )
 
 
@@ -695,7 +675,7 @@ async def translate_text(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Code review",
-    description="Review code for bugs, security, and best practices using templates"
+    description="Review code for bugs, security, and best practices using templates",
 )
 async def review_code(
     request: CodeReviewRequest,
@@ -719,21 +699,18 @@ async def review_code(
             model_id=request.model,
             code=request.code,
             language=request.language,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Code review failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Code review failed: {str(e)}"
+            detail=f"Code review failed: {str(e)}",
         )
 
 
@@ -742,7 +719,7 @@ async def review_code(
     response_model=CompletionResponse,
     status_code=status.HTTP_200_OK,
     summary="Error analysis",
-    description="Analyze errors and provide solutions using templates"
+    description="Analyze errors and provide solutions using templates",
 )
 async def analyze_error(
     request: ErrorAnalysisRequest,
@@ -767,19 +744,16 @@ async def analyze_error(
             error_type=request.error_type,
             error_message=request.error_message,
             stack_trace=request.stack_trace,
-            parameters={"temperature": request.temperature}
+            parameters={"temperature": request.temperature},
         )
 
         return CompletionResponse(
-            id=str(uuid4()),
-            model=result["model"],
-            text=result["text"],
-            usage=result["usage"]
+            id=str(uuid4()), model=result["model"], text=result["text"], usage=result["usage"]
         )
 
     except Exception as e:
         logger.error(f"Error analysis failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error analysis failed: {str(e)}"
+            detail=f"Error analysis failed: {str(e)}",
         )

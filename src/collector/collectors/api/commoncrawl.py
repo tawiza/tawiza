@@ -91,19 +91,14 @@ class CommonCrawlCollector(BaseCollector):
             logger.warning("[commoncrawl] No enterprises with websites found")
             return []
 
-        logger.info(
-            f"[commoncrawl] Analyzing {len(enterprises)} enterprises "
-            f"for dept={code_dept}"
-        )
+        logger.info(f"[commoncrawl] Analyzing {len(enterprises)} enterprises for dept={code_dept}")
 
         for enterprise in enterprises:
             try:
                 enterprise_signals = await self._analyze_enterprise(enterprise)
                 signals.extend(enterprise_signals)
             except Exception as e:
-                logger.error(
-                    f"[commoncrawl] Error analyzing {enterprise.get('siret')}: {e}"
-                )
+                logger.error(f"[commoncrawl] Error analyzing {enterprise.get('siret')}: {e}")
 
         return signals
 
@@ -136,9 +131,7 @@ class CommonCrawlCollector(BaseCollector):
         }
         return await self._analyze_enterprise(enterprise)
 
-    async def _analyze_enterprise(
-        self, enterprise: dict[str, Any]
-    ) -> list[CollectedSignal]:
+    async def _analyze_enterprise(self, enterprise: dict[str, Any]) -> list[CollectedSignal]:
         """Full analysis pipeline for one enterprise."""
         siret = enterprise.get("siret", "unknown")
         nom = enterprise.get("nom", "unknown")
@@ -150,9 +143,7 @@ class CommonCrawlCollector(BaseCollector):
             return []
 
         # Step 1: Get timeline from Common Crawl
-        timeline = await self._adapter.get_timeline(
-            site_web, months=self._months_back
-        )
+        timeline = await self._adapter.get_timeline(site_web, months=self._months_back)
 
         if not timeline:
             logger.debug(f"[commoncrawl] No snapshots found for {nom} ({site_web})")
@@ -210,9 +201,7 @@ class CommonCrawlCollector(BaseCollector):
 
         # Step 3: Compare consecutive snapshots
         for i in range(1, len(snapshots)):
-            change = await self._analyzer.compare_snapshots(
-                snapshots[i - 1], snapshots[i], nom
-            )
+            change = await self._analyzer.compare_snapshots(snapshots[i - 1], snapshots[i], nom)
             if change and change.changes:
                 snapshots[i].notable_elements.extend(change.changes)
 
@@ -266,32 +255,36 @@ class CommonCrawlCollector(BaseCollector):
         """Persist snapshots and signals to database (best effort)."""
         try:
             from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+            from src.infrastructure.persistence.database import get_session
             from src.infrastructure.persistence.models.web_snapshot_model import (
                 CrawlIntelSignalDB,
                 WebSnapshotDB,
             )
 
-            from src.infrastructure.persistence.database import get_session
-
             async with get_session() as session:
                 # Upsert snapshots (skip duplicates)
                 for snap in snapshots:
-                    stmt = pg_insert(WebSnapshotDB).values(
-                        siret=snap.siret,
-                        url=snap.url,
-                        crawl_date=snap.crawl_date,
-                        crawl_id=snap.crawl_id,
-                        content_hash=snap.content_hash,
-                        content_length=snap.content_length,
-                        activity_status=snap.activity_status,
-                        employee_mentions=snap.employee_mentions,
-                        products_services=snap.products_services,
-                        job_openings=snap.job_openings,
-                        sentiment_score=snap.sentiment_score,
-                        notable_elements=snap.notable_elements,
-                        confidence=snap.confidence,
-                    ).on_conflict_do_nothing(
-                        index_elements=["siret", "crawl_id", "content_hash"]
+                    stmt = (
+                        pg_insert(WebSnapshotDB)
+                        .values(
+                            siret=snap.siret,
+                            url=snap.url,
+                            crawl_date=snap.crawl_date,
+                            crawl_id=snap.crawl_id,
+                            content_hash=snap.content_hash,
+                            content_length=snap.content_length,
+                            activity_status=snap.activity_status,
+                            employee_mentions=snap.employee_mentions,
+                            products_services=snap.products_services,
+                            job_openings=snap.job_openings,
+                            sentiment_score=snap.sentiment_score,
+                            notable_elements=snap.notable_elements,
+                            confidence=snap.confidence,
+                        )
+                        .on_conflict_do_nothing(
+                            index_elements=["siret", "crawl_id", "content_hash"]
+                        )
                     )
                     await session.execute(stmt)
 
@@ -319,9 +312,7 @@ class CommonCrawlCollector(BaseCollector):
         except Exception as e:
             logger.warning(f"[commoncrawl] Persistence failed (non-blocking): {e}")
 
-    async def _get_target_enterprises(
-        self, code_dept: str | None
-    ) -> list[dict[str, Any]]:
+    async def _get_target_enterprises(self, code_dept: str | None) -> list[dict[str, Any]]:
         """Get prioritized list of enterprises to analyze.
 
         Priority order:
@@ -363,27 +354,24 @@ class CommonCrawlCollector(BaseCollector):
                     site_web = self._extract_website(r)
                     if site_web:
                         seen_sirets.add(siret)
-                        enterprises.append({
-                            "siret": siret,
-                            "nom": r.get("nom") or r.get("nom_commercial", ""),
-                            "site_web": site_web,
-                            "naf": r.get("naf_code", ""),
-                            "code_dept": r.get("adresse", {}).get("departement") or code_dept,
-                        })
+                        enterprises.append(
+                            {
+                                "siret": siret,
+                                "nom": r.get("nom") or r.get("nom_commercial", ""),
+                                "site_web": site_web,
+                                "naf": r.get("naf_code", ""),
+                                "code_dept": r.get("adresse", {}).get("departement") or code_dept,
+                            }
+                        )
                     if len(enterprises) >= self.config.batch_size:
                         break
             except Exception as e:
                 logger.error(f"[commoncrawl] SIRENE lookup failed: {e}")
 
-        logger.info(
-            f"[commoncrawl] Target enterprises: {len(enterprises)} "
-            f"(dept={code_dept})"
-        )
+        logger.info(f"[commoncrawl] Target enterprises: {len(enterprises)} (dept={code_dept})")
         return enterprises[: self.config.batch_size]
 
-    async def _get_bodacc_targets(
-        self, code_dept: str | None
-    ) -> list[dict[str, Any]]:
+    async def _get_bodacc_targets(self, code_dept: str | None) -> list[dict[str, Any]]:
         """Get enterprises with recent BODACC signals that have websites."""
         from sqlalchemy import text
 
@@ -423,14 +411,16 @@ class CommonCrawlCollector(BaseCollector):
                     for r in result.get("results", []):
                         site_web = self._extract_website(r)
                         if site_web:
-                            enterprises.append({
-                                "siret": siret,
-                                "nom": row[1] or r.get("nom", ""),
-                                "site_web": site_web,
-                                "naf": row[2] or r.get("naf_code", ""),
-                                "code_dept": row[3] or code_dept,
-                                "priority": "bodacc",
-                            })
+                            enterprises.append(
+                                {
+                                    "siret": siret,
+                                    "nom": row[1] or r.get("nom", ""),
+                                    "site_web": site_web,
+                                    "naf": row[2] or r.get("naf_code", ""),
+                                    "code_dept": row[3] or code_dept,
+                                    "priority": "bodacc",
+                                }
+                            )
                 except Exception:
                     continue
             await sirene.close()

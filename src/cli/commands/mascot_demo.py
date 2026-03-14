@@ -45,10 +45,12 @@ def demo_all():
     4. MascotProgressBar
     """
     console.print()
-    console.print(Panel(
-        "[bold magenta]Démonstration des Animations Mascotte Tawiza[/bold magenta]",
-        border_style="magenta"
-    ))
+    console.print(
+        Panel(
+            "[bold magenta]Démonstration des Animations Mascotte Tawiza[/bold magenta]",
+            border_style="magenta",
+        )
+    )
     console.print()
 
     # 1. Welcome mascot
@@ -96,22 +98,24 @@ def demo_all():
     mascot_says("Toutes les animations sont prêtes!", "success")
 
     console.print()
-    console.print(Panel(
-        "[bold green]Utilisation dans votre code:[/bold green]\n\n"
-        "[cyan]from src.cli.ui.animations import BreathingMascot, MascotSpinner, MascotProgressBar[/cyan]\n\n"
-        "[yellow]# Context manager[/yellow]\n"
-        "with BreathingMascot('Message...', mode='working') as mascot:\n"
-        "    # votre code ici\n"
-        "    mascot.update_message('Nouveau message')\n\n"
-        "[yellow]# Spinner[/yellow]\n"
-        "with MascotSpinner('Chargement...') as spinner:\n"
-        "    spinner.update('Progression...')\n\n"
-        "[yellow]# Progress bar[/yellow]\n"
-        "with MascotProgressBar(total=100, task='Téléchargement') as bar:\n"
-        "    bar.update(10)",
-        title="Guide d'utilisation",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            "[bold green]Utilisation dans votre code:[/bold green]\n\n"
+            "[cyan]from src.cli.ui.animations import BreathingMascot, MascotSpinner, MascotProgressBar[/cyan]\n\n"
+            "[yellow]# Context manager[/yellow]\n"
+            "with BreathingMascot('Message...', mode='working') as mascot:\n"
+            "    # votre code ici\n"
+            "    mascot.update_message('Nouveau message')\n\n"
+            "[yellow]# Spinner[/yellow]\n"
+            "with MascotSpinner('Chargement...') as spinner:\n"
+            "    spinner.update('Progression...')\n\n"
+            "[yellow]# Progress bar[/yellow]\n"
+            "with MascotProgressBar(total=100, task='Téléchargement') as bar:\n"
+            "    bar.update(10)",
+            title="Guide d'utilisation",
+            border_style="cyan",
+        )
+    )
 
 
 @app.command("breathing")
@@ -187,17 +191,17 @@ def show_help():
     table.add_row(
         "BreathingMascot",
         "Animation de respiration subtile\nModes: breathing, working, thinking",
-        "with BreathingMascot('msg', mode='working'):\n    ..."
+        "with BreathingMascot('msg', mode='working'):\n    ...",
     )
     table.add_row(
         "MascotSpinner",
         "Spinner avec mascotte intégrée\nMise à jour du message possible",
-        "with MascotSpinner('msg') as s:\n    s.update('new')"
+        "with MascotSpinner('msg') as s:\n    s.update('new')",
     )
     table.add_row(
         "MascotProgressBar",
         "Barre de progression\nMascotte change d'expression",
-        "with MascotProgressBar(100, task='X') as b:\n    b.update(10)"
+        "with MascotProgressBar(100, task='X') as b:\n    b.update(10)",
     )
 
     console.print()
@@ -209,7 +213,9 @@ def show_help():
 
 @app.command("config")
 def configure_mascot(
-    style: str = typer.Option(None, "--style", "-s", help="Style: kawaii, cyberpunk, minimal, neon, retro"),
+    style: str = typer.Option(
+        None, "--style", "-s", help="Style: kawaii, cyberpunk, minimal, neon, retro"
+    ),
     name: str = typer.Option(None, "--name", "-n", help="Nom de la mascotte"),
     color: str = typer.Option(None, "--color", "-c", help="Couleur principale"),
 ):
@@ -225,7 +231,9 @@ def configure_mascot(
         try:
             config.style = MascotStyle(style)
         except ValueError:
-            console.print(f"[red]Erreur:[/red] Style '{style}' invalide. Styles disponibles: kawaii, cyberpunk, minimal, neon, retro")
+            console.print(
+                f"[red]Erreur:[/red] Style '{style}' invalide. Styles disponibles: kawaii, cyberpunk, minimal, neon, retro"
+            )
             return
     if name:
         config.name = name
@@ -283,7 +291,9 @@ def play_waiting_game(
     console.print()
     if game_type == "catch":
         console.print("[cyan]Jeu de catch - La mascotte attrape les étoiles![/cyan]")
-        console.print("[dim]Les objets tombent automatiquement, regardez la mascotte les attraper![/dim]\n")
+        console.print(
+            "[dim]Les objets tombent automatiquement, regardez la mascotte les attraper![/dim]\n"
+        )
         score = games.play_catch(duration=duration, title="Attrape les étoiles!")
         console.print(f"\n[bold green]Score final: {score} ⭐[/bold green]")
     elif game_type == "typing":
@@ -291,7 +301,9 @@ def play_waiting_game(
         games.typing_effect(duration=duration)
         console.print("\n[green]✓[/green] Terminé")
     else:
-        console.print(f"[red]Erreur:[/red] Type de jeu '{game_type}' invalide. Utilisez 'catch' ou 'typing'")
+        console.print(
+            f"[red]Erreur:[/red] Type de jeu '{game_type}' invalide. Utilisez 'catch' ou 'typing'"
+        )
     console.print()
 
 

@@ -5,10 +5,10 @@ from uuid import UUID
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.dataset_model import DatasetDB
 
 from src.domain.entities.dataset import Dataset, DatasetMetadata, DatasetStatus, DatasetType
 from src.domain.repositories.ml_repositories import IDatasetRepository
+from src.infrastructure.persistence.models.dataset_model import DatasetDB
 
 
 class SQLAlchemyDatasetRepository(IDatasetRepository):
@@ -290,9 +290,7 @@ class SQLAlchemyDatasetRepository(IDatasetRepository):
         Returns:
             Dataset entity or None
         """
-        query = select(DatasetDB).where(
-            DatasetDB.label_studio_project_id == project_id
-        )
+        query = select(DatasetDB).where(DatasetDB.label_studio_project_id == project_id)
         result = await self.session.execute(query)
         db_model = result.scalar_one_or_none()
 

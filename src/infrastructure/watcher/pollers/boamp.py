@@ -44,19 +44,23 @@ class BoampPoller(BasePoller):
 
         if keywords:
             for keyword in keywords:
-                results = await self.adapter.search({
-                    "keywords": keyword,
-                    "date_from": date_from,
-                    "limit": 50,
-                })
+                results = await self.adapter.search(
+                    {
+                        "keywords": keyword,
+                        "date_from": date_from,
+                        "limit": 50,
+                    }
+                )
                 alerts.extend(self._results_to_alerts(results))
         else:
             # Get recent calls for tenders
-            results = await self.adapter.search({
-                "type": "appel_offre",
-                "date_from": date_from,
-                "limit": 100,
-            })
+            results = await self.adapter.search(
+                {
+                    "type": "appel_offre",
+                    "date_from": date_from,
+                    "limit": 100,
+                }
+            )
             alerts.extend(self._results_to_alerts(results))
 
         # Deduplicate
@@ -122,7 +126,9 @@ class BoampPoller(BasePoller):
 
         return alerts
 
-    async def poll_opportunities(self, keywords: list[str] = None, departements: list[str] = None) -> list[Alert]:
+    async def poll_opportunities(
+        self, keywords: list[str] = None, departements: list[str] = None
+    ) -> list[Alert]:
         """Poll specifically for business opportunities.
 
         Args:

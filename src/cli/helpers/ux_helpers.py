@@ -9,6 +9,7 @@ Module centralisé pour les améliorations UX:
 - Clipboard
 - Terminal bell
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
@@ -21,7 +22,7 @@ from rich.console import Console
 
 console = Console()
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 # ==============================================================================
 # FEATURE FLAGS - Check disponibilité des bibliothèques
@@ -36,6 +37,7 @@ HAS_THEFUZZ = False
 
 try:
     from iterfzf import iterfzf
+
     HAS_ITERFZF = True
 except ImportError:
     pass
@@ -43,30 +45,35 @@ except ImportError:
 try:
     from InquirerPy import inquirer
     from InquirerPy.validator import PathValidator as InquirerPathValidator
+
     HAS_INQUIRERPY = True
 except ImportError:
     pass
 
 try:
     from alive_progress import alive_bar, alive_it
+
     HAS_ALIVE_PROGRESS = True
 except ImportError:
     pass
 
 try:
     import pyperclip
+
     HAS_PYPERCLIP = True
 except ImportError:
     pass
 
 try:
     from plyer import notification
+
     HAS_PLYER = True
 except ImportError:
     pass
 
 try:
     from thefuzz import fuzz, process
+
     HAS_THEFUZZ = True
 except ImportError:
     pass
@@ -76,11 +83,9 @@ except ImportError:
 # FUZZY FINDING
 # ==============================================================================
 
+
 def fuzzy_select(
-    choices: list[str],
-    prompt: str = "Select: ",
-    default: str | None = None,
-    multi: bool = False
+    choices: list[str], prompt: str = "Select: ", default: str | None = None, multi: bool = False
 ) -> str | list[str] | None:
     """
     Sélection avec fuzzy finding.
@@ -130,6 +135,7 @@ def fuzzy_select(
     # Fallback: questionary (déjà intégré)
     try:
         import questionary
+
         if multi:
             return questionary.checkbox(prompt, choices=choices).ask()
         return questionary.select(prompt, choices=choices, default=default).ask()
@@ -148,10 +154,7 @@ def fuzzy_select(
 
 
 def fuzzy_match(
-    query: str,
-    choices: list[str],
-    limit: int = 5,
-    score_cutoff: int = 60
+    query: str, choices: list[str], limit: int = 5, score_cutoff: int = 60
 ) -> list[tuple[str, int]]:
     """
     Recherche fuzzy dans une liste.
@@ -187,11 +190,10 @@ def fuzzy_match(
 # PROGRESS BARS
 # ==============================================================================
 
+
 @contextmanager
 def animated_progress(
-    total: int | None = None,
-    title: str = "Processing",
-    spinner: str = "dots"
+    total: int | None = None, title: str = "Processing", spinner: str = "dots"
 ) -> Iterator[Callable[[], None]]:
     """
     Progress bar animée avec alive-progress.
@@ -228,10 +230,7 @@ def animated_progress(
         yield advance
 
 
-def iterate_with_progress[T](
-    iterable: list[T],
-    title: str = "Processing"
-) -> Iterator[T]:
+def iterate_with_progress[T](iterable: list[T], title: str = "Processing") -> Iterator[T]:
     """
     Itérer avec progress bar animée.
 
@@ -251,6 +250,7 @@ def iterate_with_progress[T](
 
     # Fallback: Rich
     from rich.progress import track
+
     yield from track(iterable, description=title)
 
 
@@ -258,11 +258,9 @@ def iterate_with_progress[T](
 # NOTIFICATIONS
 # ==============================================================================
 
+
 def notify_desktop(
-    title: str,
-    message: str,
-    timeout: int = 10,
-    app_name: str = "Tawiza-V2"
+    title: str, message: str, timeout: int = 10, app_name: str = "Tawiza-V2"
 ) -> bool:
     """
     Envoyer une notification desktop.
@@ -295,11 +293,7 @@ def notify_desktop(
     return False
 
 
-def notify_completion(
-    task_name: str,
-    success: bool = True,
-    details: str | None = None
-) -> None:
+def notify_completion(task_name: str, success: bool = True, details: str | None = None) -> None:
     """
     Notifier la fin d'une tâche.
 
@@ -321,6 +315,7 @@ def notify_completion(
 # ==============================================================================
 # CLIPBOARD
 # ==============================================================================
+
 
 def copy_to_clipboard(text: str, show_message: bool = True) -> bool:
     """
@@ -362,11 +357,7 @@ def paste_from_clipboard() -> str | None:
     return None
 
 
-def output_with_copy_option(
-    content: str,
-    title: str = "Result",
-    syntax: str | None = None
-) -> None:
+def output_with_copy_option(content: str, title: str = "Result", syntax: str | None = None) -> None:
     """
     Afficher du contenu avec option de copier.
 
@@ -379,6 +370,7 @@ def output_with_copy_option(
 
     if syntax:
         from rich.syntax import Syntax
+
         console.print(Syntax(content, syntax, theme="monokai"))
     else:
         console.print(content)
@@ -386,6 +378,7 @@ def output_with_copy_option(
     if HAS_PYPERCLIP:
         try:
             import questionary
+
             if questionary.confirm("Copier dans le presse-papier?", default=False).ask():
                 copy_to_clipboard(content, show_message=True)
         except Exception:
@@ -396,6 +389,7 @@ def output_with_copy_option(
 # TERMINAL BELL
 # ==============================================================================
 
+
 def beep(count: int = 1) -> None:
     """
     Émettre un bip terminal.
@@ -404,7 +398,7 @@ def beep(count: int = 1) -> None:
         count: Nombre de bips
     """
     for _ in range(count):
-        print('\a', end='', flush=True)
+        print("\a", end="", flush=True)
 
 
 def alert_attention() -> None:
@@ -417,11 +411,12 @@ def alert_attention() -> None:
 # FILE PATH HELPERS
 # ==============================================================================
 
+
 def select_file(
     prompt: str = "Select file",
     default: str = "./",
     must_exist: bool = True,
-    file_filter: str | None = None
+    file_filter: str | None = None,
 ) -> str | None:
     """
     Sélectionner un fichier avec validation.
@@ -440,10 +435,9 @@ def select_file(
             result = inquirer.filepath(
                 message=prompt,
                 default=default,
-                validate=InquirerPathValidator(
-                    is_file=must_exist,
-                    message="Fichier invalide"
-                ) if must_exist else None,
+                validate=InquirerPathValidator(is_file=must_exist, message="Fichier invalide")
+                if must_exist
+                else None,
             ).execute()
             return result
         except Exception as e:
@@ -452,6 +446,7 @@ def select_file(
     # Fallback: questionary
     try:
         import questionary
+
         path = questionary.path(prompt, default=default).ask()
         if must_exist and path and not Path(path).exists():
             console.print("[red]Fichier introuvable[/red]")
@@ -472,11 +467,8 @@ def select_file(
 # ASYNC HELPERS
 # ==============================================================================
 
-async def run_with_notification(
-    coro: Any,
-    task_name: str,
-    show_progress: bool = True
-) -> Any:
+
+async def run_with_notification(coro: Any, task_name: str, show_progress: bool = True) -> Any:
     """
     Exécuter une coroutine avec notification de fin.
 
@@ -503,6 +495,7 @@ async def run_with_notification(
 # ==============================================================================
 # AVAILABILITY CHECK
 # ==============================================================================
+
 
 def get_available_features() -> dict[str, bool]:
     """Obtenir la liste des features disponibles"""

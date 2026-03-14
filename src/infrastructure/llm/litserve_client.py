@@ -24,7 +24,7 @@ class LitServeClient:
         base_url: str = "http://localhost:8001",
         timeout: float = 120.0,
         pool_connections: int = 10,
-        pool_maxsize: int = 20
+        pool_maxsize: int = 20,
     ):
         """
         Initialize LitServe client.
@@ -40,14 +40,9 @@ class LitServeClient:
 
         # Create HTTP client with connection pooling
         limits = httpx.Limits(
-            max_connections=pool_maxsize,
-            max_keepalive_connections=pool_connections
+            max_connections=pool_maxsize, max_keepalive_connections=pool_connections
         )
-        self.client = httpx.AsyncClient(
-            timeout=timeout,
-            limits=limits,
-            http2=True
-        )
+        self.client = httpx.AsyncClient(timeout=timeout, limits=limits, http2=True)
 
         logger.info(
             f"LitServe client initialized: {self.base_url} "
@@ -61,7 +56,7 @@ class LitServeClient:
         system: str | None = None,
         temperature: float = 0.7,
         max_tokens: int | None = None,
-        stream: bool = False
+        stream: bool = False,
     ) -> dict[str, Any]:
         """
         Generate completion.
@@ -88,14 +83,11 @@ class LitServeClient:
             "prompt": prompt,
             "system": system,
             "temperature": temperature,
-            "max_tokens": max_tokens
+            "max_tokens": max_tokens,
         }
 
         try:
-            response = await self.client.post(
-                f"{self.base_url}/predict",
-                json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/predict", json=payload)
             response.raise_for_status()
             result = response.json()
 
@@ -113,7 +105,7 @@ class LitServeClient:
         model: str,
         messages: list[dict[str, str]],
         temperature: float = 0.7,
-        stream: bool = False
+        stream: bool = False,
     ) -> dict[str, Any]:
         """
         Chat completion.
@@ -132,18 +124,10 @@ class LitServeClient:
         if stream:
             logger.warning("Streaming not supported via LitServe, using non-streaming")
 
-        payload = {
-            "type": "chat",
-            "model": model,
-            "messages": messages,
-            "temperature": temperature
-        }
+        payload = {"type": "chat", "model": model, "messages": messages, "temperature": temperature}
 
         try:
-            response = await self.client.post(
-                f"{self.base_url}/predict",
-                json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/predict", json=payload)
             response.raise_for_status()
             result = response.json()
 
@@ -156,11 +140,7 @@ class LitServeClient:
             logger.error(f"LitServe chat request failed: {e}")
             raise
 
-    async def get_embedding(
-        self,
-        model: str,
-        text: str
-    ) -> list[float]:
+    async def get_embedding(self, model: str, text: str) -> list[float]:
         """
         Get embedding vector.
 
@@ -173,17 +153,10 @@ class LitServeClient:
         Returns:
             list: Embedding vector
         """
-        payload = {
-            "type": "embedding",
-            "model": model,
-            "text": text
-        }
+        payload = {"type": "embedding", "model": model, "text": text}
 
         try:
-            response = await self.client.post(
-                f"{self.base_url}/predict",
-                json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/predict", json=payload)
             response.raise_for_status()
             result = response.json()
 
@@ -222,7 +195,4 @@ class LitServeClient:
         Returns:
             dict: Basic stats (placeholder)
         """
-        return {
-            "base_url": self.base_url,
-            "timeout": self.timeout
-        }
+        return {"base_url": self.base_url, "timeout": self.timeout}

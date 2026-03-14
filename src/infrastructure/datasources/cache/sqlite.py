@@ -94,10 +94,7 @@ class SQLiteCache:
         """
         await self._ensure_connected()
 
-        cursor = await self._db.execute(
-            "SELECT value, expires_at FROM cache WHERE key = ?",
-            (key,)
-        )
+        cursor = await self._db.execute("SELECT value, expires_at FROM cache WHERE key = ?", (key,))
         row = await cursor.fetchone()
 
         if row is None:
@@ -138,20 +135,23 @@ class SQLiteCache:
         source = key.split(":")[0] if ":" in key else None
 
         # Upsert (SQLite 3.24+)
-        await self._db.execute("""
+        await self._db.execute(
+            """
             INSERT INTO cache (key, value, expires_at, created_at, source)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(key) DO UPDATE SET
                 value = excluded.value,
                 expires_at = excluded.expires_at,
                 created_at = excluded.created_at
-        """, (
-            key,
-            serialize_value(value),
-            expires_at.isoformat(),
-            now.isoformat(),
-            source,
-        ))
+        """,
+            (
+                key,
+                serialize_value(value),
+                expires_at.isoformat(),
+                now.isoformat(),
+                source,
+            ),
+        )
         await self._db.commit()
         logger.debug(f"SQLite cache set: {key} (TTL: {ttl}s)")
 
@@ -189,24 +189,14 @@ class SQLiteCache:
         if pattern.endswith("*"):
             prefix = pattern[:-1]
             cursor = await self._db.execute(
-                "SELECT COUNT(*) FROM cache WHERE key LIKE ?",
-                (f"{prefix}%",)
+                "SELECT COUNT(*) FROM cache WHERE key LIKE ?", (f"{prefix}%",)
             )
             count = (await cursor.fetchone())[0]
-            await self._db.execute(
-                "DELETE FROM cache WHERE key LIKE ?",
-                (f"{prefix}%",)
-            )
+            await self._db.execute("DELETE FROM cache WHERE key LIKE ?", (f"{prefix}%",))
         else:
-            cursor = await self._db.execute(
-                "SELECT COUNT(*) FROM cache WHERE key = ?",
-                (pattern,)
-            )
+            cursor = await self._db.execute("SELECT COUNT(*) FROM cache WHERE key = ?", (pattern,))
             count = (await cursor.fetchone())[0]
-            await self._db.execute(
-                "DELETE FROM cache WHERE key = ?",
-                (pattern,)
-            )
+            await self._db.execute("DELETE FROM cache WHERE key = ?", (pattern,))
 
         await self._db.commit()
         logger.info(f"SQLite cache cleared pattern '{pattern}': {count} entries")
@@ -222,8 +212,7 @@ class SQLiteCache:
 
         # Count non-expired entries
         cursor = await self._db.execute(
-            "SELECT COUNT(*) FROM cache WHERE expires_at > ?",
-            (datetime.utcnow().isoformat(),)
+            "SELECT COUNT(*) FROM cache WHERE expires_at > ?", (datetime.utcnow().isoformat(),)
         )
         count = (await cursor.fetchone())[0]
 
@@ -244,14 +233,12 @@ class SQLiteCache:
         await self._ensure_connected()
 
         cursor = await self._db.execute(
-            "SELECT COUNT(*) FROM cache WHERE expires_at <= ?",
-            (datetime.utcnow().isoformat(),)
+            "SELECT COUNT(*) FROM cache WHERE expires_at <= ?", (datetime.utcnow().isoformat(),)
         )
         count = (await cursor.fetchone())[0]
 
         await self._db.execute(
-            "DELETE FROM cache WHERE expires_at <= ?",
-            (datetime.utcnow().isoformat(),)
+            "DELETE FROM cache WHERE expires_at <= ?", (datetime.utcnow().isoformat(),)
         )
         await self._db.commit()
 
@@ -271,16 +258,10 @@ class SQLiteCache:
         """
         await self._ensure_connected()
 
-        cursor = await self._db.execute(
-            "SELECT COUNT(*) FROM cache WHERE source = ?",
-            (source,)
-        )
+        cursor = await self._db.execute("SELECT COUNT(*) FROM cache WHERE source = ?", (source,))
         count = (await cursor.fetchone())[0]
 
-        await self._db.execute(
-            "DELETE FROM cache WHERE source = ?",
-            (source,)
-        )
+        await self._db.execute("DELETE FROM cache WHERE source = ?", (source,))
         await self._db.commit()
 
         logger.info(f"SQLite cache cleared source '{source}': {count} entries")

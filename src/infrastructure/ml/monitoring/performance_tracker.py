@@ -86,10 +86,7 @@ class PerformanceTracker:
 
         # Get recent metrics
         cutoff_date = datetime.now() - timedelta(days=window_days)
-        recent_metrics = [
-            m for m in self.metrics_history
-            if m["timestamp"] >= cutoff_date
-        ]
+        recent_metrics = [m for m in self.metrics_history if m["timestamp"] >= cutoff_date]
 
         if not recent_metrics:
             return {
@@ -142,8 +139,7 @@ class PerformanceTracker:
         """
         cutoff_date = datetime.now() - timedelta(days=window_days)
         recent_metrics = [
-            m for m in self.metrics_history
-            if m["timestamp"] >= cutoff_date and metric in m
+            m for m in self.metrics_history if m["timestamp"] >= cutoff_date and metric in m
         ]
 
         if len(recent_metrics) < 2:
@@ -155,8 +151,8 @@ class PerformanceTracker:
         values = [m[metric] for m in recent_metrics]
 
         # Simple trend detection
-        first_half = values[:len(values)//2]
-        second_half = values[len(values)//2:]
+        first_half = values[: len(values) // 2]
+        second_half = values[len(values) // 2 :]
 
         avg_first = sum(first_half) / len(first_half)
         avg_second = sum(second_half) / len(second_half)

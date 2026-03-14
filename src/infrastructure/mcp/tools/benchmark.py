@@ -19,6 +19,7 @@ from mcp.server.fastmcp import Context, FastMCP
 @dataclass
 class BenchmarkResult:
     """Result of a single benchmark test."""
+
     test_name: str
     tool_name: str
     success: bool
@@ -44,6 +45,7 @@ class BenchmarkResult:
 @dataclass
 class BenchmarkSuite:
     """Collection of benchmark results."""
+
     suite_name: str
     started_at: datetime
     completed_at: datetime | None = None
@@ -166,6 +168,7 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         Returns:
             Rapport de benchmark avec scores et métriques
         """
+
         def notify(msg: str, progress: int = None):
             if ctx:
                 try:
@@ -194,10 +197,13 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
             selected_tests = {k: v for k, v in selected_tests.items() if v["timeout"] <= 60}
 
         if not selected_tests:
-            return json.dumps({
-                "success": False,
-                "error": "Aucun test sélectionné",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Aucun test sélectionné",
+                },
+                ensure_ascii=False,
+            )
 
         notify(f"[Benchmark] {len(selected_tests)} tests sélectionnés", 5)
 
@@ -211,10 +217,13 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
             )
         except ImportError as e:
             logger.error(f"Import error: {e}")
-            return json.dumps({
-                "success": False,
-                "error": f"Erreur import: {e}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Erreur import: {e}",
+                },
+                ensure_ascii=False,
+            )
 
         # Map tool names to functions
         tool_functions = {
@@ -306,18 +315,18 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
 
         report_md = f"""# Rapport de Benchmark Tawiza
 
-**Date**: {summary['started_at']}
-**Durée totale**: {summary['total_time_seconds']}s
+**Date**: {summary["started_at"]}
+**Durée totale**: {summary["total_time_seconds"]}s
 
 ## Résumé
 
 | Métrique | Valeur |
 |----------|--------|
-| Tests exécutés | {summary['total_tests']} |
-| Réussis | {summary['passed']} |
-| Échoués | {summary['failed']} |
-| Taux de réussite | {summary['pass_rate']}% |
-| Score qualité moyen | {summary['avg_quality_score']}/100 |
+| Tests exécutés | {summary["total_tests"]} |
+| Réussis | {summary["passed"]} |
+| Échoués | {summary["failed"]} |
+| Taux de réussite | {summary["pass_rate"]}% |
+| Score qualité moyen | {summary["avg_quality_score"]}/100 |
 
 ## Détail des Tests
 
@@ -341,12 +350,17 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
 *Benchmark Tawiza - {len(suite.results)} tests*
 """
 
-        return json.dumps({
-            "success": True,
-            "summary": summary,
-            "results": [r.to_dict() for r in suite.results],
-            "report_md": report_md,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "summary": summary,
+                "results": [r.to_dict() for r in suite.results],
+                "report_md": report_md,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def tawiza_benchmark_list(ctx: Context = None) -> str:
@@ -357,25 +371,31 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         """
         tests_list = []
         for test_id, config in BENCHMARK_TESTS.items():
-            tests_list.append({
-                "id": test_id,
-                "name": config["name"],
-                "description": config["description"],
-                "tool": config["tool"],
-                "timeout_seconds": config["timeout"],
-                "expected_min_results": config["expected_min_results"],
-            })
+            tests_list.append(
+                {
+                    "id": test_id,
+                    "name": config["name"],
+                    "description": config["description"],
+                    "tool": config["tool"],
+                    "timeout_seconds": config["timeout"],
+                    "expected_min_results": config["expected_min_results"],
+                }
+            )
 
         quick_tests = [t for t in tests_list if t["timeout_seconds"] <= 60]
         full_tests = [t for t in tests_list if t["timeout_seconds"] > 60]
 
-        return json.dumps({
-            "success": True,
-            "total_tests": len(tests_list),
-            "quick_tests": quick_tests,
-            "full_tests": full_tests,
-            "usage": "tawiza_benchmark_run(tests=['sirene_basic', 'geocoding'], quick_mode=True)",
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "total_tests": len(tests_list),
+                "quick_tests": quick_tests,
+                "full_tests": full_tests,
+                "usage": "tawiza_benchmark_run(tests=['sirene_basic', 'geocoding'], quick_mode=True)",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def tawiza_benchmark_tool(
@@ -408,10 +428,13 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
                 sirene_search,
             )
         except ImportError as e:
-            return json.dumps({
-                "success": False,
-                "error": f"Import error: {e}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Import error: {e}",
+                },
+                ensure_ascii=False,
+            )
 
         # Tool configs
         tool_configs = {
@@ -434,10 +457,13 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         }
 
         if tool_name not in tool_configs:
-            return json.dumps({
-                "success": False,
-                "error": f"Outil inconnu: {tool_name}. Disponibles: {list(tool_configs.keys())}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Outil inconnu: {tool_name}. Disponibles: {list(tool_configs.keys())}",
+                },
+                ensure_ascii=False,
+            )
 
         config = tool_configs[tool_name]
         times = []
@@ -446,7 +472,7 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
 
         for i in range(iterations):
             if ctx:
-                ctx.info(f"[Benchmark] Iteration {i+1}/{iterations}")
+                ctx.info(f"[Benchmark] Iteration {i + 1}/{iterations}")
 
             start = time.time()
             try:
@@ -464,7 +490,7 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
 
             except Exception as e:
                 times.append(time.time() - start)
-                logger.error(f"Iteration {i+1} failed: {e}")
+                logger.error(f"Iteration {i + 1} failed: {e}")
 
             await asyncio.sleep(0.5)  # Small delay between iterations
 
@@ -479,21 +505,25 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
 
         avg_data = sum(data_counts) / len(data_counts) if data_counts else 0
 
-        return json.dumps({
-            "success": True,
-            "tool": tool_name,
-            "iterations": iterations,
-            "success_rate": round(successes / iterations * 100, 1),
-            "timing": {
-                "avg_seconds": round(avg_time, 3),
-                "min_seconds": round(min_time, 3),
-                "max_seconds": round(max_time, 3),
-                "std_dev": round(std_dev, 3),
+        return json.dumps(
+            {
+                "success": True,
+                "tool": tool_name,
+                "iterations": iterations,
+                "success_rate": round(successes / iterations * 100, 1),
+                "timing": {
+                    "avg_seconds": round(avg_time, 3),
+                    "min_seconds": round(min_time, 3),
+                    "max_seconds": round(max_time, 3),
+                    "std_dev": round(std_dev, 3),
+                },
+                "data": {
+                    "avg_items": round(avg_data, 1),
+                },
             },
-            "data": {
-                "avg_items": round(avg_data, 1),
-            },
-        }, ensure_ascii=False, indent=2)
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def tawiza_benchmark_compare(
@@ -520,17 +550,21 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
             )
             data = json.loads(result)
             if data.get("success"):
-                results.append({
-                    "tool": tool_name,
-                    "success_rate": data["success_rate"],
-                    "avg_time": data["timing"]["avg_seconds"],
-                    "avg_data": data["data"]["avg_items"],
-                })
+                results.append(
+                    {
+                        "tool": tool_name,
+                        "success_rate": data["success_rate"],
+                        "avg_time": data["timing"]["avg_seconds"],
+                        "avg_data": data["data"]["avg_items"],
+                    }
+                )
             else:
-                results.append({
-                    "tool": tool_name,
-                    "error": data.get("error", "Failed"),
-                })
+                results.append(
+                    {
+                        "tool": tool_name,
+                        "error": data.get("error", "Failed"),
+                    }
+                )
 
         # Sort by avg time
         results.sort(key=lambda x: x.get("avg_time", 999))
@@ -544,10 +578,16 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
             if "error" in r:
                 report_md += f"| {r['tool']} | ❌ | - | {r['error']} |\n"
             else:
-                report_md += f"| {r['tool']} | {r['success_rate']}% | {r['avg_time']}s | {r['avg_data']} |\n"
+                report_md += (
+                    f"| {r['tool']} | {r['success_rate']}% | {r['avg_time']}s | {r['avg_data']} |\n"
+                )
 
-        return json.dumps({
-            "success": True,
-            "comparison": results,
-            "report_md": report_md,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "comparison": results,
+                "report_md": report_md,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )

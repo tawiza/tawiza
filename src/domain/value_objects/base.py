@@ -21,8 +21,7 @@ class ValueObject(ABC):
         if not isinstance(other, self.__class__):
             return False
         return all(
-            getattr(self, attr) == getattr(other, attr)
-            for attr in self.__dataclass_fields__
+            getattr(self, attr) == getattr(other, attr) for attr in self.__dataclass_fields__
         )
 
     def __hash__(self) -> int:
@@ -31,7 +30,4 @@ class ValueObject(ABC):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert value object to dictionary."""
-        return {
-            field: getattr(self, field)
-            for field in self.__dataclass_fields__
-        }
+        return {field: getattr(self, field) for field in self.__dataclass_fields__}

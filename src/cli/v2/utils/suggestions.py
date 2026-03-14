@@ -10,6 +10,7 @@ from src.cli.v2.ui.theme import THEME
 @dataclass
 class Suggestion:
     """A command suggestion."""
+
     command: str
     description: str
     priority: int = 0  # Higher = more relevant
@@ -23,26 +24,22 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
         Suggestion("tawiza run analyst", "Run data analysis agent", 8),
         Suggestion("tawiza pro doctor", "Run system diagnostics", 5),
     ],
-
     # After chat
     "chat": [
         Suggestion("tawiza run coder", "Run coding agent on your idea", 10),
         Suggestion("tawiza pro model-list", "See available models", 5),
     ],
-
     # After run
     "run": [
         Suggestion("tawiza status", "Check system status", 8),
         Suggestion("tawiza pro logs-show", "View execution logs", 7),
     ],
-
     # After agent
     "agent": [
-        Suggestion("tawiza agent \"Another task\"", "Run another autonomous task", 10),
+        Suggestion('tawiza agent "Another task"', "Run another autonomous task", 10),
         Suggestion("tawiza run analyst", "Run a specific agent", 8),
         Suggestion("tawiza pro logs-show", "View execution logs", 7),
     ],
-
     # After model operations
     "pro model-list": [
         Suggestion("tawiza pro model-pull <model>", "Download a new model", 10),
@@ -52,7 +49,6 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
         Suggestion("tawiza pro model-list", "Verify model installed", 10),
         Suggestion("tawiza chat", "Start using the model", 8),
     ],
-
     # After GPU operations
     "pro gpu-info": [
         Suggestion("tawiza pro gpu-benchmark", "Run GPU benchmark", 10),
@@ -65,7 +61,6 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
     "pro gpu-passthrough-disable": [
         Suggestion("reboot", "Reboot to use GPU on host", 10),
     ],
-
     # After data operations
     "pro data-import": [
         Suggestion("tawiza pro data-list", "Verify import", 10),
@@ -75,7 +70,6 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
         Suggestion("tawiza pro data-import <file>", "Import new dataset", 8),
         Suggestion("tawiza pro train-start", "Train on a dataset", 7),
     ],
-
     # After training
     "pro train-start": [
         Suggestion("tawiza pro train-status", "Monitor training progress", 10),
@@ -85,7 +79,6 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
         Suggestion("tawiza pro train-stop <id>", "Stop a running job", 5),
         Suggestion("tawiza pro logs-show", "View training logs", 7),
     ],
-
     # After config
     "pro config-show": [
         Suggestion("tawiza pro config-set <key> <value>", "Change a setting", 10),
@@ -94,7 +87,6 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
     "pro config-set": [
         Suggestion("tawiza pro config-show", "Verify changes", 10),
     ],
-
     # After system commands
     "pro doctor": [
         Suggestion("tawiza pro ollama-start", "Start Ollama if not running", 8),
@@ -103,7 +95,6 @@ COMMAND_FLOWS: dict[str, list[Suggestion]] = {
     "pro cache-clear": [
         Suggestion("tawiza status", "Verify system status", 8),
     ],
-
     # After ollama
     "pro ollama-start": [
         Suggestion("tawiza pro model-list", "Check available models", 10),
@@ -122,6 +113,7 @@ def _check_ollama_running() -> bool:
     """Check if Ollama is running."""
     try:
         import httpx
+
         response = httpx.get("http://localhost:11434/api/tags", timeout=2)
         return response.status_code == 200
     except Exception:
@@ -132,6 +124,7 @@ def _check_gpu_available() -> bool:
     """Check if GPU is available on host."""
     try:
         import subprocess
+
         result = subprocess.run(["rocm-smi", "--showid"], capture_output=True, timeout=5)
         return result.returncode == 0
     except Exception:
@@ -148,11 +141,9 @@ def get_suggestions(last_command: str, context: dict = None) -> list[Suggestion]
 
     # Add contextual suggestions
     if not _check_ollama_running():
-        suggestions.append(Suggestion(
-            "tawiza pro ollama-start",
-            "Ollama not running - start it",
-            priority=15
-        ))
+        suggestions.append(
+            Suggestion("tawiza pro ollama-start", "Ollama not running - start it", priority=15)
+        )
 
     # Sort by priority
     suggestions.sort(key=lambda s: s.priority, reverse=True)

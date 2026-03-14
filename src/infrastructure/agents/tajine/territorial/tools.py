@@ -277,9 +277,7 @@ Paramètres:
                     scenario=what_if,
                     duration_months=simulation_months,
                 )
-                logger.debug(
-                    f"Simulation: {analysis.simulation.net_employment_change:+d} emplois"
-                )
+                logger.debug(f"Simulation: {analysis.simulation.net_employment_change:+d} emplois")
 
             # Generate SWOT analysis
             self._generate_swot(analysis)
@@ -413,13 +411,9 @@ Paramètres:
         if analysis.attractiveness:
             for axis, score in analysis.attractiveness.axes.items():
                 if score.score >= 60:
-                    analysis.strengths.append(
-                        f"{axis.value} ({score.score:.0f}/100)"
-                    )
+                    analysis.strengths.append(f"{axis.value} ({score.score:.0f}/100)")
                 elif score.score <= 40:
-                    analysis.weaknesses.append(
-                        f"{axis.value} ({score.score:.0f}/100)"
-                    )
+                    analysis.weaknesses.append(f"{axis.value} ({score.score:.0f}/100)")
 
         # Competitive position
         if analysis.competitors:
@@ -481,9 +475,7 @@ Paramètres:
 
         # Based on competitors
         if analysis.competitors and analysis.competitors.gap_vs_neighbors < 0:
-            recommendations.append(
-                "Stratégie: combler l'écart avec les territoires voisins"
-            )
+            recommendations.append("Stratégie: combler l'écart avec les territoires voisins")
 
         # Based on simulation
         if analysis.simulation:

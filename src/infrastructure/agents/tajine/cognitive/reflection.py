@@ -31,6 +31,7 @@ class ReflectionOutput:
         should_retry: Whether retry is recommended
         retry_strategy: How to retry if recommended
     """
+
     result: Any
     thinking: str = ""
     confidence: float = 0.5
@@ -51,21 +52,18 @@ class ReflectionOutput:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
-            'result': self.result,
-            'thinking': self.thinking,
-            'confidence': self.confidence,
-            'gaps': self.gaps,
-            'suggestions': self.suggestions,
-            'should_retry': self.should_retry,
-            'retry_strategy': self.retry_strategy,
+            "result": self.result,
+            "thinking": self.thinking,
+            "confidence": self.confidence,
+            "gaps": self.gaps,
+            "suggestions": self.suggestions,
+            "should_retry": self.should_retry,
+            "retry_strategy": self.retry_strategy,
         }
 
     @classmethod
     def from_result(
-        cls,
-        result: Any,
-        confidence: float = 0.5,
-        thinking: str = ""
+        cls, result: Any, confidence: float = 0.5, thinking: str = ""
     ) -> ReflectionOutput:
         """Create ReflectionOutput from a simple result."""
         return cls(
@@ -76,10 +74,7 @@ class ReflectionOutput:
 
     @classmethod
     def low_confidence(
-        cls,
-        result: Any,
-        gaps: list[str],
-        retry_strategy: str = "expand_sources"
+        cls, result: Any, gaps: list[str], retry_strategy: str = "expand_sources"
     ) -> ReflectionOutput:
         """Create a low-confidence output that recommends retry."""
         return cls(
@@ -88,7 +83,7 @@ class ReflectionOutput:
             gaps=gaps,
             should_retry=True,
             retry_strategy=retry_strategy,
-            thinking=f"Low confidence due to: {', '.join(gaps)}"
+            thinking=f"Low confidence due to: {', '.join(gaps)}",
         )
 
 
@@ -117,7 +112,7 @@ ADAPTIVE_THRESHOLDS = {
         "scenario": 0.5,
         "strategy": 0.6,
         "theoretical": 0.5,
-    }
+    },
 }
 
 
@@ -127,11 +122,7 @@ def get_threshold(mode: str, phase: str) -> float:
     return mode_thresholds.get(phase.lower(), 0.5)
 
 
-def should_retry_phase(
-    reflection: ReflectionOutput,
-    mode: str,
-    phase: str
-) -> bool:
+def should_retry_phase(reflection: ReflectionOutput, mode: str, phase: str) -> bool:
     """Determine if a phase should be retried based on reflection."""
     threshold = get_threshold(mode, phase)
     return reflection.confidence < threshold or reflection.should_retry
@@ -179,9 +170,7 @@ class ReflectionMixin:
         )
 
     def analyze_result_quality(
-        self,
-        result: dict[str, Any],
-        mode: str = "rapide"
+        self, result: dict[str, Any], mode: str = "rapide"
     ) -> ReflectionOutput:
         """
         Analyze the quality of a result and create appropriate reflection.
@@ -203,8 +192,8 @@ class ReflectionMixin:
             confidence = 0.1
 
         # Check signals/patterns (for Discovery level)
-        signals = result.get('signals', [])
-        patterns = result.get('patterns', [])
+        signals = result.get("signals", [])
+        patterns = result.get("patterns", [])
 
         if isinstance(signals, list):
             if len(signals) == 0:
@@ -220,7 +209,7 @@ class ReflectionMixin:
                 confidence += 0.15
 
         # Check analysis content (for higher levels)
-        if analysis := result.get('analysis'):
+        if analysis := result.get("analysis"):
             if len(str(analysis)) < 100:
                 gaps.append("Analysis is too brief")
                 suggestions.append("Request more detailed LLM analysis")
@@ -228,7 +217,7 @@ class ReflectionMixin:
                 confidence += 0.15
 
         # Check for data sources
-        if sources := result.get('sources_used', result.get('data_sources')):
+        if sources := result.get("sources_used", result.get("data_sources")):
             if len(sources) >= 2:
                 confidence += 0.1
             else:
@@ -249,20 +238,17 @@ class ReflectionMixin:
         )
 
     def _generate_thinking_trace(
-        self,
-        result: dict[str, Any],
-        gaps: list[str],
-        confidence: float
+        self, result: dict[str, Any], gaps: list[str], confidence: float
     ) -> str:
         """Generate a reasoning trace for the reflection."""
         parts = []
 
         # Describe what was found
-        if signals := result.get('signals'):
+        if signals := result.get("signals"):
             parts.append(f"Found {len(signals)} signals")
-        if patterns := result.get('patterns'):
+        if patterns := result.get("patterns"):
             parts.append(f"Identified {len(patterns)} patterns")
-        if analysis := result.get('analysis'):
+        if analysis := result.get("analysis"):
             parts.append(f"Generated analysis ({len(str(analysis))} chars)")
 
         # Describe gaps

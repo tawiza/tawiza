@@ -5,7 +5,6 @@ from uuid import UUID
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.training_job_model import TrainingJobDB
 
 from src.domain.entities.training_job import (
     TrainingConfig,
@@ -14,6 +13,7 @@ from src.domain.entities.training_job import (
     TrainingTrigger,
 )
 from src.domain.repositories.ml_repositories import ITrainingJobRepository
+from src.infrastructure.persistence.models.training_job_model import TrainingJobDB
 
 
 class SQLAlchemyTrainingJobRepository(ITrainingJobRepository):
@@ -141,7 +141,12 @@ class SQLAlchemyTrainingJobRepository(ITrainingJobRepository):
         Returns:
             List of training job entities
         """
-        query = select(TrainingJobDB).offset(skip).limit(limit).order_by(TrainingJobDB.created_at.desc())
+        query = (
+            select(TrainingJobDB)
+            .offset(skip)
+            .limit(limit)
+            .order_by(TrainingJobDB.created_at.desc())
+        )
         result = await self.session.execute(query)
         db_models = result.scalars().all()
         return [self._to_domain(db_model) for db_model in db_models]
@@ -251,9 +256,11 @@ class SQLAlchemyTrainingJobRepository(ITrainingJobRepository):
             TrainingJobStatus.EVALUATING.value,
         ]
 
-        query = select(TrainingJobDB).where(
-            TrainingJobDB.status.in_(running_statuses)
-        ).order_by(TrainingJobDB.started_at.desc())
+        query = (
+            select(TrainingJobDB)
+            .where(TrainingJobDB.status.in_(running_statuses))
+            .order_by(TrainingJobDB.started_at.desc())
+        )
 
         result = await self.session.execute(query)
         db_models = result.scalars().all()
@@ -271,9 +278,7 @@ class SQLAlchemyTrainingJobRepository(ITrainingJobRepository):
         Returns:
             TrainingJob entity or None
         """
-        query = select(TrainingJobDB).where(
-            TrainingJobDB.mlflow_run_id == mlflow_run_id
-        )
+        query = select(TrainingJobDB).where(TrainingJobDB.mlflow_run_id == mlflow_run_id)
         result = await self.session.execute(query)
         db_model = result.scalar_one_or_none()
 
@@ -312,11 +317,7 @@ class SQLAlchemyTrainingJobRepository(ITrainingJobRepository):
         Returns:
             List of recent jobs
         """
-        query = (
-            select(TrainingJobDB)
-            .order_by(TrainingJobDB.created_at.desc())
-            .limit(limit)
-        )
+        query = select(TrainingJobDB).order_by(TrainingJobDB.created_at.desc()).limit(limit)
         result = await self.session.execute(query)
         db_models = result.scalars().all()
         return [self._to_domain(db_model) for db_model in db_models]

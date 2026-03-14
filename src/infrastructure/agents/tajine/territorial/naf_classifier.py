@@ -35,6 +35,7 @@ from typing import Any
 @dataclass
 class NAFSection:
     """Section NAF avec métadonnées."""
+
     code: str
     name: str
     short_name: str
@@ -43,88 +44,325 @@ class NAFSection:
 
 # Définition des sections NAF avec mots-clés de classification
 NAF_SECTIONS = [
-    NAFSection("A", "Agriculture, sylviculture et pêche", "Agriculture", [
-        "agricole", "agriculture", "ferme", "élevage", "pêche", "sylviculture",
-        "viticulture", "maraîchage", "horticulture", "apiculture", "aquaculture"
-    ]),
-    NAFSection("B", "Industries extractives", "Extraction", [
-        "extraction", "mine", "carrière", "pétrole", "gaz naturel"
-    ]),
-    NAFSection("C", "Industrie manufacturière", "Industrie", [
-        "fabrication", "manufacture", "usine", "production industrielle",
-        "agroalimentaire", "textile", "métallurgie", "chimie", "pharmaceutique",
-        "électronique", "mécanique", "automobile", "aéronautique"
-    ]),
-    NAFSection("D", "Production d'électricité, gaz", "Énergie", [
-        "électricité", "énergie", "gaz", "centrale", "solaire", "éolien"
-    ]),
-    NAFSection("E", "Eau, assainissement, déchets", "Environnement", [
-        "eau", "assainissement", "déchet", "recyclage", "épuration", "collecte"
-    ]),
-    NAFSection("F", "Construction", "Construction", [
-        "construction", "bâtiment", "btp", "maçonnerie", "plomberie", "électricité bâtiment",
-        "menuiserie", "charpente", "couverture", "peinture bâtiment", "travaux",
-        "rénovation", "gros œuvre", "second œuvre", "terrassement"
-    ]),
-    NAFSection("G", "Commerce, réparation auto", "Commerce", [
-        "commerce", "vente", "détail", "gros", "magasin", "boutique", "négoce",
-        "distribution", "supermarché", "épicerie", "automobile", "véhicule",
-        "réparation auto", "garage", "e-commerce", "en ligne"
-    ]),
-    NAFSection("H", "Transports et entreposage", "Transport", [
-        "transport", "livraison", "logistique", "entreposage", "stockage",
-        "routier", "maritime", "aérien", "ferroviaire", "déménagement", "taxi", "vtc"
-    ]),
-    NAFSection("I", "Hébergement et restauration", "Hôtellerie-Resto", [
-        "restaurant", "hôtel", "café", "bar", "traiteur", "restauration",
-        "hébergement", "chambre d'hôte", "camping", "snack", "pizzeria",
-        "brasserie", "fast-food", "food truck"
-    ]),
-    NAFSection("J", "Information et communication", "Tech & Média", [
-        "informatique", "logiciel", "développement", "web", "numérique", "digital",
-        "édition", "audiovisuel", "télécommunication", "presse", "radio", "télévision",
-        "programmation", "data", "cloud", "saas", "application"
-    ]),
-    NAFSection("K", "Activités financières, assurance", "Finance", [
-        "banque", "finance", "assurance", "crédit", "investissement", "gestion actifs",
-        "courtage", "bourse", "fonds", "capital", "holding"
-    ]),
-    NAFSection("L", "Activités immobilières", "Immobilier", [
-        "immobilier", "agence immobilière", "location", "gestion locative",
-        "promotion immobilière", "sci", "foncier", "syndic", "copropriété"
-    ]),
-    NAFSection("M", "Activités scientifiques, techniques", "Conseil & Tech", [
-        "conseil", "consulting", "ingénierie", "architecture", "expertise",
-        "comptable", "juridique", "avocat", "notaire", "audit", "études",
-        "recherche", "design", "publicité", "marketing", "communication"
-    ]),
-    NAFSection("N", "Services administratifs, soutien", "Services B2B", [
-        "nettoyage", "sécurité", "gardiennage", "intérim", "travail temporaire",
-        "secrétariat", "centre d'appel", "location véhicule", "voyage", "tourisme"
-    ]),
-    NAFSection("O", "Administration publique", "Admin publique", [
-        "administration", "public", "gouvernement", "collectivité"
-    ]),
-    NAFSection("P", "Enseignement", "Éducation", [
-        "enseignement", "formation", "école", "cours", "coaching", "soutien scolaire",
-        "auto-école", "université", "éducation"
-    ]),
-    NAFSection("Q", "Santé et action sociale", "Santé & Social", [
-        "santé", "médical", "infirmier", "aide à domicile", "ehpad",
-        "crèche", "social", "handicap", "paramédical", "kinésithérapie",
-        "ostéopathie", "psychologie", "bien-être"
-    ]),
-    NAFSection("R", "Arts, spectacles, loisirs", "Culture & Loisirs", [
-        "art", "spectacle", "musique", "théâtre", "cinéma", "sport", "fitness",
-        "loisir", "jeux", "événementiel", "photographe", "artiste"
-    ]),
-    NAFSection("S", "Autres activités de services", "Services divers", [
-        "coiffure", "esthétique", "beauté", "réparation", "service à la personne",
-        "pressing", "blanchisserie", "funéraire", "association"
-    ]),
-    NAFSection("T", "Ménages employeurs", "Particuliers", [
-        "employeur particulier", "personnel de maison"
-    ]),
+    NAFSection(
+        "A",
+        "Agriculture, sylviculture et pêche",
+        "Agriculture",
+        [
+            "agricole",
+            "agriculture",
+            "ferme",
+            "élevage",
+            "pêche",
+            "sylviculture",
+            "viticulture",
+            "maraîchage",
+            "horticulture",
+            "apiculture",
+            "aquaculture",
+        ],
+    ),
+    NAFSection(
+        "B",
+        "Industries extractives",
+        "Extraction",
+        ["extraction", "mine", "carrière", "pétrole", "gaz naturel"],
+    ),
+    NAFSection(
+        "C",
+        "Industrie manufacturière",
+        "Industrie",
+        [
+            "fabrication",
+            "manufacture",
+            "usine",
+            "production industrielle",
+            "agroalimentaire",
+            "textile",
+            "métallurgie",
+            "chimie",
+            "pharmaceutique",
+            "électronique",
+            "mécanique",
+            "automobile",
+            "aéronautique",
+        ],
+    ),
+    NAFSection(
+        "D",
+        "Production d'électricité, gaz",
+        "Énergie",
+        ["électricité", "énergie", "gaz", "centrale", "solaire", "éolien"],
+    ),
+    NAFSection(
+        "E",
+        "Eau, assainissement, déchets",
+        "Environnement",
+        ["eau", "assainissement", "déchet", "recyclage", "épuration", "collecte"],
+    ),
+    NAFSection(
+        "F",
+        "Construction",
+        "Construction",
+        [
+            "construction",
+            "bâtiment",
+            "btp",
+            "maçonnerie",
+            "plomberie",
+            "électricité bâtiment",
+            "menuiserie",
+            "charpente",
+            "couverture",
+            "peinture bâtiment",
+            "travaux",
+            "rénovation",
+            "gros œuvre",
+            "second œuvre",
+            "terrassement",
+        ],
+    ),
+    NAFSection(
+        "G",
+        "Commerce, réparation auto",
+        "Commerce",
+        [
+            "commerce",
+            "vente",
+            "détail",
+            "gros",
+            "magasin",
+            "boutique",
+            "négoce",
+            "distribution",
+            "supermarché",
+            "épicerie",
+            "automobile",
+            "véhicule",
+            "réparation auto",
+            "garage",
+            "e-commerce",
+            "en ligne",
+        ],
+    ),
+    NAFSection(
+        "H",
+        "Transports et entreposage",
+        "Transport",
+        [
+            "transport",
+            "livraison",
+            "logistique",
+            "entreposage",
+            "stockage",
+            "routier",
+            "maritime",
+            "aérien",
+            "ferroviaire",
+            "déménagement",
+            "taxi",
+            "vtc",
+        ],
+    ),
+    NAFSection(
+        "I",
+        "Hébergement et restauration",
+        "Hôtellerie-Resto",
+        [
+            "restaurant",
+            "hôtel",
+            "café",
+            "bar",
+            "traiteur",
+            "restauration",
+            "hébergement",
+            "chambre d'hôte",
+            "camping",
+            "snack",
+            "pizzeria",
+            "brasserie",
+            "fast-food",
+            "food truck",
+        ],
+    ),
+    NAFSection(
+        "J",
+        "Information et communication",
+        "Tech & Média",
+        [
+            "informatique",
+            "logiciel",
+            "développement",
+            "web",
+            "numérique",
+            "digital",
+            "édition",
+            "audiovisuel",
+            "télécommunication",
+            "presse",
+            "radio",
+            "télévision",
+            "programmation",
+            "data",
+            "cloud",
+            "saas",
+            "application",
+        ],
+    ),
+    NAFSection(
+        "K",
+        "Activités financières, assurance",
+        "Finance",
+        [
+            "banque",
+            "finance",
+            "assurance",
+            "crédit",
+            "investissement",
+            "gestion actifs",
+            "courtage",
+            "bourse",
+            "fonds",
+            "capital",
+            "holding",
+        ],
+    ),
+    NAFSection(
+        "L",
+        "Activités immobilières",
+        "Immobilier",
+        [
+            "immobilier",
+            "agence immobilière",
+            "location",
+            "gestion locative",
+            "promotion immobilière",
+            "sci",
+            "foncier",
+            "syndic",
+            "copropriété",
+        ],
+    ),
+    NAFSection(
+        "M",
+        "Activités scientifiques, techniques",
+        "Conseil & Tech",
+        [
+            "conseil",
+            "consulting",
+            "ingénierie",
+            "architecture",
+            "expertise",
+            "comptable",
+            "juridique",
+            "avocat",
+            "notaire",
+            "audit",
+            "études",
+            "recherche",
+            "design",
+            "publicité",
+            "marketing",
+            "communication",
+        ],
+    ),
+    NAFSection(
+        "N",
+        "Services administratifs, soutien",
+        "Services B2B",
+        [
+            "nettoyage",
+            "sécurité",
+            "gardiennage",
+            "intérim",
+            "travail temporaire",
+            "secrétariat",
+            "centre d'appel",
+            "location véhicule",
+            "voyage",
+            "tourisme",
+        ],
+    ),
+    NAFSection(
+        "O",
+        "Administration publique",
+        "Admin publique",
+        ["administration", "public", "gouvernement", "collectivité"],
+    ),
+    NAFSection(
+        "P",
+        "Enseignement",
+        "Éducation",
+        [
+            "enseignement",
+            "formation",
+            "école",
+            "cours",
+            "coaching",
+            "soutien scolaire",
+            "auto-école",
+            "université",
+            "éducation",
+        ],
+    ),
+    NAFSection(
+        "Q",
+        "Santé et action sociale",
+        "Santé & Social",
+        [
+            "santé",
+            "médical",
+            "infirmier",
+            "aide à domicile",
+            "ehpad",
+            "crèche",
+            "social",
+            "handicap",
+            "paramédical",
+            "kinésithérapie",
+            "ostéopathie",
+            "psychologie",
+            "bien-être",
+        ],
+    ),
+    NAFSection(
+        "R",
+        "Arts, spectacles, loisirs",
+        "Culture & Loisirs",
+        [
+            "art",
+            "spectacle",
+            "musique",
+            "théâtre",
+            "cinéma",
+            "sport",
+            "fitness",
+            "loisir",
+            "jeux",
+            "événementiel",
+            "photographe",
+            "artiste",
+        ],
+    ),
+    NAFSection(
+        "S",
+        "Autres activités de services",
+        "Services divers",
+        [
+            "coiffure",
+            "esthétique",
+            "beauté",
+            "réparation",
+            "service à la personne",
+            "pressing",
+            "blanchisserie",
+            "funéraire",
+            "association",
+        ],
+    ),
+    NAFSection(
+        "T", "Ménages employeurs", "Particuliers", ["employeur particulier", "personnel de maison"]
+    ),
 ]
 
 

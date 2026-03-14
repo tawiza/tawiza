@@ -5,6 +5,7 @@ from contextlib import contextmanager
 try:
     from yaspin import yaspin
     from yaspin.spinners import Spinners
+
     YASPIN_AVAILABLE = True
 except ImportError:
     YASPIN_AVAILABLE = False
@@ -85,6 +86,7 @@ def create_spinner(text: str = "Processing...", spinner_type: str = "dots"):
     else:
         # Fallback without yaspin
         from rich.console import Console
+
         console = Console()
         console.print(f"[cyan]⠋[/] {text}")
         try:

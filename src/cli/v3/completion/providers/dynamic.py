@@ -1,6 +1,5 @@
 """Dynamic completion providers that query live system state."""
 
-
 from src.cli.v3.completion.base import CompletionProvider, CompletionResult
 from src.cli.v3.completion.cache import CompletionCache
 
@@ -19,7 +18,9 @@ class DynamicModelProvider(CompletionProvider):
     def priority(self) -> int:
         return 80
 
-    def get_completions(self, incomplete: str, context: dict | None = None) -> list[CompletionResult]:
+    def get_completions(
+        self, incomplete: str, context: dict | None = None
+    ) -> list[CompletionResult]:
         """Get model completions from Ollama API."""
         # Check cache first
         cached = _cache.get("models")
@@ -57,11 +58,17 @@ class DynamicModelProvider(CompletionProvider):
         return [
             CompletionResult(value="qwen3.5:27b", description="Default model", source="fallback"),
             CompletionResult(value="llama3:8b", description="Meta Llama 3", source="fallback"),
-            CompletionResult(value="codellama:13b", description="Code specialized", source="fallback"),
-            CompletionResult(value="mixtral:8x7b", description="Mixture of experts", source="fallback"),
+            CompletionResult(
+                value="codellama:13b", description="Code specialized", source="fallback"
+            ),
+            CompletionResult(
+                value="mixtral:8x7b", description="Mixture of experts", source="fallback"
+            ),
         ]
 
-    def _filter_results(self, results: list[CompletionResult], incomplete: str) -> list[CompletionResult]:
+    def _filter_results(
+        self, results: list[CompletionResult], incomplete: str
+    ) -> list[CompletionResult]:
         """Filter results by incomplete string."""
         if not incomplete:
             return results
@@ -94,7 +101,9 @@ class DynamicAgentProvider(CompletionProvider):
     def priority(self) -> int:
         return 70
 
-    def get_completions(self, incomplete: str, context: dict | None = None) -> list[CompletionResult]:
+    def get_completions(
+        self, incomplete: str, context: dict | None = None
+    ) -> list[CompletionResult]:
         """Get agent completions including running tasks."""
         import json
         from pathlib import Path
@@ -107,17 +116,20 @@ class DynamicAgentProvider(CompletionProvider):
             try:
                 tasks = json.loads(tasks_file.read_text())
                 active = [
-                    (tid, t) for tid, t in tasks.items()
+                    (tid, t)
+                    for tid, t in tasks.items()
                     if t.get("status") in ("running", "pending")
                 ]
 
                 for tid, task in active:
                     if incomplete.lower() in tid.lower():
-                        results.append(CompletionResult(
-                            value=tid[:8],
-                            description=f"{task.get('agent', 'unknown')} - {task.get('status')}",
-                            source="dynamic",
-                        ))
+                        results.append(
+                            CompletionResult(
+                                value=tid[:8],
+                                description=f"{task.get('agent', 'unknown')} - {task.get('status')}",
+                                source="dynamic",
+                            )
+                        )
             except Exception:
                 pass
 
@@ -141,7 +153,9 @@ class DynamicServiceProvider(CompletionProvider):
     def priority(self) -> int:
         return 75
 
-    def get_completions(self, incomplete: str, context: dict | None = None) -> list[CompletionResult]:
+    def get_completions(
+        self, incomplete: str, context: dict | None = None
+    ) -> list[CompletionResult]:
         """Get service completions with current status."""
         services = {
             "ollama": "http://localhost:11434/api/tags",
@@ -154,12 +168,14 @@ class DynamicServiceProvider(CompletionProvider):
         for name, url in services.items():
             if incomplete.lower() in name.lower():
                 status = self._check_status(url)
-                results.append(CompletionResult(
-                    value=name,
-                    description=f"[{status}]",
-                    score=2.0 if status == "OK" else 1.0,
-                    source="dynamic",
-                ))
+                results.append(
+                    CompletionResult(
+                        value=name,
+                        description=f"[{status}]",
+                        score=2.0 if status == "OK" else 1.0,
+                        source="dynamic",
+                    )
+                )
 
         return sorted(results, key=lambda x: (-x.score, x.value))
 
@@ -167,6 +183,7 @@ class DynamicServiceProvider(CompletionProvider):
         """Quick status check."""
         try:
             import httpx
+
             response = httpx.get(url, timeout=2)
             return "OK" if response.status_code < 400 else "ERROR"
         except Exception:

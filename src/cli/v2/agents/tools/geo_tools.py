@@ -32,7 +32,10 @@ def _haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> f
     delta_lat = math.radians(lat2 - lat1)
     delta_lon = math.radians(lon2 - lon1)
 
-    a = math.sin(delta_lat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
+    a = (
+        math.sin(delta_lat / 2) ** 2
+        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
+    )
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     return R * c
@@ -207,18 +210,22 @@ def register_geo_tools(registry: ToolRegistry) -> None:
 
                 results = []
                 for c in communes:
-                    results.append({
-                        "nom": c.get("nom"),
-                        "code_insee": c.get("code"),
-                        "code_postal": c.get("codesPostaux", [None])[0],
-                        "population": c.get("population"),
-                        "departement": c.get("codeDepartement"),
-                        "region": c.get("codeRegion"),
-                        "centre": {
-                            "lat": c.get("centre", {}).get("coordinates", [0, 0])[1],
-                            "lon": c.get("centre", {}).get("coordinates", [0, 0])[0],
-                        } if c.get("centre") else None,
-                    })
+                    results.append(
+                        {
+                            "nom": c.get("nom"),
+                            "code_insee": c.get("code"),
+                            "code_postal": c.get("codesPostaux", [None])[0],
+                            "population": c.get("population"),
+                            "departement": c.get("codeDepartement"),
+                            "region": c.get("codeRegion"),
+                            "centre": {
+                                "lat": c.get("centre", {}).get("coordinates", [0, 0])[1],
+                                "lon": c.get("centre", {}).get("coordinates", [0, 0])[0],
+                            }
+                            if c.get("centre")
+                            else None,
+                        }
+                    )
 
                 return {
                     "success": True,
@@ -247,14 +254,16 @@ def register_geo_tools(registry: ToolRegistry) -> None:
             results = []
             for addr in addresses:
                 result = await geo_locate(addr)
-                results.append({
-                    "address": addr,
-                    "success": result.get("success"),
-                    "lat": result.get("lat"),
-                    "lon": result.get("lon"),
-                    "formatted": result.get("formatted_address"),
-                    "error": result.get("error"),
-                })
+                results.append(
+                    {
+                        "address": addr,
+                        "success": result.get("success"),
+                        "lat": result.get("lat"),
+                        "lon": result.get("lon"),
+                        "formatted": result.get("formatted_address"),
+                        "error": result.get("error"),
+                    }
+                )
                 # Small delay to be nice to API
                 await asyncio.sleep(0.05)
 
@@ -318,14 +327,14 @@ def register_geo_tools(registry: ToolRegistry) -> None:
             )
 
             # Add title
-            title_html = f'''
+            title_html = f"""
                 <div style="position: fixed; top: 10px; left: 50px; z-index: 1000;
                      background-color: white; padding: 10px; border-radius: 5px;
                      box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: Arial;">
                     <h3 style="margin: 0; color: #333;">{title}</h3>
                     <small style="color: #666;">{len(valid_locs)} acteurs</small>
                 </div>
-            '''
+            """
             m.get_root().html.add_child(folium.Element(title_html))
 
             # Use marker cluster for many points (lower threshold for better UX)
@@ -352,7 +361,7 @@ def register_geo_tools(registry: ToolRegistry) -> None:
             }
 
             # Add legend
-            legend_html = '''
+            legend_html = """
             <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;
                  background-color: white; padding: 12px 15px; border-radius: 8px;
                  box-shadow: 0 2px 10px rgba(0,0,0,0.15); font-family: Arial; font-size: 12px;">
@@ -363,7 +372,7 @@ def register_geo_tools(registry: ToolRegistry) -> None:
                 <i class="fa fa-map-marker" style="color: purple;"></i> Laboratoire<br>
                 <i class="fa fa-map-marker" style="color: orange;"></i> Incubateur
             </div>
-            '''
+            """
             m.get_root().html.add_child(folium.Element(legend_html))
 
             # Add markers
@@ -394,12 +403,16 @@ def register_geo_tools(registry: ToolRegistry) -> None:
                 # Add website link if available
                 website = loc.get("url") or loc.get("website")
                 if website:
-                    popup_parts.append(f"<a href='{website}' target='_blank' style='color: #007bff;'>🌐 Site web</a>")
+                    popup_parts.append(
+                        f"<a href='{website}' target='_blank' style='color: #007bff;'>🌐 Site web</a>"
+                    )
 
                 # Add description if available
                 description = loc.get("description")
                 if description:
-                    short_desc = description[:100] + "..." if len(description) > 100 else description
+                    short_desc = (
+                        description[:100] + "..." if len(description) > 100 else description
+                    )
                     popup_parts.append(f"<small style='color: #777;'>{short_desc}</small>")
 
                 # Add technologies if available
@@ -412,8 +425,16 @@ def register_geo_tools(registry: ToolRegistry) -> None:
                 quality = loc.get("quality")
                 if quality and quality > 0:
                     quality_pct = int(quality * 100)
-                    quality_color = "#28a745" if quality_pct >= 50 else "#ffc107" if quality_pct >= 30 else "#dc3545"
-                    popup_parts.append(f"<small style='color: {quality_color};'>📊 Qualité: {quality_pct}%</small>")
+                    quality_color = (
+                        "#28a745"
+                        if quality_pct >= 50
+                        else "#ffc107"
+                        if quality_pct >= 30
+                        else "#dc3545"
+                    )
+                    popup_parts.append(
+                        f"<small style='color: {quality_color};'>📊 Qualité: {quality_pct}%</small>"
+                    )
 
                 popup_html = "<br>".join(popup_parts)
 
@@ -485,10 +506,12 @@ def register_geo_tools(registry: ToolRegistry) -> None:
                 distance = _haversine_distance(center_lat, center_lon, loc_lat, loc_lon)
 
                 if distance <= radius_km:
-                    nearby.append({
-                        **loc,
-                        "distance_km": round(distance, 2),
-                    })
+                    nearby.append(
+                        {
+                            **loc,
+                            "distance_km": round(distance, 2),
+                        }
+                    )
 
             # Sort by distance
             nearby.sort(key=lambda x: x["distance_km"])

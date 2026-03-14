@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
 class TaskComplexity(StrEnum):
     """Task complexity levels for strategy selection."""
+
     SIMPLE = "simple"  # Direct data retrieval
     MODERATE = "moderate"  # Multi-source aggregation
     COMPLEX = "complex"  # Deep analysis with reasoning
@@ -37,6 +38,7 @@ class TaskComplexity(StrEnum):
 
 class StrategyType(StrEnum):
     """Strategy types for TAJINE operations."""
+
     FAST_LOOKUP = "fast_lookup"  # Quick cached response
     DATA_HUNT = "data_hunt"  # Active data collection
     DEEP_ANALYSIS = "deep_analysis"  # Full cognitive processing
@@ -47,6 +49,7 @@ class StrategyType(StrEnum):
 @dataclass
 class PerformanceMetrics:
     """Performance metrics for a task execution."""
+
     task_id: str
     duration_ms: float
     success: bool
@@ -61,6 +64,7 @@ class PerformanceMetrics:
 @dataclass
 class StrategicInsight:
     """Insight from metacognitive analysis."""
+
     recommendation: str
     confidence: float
     rationale: str
@@ -84,8 +88,7 @@ class SAFLAMetaCognitiveAdapter:
         # Performance history for learning
         self._performance_history: list[PerformanceMetrics] = []
         self._strategy_success_rates: dict[StrategyType, dict[str, float]] = {
-            strategy: {"successes": 0, "total": 0, "avg_duration": 0}
-            for strategy in StrategyType
+            strategy: {"successes": 0, "total": 0, "avg_duration": 0} for strategy in StrategyType
         }
 
         # Current system state
@@ -206,13 +209,15 @@ class SAFLAMetaCognitiveAdapter:
                         "duration_ms": metrics.duration_ms,
                         "confidence": metrics.confidence,
                         "strategy": metrics.strategy_used.value,
-                    }
+                    },
                 )
             except Exception as e:
                 logger.debug(f"SAFLA learning update failed: {e}")
 
-        logger.debug(f"Recorded performance: {metrics.strategy_used.value} "
-                    f"({'success' if metrics.success else 'failure'})")
+        logger.debug(
+            f"Recorded performance: {metrics.strategy_used.value} "
+            f"({'success' if metrics.success else 'failure'})"
+        )
 
     async def get_system_state(self) -> dict[str, Any]:
         """Get current system state for monitoring.
@@ -266,7 +271,9 @@ class SAFLAMetaCognitiveAdapter:
             failing_strategies = {}
             for m in recent:
                 if not m.success:
-                    failing_strategies[m.strategy_used] = failing_strategies.get(m.strategy_used, 0) + 1
+                    failing_strategies[m.strategy_used] = (
+                        failing_strategies.get(m.strategy_used, 0) + 1
+                    )
 
             worst_strategy = max(failing_strategies.items(), key=lambda x: x[1])
             return f"Consider avoiding {worst_strategy[0].value} strategy - {worst_strategy[1]} recent failures"
@@ -274,7 +281,9 @@ class SAFLAMetaCognitiveAdapter:
         # Analyze slow responses
         avg_duration = sum(m.duration_ms for m in recent) / len(recent)
         if avg_duration > 5000:  # > 5 seconds average
-            return "Response times are high - consider enabling more caching or simplifying strategies"
+            return (
+                "Response times are high - consider enabling more caching or simplifying strategies"
+            )
 
         # Check for low confidence scores
         avg_confidence = sum(m.confidence for m in recent) / len(recent)
@@ -351,7 +360,10 @@ class SAFLAMetaCognitiveAdapter:
                 for fallback in fallback_order:
                     if fallback != suggested:
                         fb_stats = self._strategy_success_rates[fallback]
-                        if fb_stats["total"] < 5 or (fb_stats["successes"] / fb_stats["total"]) > success_rate:
+                        if (
+                            fb_stats["total"] < 5
+                            or (fb_stats["successes"] / fb_stats["total"]) > success_rate
+                        ):
                             return fallback
 
         return suggested

@@ -152,6 +152,7 @@ class TerritorialService:
 
             # Get SIRENE data for business dynamics
             from src.infrastructure.datasources.services import get_department_stats_service
+
             stats_service = get_department_stats_service()
 
             for dept in departments[:20]:  # Limit to avoid too many API calls
@@ -165,27 +166,31 @@ class TerritorialService:
 
                     # Check for business creation decline
                     if growth < ALERT_THRESHOLDS["creation_decrease"]:
-                        alerts.append({
-                            "code": dept_code,
-                            "name": dept_name,
-                            "severity": "warning" if growth > -15 else "critical",
-                            "type": "business_decline",
-                            "message": f"Creations entreprises {growth:+.1f}%",
-                            "value": growth,
-                            "threshold": ALERT_THRESHOLDS["creation_decrease"],
-                        })
+                        alerts.append(
+                            {
+                                "code": dept_code,
+                                "name": dept_name,
+                                "severity": "warning" if growth > -15 else "critical",
+                                "type": "business_decline",
+                                "message": f"Creations entreprises {growth:+.1f}%",
+                                "value": growth,
+                                "threshold": ALERT_THRESHOLDS["creation_decrease"],
+                            }
+                        )
 
                     # Check for unusual growth (overheating)
                     if growth > 8.0:
-                        alerts.append({
-                            "code": dept_code,
-                            "name": dept_name,
-                            "severity": "info",
-                            "type": "business_boom",
-                            "message": f"Croissance forte {growth:+.1f}%",
-                            "value": growth,
-                            "threshold": 8.0,
-                        })
+                        alerts.append(
+                            {
+                                "code": dept_code,
+                                "name": dept_name,
+                                "severity": "info",
+                                "type": "business_boom",
+                                "message": f"Croissance forte {growth:+.1f}%",
+                                "value": growth,
+                                "threshold": 8.0,
+                            }
+                        )
 
                 except Exception as e:
                     logger.debug(f"Could not get stats for {dept_code}: {e}")
@@ -198,35 +203,41 @@ class TerritorialService:
                 score = score_data.get("score", 0)
 
                 if score < ALERT_THRESHOLDS["health_score_critical"]:
-                    alerts.append({
-                        "code": code,
-                        "name": name,
-                        "severity": "critical",
-                        "type": "health_score_low",
-                        "message": f"Score santé critique: {score:.0f}/100",
-                        "value": score,
-                        "threshold": ALERT_THRESHOLDS["health_score_critical"],
-                    })
+                    alerts.append(
+                        {
+                            "code": code,
+                            "name": name,
+                            "severity": "critical",
+                            "type": "health_score_low",
+                            "message": f"Score santé critique: {score:.0f}/100",
+                            "value": score,
+                            "threshold": ALERT_THRESHOLDS["health_score_critical"],
+                        }
+                    )
                 elif score < ALERT_THRESHOLDS["health_score_warning"]:
-                    alerts.append({
-                        "code": code,
-                        "name": name,
-                        "severity": "warning",
-                        "type": "health_score_low",
-                        "message": f"Score santé faible: {score:.0f}/100",
-                        "value": score,
-                        "threshold": ALERT_THRESHOLDS["health_score_warning"],
-                    })
+                    alerts.append(
+                        {
+                            "code": code,
+                            "name": name,
+                            "severity": "warning",
+                            "type": "health_score_low",
+                            "message": f"Score santé faible: {score:.0f}/100",
+                            "value": score,
+                            "threshold": ALERT_THRESHOLDS["health_score_warning"],
+                        }
+                    )
                 elif score > ALERT_THRESHOLDS["health_score_excellence"]:
-                    alerts.append({
-                        "code": code,
-                        "name": name,
-                        "severity": "info",
-                        "type": "health_score_high",
-                        "message": f"Excellence economique: {score:.0f}/100",
-                        "value": score,
-                        "threshold": ALERT_THRESHOLDS["health_score_excellence"],
-                    })
+                    alerts.append(
+                        {
+                            "code": code,
+                            "name": name,
+                            "severity": "info",
+                            "type": "health_score_high",
+                            "message": f"Excellence economique: {score:.0f}/100",
+                            "value": score,
+                            "threshold": ALERT_THRESHOLDS["health_score_excellence"],
+                        }
+                    )
 
             # Sort by severity (critical first, then warning, then info)
             severity_order = {"critical": 0, "warning": 1, "info": 2}
@@ -239,9 +250,7 @@ class TerritorialService:
         self._set_cache(cache_key, result)
         return result
 
-    async def compare_departments(
-        self, codes: list[str]
-    ) -> list[dict[str, Any]]:
+    async def compare_departments(self, codes: list[str]) -> list[dict[str, Any]]:
         """Compare 2-3 departments side-by-side.
 
         Args:
@@ -261,6 +270,7 @@ class TerritorialService:
 
         # Fetch data for each department in parallel
         from src.infrastructure.datasources.services import get_department_stats_service
+
         stats_service = get_department_stats_service()
 
         async def fetch_dept_data(code: str) -> dict[str, Any]:
@@ -280,11 +290,13 @@ class TerritorialService:
                 data["growth"] = stats.growth
 
                 # Get OFGL finances
-                finances = await self._ofgl.search({
-                    "type": "departements",
-                    "code_siren": code,
-                    "limit": 1,
-                })
+                finances = await self._ofgl.search(
+                    {
+                        "type": "departements",
+                        "code_siren": code,
+                        "limit": 1,
+                    }
+                )
                 if finances:
                     fin = finances[0].get("finances", {})
                     data["budget_per_capita"] = fin.get("recettes_totales", 0) / max(
@@ -370,9 +382,7 @@ class TerritorialService:
             trends[indicator]["data"] = data
             trends[indicator]["current"] = data[-1]
             if len(data) > 1:
-                trends[indicator]["change"] = round(
-                    ((data[-1] - data[0]) / data[0]) * 100, 1
-                )
+                trends[indicator]["change"] = round(((data[-1] - data[0]) / data[0]) * 100, 1)
 
         self._set_cache(cache_key, trends)
         return trends
@@ -404,68 +414,268 @@ class TerritorialService:
         # Avoids rate-limiting from SIRENE API (101 departments = 101 API calls)
         baseline_scores = [
             # Top performers (based on low unemployment, high enterprise growth)
-            {"code": "44", "name": "Loire-Atlantique", "score": 82.5,
-             "components": {"emploi": 78, "dynamisme": 88, "finances": 82, "immobilier": 80, "demographie": 85},
-             "trend": "up"},
-            {"code": "35", "name": "Ille-et-Vilaine", "score": 81.2,
-             "components": {"emploi": 80, "dynamisme": 85, "finances": 80, "immobilier": 78, "demographie": 83},
-             "trend": "up"},
-            {"code": "31", "name": "Haute-Garonne", "score": 79.8,
-             "components": {"emploi": 75, "dynamisme": 90, "finances": 78, "immobilier": 72, "demographie": 84},
-             "trend": "up"},
-            {"code": "69", "name": "Rhone", "score": 78.5,
-             "components": {"emploi": 74, "dynamisme": 86, "finances": 80, "immobilier": 70, "demographie": 82},
-             "trend": "up"},
-            {"code": "67", "name": "Bas-Rhin", "score": 77.3,
-             "components": {"emploi": 78, "dynamisme": 80, "finances": 76, "immobilier": 75, "demographie": 78},
-             "trend": "up"},
-            {"code": "33", "name": "Gironde", "score": 76.8,
-             "components": {"emploi": 72, "dynamisme": 84, "finances": 77, "immobilier": 73, "demographie": 80},
-             "trend": "up"},
-            {"code": "75", "name": "Paris", "score": 76.2,
-             "components": {"emploi": 73, "dynamisme": 92, "finances": 85, "immobilier": 55, "demographie": 72},
-             "trend": "stable"},
-            {"code": "38", "name": "Isere", "score": 75.5,
-             "components": {"emploi": 76, "dynamisme": 78, "finances": 74, "immobilier": 72, "demographie": 77},
-             "trend": "up"},
-            {"code": "74", "name": "Haute-Savoie", "score": 74.8,
-             "components": {"emploi": 80, "dynamisme": 75, "finances": 72, "immobilier": 68, "demographie": 76},
-             "trend": "up"},
-            {"code": "34", "name": "Herault", "score": 73.2,
-             "components": {"emploi": 65, "dynamisme": 82, "finances": 73, "immobilier": 74, "demographie": 78},
-             "trend": "up"},
+            {
+                "code": "44",
+                "name": "Loire-Atlantique",
+                "score": 82.5,
+                "components": {
+                    "emploi": 78,
+                    "dynamisme": 88,
+                    "finances": 82,
+                    "immobilier": 80,
+                    "demographie": 85,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "35",
+                "name": "Ille-et-Vilaine",
+                "score": 81.2,
+                "components": {
+                    "emploi": 80,
+                    "dynamisme": 85,
+                    "finances": 80,
+                    "immobilier": 78,
+                    "demographie": 83,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "31",
+                "name": "Haute-Garonne",
+                "score": 79.8,
+                "components": {
+                    "emploi": 75,
+                    "dynamisme": 90,
+                    "finances": 78,
+                    "immobilier": 72,
+                    "demographie": 84,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "69",
+                "name": "Rhone",
+                "score": 78.5,
+                "components": {
+                    "emploi": 74,
+                    "dynamisme": 86,
+                    "finances": 80,
+                    "immobilier": 70,
+                    "demographie": 82,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "67",
+                "name": "Bas-Rhin",
+                "score": 77.3,
+                "components": {
+                    "emploi": 78,
+                    "dynamisme": 80,
+                    "finances": 76,
+                    "immobilier": 75,
+                    "demographie": 78,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "33",
+                "name": "Gironde",
+                "score": 76.8,
+                "components": {
+                    "emploi": 72,
+                    "dynamisme": 84,
+                    "finances": 77,
+                    "immobilier": 73,
+                    "demographie": 80,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "75",
+                "name": "Paris",
+                "score": 76.2,
+                "components": {
+                    "emploi": 73,
+                    "dynamisme": 92,
+                    "finances": 85,
+                    "immobilier": 55,
+                    "demographie": 72,
+                },
+                "trend": "stable",
+            },
+            {
+                "code": "38",
+                "name": "Isere",
+                "score": 75.5,
+                "components": {
+                    "emploi": 76,
+                    "dynamisme": 78,
+                    "finances": 74,
+                    "immobilier": 72,
+                    "demographie": 77,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "74",
+                "name": "Haute-Savoie",
+                "score": 74.8,
+                "components": {
+                    "emploi": 80,
+                    "dynamisme": 75,
+                    "finances": 72,
+                    "immobilier": 68,
+                    "demographie": 76,
+                },
+                "trend": "up",
+            },
+            {
+                "code": "34",
+                "name": "Herault",
+                "score": 73.2,
+                "components": {
+                    "emploi": 65,
+                    "dynamisme": 82,
+                    "finances": 73,
+                    "immobilier": 74,
+                    "demographie": 78,
+                },
+                "trend": "up",
+            },
             # Mid-range departments
-            {"code": "13", "name": "Bouches-du-Rhone", "score": 68.5,
-             "components": {"emploi": 62, "dynamisme": 75, "finances": 70, "immobilier": 68, "demographie": 70},
-             "trend": "stable"},
-            {"code": "59", "name": "Nord", "score": 62.3,
-             "components": {"emploi": 55, "dynamisme": 68, "finances": 65, "immobilier": 70, "demographie": 60},
-             "trend": "stable"},
-            {"code": "62", "name": "Pas-de-Calais", "score": 58.5,
-             "components": {"emploi": 52, "dynamisme": 60, "finances": 62, "immobilier": 68, "demographie": 55},
-             "trend": "stable"},
+            {
+                "code": "13",
+                "name": "Bouches-du-Rhone",
+                "score": 68.5,
+                "components": {
+                    "emploi": 62,
+                    "dynamisme": 75,
+                    "finances": 70,
+                    "immobilier": 68,
+                    "demographie": 70,
+                },
+                "trend": "stable",
+            },
+            {
+                "code": "59",
+                "name": "Nord",
+                "score": 62.3,
+                "components": {
+                    "emploi": 55,
+                    "dynamisme": 68,
+                    "finances": 65,
+                    "immobilier": 70,
+                    "demographie": 60,
+                },
+                "trend": "stable",
+            },
+            {
+                "code": "62",
+                "name": "Pas-de-Calais",
+                "score": 58.5,
+                "components": {
+                    "emploi": 52,
+                    "dynamisme": 60,
+                    "finances": 62,
+                    "immobilier": 68,
+                    "demographie": 55,
+                },
+                "trend": "stable",
+            },
             # Lower performers (higher unemployment, lower growth)
-            {"code": "66", "name": "Pyrenees-Orientales", "score": 55.2,
-             "components": {"emploi": 48, "dynamisme": 58, "finances": 60, "immobilier": 62, "demographie": 52},
-             "trend": "down"},
-            {"code": "11", "name": "Aude", "score": 54.8,
-             "components": {"emploi": 50, "dynamisme": 55, "finances": 58, "immobilier": 60, "demographie": 50},
-             "trend": "stable"},
-            {"code": "30", "name": "Gard", "score": 54.5,
-             "components": {"emploi": 48, "dynamisme": 58, "finances": 56, "immobilier": 58, "demographie": 55},
-             "trend": "stable"},
-            {"code": "02", "name": "Aisne", "score": 52.3,
-             "components": {"emploi": 45, "dynamisme": 52, "finances": 58, "immobilier": 65, "demographie": 42},
-             "trend": "down"},
-            {"code": "08", "name": "Ardennes", "score": 51.8,
-             "components": {"emploi": 45, "dynamisme": 50, "finances": 55, "immobilier": 62, "demographie": 45},
-             "trend": "down"},
-            {"code": "55", "name": "Meuse", "score": 50.5,
-             "components": {"emploi": 48, "dynamisme": 45, "finances": 52, "immobilier": 60, "demographie": 48},
-             "trend": "down"},
-            {"code": "23", "name": "Creuse", "score": 48.2,
-             "components": {"emploi": 50, "dynamisme": 40, "finances": 50, "immobilier": 55, "demographie": 42},
-             "trend": "down"},
+            {
+                "code": "66",
+                "name": "Pyrenees-Orientales",
+                "score": 55.2,
+                "components": {
+                    "emploi": 48,
+                    "dynamisme": 58,
+                    "finances": 60,
+                    "immobilier": 62,
+                    "demographie": 52,
+                },
+                "trend": "down",
+            },
+            {
+                "code": "11",
+                "name": "Aude",
+                "score": 54.8,
+                "components": {
+                    "emploi": 50,
+                    "dynamisme": 55,
+                    "finances": 58,
+                    "immobilier": 60,
+                    "demographie": 50,
+                },
+                "trend": "stable",
+            },
+            {
+                "code": "30",
+                "name": "Gard",
+                "score": 54.5,
+                "components": {
+                    "emploi": 48,
+                    "dynamisme": 58,
+                    "finances": 56,
+                    "immobilier": 58,
+                    "demographie": 55,
+                },
+                "trend": "stable",
+            },
+            {
+                "code": "02",
+                "name": "Aisne",
+                "score": 52.3,
+                "components": {
+                    "emploi": 45,
+                    "dynamisme": 52,
+                    "finances": 58,
+                    "immobilier": 65,
+                    "demographie": 42,
+                },
+                "trend": "down",
+            },
+            {
+                "code": "08",
+                "name": "Ardennes",
+                "score": 51.8,
+                "components": {
+                    "emploi": 45,
+                    "dynamisme": 50,
+                    "finances": 55,
+                    "immobilier": 62,
+                    "demographie": 45,
+                },
+                "trend": "down",
+            },
+            {
+                "code": "55",
+                "name": "Meuse",
+                "score": 50.5,
+                "components": {
+                    "emploi": 48,
+                    "dynamisme": 45,
+                    "finances": 52,
+                    "immobilier": 60,
+                    "demographie": 48,
+                },
+                "trend": "down",
+            },
+            {
+                "code": "23",
+                "name": "Creuse",
+                "score": 48.2,
+                "components": {
+                    "emploi": 50,
+                    "dynamisme": 40,
+                    "finances": 50,
+                    "immobilier": 55,
+                    "demographie": 42,
+                },
+                "trend": "down",
+            },
         ]
 
         # Sort by score (reverse for bottom performers)
@@ -508,6 +718,7 @@ class TerritorialService:
                 departments = await self._geo.get_all_departments()
 
             from src.infrastructure.datasources.services import get_department_stats_service
+
             stats_service = get_department_stats_service()
 
             for dept in departments:
@@ -587,6 +798,7 @@ class TerritorialService:
 
             # Enterprise stats (DepartmentStats dataclass)
             from src.infrastructure.datasources.services import get_department_stats_service
+
             stats_service = get_department_stats_service()
             stats = await stats_service.get_department_stats(code)
             result["enterprises"] = {
@@ -599,11 +811,13 @@ class TerritorialService:
             result["sectors"] = sectors or []
 
             # OFGL finances
-            finances = await self._ofgl.search({
-                "type": "departements",
-                "code_siren": code,
-                "limit": 1,
-            })
+            finances = await self._ofgl.search(
+                {
+                    "type": "departements",
+                    "code_siren": code,
+                    "limit": 1,
+                }
+            )
             if finances:
                 result["finances"] = finances[0].get("finances", {})
                 result["population"] = finances[0].get("population", 0)
@@ -655,6 +869,7 @@ class TerritorialService:
             # Get all departments
             departments = await self._geo.get_all_departments()
             from src.infrastructure.datasources.services import get_department_stats_service
+
             stats_service = get_department_stats_service()
 
             for dept in departments:
@@ -699,14 +914,16 @@ class TerritorialService:
                     if unemployment_max is not None and unemployment > unemployment_max:
                         continue
 
-                    all_departments.append({
-                        "code": code,
-                        "name": name,
-                        "region": region_code,
-                        "enterprises": enterprises,
-                        "growth": growth,
-                        "unemployment": unemployment,
-                    })
+                    all_departments.append(
+                        {
+                            "code": code,
+                            "name": name,
+                            "region": region_code,
+                            "enterprises": enterprises,
+                            "growth": growth,
+                            "unemployment": unemployment,
+                        }
+                    )
 
                 except Exception as e:
                     logger.debug(f"Could not get stats for {code}: {e}")
@@ -754,10 +971,7 @@ class TerritorialService:
         try:
             # Get all regions
             regions = await self._geo.get_all_regions()
-            options["regions"] = [
-                {"code": r.get("code"), "name": r.get("nom")}
-                for r in regions
-            ]
+            options["regions"] = [{"code": r.get("code"), "name": r.get("nom")} for r in regions]
         except Exception as e:
             logger.warning(f"Could not get regions: {e}")
 

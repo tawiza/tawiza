@@ -1,7 +1,6 @@
 """Command suggestion system for CLI typos and errors."""
 
 
-
 def levenshtein_distance(s1: str, s2: str) -> int:
     """
     Calculate the Levenshtein distance between two strings.
@@ -60,7 +59,7 @@ def find_similar_command(
     typed_command: str,
     available_commands: list[str],
     threshold: float = 0.6,
-    max_suggestions: int = 3
+    max_suggestions: int = 3,
 ) -> list[tuple[str, float]]:
     """
     Find similar commands based on Levenshtein distance.
@@ -88,9 +87,7 @@ def find_similar_command(
 
 
 def suggest_command(
-    typed_command: str,
-    available_commands: list[str],
-    threshold: float = 0.6
+    typed_command: str, available_commands: list[str], threshold: float = 0.6
 ) -> str | None:
     """
     Get a suggestion message for a mistyped command.

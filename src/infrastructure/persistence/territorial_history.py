@@ -27,12 +27,14 @@ def _find_project_root() -> Path:
             return parent
     return Path.cwd()
 
+
 DEFAULT_DB_PATH = _find_project_root() / "data" / "territorial_history.db"
 
 
 @dataclass
 class HistoricalMetrics:
     """Métriques historiques d'un territoire."""
+
     territory_code: str
     territory_name: str
     collected_at: datetime
@@ -145,32 +147,37 @@ class TerritorialHistoryStore:
         """Sauvegarde les métriques d'un territoire."""
         with self._get_connection() as conn:
             try:
-                conn.execute("""
+                conn.execute(
+                    """
                     INSERT OR REPLACE INTO territorial_metrics_history (
                         territory_code, territory_name, collected_at,
                         creations, closures, procedures, modifications,
                         job_offers, unemployment_rate, real_estate_tx, avg_price_sqm,
                         population, vitality_index, net_creation, sources_used
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    metrics.territory_code,
-                    metrics.territory_name,
-                    metrics.collected_at.isoformat(),
-                    metrics.creations,
-                    metrics.closures,
-                    metrics.procedures,
-                    metrics.modifications,
-                    metrics.job_offers,
-                    metrics.unemployment_rate,
-                    metrics.real_estate_tx,
-                    metrics.avg_price_sqm,
-                    metrics.population,
-                    metrics.vitality_index,
-                    metrics.net_creation,
-                    json.dumps(metrics.sources_used),
-                ))
+                """,
+                    (
+                        metrics.territory_code,
+                        metrics.territory_name,
+                        metrics.collected_at.isoformat(),
+                        metrics.creations,
+                        metrics.closures,
+                        metrics.procedures,
+                        metrics.modifications,
+                        metrics.job_offers,
+                        metrics.unemployment_rate,
+                        metrics.real_estate_tx,
+                        metrics.avg_price_sqm,
+                        metrics.population,
+                        metrics.vitality_index,
+                        metrics.net_creation,
+                        json.dumps(metrics.sources_used),
+                    ),
+                )
                 conn.commit()
-                logger.debug(f"Saved metrics for {metrics.territory_code} at {metrics.collected_at}")
+                logger.debug(
+                    f"Saved metrics for {metrics.territory_code} at {metrics.collected_at}"
+                )
                 return True
             except Exception as e:
                 logger.error(f"Failed to save metrics: {e}")
@@ -185,23 +192,29 @@ class TerritorialHistoryStore:
         since = datetime.utcnow() - timedelta(days=days)
 
         with self._get_connection() as conn:
-            cursor = conn.execute("""
+            cursor = conn.execute(
+                """
                 SELECT * FROM territorial_metrics_history
                 WHERE territory_code = ? AND collected_at >= ?
                 ORDER BY collected_at ASC
-            """, (territory_code, since.isoformat()))
+            """,
+                (territory_code, since.isoformat()),
+            )
 
             return [HistoricalMetrics.from_row(row) for row in cursor.fetchall()]
 
     def get_latest(self, territory_code: str) -> HistoricalMetrics | None:
         """Récupère la dernière entrée d'un territoire."""
         with self._get_connection() as conn:
-            cursor = conn.execute("""
+            cursor = conn.execute(
+                """
                 SELECT * FROM territorial_metrics_history
                 WHERE territory_code = ?
                 ORDER BY collected_at DESC
                 LIMIT 1
-            """, (territory_code,))
+            """,
+                (territory_code,),
+            )
 
             row = cursor.fetchone()
             return HistoricalMetrics.from_row(row) if row else None
@@ -248,13 +261,16 @@ class TerritorialHistoryStore:
             target_date = now - timedelta(days=days)
 
             with self._get_connection() as conn:
-                cursor = conn.execute("""
+                cursor = conn.execute(
+                    """
                     SELECT vitality_index, creations, closures, job_offers
                     FROM territorial_metrics_history
                     WHERE territory_code = ? AND collected_at <= ?
                     ORDER BY collected_at DESC
                     LIMIT 1
-                """, (territory_code, target_date.isoformat()))
+                """,
+                    (territory_code, target_date.isoformat()),
+                )
 
                 row = cursor.fetchone()
                 if row:

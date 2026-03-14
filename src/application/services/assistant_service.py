@@ -25,11 +25,13 @@ class AssistantService:
     with optional RAG (Retrieval-Augmented Generation) integration.
     """
 
-    def __init__(self,
-                 llm_client: OllamaAdapter | None = None,
-                 embedding_service: Any | None = None,
-                 model_name: str = "llama3.2:3b",
-                 use_rag: bool = False):
+    def __init__(
+        self,
+        llm_client: OllamaAdapter | None = None,
+        embedding_service: Any | None = None,
+        model_name: str = "llama3.2:3b",
+        use_rag: bool = False,
+    ):
         """
         Initialize Assistant Service
 
@@ -42,6 +44,7 @@ class AssistantService:
         # Initialize LLM client
         if llm_client is None:
             from src.infrastructure.config.settings import get_settings
+
             settings = get_settings()
             llm_client = OllamaAdapter(base_url=settings.ollama.base_url)
 
@@ -53,16 +56,11 @@ class AssistantService:
         # Initialize components
         self.context_manager = ContextManager(max_context_length=20)
         self.dialog_manager = DialogManager()
-        self.response_generator = ResponseGenerator(
-            llm_client=llm_client,
-            model_name=model_name
-        )
+        self.response_generator = ResponseGenerator(llm_client=llm_client, model_name=model_name)
 
-    async def chat(self,
-                   message: str,
-                   session_id: str | None = None,
-                   user_id: str = "default_user",
-                   **metadata) -> dict[str, Any]:
+    async def chat(
+        self, message: str, session_id: str | None = None, user_id: str = "default_user", **metadata
+    ) -> dict[str, Any]:
         """
         Process a chat message
 
@@ -94,17 +92,14 @@ class AssistantService:
 
         # Generate response
         response_text = await self.response_generator.generate_response(
-            user_input=message,
-            context=context,
-            use_rag=self.use_rag,
-            rag_results=rag_results
+            user_input=message, context=context, use_rag=self.use_rag, rag_results=rag_results
         )
 
         # Add assistant message to context
         context.add_assistant_message(
             response_text,
             dialog_action=dialog_result["action"],
-            dialog_state=dialog_result["state"]
+            dialog_state=dialog_result["state"],
         )
 
         return {
@@ -116,8 +111,8 @@ class AssistantService:
             "metadata": {
                 "timestamp": datetime.now().isoformat(),
                 "model": self.model_name,
-                "used_rag": self.use_rag and rag_results is not None
-            }
+                "used_rag": self.use_rag and rag_results is not None,
+            },
         }
 
     async def get_help(self) -> str:
@@ -145,19 +140,19 @@ class AssistantService:
         try:
             # Search vector database
             results = await self.embedding_service.search(
-                query=query,
-                limit=limit,
-                distance_threshold=0.8
+                query=query, limit=limit, distance_threshold=0.8
             )
 
             # Format results for RAG
             rag_results = []
             for result in results:
-                rag_results.append({
-                    "content": result.content,
-                    "metadata": result.metadata,
-                    "score": 1.0 - (result.distance / 2.0)  # Normalize to 0-1
-                })
+                rag_results.append(
+                    {
+                        "content": result.content,
+                        "metadata": result.metadata,
+                        "score": 1.0 - (result.distance / 2.0),  # Normalize to 0-1
+                    }
+                )
 
             return rag_results
 
@@ -181,7 +176,7 @@ class AssistantService:
                 "role": msg.role.value,
                 "content": msg.content,
                 "timestamp": msg.timestamp.isoformat(),
-                "metadata": msg.metadata
+                "metadata": msg.metadata,
             }
             for msg in recent
         ]
@@ -242,7 +237,7 @@ def get_assistant(
     llm_client: OllamaAdapter | None = None,
     embedding_service: Any | None = None,
     model_name: str = "llama3.2:3b",
-    use_rag: bool = False
+    use_rag: bool = False,
 ) -> AssistantService:
     """
     Get or create AssistantService instance
@@ -263,7 +258,7 @@ def get_assistant(
             llm_client=llm_client,
             embedding_service=embedding_service,
             model_name=model_name,
-            use_rag=use_rag
+            use_rag=use_rag,
         )
 
     return _assistant_instance

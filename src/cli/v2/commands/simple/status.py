@@ -23,10 +23,8 @@ def status_command(
     # Check GPU
     try:
         import subprocess
-        result = subprocess.run(
-            ["rocm-smi", "--showid"],
-            capture_output=True, text=True, timeout=5
-        )
+
+        result = subprocess.run(["rocm-smi", "--showid"], capture_output=True, text=True, timeout=5)
         if result.returncode == 0:
             bar.add("gpu", "amd ready", "ok")
         else:
@@ -37,9 +35,12 @@ def status_command(
     # Check Ollama
     try:
         import subprocess
+
         result = subprocess.run(
             ["curl", "-s", "http://localhost:11434/api/tags"],
-            capture_output=True, text=True, timeout=5
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         if result.returncode == 0:
             bar.add("ollama", "running", "ok")

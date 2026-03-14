@@ -82,10 +82,7 @@ class MessageBubble(Static):
         """Render the message."""
         sender = "👤 Vous" if self.message.is_user else "🤖 TAJINE"
 
-        content = (
-            f"[bold]{sender}[/] [dim]{self.message.formatted_time}[/]\n"
-            f"{self.message.content}"
-        )
+        content = f"[bold]{sender}[/] [dim]{self.message.formatted_time}[/]\n{self.message.content}"
         self.update(content)
 
 
@@ -180,6 +177,7 @@ class ChatModal(ModalScreen):
 
     class Closed(Message):
         """Message when modal is closed."""
+
         pass
 
     def __init__(self, messages: list[ChatMessage] | None = None, **kwargs):

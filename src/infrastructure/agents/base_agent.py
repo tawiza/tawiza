@@ -31,11 +31,7 @@ class BaseAgent(IWebAgent, ABC):
     - Logging integration
     """
 
-    def __init__(
-        self,
-        agent_type: AgentType,
-        config: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, agent_type: AgentType, config: dict[str, Any] | None = None) -> None:
         """Initialize base agent.
 
         Args:
@@ -53,10 +49,7 @@ class BaseAgent(IWebAgent, ABC):
         """Generate unique task ID."""
         return f"{self.agent_type.value}-{uuid.uuid4().hex[:8]}"
 
-    def _create_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> str:
+    def _create_task(self, task_config: dict[str, Any]) -> str:
         """Create task entry.
 
         Args:
@@ -78,16 +71,12 @@ class BaseAgent(IWebAgent, ABC):
             "result": None,
             "error": None,
             "screenshots": [],
-            "logs": []
+            "logs": [],
         }
 
         return task_id
 
-    def _update_task(
-        self,
-        task_id: str,
-        updates: dict[str, Any]
-    ) -> None:
+    def _update_task(self, task_id: str, updates: dict[str, Any]) -> None:
         """Update task state.
 
         Args:
@@ -100,12 +89,7 @@ class BaseAgent(IWebAgent, ABC):
         self.tasks[task_id].update(updates)
         self.tasks[task_id]["updated_at"] = datetime.now(UTC).isoformat()
 
-    def _update_progress(
-        self,
-        task_id: str,
-        progress: int,
-        current_step: str
-    ) -> None:
+    def _update_progress(self, task_id: str, progress: int, current_step: str) -> None:
         """Update task progress.
 
         Args:
@@ -113,17 +97,9 @@ class BaseAgent(IWebAgent, ABC):
             progress: Progress percentage (0-100)
             current_step: Description of current step
         """
-        self._update_task(task_id, {
-            "progress": progress,
-            "current_step": current_step
-        })
+        self._update_task(task_id, {"progress": progress, "current_step": current_step})
 
-    def _add_log(
-        self,
-        task_id: str,
-        message: str,
-        level: str = "info"
-    ) -> None:
+    def _add_log(self, task_id: str, message: str, level: str = "info") -> None:
         """Add log entry to task.
 
         Args:
@@ -132,18 +108,11 @@ class BaseAgent(IWebAgent, ABC):
             level: Log level
         """
         if task_id in self.tasks:
-            self.tasks[task_id]["logs"].append({
-                "timestamp": datetime.now(UTC).isoformat(),
-                "level": level,
-                "message": message
-            })
+            self.tasks[task_id]["logs"].append(
+                {"timestamp": datetime.now(UTC).isoformat(), "level": level, "message": message}
+            )
 
-    def _add_screenshot(
-        self,
-        task_id: str,
-        screenshot_url: str,
-        label: str | None = None
-    ) -> None:
+    def _add_screenshot(self, task_id: str, screenshot_url: str, label: str | None = None) -> None:
         """Add screenshot to task.
 
         Args:
@@ -152,16 +121,11 @@ class BaseAgent(IWebAgent, ABC):
             label: Optional label
         """
         if task_id in self.tasks:
-            self.tasks[task_id]["screenshots"].append({
-                "url": screenshot_url,
-                "label": label,
-                "timestamp": datetime.now(UTC).isoformat()
-            })
+            self.tasks[task_id]["screenshots"].append(
+                {"url": screenshot_url, "label": label, "timestamp": datetime.now(UTC).isoformat()}
+            )
 
-    async def get_task_status(
-        self,
-        task_id: str
-    ) -> dict[str, Any]:
+    async def get_task_status(self, task_id: str) -> dict[str, Any]:
         """Get current task status.
 
         Args:
@@ -183,13 +147,10 @@ class BaseAgent(IWebAgent, ABC):
             "progress": task["progress"],
             "current_step": task["current_step"],
             "created_at": task["created_at"],
-            "updated_at": task["updated_at"]
+            "updated_at": task["updated_at"],
         }
 
-    async def get_task_result(
-        self,
-        task_id: str
-    ) -> dict[str, Any]:
+    async def get_task_result(self, task_id: str) -> dict[str, Any]:
         """Get task result.
 
         Args:
@@ -208,9 +169,7 @@ class BaseAgent(IWebAgent, ABC):
         task = self.tasks[task_id]
 
         if task["status"] not in [TaskStatus.COMPLETED, TaskStatus.FAILED]:
-            raise TaskNotCompletedError(
-                f"Task {task_id} is {task['status']}, not completed"
-            )
+            raise TaskNotCompletedError(f"Task {task_id} is {task['status']}, not completed")
 
         return {
             "task_id": task["task_id"],
@@ -220,13 +179,10 @@ class BaseAgent(IWebAgent, ABC):
             "screenshots": task["screenshots"],
             "logs": task["logs"],
             "created_at": task["created_at"],
-            "updated_at": task["updated_at"]
+            "updated_at": task["updated_at"],
         }
 
-    async def cancel_task(
-        self,
-        task_id: str
-    ) -> bool:
+    async def cancel_task(self, task_id: str) -> bool:
         """Cancel running task.
 
         Args:
@@ -245,22 +201,15 @@ class BaseAgent(IWebAgent, ABC):
         task = self.tasks[task_id]
 
         if task["status"] not in [TaskStatus.PENDING, TaskStatus.RUNNING]:
-            raise TaskNotCancellableError(
-                f"Cannot cancel task with status {task['status']}"
-            )
+            raise TaskNotCancellableError(f"Cannot cancel task with status {task['status']}")
 
-        self._update_task(task_id, {
-            "status": TaskStatus.CANCELLED
-        })
+        self._update_task(task_id, {"status": TaskStatus.CANCELLED})
 
         logger.info(f"Cancelled task {task_id}")
         return True
 
     async def list_tasks(
-        self,
-        status: TaskStatus | None = None,
-        limit: int = 100,
-        offset: int = 0
+        self, status: TaskStatus | None = None, limit: int = 100, offset: int = 0
     ) -> list[dict[str, Any]]:
         """List tasks.
 
@@ -282,7 +231,7 @@ class BaseAgent(IWebAgent, ABC):
         tasks.sort(key=lambda t: t["created_at"], reverse=True)
 
         # Paginate
-        tasks = tasks[offset:offset + limit]
+        tasks = tasks[offset : offset + limit]
 
         # Return summaries
         return [
@@ -291,15 +240,12 @@ class BaseAgent(IWebAgent, ABC):
                 "status": t["status"],
                 "progress": t["progress"],
                 "created_at": t["created_at"],
-                "updated_at": t["updated_at"]
+                "updated_at": t["updated_at"],
             }
             for t in tasks
         ]
 
-    async def stream_progress(
-        self,
-        task_id: str
-    ) -> AsyncGenerator[dict[str, Any]]:
+    async def stream_progress(self, task_id: str) -> AsyncGenerator[dict[str, Any]]:
         """Stream task progress.
 
         Args:
@@ -325,27 +271,16 @@ class BaseAgent(IWebAgent, ABC):
                 "status": task["status"],
                 "progress": task["progress"],
                 "current_step": task["current_step"],
-                "screenshot_url": (
-                    task["screenshots"][-1]["url"]
-                    if task["screenshots"]
-                    else None
-                ),
-                "timestamp": datetime.now(UTC).isoformat()
+                "screenshot_url": (task["screenshots"][-1]["url"] if task["screenshots"] else None),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
             # Stop if task completed/failed/cancelled
-            if task["status"] in [
-                TaskStatus.COMPLETED,
-                TaskStatus.FAILED,
-                TaskStatus.CANCELLED
-            ]:
+            if task["status"] in [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED]:
                 break
 
             await asyncio.sleep(1)  # Update every second
 
     @abstractmethod
-    async def execute_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute task - must be implemented by subclasses."""

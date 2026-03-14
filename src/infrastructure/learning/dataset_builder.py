@@ -74,15 +74,19 @@ class DatasetExample:
         if self.input:
             human_content += f"\n\n{self.input}"
 
-        conversations.append({
-            "from": "human",
-            "value": human_content,
-        })
+        conversations.append(
+            {
+                "from": "human",
+                "value": human_content,
+            }
+        )
 
-        conversations.append({
-            "from": "gpt",
-            "value": self.output,
-        })
+        conversations.append(
+            {
+                "from": "gpt",
+                "value": self.output,
+            }
+        )
 
         return {"conversations": conversations}
 
@@ -276,25 +280,29 @@ class DatasetBuilder:
                 for line in f:
                     if line.strip():
                         data = json.loads(line)
-                        self._examples.append(DatasetExample(
-                            instruction=data.get("instruction", ""),
-                            input=data.get("input", ""),
-                            output=data.get("output", ""),
-                            source=data.get("source", "import"),
-                            metadata=data.get("metadata", {}),
-                        ))
+                        self._examples.append(
+                            DatasetExample(
+                                instruction=data.get("instruction", ""),
+                                input=data.get("input", ""),
+                                output=data.get("output", ""),
+                                source=data.get("source", "import"),
+                                metadata=data.get("metadata", {}),
+                            )
+                        )
                         count += 1
 
         elif format == DatasetFormat.ALPACA:
             with open(path) as f:
                 data = json.load(f)
                 for item in data:
-                    self._examples.append(DatasetExample(
-                        instruction=item.get("instruction", ""),
-                        input=item.get("input", ""),
-                        output=item.get("output", ""),
-                        source="alpaca_import",
-                    ))
+                    self._examples.append(
+                        DatasetExample(
+                            instruction=item.get("instruction", ""),
+                            input=item.get("input", ""),
+                            output=item.get("output", ""),
+                            source="alpaca_import",
+                        )
+                    )
                     count += 1
 
         logger.info(f"Imported {count} examples from {path}")

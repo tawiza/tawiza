@@ -370,20 +370,14 @@ class LinUCBScheduler:
 
         # Update LinUCB model
         if context is not None:
-            context_vec = (
-                context.to_vector()
-                if isinstance(context, ContextFeatures)
-                else context
-            )
+            context_vec = context.to_vector() if isinstance(context, ContextFeatures) else context
             self.arms[source_id].update(context_vec, reward)
 
         # Also update original SourceArm for compatibility
         if arm := self.source_arms.get(source_id):
             arm.record_pull(success, quality=quality)
 
-        logger.debug(
-            f"LinUCB update: {source_id} success={success} reward={reward:.2f}"
-        )
+        logger.debug(f"LinUCB update: {source_id} success={success} reward={reward:.2f}")
 
     def get_stats(self) -> dict[str, Any]:
         """Get scheduler statistics for debugging."""
@@ -416,8 +410,7 @@ class LinUCBScheduler:
                 for source_id, arm in self.arms.items()
             },
             "source_arms": {
-                source_id: arm.to_dict()
-                for source_id, arm in self.source_arms.items()
+                source_id: arm.to_dict() for source_id, arm in self.source_arms.items()
             },
         }
 

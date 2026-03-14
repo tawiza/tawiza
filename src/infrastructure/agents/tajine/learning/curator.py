@@ -28,12 +28,14 @@ def _to_str(value: str | dict | Any) -> str:
         return value
     if isinstance(value, dict):
         import json
+
         return json.dumps(value, ensure_ascii=False, default=str)
     return str(value) if value else ""
 
 
 class CurationVerdict(Enum):
     """Verdict from LLM judge."""
+
     ACCEPT = "accept"
     REJECT = "reject"
     NEEDS_REVIEW = "needs_review"
@@ -42,6 +44,7 @@ class CurationVerdict(Enum):
 @dataclass
 class CurationResult:
     """Result of curating a single example."""
+
     verdict: CurationVerdict
     quality_score: float  # 0.0 - 1.0
     reasoning: str
@@ -52,6 +55,7 @@ class CurationResult:
 @dataclass
 class CuratedDataset:
     """A curated dataset ready for training."""
+
     success_traces: list[SuccessTrace]
     preference_pairs: list[PreferencePair]
     curation_stats: dict[str, Any]
@@ -64,9 +68,7 @@ class CuratedDataset:
     @property
     def reasoning_heavy(self) -> bool:
         """Check if curated data has significant reasoning content."""
-        reasoning_count = sum(
-            1 for t in self.success_traces if t.reasoning is not None
-        )
+        reasoning_count = sum(1 for t in self.success_traces if t.reasoning is not None)
         return reasoning_count > len(self.success_traces) * 0.5
 
     def get_stats(self) -> dict[str, Any]:
@@ -187,7 +189,9 @@ Respond in JSON format:
         Returns:
             CuratedDataset with validated examples
         """
-        logger.info(f"Curating {len(data.success_traces)} traces, {len(data.preference_pairs)} pairs")
+        logger.info(
+            f"Curating {len(data.success_traces)} traces, {len(data.preference_pairs)} pairs"
+        )
 
         curated_traces = []
         curated_pairs = []
@@ -227,7 +231,9 @@ Respond in JSON format:
             else:
                 stats["rejected_pairs"] += 1
 
-        logger.info(f"Curation complete: {stats['accepted_traces']} traces, {stats['accepted_pairs']} pairs accepted")
+        logger.info(
+            f"Curation complete: {stats['accepted_traces']} traces, {stats['accepted_pairs']} pairs accepted"
+        )
 
         return CuratedDataset(
             success_traces=curated_traces,
@@ -371,7 +377,14 @@ Respond in JSON format:
             score -= 0.5
 
         # French territorial keywords bonus
-        territorial_keywords = ["département", "région", "entreprise", "siret", "insee", "économique"]
+        territorial_keywords = [
+            "département",
+            "région",
+            "entreprise",
+            "siret",
+            "insee",
+            "économique",
+        ]
         has_territorial = any(kw in output_str.lower() for kw in territorial_keywords)
         if has_territorial:
             score += 0.1

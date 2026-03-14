@@ -1,6 +1,5 @@
 """Watcher API routes - Polling daemon control and alert management."""
 
-
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -27,14 +26,17 @@ def get_daemon() -> WatcherDaemon:
 # Pydantic Models
 # ============================================================================
 
+
 class WatcherStatus(BaseModel):
     """Watcher daemon status."""
+
     running: bool
     sources: dict
 
 
 class AlertResponse(BaseModel):
     """Alert response model."""
+
     id: int
     source: str
     title: str
@@ -48,6 +50,7 @@ class AlertResponse(BaseModel):
 
 class AlertsListResponse(BaseModel):
     """List of alerts."""
+
     alerts: list[AlertResponse]
     total: int
     unread_count: int
@@ -55,30 +58,32 @@ class AlertsListResponse(BaseModel):
 
 class KeywordCreate(BaseModel):
     """Keyword to add to watchlist."""
+
     keyword: str
     sources: list[str] = Field(
-        default=["bodacc", "boamp", "gdelt"],
-        description="Sources to watch: bodacc, boamp, gdelt"
+        default=["bodacc", "boamp", "gdelt"], description="Sources to watch: bodacc, boamp, gdelt"
     )
 
 
 class WatchlistResponse(BaseModel):
     """Watchlist response."""
+
     keywords: list[dict]
     total: int
 
 
 class PollRequest(BaseModel):
     """Request to force poll."""
+
     source: str | None = Field(
-        default=None,
-        description="Source to poll (bodacc, boamp, gdelt) or None for all"
+        default=None, description="Source to poll (bodacc, boamp, gdelt) or None for all"
     )
 
 
 # ============================================================================
 # Daemon Control Endpoints
 # ============================================================================
+
 
 @router.post("/start")
 async def start_daemon(background_tasks: BackgroundTasks):
@@ -96,7 +101,7 @@ async def start_daemon(background_tasks: BackgroundTasks):
     return {
         "status": "starting",
         "message": "Watcher daemon is starting",
-        "sources": list(daemon.INTERVALS.keys())
+        "sources": list(daemon.INTERVALS.keys()),
     }
 
 
@@ -119,10 +124,7 @@ async def get_status():
     daemon = get_daemon()
     status = daemon.get_status()
 
-    return WatcherStatus(
-        running=status["running"],
-        sources=status["sources"]
-    )
+    return WatcherStatus(running=status["running"], sources=status["sources"])
 
 
 @router.post("/poll")
@@ -143,7 +145,7 @@ async def force_poll(request: PollRequest, background_tasks: BackgroundTasks):
     return {
         "status": "polling",
         "message": f"Forcing poll of {source_str}",
-        "source": request.source
+        "source": request.source,
     }
 
 
@@ -151,12 +153,13 @@ async def force_poll(request: PollRequest, background_tasks: BackgroundTasks):
 # Alert Endpoints
 # ============================================================================
 
+
 @router.get("/alerts", response_model=AlertsListResponse)
 async def list_alerts(
     source: str | None = Query(default=None, description="Filter by source"),
     unread_only: bool = Query(default=False, description="Only show unread alerts"),
     limit: int = Query(default=50, le=500),
-    offset: int = Query(default=0, ge=0)
+    offset: int = Query(default=0, ge=0),
 ):
     """List alerts from the watchlist.
 
@@ -168,10 +171,7 @@ async def list_alerts(
     try:
         # Get alerts from storage
         alerts_data = storage.get_alerts(
-            source=source,
-            unread_only=unread_only,
-            limit=limit,
-            offset=offset
+            source=source, unread_only=unread_only, limit=limit, offset=offset
         )
 
         alerts = [
@@ -184,7 +184,7 @@ async def list_alerts(
                 keywords_matched=a.get("keywords_matched", []),
                 score=a.get("score", 0.0),
                 read=a.get("read", False),
-                created_at=a.get("created_at", "")
+                created_at=a.get("created_at", ""),
             )
             for a in alerts_data
         ]
@@ -192,11 +192,7 @@ async def list_alerts(
         total = storage.count_alerts(source=source, unread_only=unread_only)
         unread = storage.count_alerts(unread_only=True)
 
-        return AlertsListResponse(
-            alerts=alerts,
-            total=total,
-            unread_count=unread
-        )
+        return AlertsListResponse(alerts=alerts, total=total, unread_count=unread)
 
     except Exception as e:
         logger.error(f"Failed to list alerts: {e}")
@@ -267,6 +263,7 @@ async def delete_alert(alert_id: int):
 # Watchlist Management
 # ============================================================================
 
+
 @router.get("/watchlist", response_model=WatchlistResponse)
 async def get_watchlist():
     """Get all keywords in the watchlist."""
@@ -276,10 +273,7 @@ async def get_watchlist():
     try:
         keywords = storage.get_watchlist()
 
-        return WatchlistResponse(
-            keywords=keywords,
-            total=len(keywords)
-        )
+        return WatchlistResponse(keywords=keywords, total=len(keywords))
 
     except Exception as e:
         logger.error(f"Failed to get watchlist: {e}")
@@ -293,16 +287,13 @@ async def add_keyword(keyword: KeywordCreate):
     storage = WatcherStorage(db)
 
     try:
-        keyword_id = storage.add_keyword(
-            keyword=keyword.keyword,
-            sources=keyword.sources
-        )
+        keyword_id = storage.add_keyword(keyword=keyword.keyword, sources=keyword.sources)
 
         return {
             "status": "success",
             "keyword_id": keyword_id,
             "keyword": keyword.keyword,
-            "sources": keyword.sources
+            "sources": keyword.sources,
         }
 
     except Exception as e:
@@ -334,6 +325,7 @@ async def remove_keyword(keyword_id: int):
 # Health Check
 # ============================================================================
 
+
 @router.get("/health")
 async def health_check():
     """Watcher service health check."""
@@ -342,5 +334,5 @@ async def health_check():
     return {
         "status": "healthy",
         "daemon_running": daemon.running,
-        "sources": list(daemon.INTERVALS.keys())
+        "sources": list(daemon.INTERVALS.keys()),
     }

@@ -15,6 +15,7 @@ from loguru import logger
 
 class AlertType(Enum):
     """Types d'alertes."""
+
     ENTERPRISE_CREATION = "enterprise_creation"
     ENTERPRISE_CLOSURE = "enterprise_closure"
     MARKET_OPPORTUNITY = "market_opportunity"
@@ -27,6 +28,7 @@ class AlertType(Enum):
 
 class AlertSeverity(Enum):
     """Sévérité de l'alerte."""
+
     INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -34,6 +36,7 @@ class AlertSeverity(Enum):
 
 class AlertStatus(Enum):
     """Statut de l'alerte."""
+
     NEW = "new"
     READ = "read"
     ARCHIVED = "archived"
@@ -42,6 +45,7 @@ class AlertStatus(Enum):
 @dataclass
 class Alert:
     """Une alerte territoriale."""
+
     id: str
     type: AlertType
     severity: AlertSeverity
@@ -58,6 +62,7 @@ class Alert:
 @dataclass
 class AlertRule:
     """Règle de déclenchement d'alerte."""
+
     id: str
     name: str
     alert_type: AlertType
@@ -89,50 +94,60 @@ class AlertService:
     def _setup_default_rules(self) -> None:
         """Configure les règles par défaut."""
         # Règle: Nouvelle entreprise dans secteur tech
-        self.add_rule(AlertRule(
-            id="tech_creation",
-            name="Création entreprise tech",
-            alert_type=AlertType.ENTERPRISE_CREATION,
-            condition=lambda d: d.get("naf_code", "").startswith("62"),
-            severity=AlertSeverity.INFO,
-            sectors=["62.01Z", "62.02A", "62.02B", "62.03Z"],
-        ))
+        self.add_rule(
+            AlertRule(
+                id="tech_creation",
+                name="Création entreprise tech",
+                alert_type=AlertType.ENTERPRISE_CREATION,
+                condition=lambda d: d.get("naf_code", "").startswith("62"),
+                severity=AlertSeverity.INFO,
+                sectors=["62.01Z", "62.02A", "62.02B", "62.03Z"],
+            )
+        )
 
         # Règle: Fermeture entreprise majeure
-        self.add_rule(AlertRule(
-            id="major_closure",
-            name="Fermeture entreprise majeure",
-            alert_type=AlertType.ENTERPRISE_CLOSURE,
-            condition=lambda d: d.get("employees", 0) > 50,
-            severity=AlertSeverity.WARNING,
-        ))
+        self.add_rule(
+            AlertRule(
+                id="major_closure",
+                name="Fermeture entreprise majeure",
+                alert_type=AlertType.ENTERPRISE_CLOSURE,
+                condition=lambda d: d.get("employees", 0) > 50,
+                severity=AlertSeverity.WARNING,
+            )
+        )
 
         # Règle: Marché public important
-        self.add_rule(AlertRule(
-            id="major_market",
-            name="Marché public > 100k€",
-            alert_type=AlertType.MARKET_OPPORTUNITY,
-            condition=lambda d: d.get("amount", 0) > 100000,
-            severity=AlertSeverity.INFO,
-        ))
+        self.add_rule(
+            AlertRule(
+                id="major_market",
+                name="Marché public > 100k€",
+                alert_type=AlertType.MARKET_OPPORTUNITY,
+                condition=lambda d: d.get("amount", 0) > 100000,
+                severity=AlertSeverity.INFO,
+            )
+        )
 
         # Règle: Subvention disponible
-        self.add_rule(AlertRule(
-            id="new_subsidy",
-            name="Nouvelle subvention disponible",
-            alert_type=AlertType.SUBSIDY_AVAILABLE,
-            condition=lambda d: d.get("status") == "open",
-            severity=AlertSeverity.INFO,
-        ))
+        self.add_rule(
+            AlertRule(
+                id="new_subsidy",
+                name="Nouvelle subvention disponible",
+                alert_type=AlertType.SUBSIDY_AVAILABLE,
+                condition=lambda d: d.get("status") == "open",
+                severity=AlertSeverity.INFO,
+            )
+        )
 
         # Règle: Variation emploi significative
-        self.add_rule(AlertRule(
-            id="job_variation",
-            name="Variation emploi > 10%",
-            alert_type=AlertType.JOB_MARKET_CHANGE,
-            condition=lambda d: abs(d.get("variation_pct", 0)) > 10,
-            severity=AlertSeverity.WARNING,
-        ))
+        self.add_rule(
+            AlertRule(
+                id="job_variation",
+                name="Variation emploi > 10%",
+                alert_type=AlertType.JOB_MARKET_CHANGE,
+                condition=lambda d: abs(d.get("variation_pct", 0)) > 10,
+                severity=AlertSeverity.WARNING,
+            )
+        )
 
         logger.info(f"AlertService: {len(self._rules)} règles par défaut configurées")
 
@@ -238,9 +253,7 @@ class AlertService:
             except Exception as e:
                 logger.error(f"Erreur notification alerte: {e}")
 
-        logger.info(
-            f"🔔 Alerte [{alert.severity.value}] {alert.type.value}: {alert.title}"
-        )
+        logger.info(f"🔔 Alerte [{alert.severity.value}] {alert.type.value}: {alert.title}")
 
     # === API publique ===
 
@@ -284,13 +297,9 @@ class AlertService:
         return {
             "total": len(self._alerts),
             "new": len([a for a in self._alerts if a.status == AlertStatus.NEW]),
-            "by_type": {
-                t.value: len([a for a in self._alerts if a.type == t])
-                for t in AlertType
-            },
+            "by_type": {t.value: len([a for a in self._alerts if a.type == t]) for t in AlertType},
             "by_severity": {
-                s.value: len([a for a in self._alerts if a.severity == s])
-                for s in AlertSeverity
+                s.value: len([a for a in self._alerts if a.severity == s]) for s in AlertSeverity
             },
             "rules_count": len(self._rules),
         }

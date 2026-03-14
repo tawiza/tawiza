@@ -1,4 +1,5 @@
 """Evaluator - 3D data scoring orchestrator."""
+
 from __future__ import annotations
 
 import logging
@@ -63,8 +64,7 @@ class Evaluator:
         self.kg_validator = kg_validator or KGValidator(neo4j_client=neo4j_client)
         self.alpha_tester = alpha_tester or AlphaTester()
         self.semantic_scorer = semantic_scorer or (
-            SemanticCoherenceScorer(semantic_service=semantic_service)
-            if semantic_service else None
+            SemanticCoherenceScorer(semantic_service=semantic_service) if semantic_service else None
         )
         self.use_semantic_coherence = use_semantic_coherence and self.semantic_scorer is not None
         self.w_rel, self.w_coh, self.w_alpha = weights

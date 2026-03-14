@@ -32,7 +32,7 @@ class SkyvernAdapter(OpenManusAdapter):
         headless: bool = True,
         screenshots_dir: str = "/tmp/tawiza-skyvern-screenshots",
         llm_client: Any | None = None,
-        use_vision: bool = False
+        use_vision: bool = False,
     ) -> None:
         """Initialize Skyvern adapter.
 
@@ -43,30 +43,19 @@ class SkyvernAdapter(OpenManusAdapter):
             use_vision: Enable vision-based element detection (future)
         """
         # Call parent but override agent type
-        super().__init__(
-            headless=headless,
-            screenshots_dir=screenshots_dir,
-            llm_client=llm_client
-        )
+        super().__init__(headless=headless, screenshots_dir=screenshots_dir, llm_client=llm_client)
 
         # Override agent type
         self.agent_type = AgentType.SKYVERN
         self.use_vision = use_vision
 
-        logger.info(
-            f"Initialized Skyvern adapter "
-            f"(vision_mode={use_vision}, headless={headless})"
-        )
+        logger.info(f"Initialized Skyvern adapter (vision_mode={use_vision}, headless={headless})")
 
         logger.warning(
-            "Using OpenManus-based Skyvern stub. "
-            "Install Skyvern SDK for full functionality."
+            "Using OpenManus-based Skyvern stub. Install Skyvern SDK for full functionality."
         )
 
-    async def execute_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute task using Skyvern.
 
         Currently delegates to OpenManus implementation.

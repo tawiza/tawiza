@@ -1,5 +1,6 @@
 # src/cli/ui/gpu_monitor.py
 """Moniteur GPU hybride - supporte host (ROCm) et VM (SSH)."""
+
 import os
 import re
 import subprocess
@@ -12,9 +13,11 @@ class GPULocation(StrEnum):
     VM = "vm"
     NONE = "none"
 
+
 @dataclass
 class GPUStatus:
     """État actuel du GPU."""
+
     available: bool = False
     location: GPULocation = GPULocation.NONE
     name: str = "Unknown"
@@ -29,6 +32,7 @@ class GPUStatus:
             return 0.0
         return (self.memory_used / self.memory_total) * 100
 
+
 class GPUMonitor:
     """Moniteur GPU qui détecte automatiquement host ou VM."""
 
@@ -42,7 +46,9 @@ class GPUMonitor:
         try:
             result = subprocess.run(
                 ["rocm-smi", "--showmeminfo", "vram", "--showtemp", "--showuse"],
-                capture_output=True, text=True, timeout=5
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
             if result.returncode == 0 and "GPU" in result.stdout:
                 return self._parse_rocm_output(result.stdout)
@@ -54,9 +60,20 @@ class GPUMonitor:
         """Vérifie le GPU dans VM 400 via SSH."""
         try:
             result = subprocess.run(
-                ["ssh", "-o", "ConnectTimeout=3", "-o", "StrictHostKeyChecking=no",
-                 f"{self.vm_user}@{self.vm_host}", "rocm-smi", "--showmeminfo", "vram"],
-                capture_output=True, text=True, timeout=10
+                [
+                    "ssh",
+                    "-o",
+                    "ConnectTimeout=3",
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    f"{self.vm_user}@{self.vm_host}",
+                    "rocm-smi",
+                    "--showmeminfo",
+                    "vram",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
             )
             if result.returncode == 0:
                 status = self._parse_rocm_output(result.stdout)
@@ -109,6 +126,7 @@ class GPUMonitor:
             return status
         except Exception:
             return None
+
 
 def get_gpu_status() -> GPUStatus:
     """Fonction helper pour obtenir le statut GPU."""

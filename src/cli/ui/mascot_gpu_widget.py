@@ -1,4 +1,5 @@
 """Widget mascotte avec affichage GPU temps réel."""
+
 import threading
 import time
 

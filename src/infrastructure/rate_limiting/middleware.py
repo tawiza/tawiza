@@ -58,9 +58,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             refill_rate=refill_rate,
         )
         self.key_func = key_func or self._default_key_func
-        logger.info(
-            f"Rate limiter initialized: {capacity} capacity, {refill_rate}/s refill"
-        )
+        logger.info(f"Rate limiter initialized: {capacity} capacity, {refill_rate}/s refill")
 
     def _default_key_func(self, request: Request) -> str:
         """Extract client identifier from request (default: IP address)."""
@@ -106,9 +104,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             wait_time = self.limiter.wait_time(client_key)
             retry_after = int(wait_time) + 1
 
-            logger.warning(
-                f"Rate limit exceeded for {client_key} on {path}"
-            )
+            logger.warning(f"Rate limit exceeded for {client_key} on {path}")
 
             return JSONResponse(
                 status_code=429,

@@ -24,7 +24,7 @@ class OllamaInferenceService(IModelInference):
         ollama_adapter: OllamaAdapter,
         default_model: str = "qwen3.5:27b",
         use_prompt_templates: bool = True,
-        prompt_manager: PromptManager | None = None
+        prompt_manager: PromptManager | None = None,
     ):
         """
         Initialize Ollama inference service.
@@ -116,7 +116,7 @@ class OllamaInferenceService(IModelInference):
                     model=ollama_model,
                     messages=input_data["messages"],
                     temperature=temperature,
-                    stream=False
+                    stream=False,
                 )
 
                 # Extract response
@@ -129,16 +129,14 @@ class OllamaInferenceService(IModelInference):
                     prompt=input_data["prompt"],
                     temperature=temperature,
                     max_tokens=max_tokens,
-                    stream=False
+                    stream=False,
                 )
 
                 # Extract response
                 output_text = response.get("response", "")
 
             else:
-                raise ValueError(
-                    "Input data must contain either 'prompt' or 'messages'"
-                )
+                raise ValueError("Input data must contain either 'prompt' or 'messages'")
 
             # Calculate confidence (mock for now - could use logprobs if available)
             confidence = 0.85  # Placeholder
@@ -148,8 +146,7 @@ class OllamaInferenceService(IModelInference):
                 "prompt_tokens": response.get("prompt_eval_count", 0),
                 "completion_tokens": response.get("eval_count", 0),
                 "total_tokens": (
-                    response.get("prompt_eval_count", 0) +
-                    response.get("eval_count", 0)
+                    response.get("prompt_eval_count", 0) + response.get("eval_count", 0)
                 ),
             }
 
@@ -161,9 +158,7 @@ class OllamaInferenceService(IModelInference):
                 "raw_response": response,
             }
 
-            logger.info(
-                f"Inference completed. Generated {usage['completion_tokens']} tokens"
-            )
+            logger.info(f"Inference completed. Generated {usage['completion_tokens']} tokens")
 
             return result
 
@@ -195,8 +190,7 @@ class OllamaInferenceService(IModelInference):
         """
         if not self.use_prompt_templates or self.prompt_manager is None:
             raise ValueError(
-                "Prompt templates are not enabled. "
-                "Set use_prompt_templates=True in constructor."
+                "Prompt templates are not enabled. Set use_prompt_templates=True in constructor."
             )
 
         try:
@@ -211,9 +205,7 @@ class OllamaInferenceService(IModelInference):
             # Run inference with the rendered prompt
             input_data = {"prompt": prompt}
             result = await self.predict(
-                model_id=model_id,
-                input_data=input_data,
-                parameters=parameters
+                model_id=model_id, input_data=input_data, parameters=parameters
             )
 
             # Add template info to result
@@ -230,10 +222,7 @@ class OllamaInferenceService(IModelInference):
             raise
 
     def _build_prompt_from_task(
-        self,
-        task_type: str,
-        input_text: str,
-        additional_context: dict[str, Any] | None = None
+        self, task_type: str, input_text: str, additional_context: dict[str, Any] | None = None
     ) -> str:
         """
         Build a prompt for a specific task type using templates if available.
@@ -271,19 +260,14 @@ class OllamaInferenceService(IModelInference):
                 return self.prompt_manager.render(template_name, **variables)
             except (ValueError, KeyError) as e:
                 logger.warning(
-                    f"Failed to use template '{template_name}': {e}, "
-                    f"falling back to simple prompt"
+                    f"Failed to use template '{template_name}': {e}, falling back to simple prompt"
                 )
 
         # Fallback
         return f"Task: {task_type}\n\nInput: {input_text}"
 
     async def classify_text(
-        self,
-        model_id: str,
-        text: str,
-        categories: str,
-        parameters: dict[str, Any] | None = None
+        self, model_id: str, text: str, categories: str, parameters: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Classify text into categories using a prompt template.
@@ -303,7 +287,7 @@ class OllamaInferenceService(IModelInference):
                     model_id=model_id,
                     template_name="text_classification",
                     template_variables={"text": text, "categories": categories},
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError:
                 # Template not found, fall back to direct inference
@@ -312,16 +296,11 @@ class OllamaInferenceService(IModelInference):
         # Fallback: direct inference
         prompt = f"Classify the following text into one of these categories: {categories}\n\nText: {text}\n\nCategory:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def extract_entities(
-        self,
-        model_id: str,
-        text: str,
-        parameters: dict[str, Any] | None = None
+        self, model_id: str, text: str, parameters: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Extract named entities from text using a prompt template.
@@ -340,7 +319,7 @@ class OllamaInferenceService(IModelInference):
                     model_id=model_id,
                     template_name="named_entity_recognition",
                     template_variables={"text": text},
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'named_entity_recognition' not found, using fallback: {e}")
@@ -348,9 +327,7 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Extract named entities from the following text. Return entities in JSON format with their types.\n\nText: {text}\n\nEntities:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def summarize_text(
@@ -358,7 +335,7 @@ class OllamaInferenceService(IModelInference):
         model_id: str,
         text: str,
         max_words: int = 100,
-        parameters: dict[str, Any] | None = None
+        parameters: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Summarize text using a prompt template.
@@ -378,7 +355,7 @@ class OllamaInferenceService(IModelInference):
                     model_id=model_id,
                     template_name="text_summarization",
                     template_variables={"text": text, "max_words": str(max_words)},
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'text_summarization' not found, using fallback: {e}")
@@ -386,16 +363,11 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Please summarize the following text in {max_words} words or less:\n\n{text}\n\nSummary:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def analyze_sentiment(
-        self,
-        model_id: str,
-        text: str,
-        parameters: dict[str, Any] | None = None
+        self, model_id: str, text: str, parameters: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Analyze sentiment of text using a prompt template.
@@ -414,7 +386,7 @@ class OllamaInferenceService(IModelInference):
                     model_id=model_id,
                     template_name="sentiment_analysis",
                     template_variables={"text": text},
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'sentiment_analysis' not found, using fallback: {e}")
@@ -422,17 +394,11 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Analyze the sentiment of the following text. Return: sentiment (positive/negative/neutral), confidence score, and key phrases.\n\nText: {text}\n\nAnalysis:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def answer_question(
-        self,
-        model_id: str,
-        question: str,
-        context: str,
-        parameters: dict[str, Any] | None = None
+        self, model_id: str, question: str, context: str, parameters: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Answer a question based on provided context using a prompt template.
@@ -452,7 +418,7 @@ class OllamaInferenceService(IModelInference):
                     model_id=model_id,
                     template_name="question_answering",
                     template_variables={"question": question, "context": context},
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'question_answering' not found, using fallback: {e}")
@@ -460,9 +426,7 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Answer the following question based on the given context. If the answer is not in the context, say 'I don't know'.\n\nContext: {context}\n\nQuestion: {question}\n\nAnswer:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def translate_text(
@@ -471,7 +435,7 @@ class OllamaInferenceService(IModelInference):
         text: str,
         source_lang: str,
         target_lang: str,
-        parameters: dict[str, Any] | None = None
+        parameters: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Translate text from source language to target language using a prompt template.
@@ -494,9 +458,9 @@ class OllamaInferenceService(IModelInference):
                     template_variables={
                         "text": text,
                         "source_lang": source_lang,
-                        "target_lang": target_lang
+                        "target_lang": target_lang,
                     },
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'translation' not found, using fallback: {e}")
@@ -504,17 +468,11 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Translate the following text from {source_lang} to {target_lang}:\n\n{text}\n\nTranslation:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def review_code(
-        self,
-        model_id: str,
-        code: str,
-        language: str,
-        parameters: dict[str, Any] | None = None
+        self, model_id: str, code: str, language: str, parameters: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Review code for bugs, security issues, and best practices using a prompt template.
@@ -534,7 +492,7 @@ class OllamaInferenceService(IModelInference):
                     model_id=model_id,
                     template_name="code_review",
                     template_variables={"code": code, "language": language},
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'code_review' not found, using fallback: {e}")
@@ -542,9 +500,7 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Review the following {language} code for bugs, security issues, performance problems, and best practices violations:\n\n```{language}\n{code}\n```\n\nReview:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def analyze_error(
@@ -553,7 +509,7 @@ class OllamaInferenceService(IModelInference):
         error_type: str,
         error_message: str,
         stack_trace: str,
-        parameters: dict[str, Any] | None = None
+        parameters: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Analyze an error and provide solutions using a prompt template.
@@ -576,9 +532,9 @@ class OllamaInferenceService(IModelInference):
                     template_variables={
                         "error_type": error_type,
                         "error_message": error_message,
-                        "stack_trace": stack_trace
+                        "stack_trace": stack_trace,
                     },
-                    parameters=parameters
+                    parameters=parameters,
                 )
             except ValueError as e:
                 logger.debug(f"Template 'error_analysis' not found, using fallback: {e}")
@@ -586,9 +542,7 @@ class OllamaInferenceService(IModelInference):
         # Fallback
         prompt = f"Analyze this error and provide root cause, why it happened, how to fix it, and how to prevent it:\n\nError: {error_type}\nMessage: {error_message}\nStack trace: {stack_trace}\n\nAnalysis:"
         return await self.predict(
-            model_id=model_id,
-            input_data={"prompt": prompt},
-            parameters=parameters
+            model_id=model_id, input_data={"prompt": prompt}, parameters=parameters
         )
 
     async def health_check(self, model_id: str) -> bool:
@@ -697,20 +651,14 @@ class OllamaTrainingService:
         logger.info(f"Creating custom model {model_name} from {base_model}")
 
         # Create model
-        await self.ollama.create_model(
-            name=model_name,
-            modelfile=modelfile
-        )
+        await self.ollama.create_model(name=model_name, modelfile=modelfile)
 
         logger.info(f"Successfully created model {model_name}")
 
         return model_name
 
     async def prepare_training_data(
-        self,
-        annotations: list,
-        output_path: str,
-        task_type: str = "classification"
+        self, annotations: list, output_path: str, task_type: str = "classification"
     ) -> str:
         """
         Prepare training data from Label Studio annotations.
@@ -726,9 +674,7 @@ class OllamaTrainingService:
         from pathlib import Path
 
         data_path = await self.ollama.prepare_finetuning_data(
-            annotations=annotations,
-            output_path=Path(output_path),
-            task_type=task_type
+            annotations=annotations, output_path=Path(output_path), task_type=task_type
         )
 
         logger.info(f"Prepared training data at {data_path}")

@@ -170,9 +170,7 @@ class RetrainingJob(Entity):
         self._started_at = datetime.utcnow()
         self._touch()
 
-    def complete(
-        self, new_model_version: str, metrics: dict[str, Any] | None = None
-    ) -> None:
+    def complete(self, new_model_version: str, metrics: dict[str, Any] | None = None) -> None:
         """Mark job as completed.
 
         Args:

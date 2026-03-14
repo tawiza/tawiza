@@ -52,18 +52,22 @@ class BodaccPoller(BasePoller):
         # If we have keywords, search for each one
         if keywords:
             for keyword in keywords:
-                results = await self.adapter.search({
-                    "nom": keyword,
-                    "date_from": date_from,
-                    "limit": 50,
-                })
+                results = await self.adapter.search(
+                    {
+                        "nom": keyword,
+                        "date_from": date_from,
+                        "limit": 50,
+                    }
+                )
                 alerts.extend(self._results_to_alerts(results))
         else:
             # No keywords, just get recent announcements
-            results = await self.adapter.search({
-                "date_from": date_from,
-                "limit": 100,
-            })
+            results = await self.adapter.search(
+                {
+                    "date_from": date_from,
+                    "limit": 100,
+                }
+            )
             alerts.extend(self._results_to_alerts(results))
 
         # Deduplicate by unique key (siren + date + type)
@@ -165,11 +169,13 @@ class BodaccPoller(BasePoller):
         """
         date_from = (date.today() - timedelta(days=7)).isoformat()
 
-        results = await self.adapter.search({
-            "departement": departement,
-            "date_from": date_from,
-            "limit": 100,
-        })
+        results = await self.adapter.search(
+            {
+                "departement": departement,
+                "date_from": date_from,
+                "limit": 100,
+            }
+        )
 
         if keywords:
             results = self.filter_by_keywords(

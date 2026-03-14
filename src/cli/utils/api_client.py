@@ -12,6 +12,7 @@ console = Console()
 
 class APIConnectionError(Exception):
     """Raised when the API backend is not reachable."""
+
     pass
 
 
@@ -43,34 +44,38 @@ class APIClient:
     def _handle_connection_error(self, e: Exception, endpoint: str):
         """Handle connection errors with helpful message."""
         console.print()
-        console.print(Panel(
-            f"[red]❌ Impossible de se connecter au backend API[/red]\n\n"
-            f"[yellow]URL:[/yellow] {self.base_url}{endpoint}\n\n"
-            f"[cyan]Solutions:[/cyan]\n"
-            f"  1. Démarrer le backend: [green]tawiza system start[/green]\n"
-            f"  2. Vérifier le statut: [green]tawiza system status[/green]\n"
-            f"  3. Définir une URL personnalisée: [dim]export TAWIZA_API_URL=http://...[/dim]",
-            title="🔌 Backend Non Disponible",
-            border_style="red"
-        ))
+        console.print(
+            Panel(
+                f"[red]❌ Impossible de se connecter au backend API[/red]\n\n"
+                f"[yellow]URL:[/yellow] {self.base_url}{endpoint}\n\n"
+                f"[cyan]Solutions:[/cyan]\n"
+                f"  1. Démarrer le backend: [green]tawiza system start[/green]\n"
+                f"  2. Vérifier le statut: [green]tawiza system status[/green]\n"
+                f"  3. Définir une URL personnalisée: [dim]export TAWIZA_API_URL=http://...[/dim]",
+                title="🔌 Backend Non Disponible",
+                border_style="red",
+            )
+        )
         raise APIConnectionError(f"Backend not reachable at {self.base_url}")
 
     def _handle_404_error(self, endpoint: str):
         """Handle 404 errors with helpful message."""
         console.print()
-        console.print(Panel(
-            f"[yellow]⚠️ Endpoint non disponible[/yellow]\n\n"
-            f"[dim]URL:[/dim] {self.base_url}{endpoint}\n\n"
-            f"[cyan]Cette fonctionnalité nécessite:[/cyan]\n"
-            f"  • Le backend FastAPI complet\n"
-            f"  • Les routes API correspondantes\n\n"
-            f"[green]Alternatives disponibles:[/green]\n"
-            f"  • [dim]tawiza models list[/dim] - Modèles Ollama\n"
-            f"  • [dim]tawiza system status[/dim] - Statut système\n"
-            f"  • [dim]tawiza finetune list[/dim] - Jobs de fine-tuning",
-            title="📡 Endpoint Non Trouvé",
-            border_style="yellow"
-        ))
+        console.print(
+            Panel(
+                f"[yellow]⚠️ Endpoint non disponible[/yellow]\n\n"
+                f"[dim]URL:[/dim] {self.base_url}{endpoint}\n\n"
+                f"[cyan]Cette fonctionnalité nécessite:[/cyan]\n"
+                f"  • Le backend FastAPI complet\n"
+                f"  • Les routes API correspondantes\n\n"
+                f"[green]Alternatives disponibles:[/green]\n"
+                f"  • [dim]tawiza models list[/dim] - Modèles Ollama\n"
+                f"  • [dim]tawiza system status[/dim] - Statut système\n"
+                f"  • [dim]tawiza finetune list[/dim] - Jobs de fine-tuning",
+                title="📡 Endpoint Non Trouvé",
+                border_style="yellow",
+            )
+        )
 
     def get(self, endpoint: str, **kwargs) -> dict[str, Any]:
         """GET request.

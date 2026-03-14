@@ -381,18 +381,14 @@ class MultiLevelCache[K, V]:
             "l1": {
                 "hits": self.l1_hits,
                 "hit_percentage": (
-                    (self.l1_hits / total_requests * 100)
-                    if total_requests > 0
-                    else 0.0
+                    (self.l1_hits / total_requests * 100) if total_requests > 0 else 0.0
                 ),
                 **self.l1.get_stats(),
             },
             "l2": {
                 "hits": self.l2_hits,
                 "hit_percentage": (
-                    (self.l2_hits / total_requests * 100)
-                    if total_requests > 0
-                    else 0.0
+                    (self.l2_hits / total_requests * 100) if total_requests > 0 else 0.0
                 ),
                 **self.l2.get_stats(),
             },
@@ -408,9 +404,7 @@ class MultiLevelCache[K, V]:
             stats["l3"] = {
                 "hits": self.l3_hits,
                 "hit_percentage": (
-                    (self.l3_hits / total_requests * 100)
-                    if total_requests > 0
-                    else 0.0
+                    (self.l3_hits / total_requests * 100) if total_requests > 0 else 0.0
                 ),
                 **self.l3.get_stats(),
             }

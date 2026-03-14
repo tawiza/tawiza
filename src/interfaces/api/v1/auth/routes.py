@@ -37,14 +37,17 @@ limiter = Limiter(key_func=get_remote_address)
 
 # --- Pydantic Models ---
 
+
 class LoginRequest(BaseModel):
     """Login request body."""
+
     email: EmailStr = Field(..., description="User email")
     password: str = Field(..., min_length=6, description="User password")
 
 
 class TokenResponse(BaseModel):
     """Token response."""
+
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer")
     expires_in: int = Field(..., description="Expiration in seconds")
@@ -52,6 +55,7 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """User profile response."""
+
     id: str
     email: str
     name: str
@@ -63,6 +67,7 @@ class UserResponse(BaseModel):
 
 class RegisterRequest(BaseModel):
     """Registration request."""
+
     email: EmailStr
     password: str = Field(..., min_length=6)
     name: str = Field(..., min_length=2)
@@ -70,6 +75,7 @@ class RegisterRequest(BaseModel):
 
 class UpdatePreferencesRequest(BaseModel):
     """Update user preferences."""
+
     theme: str | None = None
     default_level: str | None = None
     notifications: bool | None = None
@@ -77,6 +83,7 @@ class UpdatePreferencesRequest(BaseModel):
 
 
 # --- Helper to ensure admin exists ---
+
 
 async def ensure_admin_exists(session: AsyncSession) -> None:
     """Create default admin user if not exists.
@@ -100,8 +107,7 @@ async def ensure_admin_exists(session: AsyncSession) -> None:
     # Validate password length
     if len(admin_password) < 12:
         logger.warning(
-            "ADMIN_PASSWORD must be at least 12 characters for security. "
-            "Skipping admin creation."
+            "ADMIN_PASSWORD must be at least 12 characters for security. Skipping admin creation."
         )
         return
 
@@ -120,6 +126,7 @@ async def ensure_admin_exists(session: AsyncSession) -> None:
 
 
 # --- API Endpoints ---
+
 
 @router.post("/login", response_model=TokenResponse)
 @limiter.limit("10/minute")

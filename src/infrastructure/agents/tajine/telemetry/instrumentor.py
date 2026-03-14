@@ -47,6 +47,7 @@ if _langfuse_enabled:
     try:
         from langfuse.decorators import langfuse_context
         from langfuse.decorators import observe as langfuse_observe
+
         LANGFUSE_AVAILABLE = True
     except ImportError:
         LANGFUSE_AVAILABLE = False
@@ -83,6 +84,7 @@ def trace_hunt(mode: str):
     Args:
         mode: Hunt mode (e.g., "sequential", "parallel", "adaptive")
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -108,6 +110,7 @@ def trace_hunt(mode: str):
                 hunt_duration.labels(mode=mode).observe(duration)
 
         return wrapper
+
     return decorator
 
 
@@ -118,6 +121,7 @@ def trace_cognitive(level: str):
     Args:
         level: Cognitive level (e.g., "signal", "theory", "synthesis")
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -137,6 +141,7 @@ def trace_cognitive(level: str):
                 cognitive_level_duration.labels(level=level).observe(duration)
 
         return wrapper
+
     return decorator
 
 
@@ -147,6 +152,7 @@ def trace_llm(model: str):
     Args:
         model: LLM model name (e.g., "gpt-4", "claude-3")
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -181,6 +187,7 @@ def trace_llm(model: str):
                 raise
 
         return wrapper
+
     return decorator
 
 
@@ -200,6 +207,7 @@ def trace_bandit(func: Callable) -> Callable:
             else:
                 result = await func(*args, **kwargs)
             return result
+
         return async_wrapper
     else:
         # Sync function
@@ -211,6 +219,7 @@ def trace_bandit(func: Callable) -> Callable:
             else:
                 result = func(*args, **kwargs)
             return result
+
         return sync_wrapper
 
 
@@ -258,11 +267,7 @@ def track_fallback(from_source: str, to_source: str):
 
 
 def record_score_3d(
-    fiabilite: float,
-    coherence: float,
-    alpha: float,
-    combined: float,
-    source: str
+    fiabilite: float, coherence: float, alpha: float, combined: float, source: str
 ) -> None:
     """
     Record 3D evaluation scores.

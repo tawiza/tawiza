@@ -21,6 +21,7 @@ if _langfuse_enabled:
     try:
         from langfuse import Langfuse
         from langfuse.decorators import observe
+
         LANGFUSE_AVAILABLE = True
     except ImportError:
         LANGFUSE_AVAILABLE = False
@@ -38,6 +39,7 @@ else:
 @dataclass
 class TraceMetadata:
     """Métadonnées d'une trace"""
+
     agent_name: str
     agent_type: str
     action: str
@@ -57,7 +59,7 @@ class LangfuseAgentTracer:
         secret_key: str = None,
         host: str = None,
         release: str = None,
-        debug: bool = False
+        debug: bool = False,
     ):
         self.public_key = public_key or os.getenv("LANGFUSE_PUBLIC_KEY")
         self.secret_key = secret_key or os.getenv("LANGFUSE_SECRET_KEY")
@@ -86,7 +88,7 @@ class LangfuseAgentTracer:
                 secret_key=self.secret_key,
                 host=self.host,
                 release=self.release,
-                debug=self.debug
+                debug=self.debug,
             )
 
             self.is_initialized = True
@@ -111,7 +113,7 @@ class LangfuseAgentTracer:
         agent_type: str,
         input_data: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
-        tags: list[str] | None = None
+        tags: list[str] | None = None,
     ) -> str | None:
         """Démarrer une nouvelle trace"""
         if not self.ensure_initialized():
@@ -121,19 +123,15 @@ class LangfuseAgentTracer:
             trace = self.client.trace(
                 name=name,
                 input=input_data,
-                metadata={
-                    "agent_name": agent_name,
-                    "agent_type": agent_type,
-                    **(metadata or {})
-                },
-                tags=tags or [agent_type, agent_name]
+                metadata={"agent_name": agent_name, "agent_type": agent_type, **(metadata or {})},
+                tags=tags or [agent_type, agent_name],
             )
 
             trace_id = trace.id
             self.active_traces[trace_id] = {
                 "trace": trace,
                 "start_time": datetime.utcnow(),
-                "spans": []
+                "spans": [],
             }
 
             logger.debug(f"Started trace {trace_id} for {agent_name}")
@@ -148,7 +146,7 @@ class LangfuseAgentTracer:
         trace_id: str,
         output_data: dict[str, Any] | None = None,
         level: str = "DEFAULT",
-        status_message: str | None = None
+        status_message: str | None = None,
     ) -> bool:
         """Terminer une trace"""
         if trace_id not in self.active_traces:
@@ -163,7 +161,7 @@ class LangfuseAgentTracer:
                 output=output_data,
                 level=level,
                 status_message=status_message,
-                metadata={"duration_ms": duration}
+                metadata={"duration_ms": duration},
             )
 
             del self.active_traces[trace_id]
@@ -181,7 +179,7 @@ class LangfuseAgentTracer:
         trace_id: str,
         name: str,
         input_data: dict[str, Any] | None = None,
-        metadata: dict[str, Any] | None = None
+        metadata: dict[str, Any] | None = None,
     ) -> str | None:
         """Démarrer un span dans une trace"""
         if trace_id not in self.active_traces:
@@ -189,18 +187,12 @@ class LangfuseAgentTracer:
 
         try:
             trace = self.active_traces[trace_id]["trace"]
-            span = trace.span(
-                name=name,
-                input=input_data,
-                metadata=metadata
-            )
+            span = trace.span(name=name, input=input_data, metadata=metadata)
 
             span_id = span.id
-            self.active_traces[trace_id]["spans"].append({
-                "id": span_id,
-                "span": span,
-                "start_time": datetime.utcnow()
-            })
+            self.active_traces[trace_id]["spans"].append(
+                {"id": span_id, "span": span, "start_time": datetime.utcnow()}
+            )
 
             return span_id
 
@@ -213,7 +205,7 @@ class LangfuseAgentTracer:
         trace_id: str,
         span_id: str,
         output_data: dict[str, Any] | None = None,
-        level: str = "DEFAULT"
+        level: str = "DEFAULT",
     ) -> bool:
         """Terminer un span"""
         if trace_id not in self.active_traces:
@@ -245,7 +237,7 @@ class LangfuseAgentTracer:
         input_data: Any,
         output_data: str,
         usage: dict[str, int] | None = None,
-        metadata: dict[str, Any] | None = None
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Logger une génération LLM"""
         if trace_id not in self.active_traces:
@@ -259,7 +251,7 @@ class LangfuseAgentTracer:
                 input=input_data,
                 output=output_data,
                 usage=usage,
-                metadata=metadata
+                metadata=metadata,
             )
             return True
 
@@ -271,11 +263,7 @@ class LangfuseAgentTracer:
 
     @contextmanager
     def trace_context(
-        self,
-        name: str,
-        agent_name: str,
-        agent_type: str,
-        input_data: dict[str, Any] | None = None
+        self, name: str, agent_name: str, agent_type: str, input_data: dict[str, Any] | None = None
     ):
         """Context manager pour tracer une opération"""
         trace_id = self.start_trace(name, agent_name, agent_type, input_data)
@@ -292,11 +280,7 @@ class LangfuseAgentTracer:
 
     @asynccontextmanager
     async def async_trace_context(
-        self,
-        name: str,
-        agent_name: str,
-        agent_type: str,
-        input_data: dict[str, Any] | None = None
+        self, name: str, agent_name: str, agent_type: str, input_data: dict[str, Any] | None = None
     ):
         """Async context manager pour tracer une opération"""
         trace_id = self.start_trace(name, agent_name, agent_type, input_data)
@@ -314,12 +298,10 @@ class LangfuseAgentTracer:
     # ==================== DECORATOR ====================
 
     def trace_method(
-        self,
-        action_name: str = None,
-        capture_input: bool = True,
-        capture_output: bool = True
+        self, action_name: str = None, capture_input: bool = True, capture_output: bool = True
     ):
         """Décorateur pour tracer une méthode d'agent"""
+
         def decorator(func):
             @functools.wraps(func)
             async def async_wrapper(instance, *args, **kwargs):
@@ -381,24 +363,13 @@ class LangfuseAgentTracer:
 
     # ==================== SCORING ====================
 
-    def score(
-        self,
-        trace_id: str,
-        name: str,
-        value: float,
-        comment: str | None = None
-    ) -> bool:
+    def score(self, trace_id: str, name: str, value: float, comment: str | None = None) -> bool:
         """Ajouter un score à une trace"""
         if not self.ensure_initialized():
             return False
 
         try:
-            self.client.score(
-                trace_id=trace_id,
-                name=name,
-                value=value,
-                comment=comment
-            )
+            self.client.score(trace_id=trace_id, name=name, value=value, comment=comment)
             return True
 
         except Exception as e:
@@ -442,9 +413,7 @@ def get_tracer() -> LangfuseAgentTracer:
 
 
 def trace_agent_action(
-    action_name: str = None,
-    capture_input: bool = True,
-    capture_output: bool = True
+    action_name: str = None, capture_input: bool = True, capture_output: bool = True
 ):
     """Décorateur global pour tracer une action d'agent"""
     return get_tracer().trace_method(action_name, capture_input, capture_output)
@@ -457,4 +426,5 @@ def trace_function(name: str = None):
 
     def identity(func):
         return func
+
     return identity

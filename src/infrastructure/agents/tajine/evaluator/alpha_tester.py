@@ -1,4 +1,5 @@
 """Alpha Tester - Predictive power evaluation using SHAP-inspired metrics."""
+
 from __future__ import annotations
 
 import hashlib
@@ -33,6 +34,7 @@ def _get_content_text(data: RawData) -> str:
 @dataclass
 class AlphaResult:
     """Result of alpha (predictive power) testing."""
+
     score: float  # 0.0 - 1.0
     novelty: float  # How new is this information
     relevance: float  # How relevant to current analysis
@@ -57,29 +59,44 @@ class AlphaTester:
 
     # Freshness decay (days -> score multiplier)
     FRESHNESS_DECAY = {
-        0: 1.0,    # Today
-        1: 0.95,   # Yesterday
-        7: 0.85,   # This week
+        0: 1.0,  # Today
+        1: 0.95,  # Yesterday
+        7: 0.85,  # This week
         30: 0.70,  # This month
         90: 0.50,  # This quarter
-        365: 0.30, # This year
+        365: 0.30,  # This year
     }
 
     # High-alpha keywords (business intelligence signals)
     ALPHA_SIGNALS = {
         "high": [
-            "acquisition", "fusion", "rachat", "levée de fonds",
-            "licenciement", "restructuration", "liquidation",
-            "nouveau contrat", "expansion", "ouverture",
-            "croissance", "augmentation capital",
+            "acquisition",
+            "fusion",
+            "rachat",
+            "levée de fonds",
+            "licenciement",
+            "restructuration",
+            "liquidation",
+            "nouveau contrat",
+            "expansion",
+            "ouverture",
+            "croissance",
+            "augmentation capital",
         ],
         "medium": [
-            "nomination", "changement", "mise à jour",
-            "modification", "évolution", "ajustement",
+            "nomination",
+            "changement",
+            "mise à jour",
+            "modification",
+            "évolution",
+            "ajustement",
         ],
         "low": [
-            "confirmation", "maintien", "stable",
-            "inchangé", "identique",
+            "confirmation",
+            "maintien",
+            "stable",
+            "inchangé",
+            "identique",
         ],
     }
 
@@ -140,9 +157,9 @@ class AlphaTester:
 
         # Weighted combination
         score = (
-            novelty * self.weights["novelty"] +
-            relevance * self.weights["relevance"] +
-            timeliness * self.weights["timeliness"]
+            novelty * self.weights["novelty"]
+            + relevance * self.weights["relevance"]
+            + timeliness * self.weights["timeliness"]
         )
 
         return AlphaResult(
@@ -190,18 +207,9 @@ class AlphaTester:
         """Detect high-value business signals in content."""
         content_lower = content.lower()
 
-        high_count = sum(
-            1 for sig in self.ALPHA_SIGNALS["high"]
-            if sig in content_lower
-        )
-        medium_count = sum(
-            1 for sig in self.ALPHA_SIGNALS["medium"]
-            if sig in content_lower
-        )
-        low_count = sum(
-            1 for sig in self.ALPHA_SIGNALS["low"]
-            if sig in content_lower
-        )
+        high_count = sum(1 for sig in self.ALPHA_SIGNALS["high"] if sig in content_lower)
+        medium_count = sum(1 for sig in self.ALPHA_SIGNALS["medium"] if sig in content_lower)
+        low_count = sum(1 for sig in self.ALPHA_SIGNALS["low"] if sig in content_lower)
 
         # Weight signals: high=1.0, medium=0.5, low=0.2
         weighted = high_count * 1.0 + medium_count * 0.5 + low_count * 0.2
@@ -243,9 +251,14 @@ class AlphaTester:
 
         # Economic keywords
         economic_keywords = [
-            "chiffre d'affaires", "effectif", "salarié",
-            "capital", "investissement", "subvention",
-            "marché public", "appel d'offres",
+            "chiffre d'affaires",
+            "effectif",
+            "salarié",
+            "capital",
+            "investissement",
+            "subvention",
+            "marché public",
+            "appel d'offres",
         ]
         eco_count = sum(1 for kw in economic_keywords if kw in content.lower())
         eco_score = min(1.0, eco_count * 0.25)
@@ -300,8 +313,10 @@ class AlphaTester:
             # YYYY-MM-DD
             (r"(\d{4})-(\d{2})-(\d{2})", lambda m: m.group(0)),
             # DD month YYYY
-            (r"(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})",
-             self._parse_french_date),
+            (
+                r"(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})",
+                self._parse_french_date,
+            ),
         ]
 
         for pattern, formatter in patterns:
@@ -319,10 +334,18 @@ class AlphaTester:
     def _parse_french_date(self, match) -> str | None:
         """Parse French month name to ISO date."""
         months = {
-            "janvier": "01", "février": "02", "mars": "03",
-            "avril": "04", "mai": "05", "juin": "06",
-            "juillet": "07", "août": "08", "septembre": "09",
-            "octobre": "10", "novembre": "11", "décembre": "12",
+            "janvier": "01",
+            "février": "02",
+            "mars": "03",
+            "avril": "04",
+            "mai": "05",
+            "juin": "06",
+            "juillet": "07",
+            "août": "08",
+            "septembre": "09",
+            "octobre": "10",
+            "novembre": "11",
+            "décembre": "12",
         }
         day = match.group(1).zfill(2)
         month = months.get(match.group(2).lower())

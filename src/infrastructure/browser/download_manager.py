@@ -170,9 +170,7 @@ class DownloadManager:
 
             self.downloads[download_id] = info
 
-            logger.success(
-                f"Download complete: {filename} ({file_size:,} bytes) -> {file_path}"
-            )
+            logger.success(f"Download complete: {filename} ({file_size:,} bytes) -> {file_path}")
 
             return info
 
@@ -455,9 +453,7 @@ if __name__ == "__main__":
 
             # Wait for download
             download_info = await manager.wait_for_download(
-                page,
-                lambda: page.click('a[href$=".pdf"]'),
-                expected_filename="report.pdf"
+                page, lambda: page.click('a[href$=".pdf"]'), expected_filename="report.pdf"
             )
 
             # Process the download

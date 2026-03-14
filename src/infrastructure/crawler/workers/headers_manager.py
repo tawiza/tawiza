@@ -23,6 +23,7 @@ def _get_fake_ua():
     if _fake_ua is None:
         try:
             from fake_useragent import UserAgent
+
             _fake_ua = UserAgent(
                 browsers=["chrome", "firefox", "edge"],
                 min_percentage=5.0,
@@ -38,6 +39,7 @@ def _get_fake_header():
     if _fake_header is None:
         try:
             from fake_http_header import FakeHttpHeader
+
             _fake_header = FakeHttpHeader
         except ImportError:
             logger.warning("fake-http-header not installed. Run: pip install fake-http-header")
@@ -55,11 +57,13 @@ class HeadersConfig:
     languages: list[str] = field(default_factory=lambda: ["fr-FR", "en-US", "en"])
 
     # Accept header variations
-    accept_types: list[str] = field(default_factory=lambda: [
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    ])
+    accept_types: list[str] = field(
+        default_factory=lambda: [
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        ]
+    )
 
     # Include DNT header
     include_dnt: bool = True
@@ -178,15 +182,17 @@ class HeadersManager:
 
         # Chrome-specific headers
         if is_chrome:
-            headers.update({
-                "Sec-Ch-Ua": random.choice(SEC_CH_UA_VARIANTS),
-                "Sec-Ch-Ua-Mobile": "?0",
-                "Sec-Ch-Ua-Platform": '"Windows"' if "Windows" in ua else '"macOS"',
-                "Sec-Fetch-Dest": "document",
-                "Sec-Fetch-Mode": "navigate",
-                "Sec-Fetch-Site": "none" if not include_referer else "cross-site",
-                "Sec-Fetch-User": "?1",
-            })
+            headers.update(
+                {
+                    "Sec-Ch-Ua": random.choice(SEC_CH_UA_VARIANTS),
+                    "Sec-Ch-Ua-Mobile": "?0",
+                    "Sec-Ch-Ua-Platform": '"Windows"' if "Windows" in ua else '"macOS"',
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none" if not include_referer else "cross-site",
+                    "Sec-Fetch-User": "?1",
+                }
+            )
 
         # Optional headers
         if self.config.include_dnt:

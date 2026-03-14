@@ -1,4 +1,5 @@
 """Parser registry for content extraction."""
+
 from abc import ABC, abstractmethod
 from typing import Any
 

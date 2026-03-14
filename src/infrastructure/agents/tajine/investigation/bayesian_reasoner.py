@@ -190,9 +190,7 @@ class BayesianReasoner:
 
     def _classify_risk(self, posterior: float) -> RiskLevel:
         """Classify risk level based on posterior probability."""
-        for level, threshold in sorted(
-            self.RISK_THRESHOLDS.items(), key=lambda x: x[1]
-        ):
+        for level, threshold in sorted(self.RISK_THRESHOLDS.items(), key=lambda x: x[1]):
             if posterior <= threshold:
                 return level
         return RiskLevel.CRITICAL
@@ -230,9 +228,7 @@ class BayesianReasoner:
             consistency = 0.5
 
         # Weighted combination
-        confidence = (
-            0.3 * signal_count_score + 0.4 * source_coverage + 0.3 * consistency
-        )
+        confidence = 0.3 * signal_count_score + 0.4 * source_coverage + 0.3 * consistency
 
         return round(confidence, 2)
 
@@ -249,9 +245,7 @@ class BayesianReasoner:
         }
         covered_categories = {s.category for s in signals}
 
-        base_coverage = len(covered_categories & expected_categories) / len(
-            expected_categories
-        )
+        base_coverage = len(covered_categories & expected_categories) / len(expected_categories)
 
         # Bonus for having multiple signals per category
         category_counts = {}
@@ -276,7 +270,11 @@ class BayesianReasoner:
         # Sort by likelihood ratio (most impactful first)
         concern_lr = {
             c: next(
-                (s.likelihood_ratio for s in signals if s.details == c or s.name.replace("_", " ").title() == c),
+                (
+                    s.likelihood_ratio
+                    for s in signals
+                    if s.details == c or s.name.replace("_", " ").title() == c
+                ),
                 1.0,
             )
             for c in concerns

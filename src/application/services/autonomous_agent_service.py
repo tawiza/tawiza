@@ -143,7 +143,9 @@ class AutonomousAgentService:
         results: dict[str, StepResult] = {}
         start_time = datetime.utcnow()
 
-        logger.info(f"Starting execution of plan {plan.plan_id} ({total_steps} steps, dry_run={dry_run})")
+        logger.info(
+            f"Starting execution of plan {plan.plan_id} ({total_steps} steps, dry_run={dry_run})"
+        )
 
         try:
             for i, step in enumerate(plan.steps):
@@ -399,10 +401,7 @@ class AutonomousAgentService:
         plan = TaskPlan.from_dict(plan_data)
 
         # Filter remaining steps
-        remaining_steps = [
-            s for s in plan.steps
-            if s.step_id not in context.completed_steps
-        ]
+        remaining_steps = [s for s in plan.steps if s.step_id not in context.completed_steps]
 
         if not remaining_steps:
             return {

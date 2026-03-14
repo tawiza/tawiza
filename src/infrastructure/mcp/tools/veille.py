@@ -106,12 +106,15 @@ def register_veille_tools(mcp: FastMCP) -> None:
         notify(f"Total: {len(all_alerts)} alertes brutes", 50)
 
         if not all_alerts:
-            return json.dumps({
-                "success": True,
-                "message": "Aucune nouvelle alerte trouvee",
-                "alerts": [],
-                "summary": {"total": 0},
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "message": "Aucune nouvelle alerte trouvee",
+                    "alerts": [],
+                    "summary": {"total": 0},
+                },
+                ensure_ascii=False,
+            )
 
         # Filter with LLM
         notify("[LLM] Filtrage intelligent des alertes...", 55)
@@ -223,12 +226,15 @@ Aucune nouvelle alerte detectee sur cette periode.
 - Verifier les mots-cles de la watchlist
 - Elargir les criteres de surveillance
 """
-            return json.dumps({
-                "success": True,
-                "digest_md": digest,
-                "alerts_count": 0,
-                "period": period,
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "digest_md": digest,
+                    "alerts_count": 0,
+                    "period": period,
+                },
+                ensure_ascii=False,
+            )
 
         # Convert to Alert objects and score
         from src.infrastructure.dashboard import Alert
@@ -275,33 +281,33 @@ Aucune nouvelle alerte detectee sur cette periode.
 |----------|--------|
 | Alertes totales | **{len(alerts_data)}** |
 | Alertes analysees | **{len(scored_alerts)}** |
-| Score moyen | **{summary['avg_score']:.0f}/100** |
-| Critiques | **{summary['by_priority'].get('critical', 0)}** |
-| Hautes | **{summary['by_priority'].get('high', 0)}** |
+| Score moyen | **{summary["avg_score"]:.0f}/100** |
+| Critiques | **{summary["by_priority"].get("critical", 0)}** |
+| Hautes | **{summary["by_priority"].get("high", 0)}** |
 
 ## Distribution par Priorite
 
 | Priorite | Nombre |
 |----------|--------|
-| Critical | {summary['by_priority'].get('critical', 0)} |
-| High | {summary['by_priority'].get('high', 0)} |
-| Medium | {summary['by_priority'].get('medium', 0)} |
-| Low | {summary['by_priority'].get('low', 0)} |
+| Critical | {summary["by_priority"].get("critical", 0)} |
+| High | {summary["by_priority"].get("high", 0)} |
+| Medium | {summary["by_priority"].get("medium", 0)} |
+| Low | {summary["by_priority"].get("low", 0)} |
 
 """
 
-        if summary['critical_alerts']:
+        if summary["critical_alerts"]:
             digest += "## Alertes Critiques\n\n"
-            for ca in summary['critical_alerts'][:5]:
+            for ca in summary["critical_alerts"][:5]:
                 digest += f"- **{ca['title'][:60]}...** (Score: {ca['score']})\n"
                 digest += f"  - {ca['reason']}\n"
-                if ca.get('action'):
+                if ca.get("action"):
                     digest += f"  - Action: {ca['action']}\n"
                 digest += "\n"
 
-        if summary['high_alerts']:
+        if summary["high_alerts"]:
             digest += "## Alertes Importantes\n\n"
-            for ha in summary['high_alerts'][:5]:
+            for ha in summary["high_alerts"][:5]:
                 digest += f"- **{ha['title'][:60]}...** (Score: {ha['score']})\n"
                 digest += f"  - {ha['reason']}\n\n"
 
@@ -319,24 +325,28 @@ Aucune nouvelle alerte detectee sur cette periode.
         digest += f"""
 ## Recommandations
 
-1. **Traiter en priorite** les {summary['by_priority'].get('critical', 0)} alertes critiques
-2. **Examiner** les {summary['by_priority'].get('high', 0)} alertes importantes
-3. **Surveiller** les tendances sur les {summary['by_priority'].get('medium', 0)} alertes moyennes
+1. **Traiter en priorite** les {summary["by_priority"].get("critical", 0)} alertes critiques
+2. **Examiner** les {summary["by_priority"].get("high", 0)} alertes importantes
+3. **Surveiller** les tendances sur les {summary["by_priority"].get("medium", 0)} alertes moyennes
 
 ---
-*Mots-cles surveilles: {', '.join(keywords[:10])}*
+*Mots-cles surveilles: {", ".join(keywords[:10])}*
 """
 
         notify("Digest genere", 100)
 
-        return json.dumps({
-            "success": True,
-            "digest_md": digest,
-            "alerts_count": len(alerts_data),
-            "scored_count": len(scored_alerts),
-            "summary": summary,
-            "period": period,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "digest_md": digest,
+                "alerts_count": len(alerts_data),
+                "scored_count": len(scored_alerts),
+                "summary": summary,
+                "period": period,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def tawiza_veille_configure(
@@ -378,29 +388,36 @@ Aucune nouvelle alerte detectee sur cette periode.
             poll_status = db.get_poll_status()
             next_polls = storage.get_next_poll_times()
 
-            return json.dumps({
-                "success": True,
-                "watchlist": {
-                    "keywords": sorted(all_keywords),
-                    "sources": sorted(all_sources),
-                    "items_count": len(watchlist),
+            return json.dumps(
+                {
+                    "success": True,
+                    "watchlist": {
+                        "keywords": sorted(all_keywords),
+                        "sources": sorted(all_sources),
+                        "items_count": len(watchlist),
+                    },
+                    "poll_status": {
+                        src: {
+                            "last_poll": poll_status.get(src, {}).get("last_poll"),
+                            "next_poll": next_polls.get(src, "unknown"),
+                            "polls_count": poll_status.get(src, {}).get("polls_count", 0),
+                        }
+                        for src in ["bodacc", "boamp", "gdelt"]
+                    },
                 },
-                "poll_status": {
-                    src: {
-                        "last_poll": poll_status.get(src, {}).get("last_poll"),
-                        "next_poll": next_polls.get(src, "unknown"),
-                        "polls_count": poll_status.get(src, {}).get("polls_count", 0),
-                    }
-                    for src in ["bodacc", "boamp", "gdelt"]
-                },
-            }, ensure_ascii=False, indent=2)
+                ensure_ascii=False,
+                indent=2,
+            )
 
         elif action == "add":
             if not keywords:
-                return json.dumps({
-                    "success": False,
-                    "error": "keywords requis pour action 'add'",
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": "keywords requis pour action 'add'",
+                    },
+                    ensure_ascii=False,
+                )
 
             sources = sources or ["bodacc", "boamp", "gdelt"]
             item_id = await db.async_add_watchlist_item(keywords, sources)
@@ -408,51 +425,67 @@ Aucune nouvelle alerte detectee sur cette periode.
             if ctx:
                 ctx.info(f"[Veille] Ajoute: {', '.join(keywords)}")
 
-            return json.dumps({
-                "success": True,
-                "action": "add",
-                "id": item_id,
-                "keywords": keywords,
-                "sources": sources,
-                "message": f"Mots-cles ajoutes: {', '.join(keywords)}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "action": "add",
+                    "id": item_id,
+                    "keywords": keywords,
+                    "sources": sources,
+                    "message": f"Mots-cles ajoutes: {', '.join(keywords)}",
+                },
+                ensure_ascii=False,
+            )
 
         elif action == "remove":
             if not keywords:
-                return json.dumps({
-                    "success": False,
-                    "error": "keywords requis pour action 'remove'",
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": "keywords requis pour action 'remove'",
+                    },
+                    ensure_ascii=False,
+                )
 
             count = db.remove_watchlist_keywords(keywords)
 
             if ctx:
                 ctx.info(f"[Veille] Retire: {', '.join(keywords)}")
 
-            return json.dumps({
-                "success": True,
-                "action": "remove",
-                "removed_count": count,
-                "keywords": keywords,
-                "message": f"{count} entrees desactivees",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "action": "remove",
+                    "removed_count": count,
+                    "keywords": keywords,
+                    "message": f"{count} entrees desactivees",
+                },
+                ensure_ascii=False,
+            )
 
         elif action == "status":
             poll_status = db.get_poll_status()
             alerts_count = db.get_alerts_count()
 
-            return json.dumps({
-                "success": True,
-                "daemon_status": "configured",
-                "poll_status": poll_status,
-                "alerts": alerts_count,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "daemon_status": "configured",
+                    "poll_status": poll_status,
+                    "alerts": alerts_count,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         else:
-            return json.dumps({
-                "success": False,
-                "error": f"Action inconnue: {action}",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Action inconnue: {action}",
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def tawiza_veille_alert_detail(
@@ -478,10 +511,13 @@ Aucune nouvelle alerte detectee sur cette periode.
         # Get alert
         alert_dict = db.get_alert_detail(alert_id)
         if not alert_dict:
-            return json.dumps({
-                "success": False,
-                "error": f"Alerte {alert_id} non trouvee",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Alerte {alert_id} non trouvee",
+                },
+                ensure_ascii=False,
+            )
 
         if ctx:
             ctx.info(f"[Veille] Analyse alerte {alert_id}...")
@@ -502,14 +538,18 @@ Aucune nouvelle alerte detectee sur cette periode.
         if ctx:
             ctx.info(f"[Veille] Score: {scored.score}/100 ({scored.priority.value})")
 
-        return json.dumps({
-            "success": True,
-            "alert": scored.to_dict(),
-            "analysis": {
-                "score": scored.score,
-                "priority": scored.priority.value,
-                "relevance": scored.relevance_reason,
-                "impact": scored.business_impact,
-                "recommended_action": scored.recommended_action,
+        return json.dumps(
+            {
+                "success": True,
+                "alert": scored.to_dict(),
+                "analysis": {
+                    "score": scored.score,
+                    "priority": scored.priority.value,
+                    "relevance": scored.relevance_reason,
+                    "impact": scored.business_impact,
+                    "recommended_action": scored.recommended_action,
+                },
             },
-        }, ensure_ascii=False, indent=2)
+            ensure_ascii=False,
+            indent=2,
+        )

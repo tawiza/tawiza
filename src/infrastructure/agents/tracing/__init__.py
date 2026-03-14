@@ -16,5 +16,5 @@ __all__ = [
     "get_tracer",
     "trace_agent_action",
     "trace_function",
-    "LANGFUSE_AVAILABLE"
+    "LANGFUSE_AVAILABLE",
 ]

@@ -43,11 +43,13 @@ def register_browser_tools(mcp: FastMCP) -> None:
         global _browser_state
 
         if _browser_state["streaming"]:
-            return json.dumps({
-                "success": False,
-                "error": "Stream already active",
-                "message": "Use browser_stop_stream to stop current stream",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Stream already active",
+                    "message": "Use browser_stop_stream to stop current stream",
+                }
+            )
 
         try:
             from playwright.async_api import async_playwright
@@ -85,26 +87,32 @@ def register_browser_tools(mcp: FastMCP) -> None:
             if ctx:
                 ctx.report_progress(100, 100, "✓ Stream started")
 
-            return json.dumps({
-                "success": True,
-                "message": "Browser stream started",
-                "url": url or "about:blank",
-                "interval_ms": interval_ms,
-                "viewport": {"width": 1280, "height": 720},
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "message": "Browser stream started",
+                    "url": url or "about:blank",
+                    "interval_ms": interval_ms,
+                    "viewport": {"width": 1280, "height": 720},
+                }
+            )
 
         except ImportError:
-            return json.dumps({
-                "success": False,
-                "error": "Playwright not installed",
-                "message": "Run: pip install playwright && playwright install chromium",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Playwright not installed",
+                    "message": "Run: pip install playwright && playwright install chromium",
+                }
+            )
         except Exception as e:
             _browser_state["streaming"] = False
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                }
+            )
 
     @mcp.tool()
     async def browser_stop_stream(ctx: Context = None) -> str:
@@ -118,10 +126,12 @@ def register_browser_tools(mcp: FastMCP) -> None:
         global _browser_state
 
         if not _browser_state["streaming"]:
-            return json.dumps({
-                "success": False,
-                "error": "No stream active",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "No stream active",
+                }
+            )
 
         try:
             if ctx:
@@ -145,16 +155,20 @@ def register_browser_tools(mcp: FastMCP) -> None:
             if ctx:
                 ctx.info("[Browser] Stream stopped")
 
-            return json.dumps({
-                "success": True,
-                "message": "Browser stream stopped",
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "message": "Browser stream stopped",
+                }
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                }
+            )
 
     @mcp.tool()
     async def browser_screenshot(ctx: Context = None) -> str:
@@ -168,11 +182,13 @@ def register_browser_tools(mcp: FastMCP) -> None:
         global _browser_state
 
         if not _browser_state["streaming"] or not _browser_state["page"]:
-            return json.dumps({
-                "success": False,
-                "error": "No browser stream active",
-                "message": "Start stream with browser_start_stream first",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "No browser stream active",
+                    "message": "Start stream with browser_start_stream first",
+                }
+            )
 
         try:
             page = _browser_state["page"]
@@ -188,20 +204,24 @@ def register_browser_tools(mcp: FastMCP) -> None:
             if ctx:
                 ctx.info(f"[Browser] Screenshot: {url}")
 
-            return json.dumps({
-                "success": True,
-                "url": url,
-                "title": title,
-                "image_base64": screenshot_b64,
-                "format": "png",
-                "viewport": {"width": 1280, "height": 720},
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "url": url,
+                    "title": title,
+                    "image_base64": screenshot_b64,
+                    "format": "png",
+                    "viewport": {"width": 1280, "height": 720},
+                }
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                }
+            )
 
     @mcp.tool()
     async def browser_navigate(
@@ -221,10 +241,12 @@ def register_browser_tools(mcp: FastMCP) -> None:
         global _browser_state
 
         if not _browser_state["streaming"] or not _browser_state["page"]:
-            return json.dumps({
-                "success": False,
-                "error": "No browser stream active",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "No browser stream active",
+                }
+            )
 
         try:
             page = _browser_state["page"]
@@ -245,19 +267,23 @@ def register_browser_tools(mcp: FastMCP) -> None:
             screenshot_bytes = await page.screenshot(type="png")
             screenshot_b64 = base64.b64encode(screenshot_bytes).decode("utf-8")
 
-            return json.dumps({
-                "success": True,
-                "url": page.url,
-                "title": title,
-                "image_base64": screenshot_b64,
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "url": page.url,
+                    "title": title,
+                    "image_base64": screenshot_b64,
+                }
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "url": url,
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "url": url,
+                }
+            )
 
     @mcp.tool()
     async def browser_click(
@@ -275,10 +301,12 @@ def register_browser_tools(mcp: FastMCP) -> None:
         global _browser_state
 
         if not _browser_state["streaming"] or not _browser_state["page"]:
-            return json.dumps({
-                "success": False,
-                "error": "No browser stream active",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "No browser stream active",
+                }
+            )
 
         try:
             page = _browser_state["page"]
@@ -296,20 +324,24 @@ def register_browser_tools(mcp: FastMCP) -> None:
             if ctx:
                 ctx.info(f"[Browser] Clicked: {selector}")
 
-            return json.dumps({
-                "success": True,
-                "action": "click",
-                "selector": selector,
-                "url": page.url,
-                "image_base64": screenshot_b64,
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "action": "click",
+                    "selector": selector,
+                    "url": page.url,
+                    "image_base64": screenshot_b64,
+                }
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "selector": selector,
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "selector": selector,
+                }
+            )
 
     @mcp.tool()
     async def browser_extract(
@@ -329,10 +361,12 @@ def register_browser_tools(mcp: FastMCP) -> None:
         global _browser_state
 
         if not _browser_state["streaming"] or not _browser_state["page"]:
-            return json.dumps({
-                "success": False,
-                "error": "No browser stream active",
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "No browser stream active",
+                }
+            )
 
         try:
             page = _browser_state["page"]
@@ -354,20 +388,24 @@ def register_browser_tools(mcp: FastMCP) -> None:
             if ctx:
                 ctx.info(f"[Browser] Extracted {len(results)} items")
 
-            return json.dumps({
-                "success": True,
-                "selector": selector,
-                "attribute": attribute,
-                "count": len(results),
-                "results": results[:100],  # Limit to 100 items
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "selector": selector,
+                    "attribute": attribute,
+                    "count": len(results),
+                    "results": results[:100],  # Limit to 100 items
+                }
+            )
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "selector": selector,
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "selector": selector,
+                }
+            )
 
     @mcp.tool()
     async def browser_scrape_page(
@@ -431,11 +469,11 @@ def register_browser_tools(mcp: FastMCP) -> None:
             # Extract emails
             if extract_emails:
                 import re
+
                 html = await page.content()
-                emails = list(set(re.findall(
-                    r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
-                    html
-                )))
+                emails = list(
+                    set(re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", html))
+                )
                 result["emails"] = emails[:20]
                 if ctx:
                     ctx.info(f"[Browser] Found {len(emails)} emails")
@@ -443,12 +481,10 @@ def register_browser_tools(mcp: FastMCP) -> None:
             # Extract phones
             if extract_phones:
                 import re
+
                 html = await page.content()
                 # French phone patterns
-                phones = list(set(re.findall(
-                    r'(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4}',
-                    html
-                )))
+                phones = list(set(re.findall(r"(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4}", html)))
                 result["phones"] = phones[:20]
                 if ctx:
                     ctx.info(f"[Browser] Found {len(phones)} phones")
@@ -466,18 +502,22 @@ def register_browser_tools(mcp: FastMCP) -> None:
             return json.dumps(result, ensure_ascii=False)
 
         except Exception as e:
-            return json.dumps({
-                "success": False,
-                "error": str(e),
-                "url": url,
-            })
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(e),
+                    "url": url,
+                }
+            )
 
     # Register browser resource for live view
     @mcp.resource("tawiza://browser/status")
     def get_browser_status() -> str:
         """Get current browser stream status."""
-        return json.dumps({
-            "streaming": _browser_state["streaming"],
-            "url": _browser_state["page"].url if _browser_state["page"] else None,
-            "interval_ms": _browser_state["interval_ms"],
-        })
+        return json.dumps(
+            {
+                "streaming": _browser_state["streaming"],
+                "url": _browser_state["page"].url if _browser_state["page"] else None,
+                "interval_ms": _browser_state["interval_ms"],
+            }
+        )

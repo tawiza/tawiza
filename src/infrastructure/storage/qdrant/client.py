@@ -1,4 +1,5 @@
 """Qdrant vector store client."""
+
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -10,6 +11,7 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 @dataclass
 class QdrantConfig:
     """Qdrant configuration."""
+
     host: str = "localhost"
     port: int = 6333
     collection_name: str = "tawiza_documents"
@@ -22,10 +24,7 @@ class QdrantClient:
 
     def __init__(self, config: QdrantConfig | None = None) -> None:
         self.config = config or QdrantConfig()
-        self._client = QdrantBaseClient(
-            host=self.config.host,
-            port=self.config.port
-        )
+        self._client = QdrantBaseClient(host=self.config.host, port=self.config.port)
         logger.info(f"Qdrant client initialized: {self.config.host}:{self.config.port}")
 
     async def ensure_collection(self) -> None:
@@ -34,38 +33,26 @@ class QdrantClient:
             self._client.create_collection(
                 collection_name=self.config.collection_name,
                 vectors_config=VectorParams(
-                    size=self.config.vector_size,
-                    distance=self.config.distance
-                )
+                    size=self.config.vector_size, distance=self.config.distance
+                ),
             )
             logger.info(f"Created collection: {self.config.collection_name}")
 
-    async def upsert(
-        self,
-        id: str,
-        vector: list[float],
-        payload: dict[str, Any]
-    ) -> None:
+    async def upsert(self, id: str, vector: list[float], payload: dict[str, Any]) -> None:
         """Insert or update a vector."""
         self._client.upsert(
             collection_name=self.config.collection_name,
-            points=[PointStruct(id=id, vector=vector, payload=payload)]
+            points=[PointStruct(id=id, vector=vector, payload=payload)],
         )
 
     async def search(
-        self,
-        query_vector: list[float],
-        limit: int = 10,
-        filter_conditions: dict | None = None
+        self, query_vector: list[float], limit: int = 10, filter_conditions: dict | None = None
     ) -> list[dict[str, Any]]:
         """Search for similar vectors."""
         results = self._client.search(
             collection_name=self.config.collection_name,
             query_vector=query_vector,
             limit=limit,
-            query_filter=filter_conditions
+            query_filter=filter_conditions,
         )
-        return [
-            {"id": r.id, "score": r.score, "payload": r.payload}
-            for r in results
-        ]
+        return [{"id": r.id, "score": r.score, "payload": r.payload} for r in results]

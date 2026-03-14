@@ -46,11 +46,18 @@ async def _run_generation(count: int, output_name: str):
     output = DATA_DIR / output_name
 
     try:
-        script = Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "generate_training_data.py"
+        script = (
+            Path(__file__).resolve().parent.parent.parent.parent
+            / "scripts"
+            / "generate_training_data.py"
+        )
         proc = await asyncio.create_subprocess_exec(
-            "python3", str(script),
-            "--count", str(count),
-            "--output", str(output),
+            "python3",
+            str(script),
+            "--count",
+            str(count),
+            "--output",
+            str(output),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=str(PROJECT_ROOT),
@@ -75,12 +82,14 @@ async def list_datasets():
         # Count lines
         with open(f) as fh:
             line_count = sum(1 for _ in fh)
-        datasets.append({
-            "name": f.name,
-            "size_bytes": stat.st_size,
-            "samples": line_count,
-            "created_at": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
-        })
+        datasets.append(
+            {
+                "name": f.name,
+                "size_bytes": stat.st_size,
+                "samples": line_count,
+                "created_at": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
+            }
+        )
     return {"datasets": datasets, "total": len(datasets)}
 
 

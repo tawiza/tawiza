@@ -5,6 +5,7 @@ Constantes centralisées pour Tawiza-V2 CLI
 Ce module centralise toutes les constantes utilisées dans l'interface CLI
 pour faciliter la maintenance et la cohérence.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -183,8 +184,14 @@ DEFAULT_MONITORING_INTERVAL: Final[float] = 1.0
 # ==============================================================================
 
 BLOCKED_FILE_EXTENSIONS: Final[tuple[str, ...]] = (
-    ".exe", ".bat", ".cmd", ".ps1", ".sh",
-    ".dll", ".so", ".dylib",
+    ".exe",
+    ".bat",
+    ".cmd",
+    ".ps1",
+    ".sh",
+    ".dll",
+    ".so",
+    ".dylib",
 )
 
 MAX_PATH_LENGTH: Final[int] = 4096
@@ -196,16 +203,16 @@ MAX_INPUT_LENGTH: Final[int] = 10000
 
 # Sunset theme colors
 THEME_COLORS: Final[dict[str, str]] = {
-    "primary": "#FF6B35",      # Orange sunset
-    "secondary": "#F7931E",    # Amber
-    "accent": "#FFD23F",       # Yellow
-    "success": "#06FFA5",      # Green
-    "warning": "#FFD23F",      # Yellow
-    "error": "#FF4444",        # Red
-    "info": "#4A90D9",         # Blue
-    "text": "#F0F0F0",         # Light gray
-    "muted": "#B0B0B0",        # Gray
-    "disabled": "#858585",     # Dark gray
+    "primary": "#FF6B35",  # Orange sunset
+    "secondary": "#F7931E",  # Amber
+    "accent": "#FFD23F",  # Yellow
+    "success": "#06FFA5",  # Green
+    "warning": "#FFD23F",  # Yellow
+    "error": "#FF4444",  # Red
+    "info": "#4A90D9",  # Blue
+    "text": "#F0F0F0",  # Light gray
+    "muted": "#B0B0B0",  # Gray
+    "disabled": "#858585",  # Dark gray
 }
 
 # Status indicators

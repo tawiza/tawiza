@@ -3,7 +3,6 @@
 Main application with 5 simple commands + pro namespace.
 """
 
-
 import typer
 from rich.console import Console
 
@@ -25,6 +24,7 @@ def get_experience() -> ExperienceController:
     if _experience is None:
         _experience = ExperienceController()
     return _experience
+
 
 # Main app
 app = typer.Typer(
@@ -49,11 +49,13 @@ def version_callback(value: bool):
     if value:
         try:
             from src.core.constants import APP_VERSION
+
             version = APP_VERSION
         except ImportError:
             version = "2.0"
 
         from src.cli.v2.ui.theme import footer, header
+
         console.print(header("tawiza", 40))
         console.print(f"  version   {version}")
         console.print(footer(40))
@@ -64,10 +66,7 @@ def version_callback(value: bool):
 def main(
     ctx: typer.Context,
     version: bool = typer.Option(
-        False, "--version", "-v",
-        callback=version_callback,
-        is_eager=True,
-        help="Show version"
+        False, "--version", "-v", callback=version_callback, is_eager=True, help="Show version"
     ),
 ):
     """Tawiza - AI Multi-Agent Platform with GPU Acceleration."""
@@ -75,6 +74,7 @@ def main(
         # No command = show welcome screen using ExperienceController
         try:
             from src.core.constants import APP_VERSION
+
             ver = APP_VERSION
         except ImportError:
             ver = "2.0"
@@ -97,6 +97,7 @@ def status(
       tawiza status -v       Detailed system info
     """
     from src.cli.v2.commands.simple.status import status_command
+
     status_command(verbose=verbose)
     print_suggestions("status")
 
@@ -105,11 +106,11 @@ def status(
 def chat(
     message: str | None = typer.Argument(None, help="Message to send"),
     model: str = typer.Option(
-        "qwen3.5:27b", "--model", "-m",
-        help="Model to use",
-        autocompletion=model_completion
+        "qwen3.5:27b", "--model", "-m", help="Model to use", autocompletion=model_completion
     ),
-    interactive: bool = typer.Option(True, "--interactive/--no-interactive", help="Interactive mode"),
+    interactive: bool = typer.Option(
+        True, "--interactive/--no-interactive", help="Interactive mode"
+    ),
 ):
     """Chat with the AI assistant.
 
@@ -120,23 +121,19 @@ def chat(
       tawiza chat --no-interactive   Single response mode
     """
     from src.cli.v2.commands.simple.chat import chat_command
+
     chat_command(message=message, model=model, interactive=interactive)
     print_suggestions("chat")
 
 
 @app.command("run", rich_help_panel="Core Commands")
 def run(
-    agent: str | None = typer.Argument(
-        None, help="Agent to run",
-        autocompletion=agent_completion
-    ),
+    agent: str | None = typer.Argument(None, help="Agent to run", autocompletion=agent_completion),
     task: str | None = typer.Option(None, "--task", "-t", help="Task description"),
     data: str | None = typer.Option(None, "--data", "-d", help="Input data file"),
     url: str | None = typer.Option(None, "--url", "-u", help="Starting URL (browser agent)"),
     model: str = typer.Option(
-        "qwen3.5:27b", "--model", "-m",
-        help="Ollama model to use",
-        autocompletion=model_completion
+        "qwen3.5:27b", "--model", "-m", help="Ollama model to use", autocompletion=model_completion
     ),
     interactive: bool = typer.Option(True, "--interactive/--no-interactive"),
     output_json: bool = typer.Option(False, "--json", help="Output result as JSON"),
@@ -151,6 +148,7 @@ def run(
       tawiza run ml -d train.csv              Train ML model
     """
     from src.cli.v2.commands.simple.run import run_command
+
     run_command(
         agent=agent,
         task=task,
@@ -169,9 +167,7 @@ def agent(
     data: str | None = typer.Option(None, "--data", "-d", help="Input data file"),
     output: str = typer.Option("./output", "--output", "-o", help="Output directory"),
     model: str = typer.Option(
-        "qwen3.5:27b", "--model", "-m",
-        help="Ollama model to use",
-        autocompletion=model_completion
+        "qwen3.5:27b", "--model", "-m", help="Ollama model to use", autocompletion=model_completion
     ),
     max_steps: int = typer.Option(20, "--max-steps", help="Maximum ReAct steps"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show reasoning"),
@@ -187,6 +183,7 @@ def agent(
       tawiza agent --interactive  # Conversation mode
     """
     from src.cli.v2.commands.simple.agent import agent_command
+
     agent_command(
         task=task,
         data=data,
@@ -206,16 +203,22 @@ def analyze(
     query: str = typer.Argument(..., help="Analysis query (e.g., 'marché conseil IT Lille')"),
     output: str = typer.Option("./outputs/analyses", "--output", "-o", help="Output directory"),
     model: str = typer.Option(
-        "qwen3.5:27b", "--model", "-m",
-        help="Ollama model to use",
-        autocompletion=model_completion
+        "qwen3.5:27b", "--model", "-m", help="Ollama model to use", autocompletion=model_completion
     ),
-    depth: str = typer.Option("standard", "--depth", "-d", help="Analysis depth: quick, standard, full"),
+    depth: str = typer.Option(
+        "standard", "--depth", "-d", help="Analysis depth: quick, standard, full"
+    ),
     limit: int = typer.Option(20, "--limit", "-l", help="Max enterprises to analyze"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed progress"),
-    use_agents: bool = typer.Option(False, "--use-agents", "-a", help="Use Camel AI multi-agent orchestration"),
-    multi_source: bool = typer.Option(False, "--multi-source", "-M", help="Use parallel 8-source orchestration with validation"),
-    interactive: bool = typer.Option(False, "--interactive", "-i", help="Enter interactive mode after analysis"),
+    use_agents: bool = typer.Option(
+        False, "--use-agents", "-a", help="Use Camel AI multi-agent orchestration"
+    ),
+    multi_source: bool = typer.Option(
+        False, "--multi-source", "-M", help="Use parallel 8-source orchestration with validation"
+    ),
+    interactive: bool = typer.Option(
+        False, "--interactive", "-i", help="Enter interactive mode after analysis"
+    ),
 ):
     """Analyze a territorial market using Camel AI multi-agent system.
 
@@ -238,6 +241,7 @@ def analyze(
       tawiza analyze "conseil IT Lyon" -i  # Interactive follow-ups
     """
     from src.infrastructure.agents.camel.cli.analyze_command import analyze_command
+
     analyze_command(
         query=query,
         output=output,
@@ -256,12 +260,18 @@ def analyze(
 @app.command("tajine", rich_help_panel="Core Commands")
 def tajine(
     query: str = typer.Argument(None, help="Query for territorial intelligence"),
-    territory: str | None = typer.Option(None, "--territory", "-t", help="Territory code (e.g., 34, 75)"),
-    sector: str | None = typer.Option(None, "--sector", "-s", help="Sector (tech, biotech, commerce)"),
+    territory: str | None = typer.Option(
+        None, "--territory", "-t", help="Territory code (e.g., 34, 75)"
+    ),
+    sector: str | None = typer.Option(
+        None, "--sector", "-s", help="Sector (tech, biotech, commerce)"
+    ),
     model: str = typer.Option(
-        "qwen3.5:27b", "--model", "-m",
+        "qwen3.5:27b",
+        "--model",
+        "-m",
         help="LLM model for reasoning",
-        autocompletion=model_completion
+        autocompletion=model_completion,
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed progress"),
     real_api: bool = typer.Option(False, "--real-api", help="Use real SIRENE API"),
@@ -279,6 +289,7 @@ def tajine(
       tawiza tajine "Compare 75 vs 13" --real-api
     """
     from src.cli.v2.commands.simple.tajine import tajine_command
+
     tajine_command(
         query=query,
         territory=territory,
@@ -343,6 +354,7 @@ def pro_model_list():
 
     try:
         import httpx
+
         response = httpx.get("http://localhost:11434/api/tags", timeout=10)
 
         if response.status_code == 200:
@@ -370,10 +382,7 @@ def pro_model_list():
 
     except Exception:
         msg = MessageBox()
-        console.print(msg.error(
-            "Ollama not available",
-            ["Start with: tawiza pro ollama-start"]
-        ))
+        console.print(msg.error("Ollama not available", ["Start with: tawiza pro ollama-start"]))
 
     console.print(footer(40))
 
@@ -392,10 +401,8 @@ def pro_model_pull(
 
     try:
         import subprocess
-        result = subprocess.run(
-            ["ollama", "pull", model],
-            capture_output=False
-        )
+
+        result = subprocess.run(["ollama", "pull", model], capture_output=False)
 
         if result.returncode == 0:
             msg = MessageBox()
@@ -421,9 +428,12 @@ def pro_gpu_status():
 
     try:
         import subprocess
+
         result = subprocess.run(
             ["rocm-smi", "--showuse", "--showtemp", "--showmeminfo", "vram"],
-            capture_output=True, text=True, timeout=10
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
 
         if result.returncode == 0:
@@ -439,10 +449,9 @@ def pro_gpu_status():
 
     except Exception:
         msg = MessageBox()
-        console.print(msg.error(
-            "GPU not detected",
-            ["Ensure ROCm is installed", "Check AMD drivers"]
-        ))
+        console.print(
+            msg.error("GPU not detected", ["Ensure ROCm is installed", "Check AMD drivers"])
+        )
 
     console.print(footer(40))
 
@@ -457,10 +466,10 @@ def pro_ollama_start():
 
     try:
         import subprocess
+
         # Check if already running
         result = subprocess.run(
-            ["curl", "-s", "http://localhost:11434/api/tags"],
-            capture_output=True, timeout=5
+            ["curl", "-s", "http://localhost:11434/api/tags"], capture_output=True, timeout=5
         )
 
         if result.returncode == 0:
@@ -469,11 +478,10 @@ def pro_ollama_start():
         else:
             console.print("  Starting Ollama...")
             subprocess.Popen(
-                ["ollama", "serve"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                ["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
             import time
+
             time.sleep(2)
             msg = MessageBox()
             console.print(msg.success("Ollama started!"))
@@ -495,6 +503,7 @@ def pro_ollama_stop():
 
     try:
         import subprocess
+
         subprocess.run(["pkill", "-f", "ollama"], capture_output=True)
         msg = MessageBox()
         console.print(msg.success("Ollama stopped"))
@@ -550,13 +559,11 @@ def tui_dashboard():
     """
     try:
         from src.cli.v3.tui import run_tui
+
         run_tui()
     except ImportError:
         msg = MessageBox()
-        console.print(msg.error(
-            "TUI dependencies not installed",
-            ["Run: pip install textual"]
-        ))
+        console.print(msg.error("TUI dependencies not installed", ["Run: pip install textual"]))
     except Exception as e:
         msg = MessageBox()
         console.print(msg.error(f"TUI error: {e}"))

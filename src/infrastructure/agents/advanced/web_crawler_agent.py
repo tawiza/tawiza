@@ -23,6 +23,7 @@ from loguru import logger
 
 try:
     from playwright.async_api import Browser, Page, async_playwright
+
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
@@ -32,6 +33,7 @@ except ImportError:
 @dataclass
 class CrawlConfig:
     """Configuration du crawler"""
+
     max_pages: int = 100
     max_depth: int = 3
     delay_seconds: float = 1.0
@@ -53,6 +55,7 @@ class CrawlConfig:
 @dataclass
 class CrawledPage:
     """Page crawlée"""
+
     url: str
     title: str
     content: str  # Texte brut extrait
@@ -72,6 +75,7 @@ class CrawledPage:
 @dataclass
 class CrawlResult:
     """Résultat du crawling"""
+
     start_url: str
     pages_crawled: int
     pages_failed: int
@@ -89,6 +93,7 @@ class CrawlResult:
 @dataclass
 class RobotsRules:
     """Règles du fichier robots.txt"""
+
     allowed: list[str] = field(default_factory=list)
     disallowed: list[str] = field(default_factory=list)
     crawl_delay: float = 0.0
@@ -112,7 +117,7 @@ class WebCrawlerAgent:
             "link_discovery",
             "sitemap_generation",
             "robots_txt_parsing",
-            "javascript_rendering"
+            "javascript_rendering",
         ]
 
         self.config = config or CrawlConfig()
@@ -122,12 +127,7 @@ class WebCrawlerAgent:
         self.queue: deque = deque()
         self.robots_cache: dict[str, RobotsRules] = {}
         self.is_running = False
-        self.stats = {
-            "requests": 0,
-            "success": 0,
-            "failed": 0,
-            "bytes_downloaded": 0
-        }
+        self.stats = {"requests": 0, "success": 0, "failed": 0, "bytes_downloaded": 0}
 
         # Client HTTP
         self.client: httpx.AsyncClient | None = None
@@ -141,7 +141,7 @@ class WebCrawlerAgent:
         self.client = httpx.AsyncClient(
             timeout=self.config.timeout_seconds,
             headers={"User-Agent": self.config.user_agent},
-            follow_redirects=True
+            follow_redirects=True,
         )
 
         if self.config.use_javascript and PLAYWRIGHT_AVAILABLE:
@@ -153,8 +153,7 @@ class WebCrawlerAgent:
 
             self.playwright = await async_playwright().start()
             self.browser = await self.playwright.chromium.launch(
-                headless=use_headless,
-                args=["--no-sandbox", "--disable-dev-shm-usage"]
+                headless=use_headless, args=["--no-sandbox", "--disable-dev-shm-usage"]
             )
             logger.info(f"🌐 Playwright initialized (headless={use_headless})")
 
@@ -248,14 +247,9 @@ class WebCrawlerAgent:
             path = "/" + path
 
         # Reconstruire l'URL
-        return urlunparse((
-            parsed.scheme.lower(),
-            parsed.netloc.lower(),
-            path,
-            parsed.params,
-            parsed.query,
-            ""
-        ))
+        return urlunparse(
+            (parsed.scheme.lower(), parsed.netloc.lower(), path, parsed.params, parsed.query, "")
+        )
 
     def is_valid_url(self, url: str) -> bool:
         """Vérifier si une URL est valide pour le crawling"""
@@ -282,10 +276,26 @@ class WebCrawlerAgent:
 
             # Exclure les fichiers non-HTML courants
             excluded_extensions = [
-                ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".svg",
-                ".mp3", ".mp4", ".avi", ".mov",
-                ".zip", ".tar", ".gz", ".rar",
-                ".css", ".js", ".woff", ".woff2", ".ttf", ".eot"
+                ".pdf",
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif",
+                ".svg",
+                ".mp3",
+                ".mp4",
+                ".avi",
+                ".mov",
+                ".zip",
+                ".tar",
+                ".gz",
+                ".rar",
+                ".css",
+                ".js",
+                ".woff",
+                ".woff2",
+                ".ttf",
+                ".eot",
             ]
             path_lower = parsed.path.lower()
             return all(not path_lower.endswith(ext) for ext in excluded_extensions)
@@ -330,8 +340,9 @@ class WebCrawlerAgent:
         self.stats["bytes_downloaded"] += len(html.encode())
         self.stats["success"] += 1
 
-        return self._parse_html(url, html, response.status_code, content_type,
-                               dict(response.headers), load_time)
+        return self._parse_html(
+            url, html, response.status_code, content_type, dict(response.headers), load_time
+        )
 
     async def _fetch_with_javascript(self, url: str, start_time: float) -> CrawledPage | None:
         """Récupérer une page avec Playwright (JavaScript)"""
@@ -347,11 +358,7 @@ class WebCrawlerAgent:
             self.stats["success"] += 1
 
             return self._parse_html(
-                url, html,
-                response.status if response else 200,
-                "text/html",
-                {},
-                load_time
+                url, html, response.status if response else 200, "text/html", {}, load_time
             )
         finally:
             await page.close()
@@ -363,7 +370,7 @@ class WebCrawlerAgent:
         status_code: int,
         content_type: str,
         headers: dict[str, str],
-        load_time: float
+        load_time: float,
     ) -> CrawledPage:
         """Parser le HTML et extraire les informations"""
         soup = BeautifulSoup(html, "html.parser")
@@ -427,15 +434,13 @@ class WebCrawlerAgent:
             headers=headers,
             crawled_at=datetime.utcnow().isoformat(),
             load_time_ms=load_time,
-            hash=content_hash
+            hash=content_hash,
         )
 
     # ==================== CRAWLING ====================
 
     async def crawl(
-        self,
-        start_url: str,
-        callback: Callable[[CrawledPage], None] = None
+        self, start_url: str, callback: Callable[[CrawledPage], None] = None
     ) -> CrawlResult:
         """Crawler un site à partir d'une URL de départ
 
@@ -562,7 +567,7 @@ class WebCrawlerAgent:
             start_time=start_time.isoformat(),
             end_time=end_time.isoformat(),
             duration_seconds=duration,
-            sitemap=sitemap
+            sitemap=sitemap,
         )
 
         logger.info(
@@ -615,10 +620,7 @@ class WebCrawlerAgent:
 
     # ==================== STREAMING ====================
 
-    async def crawl_stream(
-        self,
-        start_url: str
-    ) -> AsyncGenerator[CrawledPage]:
+    async def crawl_stream(self, start_url: str) -> AsyncGenerator[CrawledPage]:
         """Crawler en mode streaming (yield les pages une par une)"""
         logger.info(f"🕷️ Starting streaming crawl from {start_url}")
         await self.initialize()
@@ -655,7 +657,10 @@ class WebCrawlerAgent:
                 for link in page.links:
                     link_domain = self.extract_domain(link)
                     if link not in self.visited_urls:
-                        if self.config.follow_external_links or link_domain in self.config.allowed_domains:
+                        if (
+                            self.config.follow_external_links
+                            or link_domain in self.config.allowed_domains
+                        ):
                             self.queue.append((link, depth + 1))
 
             await asyncio.sleep(self.config.delay_seconds)
@@ -678,23 +683,17 @@ class WebCrawlerAgent:
             "config": {
                 "max_pages": self.config.max_pages,
                 "max_depth": self.config.max_depth,
-                "delay": self.config.delay_seconds
-            }
+                "delay": self.config.delay_seconds,
+            },
         }
 
 
 # Factory function
 def create_crawler(
-    max_pages: int = 100,
-    max_depth: int = 3,
-    delay: float = 1.0,
-    use_javascript: bool = False
+    max_pages: int = 100, max_depth: int = 3, delay: float = 1.0, use_javascript: bool = False
 ) -> WebCrawlerAgent:
     """Créer une instance du crawler avec configuration personnalisée"""
     config = CrawlConfig(
-        max_pages=max_pages,
-        max_depth=max_depth,
-        delay_seconds=delay,
-        use_javascript=use_javascript
+        max_pages=max_pages, max_depth=max_depth, delay_seconds=delay, use_javascript=use_javascript
     )
     return WebCrawlerAgent(config)

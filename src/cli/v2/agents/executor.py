@@ -75,10 +75,7 @@ class AgentExecutor:
     @classmethod
     def list_agents(cls) -> list[dict[str, Any]]:
         """List all available agents."""
-        return [
-            {"name": name, **info}
-            for name, info in cls.AGENTS.items()
-        ]
+        return [{"name": name, **info} for name, info in cls.AGENTS.items()]
 
     @classmethod
     def get_agent_info(cls, agent_name: str) -> dict[str, Any] | None:
@@ -112,6 +109,7 @@ class AgentExecutor:
         if "analyst" not in self._initialized_agents:
             try:
                 from src.infrastructure.agents.advanced.data_analyst_agent import DataAnalystAgent
+
                 self._initialized_agents["analyst"] = DataAnalystAgent()
                 logger.info("Analyst agent initialized")
             except ImportError as e:
@@ -127,6 +125,7 @@ class AgentExecutor:
                 from src.infrastructure.agents.advanced.code_generator_agent import (
                     CodeGeneratorAgent,
                 )
+
                 agent = CodeGeneratorAgent()
                 await agent.initialize()
                 self._initialized_agents["coder"] = agent
@@ -142,6 +141,7 @@ class AgentExecutor:
         if "ml" not in self._initialized_agents:
             try:
                 from src.infrastructure.agents.advanced.ml_engineer_agent import MLEngineerAgent
+
                 self._initialized_agents["ml"] = MLEngineerAgent()
                 logger.info("ML agent initialized")
             except ImportError as e:
@@ -151,11 +151,7 @@ class AgentExecutor:
         return self._initialized_agents["ml"]
 
     async def run(
-        self,
-        agent_name: str,
-        task: str,
-        data: str | None = None,
-        **kwargs
+        self, agent_name: str, task: str, data: str | None = None, **kwargs
     ) -> AgentResult:
         """Execute an agent with the given task.
 
@@ -173,7 +169,7 @@ class AgentExecutor:
                 agent=agent_name,
                 task=task,
                 status="error",
-                error=f"Unknown agent: {agent_name}. Available: {list(self.AGENTS.keys())}"
+                error=f"Unknown agent: {agent_name}. Available: {list(self.AGENTS.keys())}",
             )
 
         start_time = datetime.now()
@@ -235,19 +231,14 @@ class AgentExecutor:
         result = await agent.execute_task(task_config)
         return result
 
-    async def _run_analyst(
-        self,
-        task: str,
-        data: str | None = None,
-        **kwargs
-    ) -> dict[str, Any]:
+    async def _run_analyst(self, task: str, data: str | None = None, **kwargs) -> dict[str, Any]:
         """Run data analysis task."""
         agent = await self._get_analyst_agent()
 
         if not data:
             return {
                 "error": "Data file required for analyst agent",
-                "usage": "tawiza run analyst -t 'analyze' -d data.csv"
+                "usage": "tawiza run analyst -t 'analyze' -d data.csv",
             }
 
         data_path = Path(data)
@@ -259,6 +250,7 @@ class AgentExecutor:
 
         # Convert dataclass to dict
         from dataclasses import asdict
+
         return {
             "report": asdict(report),
             "summary": {
@@ -267,7 +259,7 @@ class AgentExecutor:
                 "quality_score": report.quality_score,
                 "anomalies_count": len(report.anomalies_detected),
                 "recommendations_count": len(report.recommendations),
-            }
+            },
         }
 
     async def _run_coder(self, task: str, **kwargs) -> dict[str, Any]:
@@ -294,21 +286,17 @@ class AgentExecutor:
         generated = await agent.generate_code(request)
 
         from dataclasses import asdict
+
         return asdict(generated)
 
-    async def _run_ml(
-        self,
-        task: str,
-        data: str | None = None,
-        **kwargs
-    ) -> dict[str, Any]:
+    async def _run_ml(self, task: str, data: str | None = None, **kwargs) -> dict[str, Any]:
         """Run ML pipeline task."""
         agent = await self._get_ml_agent()
 
         if not data:
             return {
                 "error": "Data file required for ML agent",
-                "usage": "tawiza run ml -t 'train classification model' -d data.csv"
+                "usage": "tawiza run ml -t 'train classification model' -d data.csv",
             }
 
         data_path = Path(data)
@@ -338,12 +326,11 @@ class AgentExecutor:
         result = await agent.create_ml_pipeline(config)
 
         from dataclasses import asdict
+
         return asdict(result)
 
     async def stream_progress(
-        self,
-        agent_name: str,
-        task_id: str
+        self, agent_name: str, task_id: str
     ) -> AsyncGenerator[dict[str, Any]]:
         """Stream progress updates for a running task.
 

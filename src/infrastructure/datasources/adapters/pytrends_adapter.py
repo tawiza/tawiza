@@ -28,6 +28,7 @@ def _get_pytrends():
     if _pytrends is None:
         try:
             from pytrends.request import TrendReq
+
             _pytrends = TrendReq
         except ImportError:
             logger.warning("pytrends not installed. Run: pip install pytrends")
@@ -298,10 +299,12 @@ class PyTrendsAdapter(BaseAdapter):
             for region_name, row in df.iterrows():
                 interest = int(row[keyword]) if keyword in df.columns else 0
                 if interest > 0:
-                    regions.append({
-                        "region": region_name,
-                        "interest": interest,
-                    })
+                    regions.append(
+                        {
+                            "region": region_name,
+                            "interest": interest,
+                        }
+                    )
 
             regions.sort(key=lambda x: x["interest"], reverse=True)
 
@@ -341,10 +344,7 @@ class PyTrendsAdapter(BaseAdapter):
             if df.empty:
                 return []
 
-            return [
-                {"rank": i + 1, "query": row[0]}
-                for i, row in df.iterrows()
-            ][:20]
+            return [{"rank": i + 1, "query": row[0]} for i, row in df.iterrows()][:20]
 
         except Exception as e:
             self._log_error("get_trending_searches", e)
@@ -383,12 +383,14 @@ class PyTrendsAdapter(BaseAdapter):
                     values = df[keyword].tolist()
                     avg_interest = sum(values) / len(values) if values else 0
 
-                    results.append({
-                        "geo": geo,
-                        "name": self.FRENCH_REGIONS.get(geo, geo),
-                        "avg_interest": round(avg_interest, 1),
-                        "latest": values[-1] if values else 0,
-                    })
+                    results.append(
+                        {
+                            "geo": geo,
+                            "name": self.FRENCH_REGIONS.get(geo, geo),
+                            "avg_interest": round(avg_interest, 1),
+                            "latest": values[-1] if values else 0,
+                        }
+                    )
 
             except Exception as e:
                 logger.warning(f"Error fetching {geo}: {e}")

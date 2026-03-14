@@ -140,10 +140,7 @@ class BrowserUseAdapter:
                 task.history = self._format_history(history)
                 task.result = self._extract_result(history)
 
-                logger.info(
-                    f"Task {task_id} completed successfully "
-                    f"({len(task.history)} actions)"
-                )
+                logger.info(f"Task {task_id} completed successfully ({len(task.history)} actions)")
 
             except TimeoutError:
                 task.status = "failed"
@@ -419,9 +416,7 @@ class BrowserUseAdapter:
 
                 if solution.success:
                     # Inject token
-                    await page.evaluate(
-                        f"() => window.recaptchaToken = '{solution.solution}'"
-                    )
+                    await page.evaluate(f"() => window.recaptchaToken = '{solution.solution}'")
                     logger.success(f"reCAPTCHA v3 solved in {solution.solve_time:.1f}s")
                     return True
                 else:

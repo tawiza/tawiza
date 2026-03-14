@@ -5,6 +5,7 @@ Complements KGValidator by using semantic similarity to detect:
 - Novelty vs contradiction (very low similarity to related docs)
 - Semantic anomalies (outliers in embedding space)
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SemanticCoherenceResult:
     """Result of semantic coherence check."""
+
     score: float  # 0.0 - 1.0
     similarity_to_indexed: float  # Max similarity to existing docs
     is_novel: bool  # Low similarity but plausible

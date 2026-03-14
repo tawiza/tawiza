@@ -1,4 +1,5 @@
 """Source Credibility Scorer - Bayesian source reliability."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -15,43 +16,37 @@ class SourceCredibilityScorer:
     """
 
     # Prior credibility scores by source type
-    PRIORS: dict[str, float] = field(default_factory=lambda: {
-        # Official government sources
-        "sirene": 0.95,
-        "bodacc": 0.90,
-        "boamp": 0.90,
-        "dvf": 0.92,
-        "ban": 0.93,
-
-        # Institutional sources
-        "insee": 0.88,
-        "bdf": 0.85,  # Banque de France
-        "infogreffe": 0.85,
-
-        # Semi-official
-        "pappers": 0.80,
-        "societe.com": 0.75,
-
-        # Media/Press
-        "rss_presse": 0.70,
-        "afp": 0.75,
-
-        # Corporate
-        "corporate": 0.60,
-
-        # User-generated
-        "blog": 0.30,
-        "forum": 0.20,
-
-        # Unknown
-        "unknown": 0.10,
-    })
+    PRIORS: dict[str, float] = field(
+        default_factory=lambda: {
+            # Official government sources
+            "sirene": 0.95,
+            "bodacc": 0.90,
+            "boamp": 0.90,
+            "dvf": 0.92,
+            "ban": 0.93,
+            # Institutional sources
+            "insee": 0.88,
+            "bdf": 0.85,  # Banque de France
+            "infogreffe": 0.85,
+            # Semi-official
+            "pappers": 0.80,
+            "societe.com": 0.75,
+            # Media/Press
+            "rss_presse": 0.70,
+            "afp": 0.75,
+            # Corporate
+            "corporate": 0.60,
+            # User-generated
+            "blog": 0.30,
+            "forum": 0.20,
+            # Unknown
+            "unknown": 0.10,
+        }
+    )
 
     # Store posteriors and observations
     posteriors: dict[str, float] = field(default_factory=dict)
-    observations: dict[str, list[bool]] = field(
-        default_factory=lambda: defaultdict(list)
-    )
+    observations: dict[str, list[bool]] = field(default_factory=lambda: defaultdict(list))
 
     def __post_init__(self):
         """Initialize posteriors from priors."""

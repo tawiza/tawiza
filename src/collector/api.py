@@ -173,6 +173,7 @@ async def get_anomalies(
     if contextualize and results:
         try:
             from .processing.contextualizer import contextualize_batch
+
             results = await contextualize_batch(results)
         except Exception as e:
             logger.warning(f"Contextualisation failed: {e}")
@@ -210,6 +211,7 @@ async def run_collector(
         count = await _collector_scheduler.run_now(collector_name, code_dept=code_dept)
     else:
         from .scheduler.jobs import CollectorScheduler
+
         scheduler = CollectorScheduler()
         count = await scheduler.run_now(collector_name, code_dept=code_dept)
 
@@ -223,8 +225,7 @@ async def run_collector(
 @router.get("/departments/heatmap")
 @limiter.limit("60/minute")
 async def get_departments_heatmap(
-    request: Request,
-    days: int = Query(90, description="Lookback days for signals")
+    request: Request, days: int = Query(90, description="Lookback days for signals")
 ) -> dict[str, Any]:
     """Get aggregated signals and anomalies by department for map heatmap."""
     repo = get_repo()
@@ -273,21 +274,20 @@ async def get_departments_heatmap(
 
     # Execute query
     async with repo._engine.begin() as conn:
-        result = await conn.execute(query, {
-            "since_date": since,
-            "since_datetime": since
-        })
+        result = await conn.execute(query, {"since_date": since, "since_datetime": since})
         rows = result.fetchall()
 
     departments = []
     for row in rows:
-        departments.append({
-            "code": row.code,
-            "total_signals": row.total_signals,
-            "sources": row.sources or {},
-            "anomalies": row.anomalies,
-            "latest_signal": row.latest_signal.isoformat() if row.latest_signal else None,
-        })
+        departments.append(
+            {
+                "code": row.code,
+                "total_signals": row.total_signals,
+                "sources": row.sources or {},
+                "anomalies": row.anomalies,
+                "latest_signal": row.latest_signal.isoformat() if row.latest_signal else None,
+            }
+        )
 
     return {
         "departments": departments,
@@ -298,29 +298,64 @@ async def get_departments_heatmap(
 
 @router.get("/ranking")
 @limiter.limit("60/minute")
-async def get_territorial_ranking(
-    request: Request
-) -> dict[str, Any]:
+async def get_territorial_ranking(request: Request) -> dict[str, Any]:
     """Get Phase 2 territorial ranking based on signal analysis."""
 
     # Population INSEE 2024 (top départements)
     POPULATIONS = {
-        "75": 2161, "13": 2043, "69": 1914, "59": 2615, "33": 1690,
-        "92": 1654, "93": 1704, "94": 1426, "77": 1468, "78": 1485,
-        "31": 1471, "44": 1487, "34": 1230, "06": 1128, "67": 1163,
-        "38": 1298, "76": 1260, "35": 1120, "62": 1457, "83": 1119,
-        "91": 1316, "95": 1260, "54": 733, "45": 684, "57": 1048,
+        "75": 2161,
+        "13": 2043,
+        "69": 1914,
+        "59": 2615,
+        "33": 1690,
+        "92": 1654,
+        "93": 1704,
+        "94": 1426,
+        "77": 1468,
+        "78": 1485,
+        "31": 1471,
+        "44": 1487,
+        "34": 1230,
+        "06": 1128,
+        "67": 1163,
+        "38": 1298,
+        "76": 1260,
+        "35": 1120,
+        "62": 1457,
+        "83": 1119,
+        "91": 1316,
+        "95": 1260,
+        "54": 733,
+        "45": 684,
+        "57": 1048,
     }  # en milliers
 
     DEPT_NAMES = {
-        "75": "Paris", "13": "Bouches-du-Rhône", "69": "Rhône", "59": "Nord",
-        "33": "Gironde", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
-        "94": "Val-de-Marne", "77": "Seine-et-Marne", "78": "Yvelines",
-        "31": "Haute-Garonne", "44": "Loire-Atlantique", "34": "Hérault",
-        "06": "Alpes-Maritimes", "67": "Bas-Rhin", "38": "Isère",
-        "76": "Seine-Maritime", "35": "Ille-et-Vilaine", "62": "Pas-de-Calais",
-        "83": "Var", "91": "Essonne", "95": "Val-d'Oise", "54": "Meurthe-et-Moselle",
-        "45": "Loiret", "57": "Moselle",
+        "75": "Paris",
+        "13": "Bouches-du-Rhône",
+        "69": "Rhône",
+        "59": "Nord",
+        "33": "Gironde",
+        "92": "Hauts-de-Seine",
+        "93": "Seine-Saint-Denis",
+        "94": "Val-de-Marne",
+        "77": "Seine-et-Marne",
+        "78": "Yvelines",
+        "31": "Haute-Garonne",
+        "44": "Loire-Atlantique",
+        "34": "Hérault",
+        "06": "Alpes-Maritimes",
+        "67": "Bas-Rhin",
+        "38": "Isère",
+        "76": "Seine-Maritime",
+        "35": "Ille-et-Vilaine",
+        "62": "Pas-de-Calais",
+        "83": "Var",
+        "91": "Essonne",
+        "95": "Val-d'Oise",
+        "54": "Meurthe-et-Moselle",
+        "45": "Loiret",
+        "57": "Moselle",
     }
 
     # Get metrics per department using direct SQL
@@ -410,19 +445,21 @@ async def get_territorial_ranking(
 
         confidence = nb_sources / 10.0  # 10 sources max maintenant
 
-        depts.append({
-            'code': code,
-            'name': DEPT_NAMES.get(code, f"Dept {code}"),
-            'pop': pop,
-            'f_sante': f_sante,
-            'f_declin': f_declin,
-            'f_emploi': f_emploi,
-            'f_immo': f_immo,
-            'f_construction': f_construction,
-            'f_presse': f_presse,
-            'confidence': confidence,
-            'nb_sources': nb_sources,
-        })
+        depts.append(
+            {
+                "code": code,
+                "name": DEPT_NAMES.get(code, f"Dept {code}"),
+                "pop": pop,
+                "f_sante": f_sante,
+                "f_declin": f_declin,
+                "f_emploi": f_emploi,
+                "f_immo": f_immo,
+                "f_construction": f_construction,
+                "f_presse": f_presse,
+                "confidence": confidence,
+                "nb_sources": nb_sources,
+            }
+        )
 
     if not depts:
         return {"ranking": [], "total_departments": 0}
@@ -430,12 +467,12 @@ async def get_territorial_ranking(
     # Scoring composite par percentile ranking
     n = len(depts)
 
-    sante_vals = np.array([d['f_sante'] for d in depts])
-    declin_vals = np.array([d['f_declin'] for d in depts])
-    emploi_vals = np.array([d['f_emploi'] for d in depts])
-    immo_vals = np.array([d['f_immo'] for d in depts])
-    constr_vals = np.array([d['f_construction'] for d in depts])
-    presse_vals = np.array([d['f_presse'] for d in depts])
+    sante_vals = np.array([d["f_sante"] for d in depts])
+    declin_vals = np.array([d["f_declin"] for d in depts])
+    emploi_vals = np.array([d["f_emploi"] for d in depts])
+    immo_vals = np.array([d["f_immo"] for d in depts])
+    constr_vals = np.array([d["f_construction"] for d in depts])
+    presse_vals = np.array([d["f_presse"] for d in depts])
 
     # Winsorize
     sante_w = winsorize(sante_vals)
@@ -455,46 +492,48 @@ async def get_territorial_ranking(
 
     # Pondération
     weights = {
-        'sante': 0.25,      # santé entreprises (créa/liq)
-        'declin': 0.25,     # procédures collectives
-        'emploi': 0.20,     # offres d'emploi
-        'immo': 0.10,       # dynamisme immobilier
-        'construction': 0.10,# construction neuve
-        'presse': 0.10,     # sentiment presse
+        "sante": 0.25,  # santé entreprises (créa/liq)
+        "declin": 0.25,  # procédures collectives
+        "emploi": 0.20,  # offres d'emploi
+        "immo": 0.10,  # dynamisme immobilier
+        "construction": 0.10,  # construction neuve
+        "presse": 0.10,  # sentiment presse
     }
 
     ranking = []
     for i, d in enumerate(depts):
         score = (
-            weights['sante'] * r_sante[i] +
-            weights['declin'] * r_declin[i] +
-            weights['emploi'] * r_emploi[i] +
-            weights['immo'] * r_immo[i] +
-            weights['construction'] * r_constr[i] +
-            weights['presse'] * r_presse[i]
+            weights["sante"] * r_sante[i]
+            + weights["declin"] * r_declin[i]
+            + weights["emploi"] * r_emploi[i]
+            + weights["immo"] * r_immo[i]
+            + weights["construction"] * r_constr[i]
+            + weights["presse"] * r_presse[i]
         )
         # Bonus/malus confiance (±5 points max)
-        conf_adj = (d['confidence'] - 0.5) * 10  # de -5 à +5
+        conf_adj = (d["confidence"] - 0.5) * 10  # de -5 à +5
         score = max(0, min(100, score + conf_adj))
 
-        ranking.append({
-            "code": d['code'],
-            "name": d['name'],
-            "score": round(score, 1),
-            "confidence": round(d['confidence'], 2),
-            "population": d['pop'] * 1000,  # convert to actual population
-            "factors": {
-                "sante": round(r_sante[i], 1),
-                "declin": round(r_declin[i], 1),
-                "emploi": round(r_emploi[i], 1),
-                "immo": round(r_immo[i], 1),
-                "construction": round(r_constr[i], 1),
-                "presse": round(r_presse[i], 1),
+        ranking.append(
+            {
+                "code": d["code"],
+                "name": d["name"],
+                "score": round(score, 1),
+                "confidence": round(d["confidence"], 2),
+                "population": d["pop"] * 1000,  # convert to actual population
+                "factors": {
+                    "sante": round(r_sante[i], 1),
+                    "declin": round(r_declin[i], 1),
+                    "emploi": round(r_emploi[i], 1),
+                    "immo": round(r_immo[i], 1),
+                    "construction": round(r_constr[i], 1),
+                    "presse": round(r_presse[i], 1),
+                },
             }
-        })
+        )
 
     # Sort by score descending
-    ranking.sort(key=lambda d: d['score'], reverse=True)
+    ranking.sort(key=lambda d: d["score"], reverse=True)
 
     return {
         "ranking": ranking,
@@ -504,9 +543,7 @@ async def get_territorial_ranking(
 
 @router.get("/sources-summary")
 @limiter.limit("60/minute")
-async def get_sources_summary(
-    request: Request
-) -> dict[str, Any]:
+async def get_sources_summary(request: Request) -> dict[str, Any]:
     """Get summary of signals count and last collection time per source."""
     from datetime import datetime, timezone
 
@@ -543,12 +580,14 @@ async def get_sources_summary(
             elif hours_since < 24 * 7:
                 status = "degraded"
 
-        sources.append({
-            "source": row.source,
-            "count": row.count,
-            "last_collected": last_collected.isoformat() if last_collected else None,
-            "status": status,
-        })
+        sources.append(
+            {
+                "source": row.source,
+                "count": row.count,
+                "last_collected": last_collected.isoformat() if last_collected else None,
+                "status": status,
+            }
+        )
 
     return {
         "sources": sources,
@@ -560,8 +599,7 @@ async def get_sources_summary(
 @router.get("/trends")
 @limiter.limit("60/minute")
 async def get_google_trends_data(
-    request: Request,
-    limit: int = Query(20, description="Max trends to return")
+    request: Request, limit: int = Query(20, description="Max trends to return")
 ) -> dict[str, Any]:
     """Get Google Trends data from signals."""
     query = text("""
@@ -587,13 +625,15 @@ async def get_google_trends_data(
 
     trends = []
     for row in rows:
-        trends.append({
-            "keyword": row.metric_name,
-            "department": row.code_dept,
-            "avg_value": round(float(row.avg_value), 2),
-            "count": row.count,
-            "latest": row.latest.isoformat() if row.latest else None,
-        })
+        trends.append(
+            {
+                "keyword": row.metric_name,
+                "department": row.code_dept,
+                "avg_value": round(float(row.avg_value), 2),
+                "count": row.count,
+                "latest": row.latest.isoformat() if row.latest else None,
+            }
+        )
 
     # Group by keyword for summary
     keyword_summary = {}
@@ -604,17 +644,15 @@ async def get_google_trends_data(
                 "keyword": keyword,
                 "total_value": 0,
                 "department_count": 0,
-                "latest": trend["latest"]
+                "latest": trend["latest"],
             }
         keyword_summary[keyword]["total_value"] += trend["avg_value"]
         keyword_summary[keyword]["department_count"] += 1
 
     # Convert to list and sort
-    top_keywords = sorted(
-        keyword_summary.values(),
-        key=lambda x: x["total_value"],
-        reverse=True
-    )[:10]
+    top_keywords = sorted(keyword_summary.values(), key=lambda x: x["total_value"], reverse=True)[
+        :10
+    ]
 
     return {
         "trends": trends,
@@ -648,16 +686,12 @@ async def get_department_scores(
                 "factor_dynamisme_immo",
                 "factor_construction",
                 "factor_declin_ratio",
-                "factor_presse_sentiment"
-            ]
+                "factor_presse_sentiment",
+            ],
         }
     except Exception as e:
         logger.error(f"Error computing department scores: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "rankings": []
-        }
+        return {"status": "error", "message": str(e), "rankings": []}
 
 
 @router.get("/departments/{dept}/factors")
@@ -681,7 +715,7 @@ async def get_department_factors(
             return {
                 "status": "error",
                 "message": f"Department {dept} not found",
-                "department": dept
+                "department": dept,
             }
 
         dept_data = all_scores[dept]
@@ -697,15 +731,11 @@ async def get_department_factors(
             "factor_count": dept_data.get("factor_count"),
             "total_factors": dept_data.get("total_factors"),
             "individual_factors": dept_data.get("individual_scores", {}),
-            "algorithm": "Tawiza-V2 Phase 2"
+            "algorithm": "Tawiza-V2 Phase 2",
         }
     except Exception as e:
         logger.error(f"Error getting factors for department {dept}: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "department": dept
-        }
+        return {"status": "error", "message": str(e), "department": dept}
 
 
 @router.get("/departments/{dept}/trends")
@@ -737,26 +767,21 @@ async def get_department_trends(
                 ma_data = await compute_moving_averages(db_url, dept, metric)
 
                 alert = await _generate_trend_alert(
-                    dept, metric, ma_data, roc_data[metric],
-                    ma_data.get('data_points', 0)
+                    dept, metric, ma_data, roc_data[metric], ma_data.get("data_points", 0)
                 )
 
-                trends[metric] = {
-                    'moving_averages': ma_data,
-                    'rate_of_change': roc_data[metric]
-                }
+                trends[metric] = {"moving_averages": ma_data, "rate_of_change": roc_data[metric]}
 
                 if alert:
                     alerts.append(alert)
         else:
             # All metrics overview
             for metric_name, roc_values in roc_data.items():
-                if roc_values and roc_values.get('alert'):
+                if roc_values and roc_values.get("alert"):
                     ma_data = await compute_moving_averages(db_url, dept, metric_name)
 
                     alert = await _generate_trend_alert(
-                        dept, metric_name, ma_data, roc_values,
-                        ma_data.get('data_points', 0)
+                        dept, metric_name, ma_data, roc_values, ma_data.get("data_points", 0)
                     )
 
                     if alert:
@@ -770,16 +795,12 @@ async def get_department_trends(
             "alerts": alerts,
             "alert_count": len(alerts),
             "roc_summary": roc_data,
-            "algorithm": "Tawiza-V2 Phase 3"
+            "algorithm": "Tawiza-V2 Phase 3",
         }
 
     except Exception as e:
         logger.error(f"Error getting trends for department {dept}: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "department": dept
-        }
+        return {"status": "error", "message": str(e), "department": dept}
 
 
 @router.get("/trends/alerts")
@@ -803,38 +824,32 @@ async def get_trends_alerts(
 
         # Filter by confidence and trend type
         filtered_alerts = [
-            alert for alert in all_alerts
-            if alert.get('confidence', 0) >= confidence_threshold
+            alert for alert in all_alerts if alert.get("confidence", 0) >= confidence_threshold
         ]
 
         if trend_type:
             filtered_alerts = [
-                alert for alert in filtered_alerts
-                if alert.get('trend_type') == trend_type
+                alert for alert in filtered_alerts if alert.get("trend_type") == trend_type
             ]
 
         # Group by trend type for summary
         trend_summary = {}
         for alert in filtered_alerts:
-            t_type = alert.get('trend_type', 'unknown')
+            t_type = alert.get("trend_type", "unknown")
             if t_type not in trend_summary:
-                trend_summary[t_type] = {
-                    'count': 0,
-                    'departments': set(),
-                    'avg_confidence': 0
-                }
-            trend_summary[t_type]['count'] += 1
-            trend_summary[t_type]['departments'].add(alert.get('dept'))
-            trend_summary[t_type]['avg_confidence'] += alert.get('confidence', 0)
+                trend_summary[t_type] = {"count": 0, "departments": set(), "avg_confidence": 0}
+            trend_summary[t_type]["count"] += 1
+            trend_summary[t_type]["departments"].add(alert.get("dept"))
+            trend_summary[t_type]["avg_confidence"] += alert.get("confidence", 0)
 
         # Calculate averages and convert sets to lists
         for t_type in trend_summary:
-            count = trend_summary[t_type]['count']
-            trend_summary[t_type]['avg_confidence'] /= count if count > 0 else 1
-            trend_summary[t_type]['departments'] = list(trend_summary[t_type]['departments'])
+            count = trend_summary[t_type]["count"]
+            trend_summary[t_type]["avg_confidence"] /= count if count > 0 else 1
+            trend_summary[t_type]["departments"] = list(trend_summary[t_type]["departments"])
 
         # Sort alerts by confidence
-        filtered_alerts.sort(key=lambda x: x.get('confidence', 0), reverse=True)
+        filtered_alerts.sort(key=lambda x: x.get("confidence", 0), reverse=True)
 
         return {
             "status": "success",
@@ -844,16 +859,12 @@ async def get_trends_alerts(
             "alerts": filtered_alerts,
             "trend_summary": trend_summary,
             "algorithm": "Tawiza-V2 Phase 3",
-            "generated_at": date.today().isoformat()
+            "generated_at": date.today().isoformat(),
         }
 
     except Exception as e:
         logger.error(f"Error getting trend alerts: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "alerts": []
-        }
+        return {"status": "error", "message": str(e), "alerts": []}
 
 
 @router.get("/correlations")
@@ -875,19 +886,20 @@ async def get_lag_correlations(
         # Extract significant correlations
         significant_correlations = []
         for pair_name, corr_data in correlations.items():
-            if not corr_data.get('insufficient_data') and corr_data.get('significant'):
-                significant_correlations.append({
-                    'pair': pair_name,
-                    'best_correlation': corr_data.get('best_correlation'),
-                    'best_lag_months': corr_data.get('best_lag_months'),
-                    'strength': 'strong' if abs(corr_data.get('best_correlation', 0)) > 0.6 else 'moderate'
-                })
+            if not corr_data.get("insufficient_data") and corr_data.get("significant"):
+                significant_correlations.append(
+                    {
+                        "pair": pair_name,
+                        "best_correlation": corr_data.get("best_correlation"),
+                        "best_lag_months": corr_data.get("best_lag_months"),
+                        "strength": "strong"
+                        if abs(corr_data.get("best_correlation", 0)) > 0.6
+                        else "moderate",
+                    }
+                )
 
         # Sort by correlation strength
-        significant_correlations.sort(
-            key=lambda x: abs(x.get('best_correlation', 0)),
-            reverse=True
-        )
+        significant_correlations.sort(key=lambda x: abs(x.get("best_correlation", 0)), reverse=True)
 
         return {
             "status": "success",
@@ -899,28 +911,27 @@ async def get_lag_correlations(
             "interpretation": {
                 "strong": "> 0.6 correlation coefficient",
                 "moderate": "0.3 - 0.6 correlation coefficient",
-                "lag_months": "time delay between source 1 signal and source 2 response"
-            }
+                "lag_months": "time delay between source 1 signal and source 2 response",
+            },
         }
 
     except Exception as e:
         logger.error(f"Error computing lag correlations: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "correlations": {}
-        }
+        return {"status": "error", "message": str(e), "correlations": {}}
 
 
 # ============================================================================
 # Phase 4: Machine Learning Endpoints
 # ============================================================================
 
+
 @router.get("/ml/anomalies")
 @limiter.limit("30/minute")
 async def get_ml_anomalies(
     request: Request,
-    method: str | None = Query(None, description="ML method filter (isolation_forest, hdbscan, dbscan)"),
+    method: str | None = Query(
+        None, description="ML method filter (isolation_forest, hdbscan, dbscan)"
+    ),
     days: int = Query(30, description="Lookback days"),
     limit: int = Query(100, description="Max results"),
 ) -> dict[str, Any]:
@@ -943,7 +954,9 @@ async def get_ml_anomalies(
             base_query += " AND method = :method"
             params["method"] = method
 
-        base_query += f" ORDER BY detected_at DESC, ABS(anomaly_score) DESC NULLS LAST LIMIT {limit}"
+        base_query += (
+            f" ORDER BY detected_at DESC, ABS(anomaly_score) DESC NULLS LAST LIMIT {limit}"
+        )
 
         async with repo._engine.begin() as conn:
             result = await conn.execute(text(base_query), params)
@@ -962,11 +975,10 @@ async def get_ml_anomalies(
                 "features_used": row.features_used,
                 "feature_values": row.feature_values,
                 "description": row.description,
-                "cluster_info": {
-                    "cluster_id": row.cluster_id,
-                    "cluster_size": row.cluster_size
-                } if row.cluster_id is not None else None,
-                "created_at": row.created_at.isoformat() if row.created_at else None
+                "cluster_info": {"cluster_id": row.cluster_id, "cluster_size": row.cluster_size}
+                if row.cluster_id is not None
+                else None,
+                "created_at": row.created_at.isoformat() if row.created_at else None,
             }
             anomalies.append(anomaly)
 
@@ -990,18 +1002,16 @@ async def get_ml_anomalies(
             "anomalies": anomalies,
             "summary": {
                 "by_method": method_breakdown,
-                "by_department": dict(sorted(dept_breakdown.items(), key=lambda x: x[1], reverse=True)[:10])
+                "by_department": dict(
+                    sorted(dept_breakdown.items(), key=lambda x: x[1], reverse=True)[:10]
+                ),
             },
-            "algorithm": "Tawiza-V2 Phase 4 - ML Detection"
+            "algorithm": "Tawiza-V2 Phase 4 - ML Detection",
         }
 
     except Exception as e:
         logger.error(f"Error getting ML anomalies: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "anomalies": []
-        }
+        return {"status": "error", "message": str(e), "anomalies": []}
 
 
 @router.get("/ml/clusters")
@@ -1037,7 +1047,7 @@ async def get_ml_clusters(
                 "message": "No clustering data found",
                 "method": method,
                 "clusters": {},
-                "total_departments": 0
+                "total_departments": 0,
             }
 
         # Group by cluster_id
@@ -1051,7 +1061,7 @@ async def get_ml_clusters(
                 "cluster_size": row.cluster_size,
                 "feature_values": row.feature_values,
                 "description": row.description,
-                "detected_at": row.detected_at.isoformat() if row.detected_at else None
+                "detected_at": row.detected_at.isoformat() if row.detected_at else None,
             }
 
             if cluster_id == -1:  # Noise/isolated
@@ -1061,7 +1071,7 @@ async def get_ml_clusters(
                     clusters[cluster_id] = {
                         "cluster_id": cluster_id,
                         "size": row.cluster_size,
-                        "departments": []
+                        "departments": [],
                     }
                 clusters[cluster_id]["departments"].append(dept_data)
 
@@ -1072,7 +1082,7 @@ async def get_ml_clusters(
             cluster_summary[f"cluster_{cluster_id}"] = {
                 "size": len(depts),
                 "department_codes": [d["code_dept"] for d in depts],
-                "profile": "Similar economic characteristics"
+                "profile": "Similar economic characteristics",
             }
 
         return {
@@ -1085,16 +1095,12 @@ async def get_ml_clusters(
             "clusters": cluster_summary,
             "cluster_details": clusters,
             "isolated_departments": isolated_departments,
-            "algorithm": f"Tawiza-V2 Phase 4 - {method.upper()} Clustering"
+            "algorithm": f"Tawiza-V2 Phase 4 - {method.upper()} Clustering",
         }
 
     except Exception as e:
         logger.error(f"Error getting ML clusters: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "clusters": {}
-        }
+        return {"status": "error", "message": str(e), "clusters": {}}
 
 
 @router.get("/ml/factors")
@@ -1119,11 +1125,7 @@ async def get_discovered_factors(
         mining_results = await factor_miner.run_factor_mining()
 
         if "error" in mining_results:
-            return {
-                "status": "error",
-                "message": mining_results["error"],
-                "factors": []
-            }
+            return {"status": "error", "message": mining_results["error"], "factors": []}
 
         # Filter factors by IC threshold and significance
         ic_results = mining_results.get("information_coefficients", [])
@@ -1146,9 +1148,15 @@ async def get_discovered_factors(
 
             # Add interpretation
             factor_result["interpretation"] = {
-                "ic_strength": "strong" if abs(ic_spearman) > 0.5 else "moderate" if abs(ic_spearman) > 0.3 else "weak",
+                "ic_strength": "strong"
+                if abs(ic_spearman) > 0.5
+                else "moderate"
+                if abs(ic_spearman) > 0.3
+                else "weak",
                 "direction": "positive" if ic_spearman > 0 else "negative",
-                "statistical_significance": "significant" if min(p_val_spearman, p_val_pearson) < 0.05 else "not_significant"
+                "statistical_significance": "significant"
+                if min(p_val_spearman, p_val_pearson) < 0.05
+                else "not_significant",
             }
 
             filtered_factors.append(factor_result)
@@ -1172,17 +1180,13 @@ async def get_discovered_factors(
                 "ic_spearman": "Spearman rank correlation coefficient (non-linear relationships)",
                 "ic_pearson": "Pearson correlation coefficient (linear relationships)",
                 "p_value": "Statistical significance (< 0.05 considered significant)",
-                "sample_size": "Number of departments used in calculation"
-            }
+                "sample_size": "Number of departments used in calculation",
+            },
         }
 
     except Exception as e:
         logger.error(f"Error getting discovered factors: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "factors": []
-        }
+        return {"status": "error", "message": str(e), "factors": []}
 
 
 @router.post("/ml/run-detection")
@@ -1196,7 +1200,9 @@ async def trigger_ml_detection(
     from .quant.ml_detection import MLDetection
 
     try:
-        logger.info(f"Manual ML detection triggered - contamination={contamination}, hdbscan={use_hdbscan}")
+        logger.info(
+            f"Manual ML detection triggered - contamination={contamination}, hdbscan={use_hdbscan}"
+        )
 
         # Initialize ML detection
         repo = get_repo()
@@ -1207,10 +1213,7 @@ async def trigger_ml_detection(
         detection_results = await ml_detector.run_full_detection()
 
         if "error" in detection_results:
-            return {
-                "status": "error",
-                "message": detection_results["error"]
-            }
+            return {"status": "error", "message": detection_results["error"]}
 
         # Extract summary statistics
         iso_results = detection_results.get("isolation_forest", {})
@@ -1223,23 +1226,20 @@ async def trigger_ml_detection(
             "isolation_forest": {
                 "anomalies_detected": len(iso_results.get("anomalies", [])),
                 "total_departments": iso_results.get("total_departments", 0),
-                "contamination_used": contamination
+                "contamination_used": contamination,
             },
             "clustering": {
                 "method": cluster_results.get("method", "unknown"),
                 "clusters_formed": len(cluster_results.get("clusters", {})),
                 "isolated_departments": len(cluster_results.get("anomalies", [])),
-                "total_departments": cluster_results.get("total_departments", 0)
+                "total_departments": cluster_results.get("total_departments", 0),
             },
-            "algorithm": "Tawiza-V2 Phase 4 - ML Detection Suite"
+            "algorithm": "Tawiza-V2 Phase 4 - ML Detection Suite",
         }
 
     except Exception as e:
         logger.error(f"Error triggering ML detection: {e}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
 
 
 # QLib DataHandler endpoints
@@ -1258,7 +1258,7 @@ async def get_alpha_expressions(request: Request) -> dict[str, Any]:
         result = {
             "status": "success",
             "total_expressions": len(ALPHA_EXPRESSIONS),
-            "categories": {}
+            "categories": {},
         }
 
         for category, expr_names in EXPRESSION_CATEGORIES.items():
@@ -1266,13 +1266,15 @@ async def get_alpha_expressions(request: Request) -> dict[str, Any]:
             for expr_name in expr_names:
                 try:
                     description = describe_expression(expr_name)
-                    result["categories"][category].append({
-                        "name": expr_name,
-                        "formula": description["formula"],
-                        "required_metrics": description["required_metrics"],
-                        "description": description.get("description", ""),
-                        "interpretation": description.get("interpretation", "")
-                    })
+                    result["categories"][category].append(
+                        {
+                            "name": expr_name,
+                            "formula": description["formula"],
+                            "required_metrics": description["required_metrics"],
+                            "description": description.get("description", ""),
+                            "interpretation": description.get("interpretation", ""),
+                        }
+                    )
                 except Exception:
                     # Skip expressions that have errors
                     continue
@@ -1281,10 +1283,7 @@ async def get_alpha_expressions(request: Request) -> dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Error retrieving alpha expressions: {e}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
 
 
 @router.get("/qlib/features")
@@ -1294,7 +1293,7 @@ async def compute_alpha_features(
     departments: str = Query(..., description="Comma-separated department codes (e.g., 75,93,59)"),
     expressions: str | None = Query(None, description="Comma-separated expression names"),
     months_back: int = Query(6, description="Months of historical data to use"),
-    data_key: str = Query("infer", description="Data processing level (raw/infer/learn)")
+    data_key: str = Query("infer", description="Data processing level (raw/infer/learn)"),
 ) -> dict[str, Any]:
     """Compute alpha features for specified departments."""
     try:
@@ -1306,10 +1305,7 @@ async def compute_alpha_features(
         # Parse parameters
         dept_list = [d.strip() for d in departments.split(",")]
         if len(dept_list) > 20:  # Limit for performance
-            return {
-                "status": "error",
-                "message": "Too many departments requested (max 20)"
-            }
+            return {"status": "error", "message": "Too many departments requested (max 20)"}
 
         expr_list = None
         if expressions:
@@ -1317,10 +1313,7 @@ async def compute_alpha_features(
             # Validate expressions exist
             invalid_exprs = [e for e in expr_list if e not in ALPHA_EXPRESSIONS]
             if invalid_exprs:
-                return {
-                    "status": "error",
-                    "message": f"Unknown expressions: {invalid_exprs}"
-                }
+                return {"status": "error", "message": f"Unknown expressions: {invalid_exprs}"}
 
         # Set date range
         end_date = datetime.now().date()
@@ -1328,14 +1321,11 @@ async def compute_alpha_features(
 
         # Create data handler
         config = DataHandlerConfig(
-            db_url=os.getenv(
-                "COLLECTOR_DATABASE_URL",
-                "postgresql://localhost:5433/tawiza"
-            ),
+            db_url=os.getenv("COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza"),
             territories=dept_list,
             start_date=str(start_date),
             end_date=str(end_date),
-            alpha_expressions=expr_list
+            alpha_expressions=expr_list,
         )
 
         handler = TerritorialDataHandler(config)
@@ -1352,17 +1342,17 @@ async def compute_alpha_features(
                 "expressions_computed": expr_list or "auto-detected",
                 "processing_level": data_key,
                 "samples": len(dataset),
-                "features": len(dataset.feature_names)
+                "features": len(dataset.feature_names),
             },
             "feature_names": dataset.feature_names,
             "territories": dataset.territories,
-            "dates": [str(d) for d in dataset.dates] if dataset.dates else []
+            "dates": [str(d) for d in dataset.dates] if dataset.dates else [],
         }
 
         # Add sample data (latest period for each department)
         if len(dataset) > 0:
             latest_data = dataset.get_latest_data(1)
-            features_dict = latest_data.features.to_dict('index')
+            features_dict = latest_data.features.to_dict("index")
 
             # Format data by department
             result["latest_features"] = {}
@@ -1371,18 +1361,16 @@ async def compute_alpha_features(
                     result["latest_features"][dept] = {}
                 result["latest_features"][dept] = {
                     "date": str(date),
-                    "features": {k: float(v) if not pd.isna(v) else None
-                               for k, v in features.items()}
+                    "features": {
+                        k: float(v) if not pd.isna(v) else None for k, v in features.items()
+                    },
                 }
 
         return result
 
     except Exception as e:
         logger.error(f"Error computing alpha features: {e}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
 
 
 @router.get("/qlib/anomalies")
@@ -1391,7 +1379,7 @@ async def detect_qlib_anomalies(
     request: Request,
     departments: str = Query(..., description="Comma-separated department codes"),
     method: str = Query("isolation_forest", description="Detection method"),
-    contamination: float = Query(0.1, description="Expected proportion of outliers")
+    contamination: float = Query(0.1, description="Expected proportion of outliers"),
 ) -> dict[str, Any]:
     """Detect anomalies using QLib-enhanced features."""
     try:
@@ -1404,16 +1392,13 @@ async def detect_qlib_anomalies(
         if len(dept_list) > 15:
             return {
                 "status": "error",
-                "message": "Too many departments for anomaly detection (max 15)"
+                "message": "Too many departments for anomaly detection (max 15)",
             }
 
         # Set up data handler
         config = DataHandlerConfig(
-            db_url=os.getenv(
-                "COLLECTOR_DATABASE_URL",
-                "postgresql://localhost:5433/tawiza"
-            ),
-            territories=dept_list
+            db_url=os.getenv("COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza"),
+            territories=dept_list,
         )
 
         handler = TerritorialDataHandler(config)
@@ -1422,21 +1407,20 @@ async def detect_qlib_anomalies(
         anomalies = await handler.detect_anomalies(method=method, contamination=contamination)
 
         if anomalies.empty:
-            return {
-                "status": "warning",
-                "message": "No anomalies detected or insufficient data"
-            }
+            return {"status": "warning", "message": "No anomalies detected or insufficient data"}
 
         # Format results
         anomaly_list = []
         for idx, row in anomalies.iterrows():
-            if row['is_anomaly'] == 1:
-                anomaly_list.append({
-                    "territory": row['territory'],
-                    "anomaly_score": float(row['anomaly_score']),
-                    "date": str(idx[0]) if isinstance(idx, tuple) else str(idx),
-                    "severity": "high" if row['anomaly_score'] < -0.5 else "medium"
-                })
+            if row["is_anomaly"] == 1:
+                anomaly_list.append(
+                    {
+                        "territory": row["territory"],
+                        "anomaly_score": float(row["anomaly_score"]),
+                        "date": str(idx[0]) if isinstance(idx, tuple) else str(idx),
+                        "severity": "high" if row["anomaly_score"] < -0.5 else "medium",
+                    }
+                )
 
         return {
             "status": "success",
@@ -1444,22 +1428,18 @@ async def detect_qlib_anomalies(
             "contamination": contamination,
             "total_anomalies": len(anomaly_list),
             "departments_analyzed": len(dept_list),
-            "anomalies": sorted(anomaly_list, key=lambda x: x['anomaly_score'])
+            "anomalies": sorted(anomaly_list, key=lambda x: x["anomaly_score"]),
         }
 
     except Exception as e:
         logger.error(f"Error in QLib anomaly detection: {e}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
 
 
 @router.get("/timeline")
 @limiter.limit("60/minute")
 async def get_timeline_data(
-    request: Request,
-    days: int = Query(90, description="Lookback days for timeline data")
+    request: Request, days: int = Query(90, description="Lookback days for timeline data")
 ) -> dict[str, Any]:
     """Get temporal data grouped by week for charts - BODACC liquidations, SIRENE créations."""
     repo = get_repo()
@@ -1498,12 +1478,7 @@ async def get_timeline_data(
         value = int(row.total_value or 0)
 
         if week not in weeks_dict:
-            weeks_dict[week] = {
-                "semaine": week,
-                "liquidations": 0,
-                "creations": 0,
-                "fermetures": 0
-            }
+            weeks_dict[week] = {"semaine": week, "liquidations": 0, "creations": 0, "fermetures": 0}
 
         if source == "bodacc" and metric == "liquidation_judiciaire":
             weeks_dict[week]["liquidations"] += value
@@ -1518,43 +1493,110 @@ async def get_timeline_data(
         "timeline": timeline_data,
         "period_days": days,
         "total_weeks": len(timeline_data),
-        "metrics_tracked": ["liquidations", "creations", "fermetures"]
+        "metrics_tracked": ["liquidations", "creations", "fermetures"],
     }
 
 
 @router.get("/departments/compare")
 @limiter.limit("60/minute")
 async def get_departments_compare(
-    request: Request,
-    limit: int = Query(50, description="Max departments to return")
+    request: Request, limit: int = Query(50, description="Max departments to return")
 ) -> dict[str, Any]:
     """Get departments comparison data for charts - liquidations, créations, emploi, prix m²."""
 
     # Mapping département codes vers noms
     DEPT_NAMES = {
-        "75": "Paris", "13": "Bouches-du-Rhône", "69": "Rhône", "59": "Nord",
-        "33": "Gironde", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
-        "94": "Val-de-Marne", "77": "Seine-et-Marne", "78": "Yvelines",
-        "31": "Haute-Garonne", "44": "Loire-Atlantique", "34": "Hérault",
-        "06": "Alpes-Maritimes", "67": "Bas-Rhin", "38": "Isère",
-        "76": "Seine-Maritime", "35": "Ille-et-Vilaine", "62": "Pas-de-Calais",
-        "83": "Var", "91": "Essonne", "95": "Val-d'Oise", "54": "Meurthe-et-Moselle",
-        "45": "Loiret", "57": "Moselle", "42": "Loire", "14": "Calvados",
-        "29": "Finistère", "56": "Morbihan", "17": "Charente-Maritime", "37": "Indre-et-Loire",
-        "21": "Côte-d'Or", "51": "Marne", "74": "Haute-Savoie", "73": "Savoie",
-        "84": "Vaucluse", "30": "Gard", "64": "Pyrénées-Atlantiques", "66": "Pyrénées-Orientales",
-        "81": "Tarn", "82": "Tarn-et-Garonne", "32": "Gers", "09": "Ariège", "11": "Aude",
-        "48": "Lozère", "07": "Ardèche", "26": "Drôme", "04": "Alpes-de-Haute-Provence",
-        "05": "Hautes-Alpes", "88": "Vosges", "68": "Haut-Rhin", "25": "Doubs", "39": "Jura",
-        "70": "Haute-Saône", "90": "Territoire de Belfort", "71": "Saône-et-Loire",
-        "01": "Ain", "03": "Allier", "15": "Cantal", "43": "Haute-Loire", "63": "Puy-de-Dôme",
-        "87": "Haute-Vienne", "19": "Corrèze", "23": "Creuse", "16": "Charente",
-        "24": "Dordogne", "47": "Lot-et-Garonne", "40": "Landes", "65": "Hautes-Pyrénées",
-        "12": "Aveyron", "46": "Lot", "86": "Vienne", "79": "Deux-Sèvres",
-        "85": "Vendée", "49": "Maine-et-Loire", "72": "Sarthe", "53": "Mayenne",
-        "61": "Orne", "50": "Manche", "27": "Eure", "28": "Eure-et-Loir", "41": "Loir-et-Cher",
-        "18": "Cher", "36": "Indre", "08": "Ardennes", "10": "Aube", "52": "Haute-Marne",
-        "55": "Meuse", "80": "Somme", "02": "Aisne", "60": "Oise"
+        "75": "Paris",
+        "13": "Bouches-du-Rhône",
+        "69": "Rhône",
+        "59": "Nord",
+        "33": "Gironde",
+        "92": "Hauts-de-Seine",
+        "93": "Seine-Saint-Denis",
+        "94": "Val-de-Marne",
+        "77": "Seine-et-Marne",
+        "78": "Yvelines",
+        "31": "Haute-Garonne",
+        "44": "Loire-Atlantique",
+        "34": "Hérault",
+        "06": "Alpes-Maritimes",
+        "67": "Bas-Rhin",
+        "38": "Isère",
+        "76": "Seine-Maritime",
+        "35": "Ille-et-Vilaine",
+        "62": "Pas-de-Calais",
+        "83": "Var",
+        "91": "Essonne",
+        "95": "Val-d'Oise",
+        "54": "Meurthe-et-Moselle",
+        "45": "Loiret",
+        "57": "Moselle",
+        "42": "Loire",
+        "14": "Calvados",
+        "29": "Finistère",
+        "56": "Morbihan",
+        "17": "Charente-Maritime",
+        "37": "Indre-et-Loire",
+        "21": "Côte-d'Or",
+        "51": "Marne",
+        "74": "Haute-Savoie",
+        "73": "Savoie",
+        "84": "Vaucluse",
+        "30": "Gard",
+        "64": "Pyrénées-Atlantiques",
+        "66": "Pyrénées-Orientales",
+        "81": "Tarn",
+        "82": "Tarn-et-Garonne",
+        "32": "Gers",
+        "09": "Ariège",
+        "11": "Aude",
+        "48": "Lozère",
+        "07": "Ardèche",
+        "26": "Drôme",
+        "04": "Alpes-de-Haute-Provence",
+        "05": "Hautes-Alpes",
+        "88": "Vosges",
+        "68": "Haut-Rhin",
+        "25": "Doubs",
+        "39": "Jura",
+        "70": "Haute-Saône",
+        "90": "Territoire de Belfort",
+        "71": "Saône-et-Loire",
+        "01": "Ain",
+        "03": "Allier",
+        "15": "Cantal",
+        "43": "Haute-Loire",
+        "63": "Puy-de-Dôme",
+        "87": "Haute-Vienne",
+        "19": "Corrèze",
+        "23": "Creuse",
+        "16": "Charente",
+        "24": "Dordogne",
+        "47": "Lot-et-Garonne",
+        "40": "Landes",
+        "65": "Hautes-Pyrénées",
+        "12": "Aveyron",
+        "46": "Lot",
+        "86": "Vienne",
+        "79": "Deux-Sèvres",
+        "85": "Vendée",
+        "49": "Maine-et-Loire",
+        "72": "Sarthe",
+        "53": "Mayenne",
+        "61": "Orne",
+        "50": "Manche",
+        "27": "Eure",
+        "28": "Eure-et-Loir",
+        "41": "Loir-et-Cher",
+        "18": "Cher",
+        "36": "Indre",
+        "08": "Ardennes",
+        "10": "Aube",
+        "52": "Haute-Marne",
+        "55": "Meuse",
+        "80": "Somme",
+        "02": "Aisne",
+        "60": "Oise",
     }
 
     repo = get_repo()
@@ -1583,27 +1625,30 @@ async def get_departments_compare(
         code = row.code_dept
         name = DEPT_NAMES.get(code, f"Département {code}")
 
-        departments.append({
-            "code": code,
-            "name": name,
-            "liquidations": int(row.liquidations or 0),
-            "creations": int(row.creations or 0),
-            "fermetures": int(row.fermetures or 0),
-            "offres_emploi": int(row.offres_emploi or 0),
-            "prix_m2": round(float(row.prix_m2), 0) if row.prix_m2 else None,
-            "ratio_creation_liquidation": round(
-                float(row.creations or 0) / max(float(row.liquidations or 0), 1), 2
-            )
-        })
+        departments.append(
+            {
+                "code": code,
+                "name": name,
+                "liquidations": int(row.liquidations or 0),
+                "creations": int(row.creations or 0),
+                "fermetures": int(row.fermetures or 0),
+                "offres_emploi": int(row.offres_emploi or 0),
+                "prix_m2": round(float(row.prix_m2), 0) if row.prix_m2 else None,
+                "ratio_creation_liquidation": round(
+                    float(row.creations or 0) / max(float(row.liquidations or 0), 1), 2
+                ),
+            }
+        )
 
     return {
         "departments": departments,
         "total_departments": len(departments),
-        "metrics": ["liquidations", "creations", "fermetures", "offres_emploi", "prix_m2"]
+        "metrics": ["liquidations", "creations", "fermetures", "offres_emploi", "prix_m2"],
     }
 
 
 # ─── EPCI Endpoints ─────────────────────────────────────────────────────
+
 
 @router.post("/epci/enrich")
 @limiter.limit("10/minute")

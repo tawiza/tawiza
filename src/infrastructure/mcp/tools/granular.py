@@ -43,21 +43,26 @@ def register_granular_tools(mcp: FastMCP) -> None:
         registry = ToolRegistry()
         register_all_tools(registry)
 
-        params = {'query': query, 'limite': limit}
+        params = {"query": query, "limite": limit}
         if region:
-            params['region'] = region
+            params["region"] = region
         if activite:
-            params['activite'] = activite
+            params["activite"] = activite
 
-        result = await registry.execute('sirene.search', params)
+        result = await registry.execute("sirene.search", params)
 
-        return json.dumps({
-            "success": True,
-            "source": "sirene",
-            "query": query,
-            "count": len(result.get("enterprises", [])),
-            "enterprises": result.get("enterprises", []),
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "source": "sirene",
+                "query": query,
+                "count": len(result.get("enterprises", [])),
+                "enterprises": result.get("enterprises", []),
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def bodacc_search(
@@ -80,13 +85,18 @@ def register_granular_tools(mcp: FastMCP) -> None:
         datasource = BodaccDataSource()
         results = await datasource.search(query=query, limit=limit)
 
-        return json.dumps({
-            "success": True,
-            "source": "bodacc",
-            "query": query,
-            "count": len(results),
-            "announcements": results,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "source": "bodacc",
+                "query": query,
+                "count": len(results),
+                "announcements": results,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def boamp_search(
@@ -109,13 +119,18 @@ def register_granular_tools(mcp: FastMCP) -> None:
         datasource = BoampDataSource()
         results = await datasource.search(query=query, limit=limit)
 
-        return json.dumps({
-            "success": True,
-            "source": "boamp",
-            "query": query,
-            "count": len(results),
-            "contracts": results,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "source": "boamp",
+                "query": query,
+                "count": len(results),
+                "contracts": results,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def geo_locate(
@@ -137,7 +152,7 @@ def register_granular_tools(mcp: FastMCP) -> None:
         registry = ToolRegistry()
         register_all_tools(registry)
 
-        result = await registry.execute('geo.locate', {'address': address})
+        result = await registry.execute("geo.locate", {"address": address})
 
         return json.dumps(result, ensure_ascii=False, indent=2)
 
@@ -164,7 +179,7 @@ def register_granular_tools(mcp: FastMCP) -> None:
         registry = ToolRegistry()
         register_all_tools(registry)
 
-        result = await registry.execute('geo.batch_locate', {'addresses': addr_list})
+        result = await registry.execute("geo.batch_locate", {"addresses": addr_list})
 
         return json.dumps(result, ensure_ascii=False, indent=2)
 
@@ -199,20 +214,26 @@ def register_granular_tools(mcp: FastMCP) -> None:
         with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
             map_path = f.name
 
-        result = await registry.execute('geo.map', {
-            'locations': locs,
-            'title': title,
-            'output_path': map_path,
-        })
+        result = await registry.execute(
+            "geo.map",
+            {
+                "locations": locs,
+                "title": title,
+                "output_path": map_path,
+            },
+        )
 
         if result.get("success"):
             with open(map_path) as f:
                 html = f.read()
-            return json.dumps({
-                "success": True,
-                "map_html": html,
-                "markers": result.get("markers"),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "map_html": html,
+                    "markers": result.get("markers"),
+                },
+                ensure_ascii=False,
+            )
 
         return json.dumps(result, ensure_ascii=False)
 
@@ -250,16 +271,25 @@ def register_granular_tools(mcp: FastMCP) -> None:
 
         result = await debate.validate(query=query, data=parsed_data)
 
-        return json.dumps({
-            "success": True,
-            "confidence": result.final_confidence,
-            "verdict": result.verdict,
-            "issues": result.issues,
-            "messages": [
-                {"agent": m.agent, "role": m.role, "confidence": m.confidence, "content": m.content}
-                for m in result.messages
-            ],
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "confidence": result.final_confidence,
+                "verdict": result.verdict,
+                "issues": result.issues,
+                "messages": [
+                    {
+                        "agent": m.agent,
+                        "role": m.role,
+                        "confidence": m.confidence,
+                        "content": m.content,
+                    }
+                    for m in result.messages
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def gdelt_search(
@@ -282,13 +312,18 @@ def register_granular_tools(mcp: FastMCP) -> None:
         datasource = GdeltDataSource()
         results = await datasource.search(query=query, limit=limit)
 
-        return json.dumps({
-            "success": True,
-            "source": "gdelt",
-            "query": query,
-            "count": len(results),
-            "articles": results,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "source": "gdelt",
+                "query": query,
+                "count": len(results),
+                "articles": results,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def subventions_search(
@@ -309,10 +344,15 @@ def register_granular_tools(mcp: FastMCP) -> None:
         datasource = SubventionsDataSource()
         results = await datasource.search(query=query, limit=limit)
 
-        return json.dumps({
-            "success": True,
-            "source": "subventions",
-            "query": query,
-            "count": len(results),
-            "subventions": results,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "source": "subventions",
+                "query": query,
+                "count": len(results),
+                "subventions": results,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )

@@ -299,9 +299,11 @@ class AgentLiveUI:
 
         # Ask for approval
         try:
-            response = self.console.input(
-                "[bold yellow]Execute this plan? [Y/n/edit]: [/bold yellow]"
-            ).strip().lower()
+            response = (
+                self.console.input("[bold yellow]Execute this plan? [Y/n/edit]: [/bold yellow]")
+                .strip()
+                .lower()
+            )
 
             if response in ("", "y", "yes", "oui"):
                 mascot_says("C'est parti!", "happy")
@@ -388,12 +390,8 @@ class AgentLiveUI:
                     layout["header"].update(
                         self.render_header(plan.original_task, plan.plan_id, dry_run)
                     )
-                    layout["left"].update(
-                        self.render_plan_table(plan)
-                    )
-                    layout["right"].update(
-                        self.render_step_details(current_step, current_result)
-                    )
+                    layout["left"].update(self.render_plan_table(plan))
+                    layout["right"].update(self.render_step_details(current_step, current_result))
                     layout["footer"].update(
                         self.render_footer(
                             status_message,
@@ -477,8 +475,7 @@ def show_execution_summary(console: Console, result: dict[str, Any]):
     table.add_row("Plan ID", result.get("plan_id", "N/A"))
     table.add_row("Status", f"[{style}]{status}[/{style}]")
     table.add_row(
-        "Steps",
-        f"{result.get('steps_completed', 0)}/{result.get('steps_total', 0)} completed"
+        "Steps", f"{result.get('steps_completed', 0)}/{result.get('steps_total', 0)} completed"
     )
     table.add_row("Duration", f"{result.get('duration_seconds', 0):.1f}s")
 
@@ -494,6 +491,7 @@ def show_execution_summary(console: Console, result: dict[str, Any]):
         console.print("[cyan bold]Extracted Data:[/cyan bold]")
 
         import json
+
         json_str = json.dumps(extracted, indent=2, default=str)[:1000]
         syntax = Syntax(json_str, "json", theme="monokai")
         console.print(syntax)

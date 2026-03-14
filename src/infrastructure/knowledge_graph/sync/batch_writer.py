@@ -1,4 +1,5 @@
 """Background batch writer for Neo4j sync."""
+
 import asyncio
 import contextlib
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ from .queue import SyncQueue
 @dataclass
 class SyncConfig:
     """Sync configuration."""
+
     batch_size: int = 100
     flush_interval: float = 5.0
     max_retries: int = 3
@@ -30,7 +32,7 @@ class BatchWriter:
         self,
         queue: SyncQueue,
         client,  # Neo4jClient
-        config: SyncConfig | None = None
+        config: SyncConfig | None = None,
     ):
         """Initialize batch writer."""
         self.queue = queue
@@ -87,10 +89,7 @@ class BatchWriter:
         Returns:
             Number of items flushed
         """
-        items = await self.queue.get_batch(
-            self.config.batch_size,
-            timeout=0.1
-        )
+        items = await self.queue.get_batch(self.config.batch_size, timeout=0.1)
 
         if not items:
             return 0

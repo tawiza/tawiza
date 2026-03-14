@@ -141,7 +141,10 @@ class BodaccCollector(BaseCollector):
         commercant = record.get("commercant", "") or ""
         ville = record.get("ville", "") or ""
         cp = record.get("cp", "") or ""
-        url = record.get("url_complete", "") or f"https://www.bodacc.fr/pages/annonces-commerciales-detail/?q.id=id:{record.get('id', '')}"
+        url = (
+            record.get("url_complete", "")
+            or f"https://www.bodacc.fr/pages/annonces-commerciales-detail/?q.id=id:{record.get('id', '')}"
+        )
 
         # Parse jugement for collective procedures
         jugement_raw = record.get("jugement", "") or ""
@@ -189,9 +192,7 @@ class BodaccCollector(BaseCollector):
             },
         )
 
-    def _classify(
-        self, family: str, nature: str, detail: str
-    ) -> tuple[str, str, float]:
+    def _classify(self, family: str, nature: str, detail: str) -> tuple[str, str, float]:
         """Classify a BODACC record into metric/signal type."""
         nature_lower = (nature + " " + detail).lower()
 

@@ -26,10 +26,11 @@ from src.infrastructure.agents.tools.registry import (
 )
 
 # DB connection string
-DB_URL = os.getenv(
-    "COLLECTOR_DATABASE_URL",
-    "postgresql://localhost:5433/tawiza"
-).replace("postgresql+asyncpg://", "postgresql://").replace("postgresql://", "postgres://")
+DB_URL = (
+    os.getenv("COLLECTOR_DATABASE_URL", "postgresql://localhost:5433/tawiza")
+    .replace("postgresql+asyncpg://", "postgresql://")
+    .replace("postgresql://", "postgres://")
+)
 
 
 async def _get_conn() -> asyncpg.Connection:
@@ -98,7 +99,9 @@ class SignalsQueryTool(BaseTool):
                 args.append(datetime.now() - timedelta(days=days))
                 arg_idx += 1
             if keyword:
-                conditions.append(f"(extracted_text ILIKE ${arg_idx} OR entities::text ILIKE ${arg_idx})")
+                conditions.append(
+                    f"(extracted_text ILIKE ${arg_idx} OR entities::text ILIKE ${arg_idx})"
+                )
                 args.append(f"%{keyword}%")
                 arg_idx += 1
 
@@ -115,7 +118,7 @@ class SignalsQueryTool(BaseTool):
                 # By source
                 rows = await conn.fetch(
                     f"SELECT source, count(*) as n FROM signals WHERE {where} GROUP BY source ORDER BY n DESC",
-                    *args
+                    *args,
                 )
                 results["by_source"] = {r["source"]: r["n"] for r in rows}
 
@@ -125,7 +128,7 @@ class SignalsQueryTool(BaseTool):
                         f"""SELECT code_dept, count(*) as n
                         FROM signals WHERE {where} AND code_dept IS NOT NULL
                         GROUP BY code_dept ORDER BY n DESC LIMIT 10""",
-                        *args
+                        *args,
                     )
                     results["top_departments"] = {r["code_dept"]: r["n"] for r in rows}
 
@@ -134,18 +137,16 @@ class SignalsQueryTool(BaseTool):
                     f"""SELECT date_trunc('month', event_date) as month, count(*) as n
                     FROM signals WHERE {where} AND event_date IS NOT NULL
                     GROUP BY month ORDER BY month DESC LIMIT 12""",
-                    *args
+                    *args,
                 )
-                results["monthly_distribution"] = {
-                    str(r["month"].date()): r["n"] for r in rows
-                }
+                results["monthly_distribution"] = {str(r["month"].date()): r["n"] for r in rows}
 
                 # Signal types distribution
                 rows = await conn.fetch(
                     f"""SELECT signal_type, count(*) as n
                     FROM signals WHERE {where} AND signal_type IS NOT NULL
                     GROUP BY signal_type ORDER BY n DESC LIMIT 10""",
-                    *args
+                    *args,
                 )
                 results["by_type"] = {r["signal_type"]: r["n"] for r in rows}
 
@@ -156,7 +157,7 @@ class SignalsQueryTool(BaseTool):
                 FROM signals WHERE {where}
                 ORDER BY event_date DESC NULLS LAST
                 LIMIT {limit}""",
-                *args
+                *args,
             )
             results["recent_signals"] = [
                 {
@@ -238,7 +239,7 @@ class MicroSignalsTool(BaseTool):
                 WHERE {where}
                 ORDER BY score DESC
                 LIMIT 50""",
-                *args
+                *args,
             )
 
             micro_signals = []
@@ -444,9 +445,7 @@ class SignalSearchTool(BaseTool):
             where = " AND ".join(conditions)
 
             # Count
-            total = await conn.fetchval(
-                f"SELECT count(*) FROM signals WHERE {where}", *args
-            )
+            total = await conn.fetchval(f"SELECT count(*) FROM signals WHERE {where}", *args)
 
             # Results
             rows = await conn.fetch(
@@ -455,7 +454,7 @@ class SignalSearchTool(BaseTool):
                 FROM signals WHERE {where}
                 ORDER BY event_date DESC NULLS LAST
                 LIMIT {limit}""",
-                *args
+                *args,
             )
 
             results = [
@@ -517,13 +516,16 @@ class DepartmentProfileTool(BaseTool):
             profile: dict[str, Any] = {"code_dept": dept}
 
             # 1. Signal stats by source
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT source, count(*) as n,
                        min(event_date) as earliest,
                        max(event_date) as latest
                 FROM signals WHERE code_dept = $1
                 GROUP BY source ORDER BY n DESC
-            """, dept)
+            """,
+                dept,
+            )
             profile["sources"] = {
                 r["source"]: {
                     "count": r["n"],
@@ -535,21 +537,27 @@ class DepartmentProfileTool(BaseTool):
             profile["total_signals"] = sum(r["n"] for r in rows)
 
             # 2. Signal types
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT signal_type, count(*) as n
                 FROM signals WHERE code_dept = $1 AND signal_type IS NOT NULL
                 GROUP BY signal_type ORDER BY n DESC
-            """, dept)
+            """,
+                dept,
+            )
             profile["signal_types"] = {r["signal_type"]: r["n"] for r in rows}
 
             # 3. Active micro-signals
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT signal_type, dimensions, score, confidence,
                        description, evidence, detected_at
                 FROM micro_signals
                 WHERE territory_code = $1 AND is_active = true
                 ORDER BY score DESC
-            """, dept)
+            """,
+                dept,
+            )
             profile["micro_signals"] = [
                 {
                     "type": r["signal_type"],
@@ -564,14 +572,17 @@ class DepartmentProfileTool(BaseTool):
             ]
 
             # 4. Recent notable signals (high confidence or notable metrics)
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT source, event_date, signal_type, metric_name,
                        metric_value, confidence, extracted_text
                 FROM signals
                 WHERE code_dept = $1 AND (confidence > 0.7 OR metric_value IS NOT NULL)
                 ORDER BY event_date DESC NULLS LAST
                 LIMIT 15
-            """, dept)
+            """,
+                dept,
+            )
             profile["notable_signals"] = [
                 {
                     "source": r["source"],
@@ -585,19 +596,22 @@ class DepartmentProfileTool(BaseTool):
             ]
 
             # 5. Temporal trend (signals per month, last 12 months)
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT date_trunc('month', event_date) as month, count(*) as n
                 FROM signals
                 WHERE code_dept = $1 AND event_date >= NOW() - INTERVAL '12 months'
                 GROUP BY month ORDER BY month
-            """, dept)
+            """,
+                dept,
+            )
             profile["monthly_trend"] = [
-                {"month": str(r["month"].date()), "count": r["n"]}
-                for r in rows
+                {"month": str(r["month"].date()), "count": r["n"]} for r in rows
             ]
 
             # 6. Key metrics summary
-            metrics = await conn.fetch("""
+            metrics = await conn.fetch(
+                """
                 SELECT metric_name,
                        avg(metric_value) as avg_val,
                        min(metric_value) as min_val,
@@ -607,7 +621,9 @@ class DepartmentProfileTool(BaseTool):
                 WHERE code_dept = $1 AND metric_name IS NOT NULL AND metric_value IS NOT NULL
                 GROUP BY metric_name
                 ORDER BY n DESC LIMIT 10
-            """, dept)
+            """,
+                dept,
+            )
             profile["key_metrics"] = [
                 {
                     "name": r["metric_name"],
@@ -628,6 +644,7 @@ class DepartmentProfileTool(BaseTool):
 
 
 # --- Tool Registry Integration ---
+
 
 def register_signals_tools(registry) -> None:
     """Register all signals bridge tools with the tool registry."""

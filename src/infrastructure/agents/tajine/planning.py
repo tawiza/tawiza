@@ -60,6 +60,7 @@ Order by dependency (browser_action for web search first, then data collection, 
 @dataclass
 class PlannedTask:
     """A planned subtask."""
+
     tool: str
     params: dict[str, Any]
     priority: int
@@ -85,10 +86,10 @@ class StrategicPlanner:
 
     def __init__(
         self,
-        tool_registry: Optional['ToolRegistry'] = None,
-        llm_client: Optional['OllamaClient'] = None,
+        tool_registry: Optional["ToolRegistry"] = None,
+        llm_client: Optional["OllamaClient"] = None,
         model: str = "qwen3.5:27b",
-        episodic_store: Optional['EpisodicStore'] = None,
+        episodic_store: Optional["EpisodicStore"] = None,
     ):
         """
         Initialize StrategicPlanner.
@@ -110,15 +111,29 @@ class StrategicPlanner:
         # browser_action is used for web research with visual feedback in Agent Live
         self.intent_tools = {
             # data_hunt first for real API data, then browser_action for Agent Live
-            'analyze': ['data_hunt', 'territorial_data', 'analyze_data', 'browser_action', 'territorial_analyst'],
-            'compare': ['data_hunt', 'territorial_data', 'analyze_data', 'browser_action'],
-            'prospect': ['data_hunt', 'browser_action', 'territorial_data', 'deep_research'],
-            'monitor': ['data_hunt', 'browser_action', 'crawl_web', 'territorial_analyst'],
-            'research': ['data_hunt', 'browser_action', 'deep_research', 'crawl_web', 'analyze_data'],
-            'search': ['data_hunt', 'browser_action', 'deep_research'],  # Web search intent
+            "analyze": [
+                "data_hunt",
+                "territorial_data",
+                "analyze_data",
+                "browser_action",
+                "territorial_analyst",
+            ],
+            "compare": ["data_hunt", "territorial_data", "analyze_data", "browser_action"],
+            "prospect": ["data_hunt", "browser_action", "territorial_data", "deep_research"],
+            "monitor": ["data_hunt", "browser_action", "crawl_web", "territorial_analyst"],
+            "research": [
+                "data_hunt",
+                "browser_action",
+                "deep_research",
+                "crawl_web",
+                "analyze_data",
+            ],
+            "search": ["data_hunt", "browser_action", "deep_research"],  # Web search intent
         }
 
-        logger.info(f"StrategicPlanner initialized (model={model}, has_llm={llm_client is not None}, has_memory={episodic_store is not None})")
+        logger.info(
+            f"StrategicPlanner initialized (model={model}, has_llm={llm_client is not None}, has_memory={episodic_store is not None})"
+        )
 
     def _get_episodic_context(
         self,
@@ -141,7 +156,7 @@ class StrategicPlanner:
             Dict with similar_episodes, successful_patterns, recommended_tools
         """
         if not self.episodic_store:
-            return {'similar_episodes': [], 'successful_patterns': [], 'recommended_tools': []}
+            return {"similar_episodes": [], "successful_patterns": [], "recommended_tools": []}
 
         try:
             # Search for similar queries
@@ -158,25 +173,24 @@ class StrategicPlanner:
             for episode in similar:
                 # Only learn from successful episodes (positive feedback or high confidence)
                 is_successful = (
-                    (episode.feedback_score and episode.feedback_score > 0) or
-                    episode.confidence_score >= 0.7
-                )
+                    episode.feedback_score and episode.feedback_score > 0
+                ) or episode.confidence_score >= 0.7
 
                 if is_successful and episode.tools_called:
                     # Record the tool sequence that worked
                     pattern = {
-                        'query_type': episode.query_type,
-                        'tools': episode.tools_called,
-                        'confidence': episode.confidence_score,
+                        "query_type": episode.query_type,
+                        "tools": episode.tools_called,
+                        "confidence": episode.confidence_score,
                     }
                     successful_patterns.append(pattern)
                     recommended_tools.update(episode.tools_called)
 
             context = {
-                'similar_episodes': len(similar),
-                'successful_patterns': successful_patterns[:3],
-                'recommended_tools': list(recommended_tools)[:5],
-                'territory_match': any(ep.territory == territory for ep in similar),
+                "similar_episodes": len(similar),
+                "successful_patterns": successful_patterns[:3],
+                "recommended_tools": list(recommended_tools)[:5],
+                "territory_match": any(ep.territory == territory for ep in similar),
             }
 
             if similar:
@@ -189,7 +203,7 @@ class StrategicPlanner:
 
         except Exception as e:
             logger.warning(f"Failed to retrieve episodic context: {e}")
-            return {'similar_episodes': [], 'successful_patterns': [], 'recommended_tools': []}
+            return {"similar_episodes": [], "successful_patterns": [], "recommended_tools": []}
 
     async def create_plan(self, perception: dict[str, Any]) -> dict[str, Any]:
         """
@@ -204,10 +218,10 @@ class StrategicPlanner:
         Returns:
             Plan with subtasks, strategy, estimated_steps, parallel_groups, episodic_context
         """
-        intent = perception.get('intent', 'analyze')
-        territory = perception.get('territory')
-        sector = perception.get('sector')
-        raw_query = perception.get('raw_query', '')
+        intent = perception.get("intent", "analyze")
+        territory = perception.get("territory")
+        sector = perception.get("sector")
+        raw_query = perception.get("raw_query", "")
 
         # 1. Retrieve episodic context for similar past queries
         episodic_context = self._get_episodic_context(raw_query, territory)
@@ -216,10 +230,12 @@ class StrategicPlanner:
         if self.llm_client is not None:
             try:
                 llm_plan = await self._llm_decompose(perception, episodic_context)
-                if llm_plan and llm_plan.get('subtasks'):
-                    logger.info(f"Using LLM-generated plan with {len(llm_plan['subtasks'])} subtasks")
+                if llm_plan and llm_plan.get("subtasks"):
+                    logger.info(
+                        f"Using LLM-generated plan with {len(llm_plan['subtasks'])} subtasks"
+                    )
                     plan = self._normalize_plan(llm_plan, intent, raw_query)
-                    plan['episodic_context'] = episodic_context
+                    plan["episodic_context"] = episodic_context
                     return plan
             except Exception as e:
                 logger.warning(f"LLM decomposition failed, using rules: {e}")
@@ -254,28 +270,34 @@ class StrategicPlanner:
 
         # Build episodic hints section
         episodic_hints = ""
-        if episodic_context and episodic_context.get('successful_patterns'):
-            patterns = episodic_context['successful_patterns']
-            recommended = episodic_context.get('recommended_tools', [])
+        if episodic_context and episodic_context.get("successful_patterns"):
+            patterns = episodic_context["successful_patterns"]
+            recommended = episodic_context.get("recommended_tools", [])
             episodic_hints = f"""
 
-EPISODIC MEMORY HINTS (from {episodic_context.get('similar_episodes', 0)} similar past analyses):
-- Recommended tools from past successes: {', '.join(recommended) if recommended else 'none'}
+EPISODIC MEMORY HINTS (from {episodic_context.get("similar_episodes", 0)} similar past analyses):
+- Recommended tools from past successes: {", ".join(recommended) if recommended else "none"}
 - Successful patterns: {len(patterns)} found
 Consider prioritizing these tools as they worked well for similar queries."""
 
-        prompt = DECOMPOSITION_PROMPT.format(
-            tools=tools_desc,
-            query=perception.get('raw_query', ''),
-            intent=perception.get('intent', 'analyze'),
-            territory=perception.get('territory', 'unknown'),
-            sector=perception.get('sector', 'all')
-        ) + episodic_hints
+        prompt = (
+            DECOMPOSITION_PROMPT.format(
+                tools=tools_desc,
+                query=perception.get("raw_query", ""),
+                intent=perception.get("intent", "analyze"),
+                territory=perception.get("territory", "unknown"),
+                sector=perception.get("sector", "all"),
+            )
+            + episodic_hints
+        )
 
         # Call LLM via OllamaClient
         messages = [
-            {"role": "system", "content": "You are a task decomposition assistant. Return only valid JSON."},
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": "You are a task decomposition assistant. Return only valid JSON.",
+            },
+            {"role": "user", "content": prompt},
         ]
 
         try:
@@ -286,7 +308,7 @@ Consider prioritizing these tools as they worked well for similar queries."""
             )
 
             # Extract content from response
-            content = response.get('content', '')
+            content = response.get("content", "")
             if not content:
                 logger.warning("Empty LLM response for decomposition")
                 return None
@@ -294,7 +316,9 @@ Consider prioritizing these tools as they worked well for similar queries."""
             # Parse JSON from response
             plan = self._extract_json_from_response(content)
             if plan:
-                logger.debug(f"LLM decomposition successful: {len(plan.get('subtasks', []))} subtasks")
+                logger.debug(
+                    f"LLM decomposition successful: {len(plan.get('subtasks', []))} subtasks"
+                )
             return plan
 
         except Exception as e:
@@ -324,9 +348,9 @@ Consider prioritizing these tools as they worked well for similar queries."""
 
         # Try to extract JSON from markdown code blocks
         json_patterns = [
-            r'```json\s*([\s\S]*?)\s*```',  # ```json ... ```
-            r'```\s*([\s\S]*?)\s*```',       # ``` ... ```
-            r'\{[\s\S]*\}',                  # Raw JSON object
+            r"```json\s*([\s\S]*?)\s*```",  # ```json ... ```
+            r"```\s*([\s\S]*?)\s*```",  # ``` ... ```
+            r"\{[\s\S]*\}",  # Raw JSON object
         ]
 
         for pattern in json_patterns:
@@ -335,7 +359,7 @@ Consider prioritizing these tools as they worked well for similar queries."""
                 try:
                     # Clean up the match
                     clean_json = match.strip()
-                    if not clean_json.startswith('{'):
+                    if not clean_json.startswith("{"):
                         continue
                     return json.loads(clean_json)
                 except json.JSONDecodeError:
@@ -369,18 +393,18 @@ Consider prioritizing these tools as they worked well for similar queries."""
             Plan dict with episodic_context included
         """
         # Get base tools for this intent
-        tools = list(self.intent_tools.get(intent, ['data_collect']))
+        tools = list(self.intent_tools.get(intent, ["data_collect"]))
 
         # Enhance with episodic recommendations
-        if episodic_context and episodic_context.get('recommended_tools'):
-            recommended = episodic_context['recommended_tools']
+        if episodic_context and episodic_context.get("recommended_tools"):
+            recommended = episodic_context["recommended_tools"]
             # Reorder tools: prioritize those that worked in similar queries
             prioritized = [t for t in recommended if t in tools]
             remaining = [t for t in tools if t not in prioritized]
             # Insert recommended tools at front (but keep data_hunt first if present)
-            if 'data_hunt' in remaining:
-                remaining.remove('data_hunt')
-                tools = ['data_hunt'] + prioritized + remaining
+            if "data_hunt" in remaining:
+                remaining.remove("data_hunt")
+                tools = ["data_hunt"] + prioritized + remaining
             else:
                 tools = prioritized + remaining
             logger.debug(f"Reordered tools based on episodic memory: {tools}")
@@ -388,29 +412,29 @@ Consider prioritizing these tools as they worked well for similar queries."""
         # Build subtasks
         subtasks = []
         for i, tool in enumerate(tools):
-            subtasks.append({
-                'tool': tool,
-                'params': {
-                    'territory': territory,
-                    'sector': sector,
-                    'raw_query': raw_query
-                },
-                'priority': i + 1,
-                'timeout': 60,
-                'dependencies': []
-            })
+            subtasks.append(
+                {
+                    "tool": tool,
+                    "params": {"territory": territory, "sector": sector, "raw_query": raw_query},
+                    "priority": i + 1,
+                    "timeout": 60,
+                    "dependencies": [],
+                }
+            )
 
         logger.info(f"Created rule-based plan with {len(subtasks)} subtasks for intent '{intent}'")
 
         return {
-            'subtasks': subtasks,
-            'strategy': f"{intent}_strategy",
-            'estimated_steps': len(subtasks),
-            'parallel_groups': self._identify_parallel_groups(subtasks),
-            'episodic_context': episodic_context or {},
+            "subtasks": subtasks,
+            "strategy": f"{intent}_strategy",
+            "estimated_steps": len(subtasks),
+            "parallel_groups": self._identify_parallel_groups(subtasks),
+            "episodic_context": episodic_context or {},
         }
 
-    def _normalize_plan(self, plan: dict[str, Any], intent: str, raw_query: str = "") -> dict[str, Any]:
+    def _normalize_plan(
+        self, plan: dict[str, Any], intent: str, raw_query: str = ""
+    ) -> dict[str, Any]:
         """
         Normalize LLM-generated plan to standard format.
 
@@ -422,35 +446,34 @@ Consider prioritizing these tools as they worked well for similar queries."""
         Returns:
             Normalized plan dict
         """
-        subtasks = plan.get('subtasks', [])
+        subtasks = plan.get("subtasks", [])
 
         # Ensure each subtask has required fields
         normalized = []
         for i, task in enumerate(subtasks):
-            normalized.append({
-                'tool': task.get('tool', 'unknown'),
-                'params': task.get('params', {}),
-                'priority': task.get('priority', i + 1),
-                'timeout': task.get('timeout', 60),
-                'dependencies': task.get('dependencies', [])
-            })
+            normalized.append(
+                {
+                    "tool": task.get("tool", "unknown"),
+                    "params": task.get("params", {}),
+                    "priority": task.get("priority", i + 1),
+                    "timeout": task.get("timeout", 60),
+                    "dependencies": task.get("dependencies", []),
+                }
+            )
 
         # Post-processing: Inject browser_action if missing for web search queries
         normalized = self._ensure_browser_action(normalized, intent, raw_query)
 
         return {
-            'subtasks': normalized,
-            'strategy': f"{intent}_strategy",
-            'estimated_steps': len(normalized),
-            'parallel_groups': self._identify_parallel_groups(normalized),
-            'reasoning': plan.get('reasoning', '')
+            "subtasks": normalized,
+            "strategy": f"{intent}_strategy",
+            "estimated_steps": len(normalized),
+            "parallel_groups": self._identify_parallel_groups(normalized),
+            "reasoning": plan.get("reasoning", ""),
         }
 
     def _ensure_browser_action(
-        self,
-        subtasks: list[dict],
-        intent: str,
-        raw_query: str
+        self, subtasks: list[dict], intent: str, raw_query: str
     ) -> list[dict]:
         """
         Ensure browser_action is included for web search queries.
@@ -466,35 +489,43 @@ Consider prioritizing these tools as they worked well for similar queries."""
             Updated subtasks with browser_action injected if needed
         """
         # Check if browser_action already present
-        has_browser = any(t.get('tool') == 'browser_action' for t in subtasks)
+        has_browser = any(t.get("tool") == "browser_action" for t in subtasks)
         if has_browser:
             return subtasks
 
         # Keywords that indicate web search is needed
         web_keywords = [
-            'cherche', 'recherche', 'trouve', 'search', 'look up',
-            'france 2030', 'web', 'internet', 'site', 'en ligne',
-            'actualit', 'news', 'information', 'données publiques'
+            "cherche",
+            "recherche",
+            "trouve",
+            "search",
+            "look up",
+            "france 2030",
+            "web",
+            "internet",
+            "site",
+            "en ligne",
+            "actualit",
+            "news",
+            "information",
+            "données publiques",
         ]
 
         query_lower = raw_query.lower()
         needs_browser = any(kw in query_lower for kw in web_keywords)
 
         # Also inject for certain intents
-        if intent in ('search', 'research', 'prospect', 'monitor'):
+        if intent in ("search", "research", "prospect", "monitor"):
             needs_browser = True
 
         if needs_browser:
             # Inject browser_action as first task
             browser_task = {
-                'tool': 'browser_action',
-                'params': {
-                    'query': raw_query,
-                    'action': 'search'
-                },
-                'priority': 0,  # Highest priority
-                'timeout': 120,
-                'dependencies': []
+                "tool": "browser_action",
+                "params": {"query": raw_query, "action": "search"},
+                "priority": 0,  # Highest priority
+                "timeout": 120,
+                "dependencies": [],
             }
             logger.info(f"Injected browser_action for web search (query: {raw_query[:50]}...)")
             return [browser_task] + subtasks
@@ -519,7 +550,7 @@ Consider prioritizing these tools as they worked well for similar queries."""
         # Group by priority
         priority_groups: dict[int, list[int]] = {}
         for i, task in enumerate(subtasks):
-            priority = task.get('priority', i + 1)
+            priority = task.get("priority", i + 1)
             if priority not in priority_groups:
                 priority_groups[priority] = []
             priority_groups[priority].append(i)
@@ -538,7 +569,7 @@ Consider prioritizing these tools as they worked well for similar queries."""
             for name in tool_names:
                 tool = self.tool_registry.get_tool(name)
                 if tool:
-                    desc = getattr(tool, 'description', 'No description')
+                    desc = getattr(tool, "description", "No description")
                     lines.append(f"- {name}: {desc}")
             if lines:
                 return "\n".join(lines)
@@ -571,8 +602,15 @@ Consider prioritizing these tools as they worked well for similar queries."""
 
         # Default available tools matching unified registry
         return [
-            'territorial_data', 'territorial_geo', 'territorial_analyst', 'territorial_web',
-            'analyze_data', 'deep_research', 'crawl_web', 'browser_action', 'generate_code'
+            "territorial_data",
+            "territorial_geo",
+            "territorial_analyst",
+            "territorial_web",
+            "analyze_data",
+            "deep_research",
+            "crawl_web",
+            "browser_action",
+            "generate_code",
         ]
 
     def validate_plan(self, plan: dict[str, Any]) -> tuple[bool, list[str]]:
@@ -593,7 +631,7 @@ Consider prioritizing these tools as they worked well for similar queries."""
         issues = []
 
         # Check for empty plan
-        subtasks = plan.get('subtasks', [])
+        subtasks = plan.get("subtasks", [])
         if not subtasks:
             issues.append("Plan has empty subtask list")
             return False, issues
@@ -603,14 +641,14 @@ Consider prioritizing these tools as they worked well for similar queries."""
 
         for i, task in enumerate(subtasks):
             # Check required fields
-            if 'tool' not in task:
+            if "tool" not in task:
                 issues.append(f"Subtask {i} missing 'tool' field")
 
-            if 'params' not in task:
+            if "params" not in task:
                 issues.append(f"Subtask {i} missing 'params' field")
 
             # Check tool exists
-            tool_name = task.get('tool')
+            tool_name = task.get("tool")
             if available_tools and tool_name not in available_tools:
                 issues.append(f"Tool '{tool_name}' not found in registry")
 
@@ -632,30 +670,30 @@ Consider prioritizing these tools as they worked well for similar queries."""
         Returns:
             Dict with score and factors
         """
-        subtasks = plan.get('subtasks', [])
+        subtasks = plan.get("subtasks", [])
 
         if not subtasks:
-            return {'score': 0, 'factors': {'subtask_count': 0}}
+            return {"score": 0, "factors": {"subtask_count": 0}}
 
         # Calculate factors
         subtask_count = len(subtasks)
-        total_timeout = sum(t.get('timeout', 60) for t in subtasks)
-        parallel_groups = plan.get('parallel_groups', [])
+        total_timeout = sum(t.get("timeout", 60) for t in subtasks)
+        parallel_groups = plan.get("parallel_groups", [])
         parallelism = len(parallel_groups) if parallel_groups else subtask_count
 
         # Complexity score (weighted sum)
         score = (
-            subtask_count * 10 +  # Each subtask adds 10
-            total_timeout / 60 * 5 +  # Each minute of timeout adds 5
-            max(0, subtask_count - parallelism) * 3  # Sequential deps add 3 each
+            subtask_count * 10  # Each subtask adds 10
+            + total_timeout / 60 * 5  # Each minute of timeout adds 5
+            + max(0, subtask_count - parallelism) * 3  # Sequential deps add 3 each
         )
 
         return {
-            'score': round(score, 2),
-            'factors': {
-                'subtask_count': subtask_count,
-                'total_timeout_seconds': total_timeout,
-                'parallel_groups': parallelism,
-                'sequential_deps': max(0, subtask_count - parallelism)
-            }
+            "score": round(score, 2),
+            "factors": {
+                "subtask_count": subtask_count,
+                "total_timeout_seconds": total_timeout,
+                "parallel_groups": parallelism,
+                "sequential_deps": max(0, subtask_count - parallelism),
+            },
         }

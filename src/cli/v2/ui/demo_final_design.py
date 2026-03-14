@@ -28,7 +28,8 @@ def center(text: str) -> str:
     """Center text in terminal."""
     # Strip ANSI codes for length calculation
     import re
-    clean = re.sub(r'\033\[[0-9;]*m', '', text)
+
+    clean = re.sub(r"\033\[[0-9;]*m", "", text)
     padding = max(0, (TERM_WIDTH - len(clean)) // 2)
     return " " * padding + text
 
@@ -104,7 +105,11 @@ def render_frame(
     if len(thought) > max_thought:
         # Scroll effect
         offset = (step * 2) % (len(thought) - max_thought + 20)
-        display_thought = thought[offset:offset + max_thought] if offset < len(thought) else thought[:max_thought]
+        display_thought = (
+            thought[offset : offset + max_thought]
+            if offset < len(thought)
+            else thought[:max_thought]
+        )
     else:
         display_thought = thought
 
@@ -122,7 +127,9 @@ def render_frame(
     lines.append("")
 
     # Footer
-    lines.append(center(f"{DIM}Step {int(progress * 4) + 1}/4 • {elapsed:.1f}s • qwen3.5:27b{RESET}"))
+    lines.append(
+        center(f"{DIM}Step {int(progress * 4) + 1}/4 • {elapsed:.1f}s • qwen3.5:27b{RESET}")
+    )
 
     return "\n".join(lines)
 
@@ -132,9 +139,24 @@ def demo_sequence():
     print("\033[2J\033[H")  # Clear screen
 
     steps = [
-        ("thinking", "Analyzing the request... understanding what calculation is needed", None, 0.0),
-        ("thinking", "The user wants to add 15 and 27 together, I should use the calculator tool", None, 0.15),
-        ("working", "Executing calculator tool with expression: 15 + 27", "calculator(15 + 27)", 0.35),
+        (
+            "thinking",
+            "Analyzing the request... understanding what calculation is needed",
+            None,
+            0.0,
+        ),
+        (
+            "thinking",
+            "The user wants to add 15 and 27 together, I should use the calculator tool",
+            None,
+            0.15,
+        ),
+        (
+            "working",
+            "Executing calculator tool with expression: 15 + 27",
+            "calculator(15 + 27)",
+            0.35,
+        ),
         ("working", "Tool returned result: 42. Now formulating the response", None, 0.65),
         ("working", "Preparing final answer with the calculated sum", None, 0.85),
         ("success", "Task completed! The sum of 15 and 27 is 42", None, 1.0),
@@ -151,11 +173,27 @@ def demo_sequence():
     # Final result
     print("\n")
     print(center(f"{GREEN}{BOLD}╭──────────────────────────────────────────╮{RESET}"))
-    print(center(f"{GREEN}{BOLD}│{RESET}  {GREEN}✓ Résultat{RESET}                              {GREEN}{BOLD}│{RESET}"))
+    print(
+        center(
+            f"{GREEN}{BOLD}│{RESET}  {GREEN}✓ Résultat{RESET}                              {GREEN}{BOLD}│{RESET}"
+        )
+    )
     print(center(f"{GREEN}{BOLD}├──────────────────────────────────────────┤{RESET}"))
-    print(center(f"{GREEN}{BOLD}│{RESET}                                          {GREEN}{BOLD}│{RESET}"))
-    print(center(f"{GREEN}{BOLD}│{RESET}      15 + 27 = {BOLD}42{RESET}                       {GREEN}{BOLD}│{RESET}"))
-    print(center(f"{GREEN}{BOLD}│{RESET}                                          {GREEN}{BOLD}│{RESET}"))
+    print(
+        center(
+            f"{GREEN}{BOLD}│{RESET}                                          {GREEN}{BOLD}│{RESET}"
+        )
+    )
+    print(
+        center(
+            f"{GREEN}{BOLD}│{RESET}      15 + 27 = {BOLD}42{RESET}                       {GREEN}{BOLD}│{RESET}"
+        )
+    )
+    print(
+        center(
+            f"{GREEN}{BOLD}│{RESET}                                          {GREEN}{BOLD}│{RESET}"
+        )
+    )
     print(center(f"{GREEN}{BOLD}╰──────────────────────────────────────────╯{RESET}"))
     print("")
 

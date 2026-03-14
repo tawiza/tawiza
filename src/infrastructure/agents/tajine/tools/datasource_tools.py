@@ -36,6 +36,7 @@ class BodaccSearchTool(BaseTool):
         """Lazy-load BodaccAdapter."""
         if self._adapter is None:
             from src.infrastructure.datasources.adapters.bodacc import BodaccAdapter
+
             self._adapter = BodaccAdapter()
         return self._adapter
 
@@ -57,7 +58,7 @@ class BodaccSearchTool(BaseTool):
         date_from: str | None = None,
         date_to: str | None = None,
         limit: int = 50,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Search BODACC legal announcements.
 
@@ -122,6 +123,7 @@ class BoampSearchTool(BaseTool):
         """Lazy-load BoampAdapter."""
         if self._adapter is None:
             from src.infrastructure.datasources.adapters.boamp import BoampAdapter
+
             self._adapter = BoampAdapter()
         return self._adapter
 
@@ -141,7 +143,7 @@ class BoampSearchTool(BaseTool):
         cpv_code: str | None = None,
         department: str | None = None,
         limit: int = 50,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Search BOAMP procurement notices.
 
@@ -200,6 +202,7 @@ class GeocodeTool(BaseTool):
         """Lazy-load BanAdapter."""
         if self._adapter is None:
             from src.infrastructure.datasources.adapters.ban import BanAdapter
+
             self._adapter = BanAdapter()
         return self._adapter
 
@@ -218,7 +221,7 @@ class GeocodeTool(BaseTool):
         address: str | None = None,
         lat: float | None = None,
         lon: float | None = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Geocode an address or reverse geocode coordinates.
 

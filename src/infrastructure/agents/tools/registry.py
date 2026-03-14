@@ -18,15 +18,15 @@ from loguru import logger
 class ToolCategory(StrEnum):
     """Categories of tools available to agents."""
 
-    WEB = "web"              # Web scraping, API calls
-    DATA = "data"            # Data processing, analysis
-    FILE = "file"            # File operations
-    CODE = "code"            # Code generation, execution
-    SEARCH = "search"        # Search engines, databases
-    COMMUNICATION = "comm"   # Email, notifications
-    ML = "ml"                # Machine learning operations
-    BROWSER = "browser"      # Browser automation
-    CUSTOM = "custom"        # User-defined tools
+    WEB = "web"  # Web scraping, API calls
+    DATA = "data"  # Data processing, analysis
+    FILE = "file"  # File operations
+    CODE = "code"  # Code generation, execution
+    SEARCH = "search"  # Search engines, databases
+    COMMUNICATION = "comm"  # Email, notifications
+    ML = "ml"  # Machine learning operations
+    BROWSER = "browser"  # Browser automation
+    CUSTOM = "custom"  # User-defined tools
 
 
 @dataclass
@@ -124,13 +124,15 @@ class BaseTool(ABC):
             else:
                 param_type = "any"
 
-            params.append(ToolParameter(
-                name=name,
-                type=param_type,
-                description=f"Parameter: {name}",
-                required=param.default == inspect.Parameter.empty,
-                default=None if param.default == inspect.Parameter.empty else param.default,
-            ))
+            params.append(
+                ToolParameter(
+                    name=name,
+                    type=param_type,
+                    description=f"Parameter: {name}",
+                    required=param.default == inspect.Parameter.empty,
+                    default=None if param.default == inspect.Parameter.empty else param.default,
+                )
+            )
 
         return params
 
@@ -208,14 +210,11 @@ class FunctionTool(BaseTool):
         name: str,
         description: str,
         category: ToolCategory = ToolCategory.CUSTOM,
-        **metadata_kwargs
+        **metadata_kwargs,
     ):
         self._func = func
         self._metadata = ToolMetadata(
-            name=name,
-            description=description,
-            category=category,
-            **metadata_kwargs
+            name=name, description=description, category=category, **metadata_kwargs
         )
 
     @property
@@ -279,7 +278,7 @@ class ToolRegistry:
         name: str,
         description: str,
         category: ToolCategory = ToolCategory.CUSTOM,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Register a function as a tool.
 
@@ -301,9 +300,7 @@ class ToolRegistry:
         return self._tools.get(name)
 
     def list_tools(
-        self,
-        category: ToolCategory | None = None,
-        tags: list[str] | None = None
+        self, category: ToolCategory | None = None, tags: list[str] | None = None
     ) -> list[BaseTool]:
         """List tools with optional filtering.
 
@@ -320,17 +317,11 @@ class ToolRegistry:
             tools = [t for t in tools if t.metadata.category == category]
 
         if tags:
-            tools = [
-                t for t in tools
-                if any(tag in t.metadata.tags for tag in tags)
-            ]
+            tools = [t for t in tools if any(tag in t.metadata.tags for tag in tags)]
 
         return tools
 
-    def get_schemas(
-        self,
-        names: list[str] | None = None
-    ) -> list[dict[str, Any]]:
+    def get_schemas(self, names: list[str] | None = None) -> list[dict[str, Any]]:
         """Get function schemas for LLM tool use.
 
         Args:
@@ -353,22 +344,16 @@ class ToolRegistry:
             return True
 
         import time
+
         now = time.time()
         minute_ago = now - 60
 
         # Clean old calls
-        self._call_counts[name] = [
-            t for t in self._call_counts[name]
-            if t > minute_ago
-        ]
+        self._call_counts[name] = [t for t in self._call_counts[name] if t > minute_ago]
 
         return len(self._call_counts[name]) < tool.metadata.rate_limit
 
-    async def execute(
-        self,
-        name: str,
-        **kwargs
-    ) -> Any:
+    async def execute(self, name: str, **kwargs) -> Any:
         """Execute a tool by name.
 
         Args:
@@ -396,14 +381,12 @@ class ToolRegistry:
 
         # Track call
         import time
+
         self._call_counts[name].append(time.time())
 
         # Execute with timeout
         try:
-            result = await asyncio.wait_for(
-                tool.execute(**kwargs),
-                timeout=tool.metadata.timeout
-            )
+            result = await asyncio.wait_for(tool.execute(**kwargs), timeout=tool.metadata.timeout)
             logger.debug(f"Tool executed: {name}")
             return result
         except TimeoutError:

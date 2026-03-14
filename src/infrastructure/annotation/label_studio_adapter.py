@@ -30,7 +30,7 @@ class LabelStudioAdapter:
         url: str = "http://localhost:8082",
         api_key: str | None = None,
         allowed_domains: set[str] | None = None,
-        allow_localhost: bool = True
+        allow_localhost: bool = True,
     ):
         """
         Initialize Label Studio adapter.
@@ -49,7 +49,7 @@ class LabelStudioAdapter:
             validated_url = validate_url(
                 url,
                 allowed_domains=allowed_domains,
-                allow_private_ips=allow_localhost  # Only allow in dev
+                allow_private_ips=allow_localhost,  # Only allow in dev
             )
             self.url = validated_url.rstrip("/")
         except ValueError as e:
@@ -60,9 +60,7 @@ class LabelStudioAdapter:
         self.allowed_domains = allowed_domains
         self.allow_localhost = allow_localhost
 
-        self.headers = {
-            "Content-Type": "application/json"
-        }
+        self.headers = {"Content-Type": "application/json"}
         if api_key:
             self.headers["Authorization"] = f"Token {api_key}"
 
@@ -81,7 +79,7 @@ class LabelStudioAdapter:
                 response = await client.get(
                     f"{self.url}/api/health",
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: Prevent redirect-based SSRF
+                    follow_redirects=False,  # SECURITY: Prevent redirect-based SSRF
                 )
                 is_healthy = response.status_code == 200
                 logger.info(f"Label Studio health check: {'OK' if is_healthy else 'FAILED'}")
@@ -98,7 +96,7 @@ class LabelStudioAdapter:
         title: str,
         description: str = "",
         label_config: str | None = None,
-        task_type: str = "classification"
+        task_type: str = "classification",
     ) -> dict[str, Any]:
         """
         Create a new Label Studio project.
@@ -143,17 +141,13 @@ class LabelStudioAdapter:
     <Choice value="other"/>
   </Choices>
 </View>
-            """
+            """,
         }
 
         if not label_config:
             label_config = default_configs.get(task_type, default_configs["classification"])
 
-        payload = {
-            "title": title,
-            "description": description,
-            "label_config": label_config
-        }
+        payload = {"title": title, "description": description, "label_config": label_config}
 
         try:
             # SECURITY: Short timeout, no redirects (SSRF protection)
@@ -162,7 +156,7 @@ class LabelStudioAdapter:
                     f"{self.url}/api/projects",
                     json=payload,
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: Prevent redirect SSRF
+                    follow_redirects=False,  # SECURITY: Prevent redirect SSRF
                 )
                 response.raise_for_status()
                 project = response.json()
@@ -190,7 +184,7 @@ class LabelStudioAdapter:
                 response = await client.get(
                     f"{self.url}/api/projects/{project_id}",
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: SSRF protection
+                    follow_redirects=False,  # SECURITY: SSRF protection
                 )
                 response.raise_for_status()
                 return response.json()
@@ -210,7 +204,7 @@ class LabelStudioAdapter:
                 response = await client.get(
                     f"{self.url}/api/projects",
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: SSRF protection
+                    follow_redirects=False,  # SECURITY: SSRF protection
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -225,11 +219,7 @@ class LabelStudioAdapter:
             logger.error(f"Failed to list projects: {e}")
             raise
 
-    async def import_tasks(
-        self,
-        project_id: int,
-        tasks: list[dict[str, Any]]
-    ) -> dict[str, Any]:
+    async def import_tasks(self, project_id: int, tasks: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Import tasks/data to a project for annotation.
 
@@ -252,13 +242,12 @@ class LabelStudioAdapter:
                     f"{self.url}/api/projects/{project_id}/import",
                     json=tasks,
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: SSRF protection
+                    follow_redirects=False,  # SECURITY: SSRF protection
                 )
                 response.raise_for_status()
                 result = response.json()
                 logger.info(
-                    f"Imported {result.get('task_count', len(tasks))} tasks "
-                    f"to project {project_id}"
+                    f"Imported {result.get('task_count', len(tasks))} tasks to project {project_id}"
                 )
                 return result
         except Exception as e:
@@ -266,9 +255,7 @@ class LabelStudioAdapter:
             raise
 
     async def export_annotations(
-        self,
-        project_id: int,
-        export_type: str = "JSON"
+        self, project_id: int, export_type: str = "JSON"
     ) -> list[dict[str, Any]]:
         """
         Export annotations from a project.
@@ -286,19 +273,14 @@ class LabelStudioAdapter:
                     f"{self.url}/api/projects/{project_id}/export",
                     params={"exportType": export_type},
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: SSRF protection
+                    follow_redirects=False,  # SECURITY: SSRF protection
                 )
                 response.raise_for_status()
                 annotations = response.json()
-                logger.info(
-                    f"Exported {len(annotations)} annotations "
-                    f"from project {project_id}"
-                )
+                logger.info(f"Exported {len(annotations)} annotations from project {project_id}")
                 return annotations
         except Exception as e:
-            logger.error(
-                f"Failed to export annotations from project {project_id}: {e}"
-            )
+            logger.error(f"Failed to export annotations from project {project_id}: {e}")
             raise
 
     async def get_project_stats(self, project_id: int) -> dict[str, Any]:
@@ -317,7 +299,7 @@ class LabelStudioAdapter:
                 "total_tasks": project.get("task_number", 0),
                 "total_annotations": project.get("num_tasks_with_annotations", 0),
                 "completed": project.get("finished_task_number", 0),
-                "pending": project.get("task_number", 0) - project.get("finished_task_number", 0)
+                "pending": project.get("task_number", 0) - project.get("finished_task_number", 0),
             }
             logger.info(f"Project {project_id} stats: {stats}")
             return stats
@@ -340,7 +322,7 @@ class LabelStudioAdapter:
                 response = await client.delete(
                     f"{self.url}/api/projects/{project_id}",
                     headers=self.headers,
-                    follow_redirects=False  # SECURITY: SSRF protection
+                    follow_redirects=False,  # SECURITY: SSRF protection
                 )
                 response.raise_for_status()
                 logger.info(f"Deleted Label Studio project {project_id}")
@@ -350,9 +332,7 @@ class LabelStudioAdapter:
             return False
 
     async def transform_scraped_data_to_tasks(
-        self,
-        scraped_data: dict[str, Any],
-        task_type: str = "classification"
+        self, scraped_data: dict[str, Any], task_type: str = "classification"
     ) -> list[dict[str, Any]]:
         """
         Transform scraped data into Label Studio tasks format.

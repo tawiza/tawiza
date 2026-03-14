@@ -20,25 +20,15 @@ async def read_file(path: str) -> dict[str, Any]:
     try:
         file_path = Path(path)
         if not file_path.exists():
-            return {
-                "success": False,
-                "error": f"File not found: {path}"
-            }
+            return {"success": False, "error": f"File not found: {path}"}
 
         content = file_path.read_text()
         logger.debug(f"Read file: {path} ({len(content)} bytes)")
 
-        return {
-            "success": True,
-            "content": content,
-            "path": str(file_path)
-        }
+        return {"success": True, "content": content, "path": str(file_path)}
     except Exception as e:
         logger.error(f"Error reading file {path}: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 async def write_file(path: str, content: str) -> dict[str, Any]:
@@ -58,17 +48,10 @@ async def write_file(path: str, content: str) -> dict[str, Any]:
 
         logger.debug(f"Wrote file: {path} ({len(content)} bytes)")
 
-        return {
-            "success": True,
-            "path": str(file_path),
-            "bytes_written": len(content)
-        }
+        return {"success": True, "path": str(file_path), "bytes_written": len(content)}
     except Exception as e:
         logger.error(f"Error writing file {path}: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 async def list_directory(path: str, pattern: str = "*") -> dict[str, Any]:
@@ -84,16 +67,10 @@ async def list_directory(path: str, pattern: str = "*") -> dict[str, Any]:
     try:
         dir_path = Path(path)
         if not dir_path.exists():
-            return {
-                "success": False,
-                "error": f"Directory not found: {path}"
-            }
+            return {"success": False, "error": f"Directory not found: {path}"}
 
         if not dir_path.is_dir():
-            return {
-                "success": False,
-                "error": f"Not a directory: {path}"
-            }
+            return {"success": False, "error": f"Not a directory: {path}"}
 
         files = []
         directories = []
@@ -110,14 +87,11 @@ async def list_directory(path: str, pattern: str = "*") -> dict[str, Any]:
             "success": True,
             "path": str(dir_path),
             "files": sorted(files),
-            "directories": sorted(directories)
+            "directories": sorted(directories),
         }
     except Exception as e:
         logger.error(f"Error listing directory {path}: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 async def search_files(path: str, pattern: str, glob: str = "**/*") -> dict[str, Any]:
@@ -134,10 +108,7 @@ async def search_files(path: str, pattern: str, glob: str = "**/*") -> dict[str,
     try:
         dir_path = Path(path)
         if not dir_path.exists():
-            return {
-                "success": False,
-                "error": f"Directory not found: {path}"
-            }
+            return {"success": False, "error": f"Directory not found: {path}"}
 
         matches = []
 
@@ -149,35 +120,24 @@ async def search_files(path: str, pattern: str, glob: str = "**/*") -> dict[str,
                 content = file_path.read_text()
                 if pattern in content:
                     # Find line numbers
-                    lines = content.split('\n')
+                    lines = content.split("\n")
                     matching_lines = [
-                        (i + 1, line)
-                        for i, line in enumerate(lines)
-                        if pattern in line
+                        (i + 1, line) for i, line in enumerate(lines) if pattern in line
                     ]
 
-                    matches.append({
-                        "file": str(file_path.relative_to(dir_path)),
-                        "lines": matching_lines
-                    })
+                    matches.append(
+                        {"file": str(file_path.relative_to(dir_path)), "lines": matching_lines}
+                    )
             except (UnicodeDecodeError, PermissionError):
                 # Skip binary files or files we can't read
                 continue
 
         logger.debug(f"Searched files in {path}: {len(matches)} matches")
 
-        return {
-            "success": True,
-            "path": str(dir_path),
-            "pattern": pattern,
-            "matches": matches
-        }
+        return {"success": True, "path": str(dir_path), "pattern": pattern, "matches": matches}
     except Exception as e:
         logger.error(f"Error searching files in {path}: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 def register_file_tools(registry: ToolRegistry) -> None:
@@ -191,28 +151,28 @@ def register_file_tools(registry: ToolRegistry) -> None:
         name="files.read",
         func=read_file,
         category=ToolCategory.FILES,
-        description="Read content from a file"
+        description="Read content from a file",
     )
 
     registry._tools["files.write"] = Tool(
         name="files.write",
         func=write_file,
         category=ToolCategory.FILES,
-        description="Write content to a file"
+        description="Write content to a file",
     )
 
     registry._tools["files.list"] = Tool(
         name="files.list",
         func=list_directory,
         category=ToolCategory.FILES,
-        description="List contents of a directory"
+        description="List contents of a directory",
     )
 
     registry._tools["files.search"] = Tool(
         name="files.search",
         func=search_files,
         category=ToolCategory.FILES,
-        description="Search for pattern in files"
+        description="Search for pattern in files",
     )
 
     logger.debug("Registered 4 file tools")

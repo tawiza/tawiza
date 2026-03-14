@@ -22,18 +22,18 @@ from textual.widgets import Static
 
 # Growth rate color thresholds (as decimals: 0.20 = 20%)
 GROWTH_COLORS = {
-    "strong_growth": "#006400",      # > 20%
-    "moderate_growth": "#44FF44",    # 5-20%
-    "stable": "#FFFF00",             # -5% to 5%
-    "moderate_decline": "#FF4444",   # -20% to -5%
-    "strong_decline": "#8B0000",     # < -20%
+    "strong_growth": "#006400",  # > 20%
+    "moderate_growth": "#44FF44",  # 5-20%
+    "stable": "#FFFF00",  # -5% to 5%
+    "moderate_decline": "#FF4444",  # -20% to -5%
+    "strong_decline": "#8B0000",  # < -20%
 }
 
 # Metropolitan France department codes (01-95 except 20, plus 2A and 2B)
 METRO_DEPT_CODES = [f"{i:02d}" for i in range(1, 96) if i != 20] + ["2A", "2B"]
 
 # Possible column names for department codes in GeoJSON
-CODE_COLUMN_CANDIDATES = ['code', 'CODE_DEPT', 'code_dept', 'CODE', 'nom']
+CODE_COLUMN_CANDIDATES = ["code", "CODE_DEPT", "code_dept", "CODE", "nom"]
 
 
 @dataclass
@@ -48,7 +48,7 @@ class MapConfig:
     edge_width: float = 0.5
     colormap_colors: list[str] = field(default_factory=lambda: list(GROWTH_COLORS.values()))
     vmin: float = -0.3  # Min growth rate for color scale (decimal)
-    vmax: float = 0.4   # Max growth rate for color scale (decimal)
+    vmax: float = 0.4  # Max growth rate for color scale (decimal)
 
 
 @dataclass
@@ -139,12 +139,7 @@ class FranceMapPNG(Container):
 
     selected_department = reactive("")
 
-    def __init__(
-        self,
-        geojson_path: Path | None = None,
-        config: MapConfig | None = None,
-        **kwargs
-    ):
+    def __init__(self, geojson_path: Path | None = None, config: MapConfig | None = None, **kwargs):
         """Initialize FranceMapPNG widget.
 
         Args:
@@ -222,12 +217,14 @@ class FranceMapPNG(Container):
             with redirect_stdout(null_out), redirect_stderr(null_out):
                 # Suppress matplotlib warnings
                 import warnings
-                warnings.filterwarnings('ignore')
+
+                warnings.filterwarnings("ignore")
 
                 # Lazy imports for heavy dependencies
                 import geopandas as gpd
                 import matplotlib
-                matplotlib.use('Agg')  # Non-interactive backend
+
+                matplotlib.use("Agg")  # Non-interactive backend
                 import matplotlib.pyplot as plt
                 from matplotlib.colors import LinearSegmentedColormap
 
@@ -257,7 +254,7 @@ class FranceMapPNG(Container):
             # Create figure
             fig, ax = plt.subplots(
                 figsize=(self.config.width / self.config.dpi, self.config.height / self.config.dpi),
-                dpi=self.config.dpi
+                dpi=self.config.dpi,
             )
 
             # Set background color
@@ -267,30 +264,28 @@ class FranceMapPNG(Container):
             # Create colormap from config colors
             if self._department_data:
                 cmap = LinearSegmentedColormap.from_list(
-                    "growth",
-                    self.config.colormap_colors,
-                    N=256
+                    "growth", self.config.colormap_colors, N=256
                 )
 
                 # Plot choropleth
                 gdf.plot(
                     ax=ax,
-                    column='growth_rate',
+                    column="growth_rate",
                     cmap=cmap,
                     vmin=self.config.vmin,
                     vmax=self.config.vmax,
                     edgecolor=self.config.edge_color,
                     linewidth=self.config.edge_width,
                     legend=False,
-                    missing_kwds={'color': '#CCCCCC'}
+                    missing_kwds={"color": "#CCCCCC"},
                 )
             else:
                 # No data, just show borders
                 gdf.plot(
                     ax=ax,
-                    facecolor='#EEEEEE',
+                    facecolor="#EEEEEE",
                     edgecolor=self.config.edge_color,
-                    linewidth=self.config.edge_width
+                    linewidth=self.config.edge_width,
                 )
 
             # Remove axes
@@ -304,8 +299,8 @@ class FranceMapPNG(Container):
             plt.savefig(
                 self._png_path,
                 dpi=self.config.dpi,
-                bbox_inches='tight',
-                facecolor=self.config.background_color
+                bbox_inches="tight",
+                facecolor=self.config.background_color,
             )
             plt.close(fig)
 
@@ -322,7 +317,9 @@ class FranceMapPNG(Container):
 
             self._map_image_widget = TextualImage(str(self._png_path))
             self._map_image_widget.add_class("map-container")
-            await self.mount(self._map_image_widget, before="#map-legend" if self.query(".map-legend") else None)
+            await self.mount(
+                self._map_image_widget, before="#map-legend" if self.query(".map-legend") else None
+            )
 
             self.post_message(self.MapRendered(success=True))
             logger.info("Map rendered successfully")
@@ -344,6 +341,7 @@ class FranceMapPNG(Container):
             if fig is not None:
                 try:
                     import matplotlib.pyplot as plt
+
                     plt.close(fig)
                 except Exception:
                     pass  # Best effort cleanup
@@ -405,7 +403,7 @@ class FranceMapPNG(Container):
                 return dept_data.growth_rate
             return None
 
-        gdf['growth_rate'] = gdf[code_col].apply(get_growth_rate)
+        gdf["growth_rate"] = gdf[code_col].apply(get_growth_rate)
 
         return gdf
 

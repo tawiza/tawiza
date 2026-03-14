@@ -31,12 +31,24 @@ DISTRESS_KEYWORDS = [
 # DataDome bypass requires headless=False + Xvfb (see collect method)
 
 DEPT_TO_REGION = {
-    "75": "ile_de_france", "92": "ile_de_france", "93": "ile_de_france", "94": "ile_de_france",
-    "13": "provence_alpes_cote_d_azur", "06": "provence_alpes_cote_d_azur",
-    "69": "auvergne_rhone_alpes", "31": "occitanie", "34": "occitanie",
-    "33": "nouvelle_aquitaine", "44": "pays_de_la_loire", "35": "bretagne",
-    "59": "hauts_de_france", "67": "grand_est", "54": "grand_est", "57": "grand_est",
-    "76": "normandie", "45": "centre_val_de_loire",
+    "75": "ile_de_france",
+    "92": "ile_de_france",
+    "93": "ile_de_france",
+    "94": "ile_de_france",
+    "13": "provence_alpes_cote_d_azur",
+    "06": "provence_alpes_cote_d_azur",
+    "69": "auvergne_rhone_alpes",
+    "31": "occitanie",
+    "34": "occitanie",
+    "33": "nouvelle_aquitaine",
+    "44": "pays_de_la_loire",
+    "35": "bretagne",
+    "59": "hauts_de_france",
+    "67": "grand_est",
+    "54": "grand_est",
+    "57": "grand_est",
+    "76": "normandie",
+    "45": "centre_val_de_loire",
 }
 
 
@@ -79,7 +91,9 @@ class LeBonCoinCollector(BaseCollector):
                 locale="fr-FR",
             )
             # Remove webdriver detection
-            await context.add_init_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+            await context.add_init_script(
+                'Object.defineProperty(navigator, "webdriver", {get: () => undefined})'
+            )
 
             # Warm up: visit homepage first to get DataDome cookies
             warmup_page = await context.new_page()
@@ -176,9 +190,7 @@ class LeBonCoinCollector(BaseCollector):
 
             # Calculate distress confidence based on keyword matches
             title_lower = title.lower()
-            distress_score = sum(
-                1 for kw in DISTRESS_KEYWORDS if kw in title_lower
-            )
+            distress_score = sum(1 for kw in DISTRESS_KEYWORDS if kw in title_lower)
             confidence = min(0.5 + distress_score * 0.15, 0.95)
 
             return CollectedSignal(

@@ -128,11 +128,13 @@ def _parse_duckduckgo_results(html: str, num_results: int = 5) -> list:
                 snippet = snippet_div.get_text(strip=True) if snippet_div else ""
 
                 if title and url and url.startswith("http"):
-                    results.append({
-                        "title": title,
-                        "url": url,
-                        "snippet": snippet[:200],
-                    })
+                    results.append(
+                        {
+                            "title": title,
+                            "url": url,
+                            "snippet": snippet[:200],
+                        }
+                    )
             except Exception:
                 continue
 
@@ -150,9 +152,7 @@ def register_browser_tools(registry: ToolRegistry) -> None:
         try:
             import httpx
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
             async with httpx.AsyncClient(timeout=30.0, headers=headers) as client:
                 response = await client.get(url, follow_redirects=True)
@@ -189,9 +189,7 @@ def register_browser_tools(registry: ToolRegistry) -> None:
             # Use DuckDuckGo HTML search (no API key needed)
             search_url = f"https://html.duckduckgo.com/html/?q={quote_plus(query)}"
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
             async with httpx.AsyncClient(timeout=30.0, headers=headers) as client:
                 response = await client.get(search_url, follow_redirects=True)

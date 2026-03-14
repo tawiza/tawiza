@@ -57,10 +57,13 @@ class BrowserActionTool(BaseTool):
             if callback is None and self._task_id:
                 try:
                     from src.interfaces.api.websocket.handlers import get_browser_handler
+
                     handler = get_browser_handler()
                     # Try to get session_id from associated agent if possible
-                    session_id = getattr(self, 'session_id', None)
-                    callback = handler.create_screenshot_callback(self._task_id, session_id=session_id)
+                    session_id = getattr(self, "session_id", None)
+                    callback = handler.create_screenshot_callback(
+                        self._task_id, session_id=session_id
+                    )
                 except Exception as e:
                     logger.warning(f"Could not get WebSocket callback: {e}")
 
@@ -111,7 +114,7 @@ class BrowserActionTool(BaseTool):
         scroll_delta: int = 300,
         wait_for: str | None = None,
         timeout: int = 30000,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Execute a browser action.
 
@@ -150,6 +153,7 @@ class BrowserActionTool(BaseTool):
                     if self._task_id:
                         try:
                             from src.interfaces.api.websocket.handlers import get_browser_handler
+
                             get_browser_handler().register_agent(self._task_id, agent)
                         except Exception:
                             pass
@@ -169,6 +173,7 @@ class BrowserActionTool(BaseTool):
                     if self._task_id:
                         try:
                             from src.interfaces.api.websocket.handlers import get_browser_handler
+
                             get_browser_handler().unregister_agent(self._task_id)
                         except Exception:
                             pass
@@ -187,6 +192,7 @@ class BrowserActionTool(BaseTool):
                 if self._task_id:
                     try:
                         from src.interfaces.api.websocket.handlers import get_browser_handler
+
                         get_browser_handler().register_agent(self._task_id, agent)
                     except Exception:
                         pass
@@ -295,7 +301,7 @@ class WebScrapeTool(BaseTool):
         wait_for: str | None = None,
         scroll_to_bottom: bool = False,
         solve_captcha: bool = False,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Scrape a web page.
 

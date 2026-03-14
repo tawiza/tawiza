@@ -141,9 +141,7 @@ class ActiveLearningSampleSelector:
             probs = pred.get("probabilities", [])
             if probs:
                 # Calculate entropy: -sum(p * log(p))
-                entropy = -sum(
-                    p * np.log(p + 1e-10) for p in probs if p > 0
-                )
+                entropy = -sum(p * np.log(p + 1e-10) for p in probs if p > 0)
                 entropies.append((pred, entropy))
 
         # Sort by entropy (descending - highest entropy first)
@@ -201,9 +199,7 @@ class ActiveLearningSampleSelector:
             for idx in remaining_indices:
                 # Calculate minimum distance to selected points
                 distances = [
-                    np.linalg.norm(
-                        embeddings_array[idx] - embeddings_array[sel_idx]
-                    )
+                    np.linalg.norm(embeddings_array[idx] - embeddings_array[sel_idx])
                     for sel_idx in selected_indices
                 ]
                 min_distance = min(distances)

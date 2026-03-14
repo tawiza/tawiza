@@ -122,7 +122,9 @@ class GeoAdapter(BaseAdapter):
         try:
             response = await self._client.get(
                 f"{self.config.base_url}/{entity_type}/{id}",
-                params={"fields": "nom,code,population,departement,region,codesPostaux,centre,contour"},
+                params={
+                    "fields": "nom,code,population,departement,region,codesPostaux,centre,contour"
+                },
             )
             response.raise_for_status()
             data = response.json()
@@ -141,11 +143,13 @@ class GeoAdapter(BaseAdapter):
         Returns:
             List of communes
         """
-        return await self.search({
-            "type": "communes",
-            "codeDepartement": code_dept,
-            "fields": "nom,code,population,codesPostaux,centre",
-        })
+        return await self.search(
+            {
+                "type": "communes",
+                "codeDepartement": code_dept,
+                "fields": "nom,code,population,codesPostaux,centre",
+            }
+        )
 
     async def get_epci_by_department(self, code_dept: str) -> list[dict[str, Any]]:
         """Get all EPCI (intercommunalités) in a department.
@@ -178,12 +182,14 @@ class GeoAdapter(BaseAdapter):
         Returns:
             Commune data or None
         """
-        results = await self.search({
-            "type": "communes",
-            "lat": lat,
-            "lon": lon,
-            "fields": "nom,code,population,departement,region",
-        })
+        results = await self.search(
+            {
+                "type": "communes",
+                "lat": lat,
+                "lon": lon,
+                "fields": "nom,code,population,departement,region",
+            }
+        )
         return results[0] if results else None
 
     async def geocode(self, address: str) -> dict[str, Any] | None:

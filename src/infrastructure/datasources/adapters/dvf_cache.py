@@ -71,8 +71,12 @@ class DVFLocalCache:
                     latitude REAL
                 )
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_code_commune ON transactions(code_commune)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_code_departement ON transactions(code_departement)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_code_commune ON transactions(code_commune)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_code_departement ON transactions(code_departement)"
+            )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_annee ON transactions(annee)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_type_local ON transactions(type_local)")
 
@@ -100,13 +104,11 @@ class DVFLocalCache:
         with sqlite3.connect(self.db_path) as conn:
             if year:
                 cursor = conn.execute(
-                    "SELECT 1 FROM cache_meta WHERE department = ? AND year = ?",
-                    (department, year)
+                    "SELECT 1 FROM cache_meta WHERE department = ? AND year = ?", (department, year)
                 )
             else:
                 cursor = conn.execute(
-                    "SELECT 1 FROM cache_meta WHERE department = ?",
-                    (department,)
+                    "SELECT 1 FROM cache_meta WHERE department = ?", (department,)
                 )
             return cursor.fetchone() is not None
 
@@ -126,10 +128,7 @@ class DVFLocalCache:
             return [dict(row) for row in cursor.fetchall()]
 
     async def download_and_cache(
-        self,
-        department: str,
-        years: list[int] | None = None,
-        force: bool = False
+        self, department: str, years: list[int] | None = None, force: bool = False
     ) -> dict[str, Any]:
         """Download CSV and cache in SQLite.
 
@@ -161,12 +160,7 @@ class DVFLocalCache:
 
         return stats
 
-    async def _download_year(
-        self,
-        client: httpx.AsyncClient,
-        department: str,
-        year: int
-    ) -> int:
+    async def _download_year(self, client: httpx.AsyncClient, department: str, year: int) -> int:
         """Download and parse one year's CSV."""
         url = f"{self.CSV_BASE_URL}/{year}/departements/{department}.csv.gz"
 
@@ -202,10 +196,13 @@ class DVFLocalCache:
                 self._insert_batch(conn, batch)
 
             # Update meta
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT OR REPLACE INTO cache_meta (department, year, loaded_at, transaction_count)
                 VALUES (?, ?, ?, ?)
-            """, (department, year, datetime.now().isoformat(), count))
+            """,
+                (department, year, datetime.now().isoformat(), count),
+            )
             conn.commit()
 
         return count
@@ -261,13 +258,16 @@ class DVFLocalCache:
 
     def _insert_batch(self, conn: sqlite3.Connection, batch: list[tuple]) -> None:
         """Insert batch of transactions."""
-        conn.executemany("""
+        conn.executemany(
+            """
             INSERT OR IGNORE INTO transactions
             (id, date_mutation, annee, nature_mutation, valeur, type_local,
              surface_reelle, surface_terrain, nombre_pieces, code_postal,
              code_commune, nom_commune, code_departement, longitude, latitude)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, batch)
+        """,
+            batch,
+        )
 
     def search(
         self,
@@ -276,7 +276,7 @@ class DVFLocalCache:
         annee_min: int | None = None,
         annee_max: int | None = None,
         type_local: str | None = None,
-        limit: int = 50
+        limit: int = 50,
     ) -> list[dict[str, Any]]:
         """Search cached transactions.
 
@@ -316,12 +316,15 @@ class DVFLocalCache:
 
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.execute(f"""
+            cursor = conn.execute(
+                f"""
                 SELECT * FROM transactions
                 WHERE {where}
                 ORDER BY date_mutation DESC
                 LIMIT ?
-            """, params)
+            """,
+                params,
+            )
 
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
@@ -345,7 +348,9 @@ class DVFLocalCache:
             "geo": {
                 "lat": row["latitude"],
                 "lon": row["longitude"],
-            } if row["latitude"] else None,
+            }
+            if row["latitude"]
+            else None,
         }
 
     def get_stats(self, code_insee: str, annee: int | None = None) -> dict[str, Any]:
@@ -361,16 +366,15 @@ class DVFLocalCache:
 
         with sqlite3.connect(self.db_path) as conn:
             # Total count
-            cursor = conn.execute(
-                f"SELECT COUNT(*) FROM transactions WHERE {where}", params
-            )
+            cursor = conn.execute(f"SELECT COUNT(*) FROM transactions WHERE {where}", params)
             total = cursor.fetchone()[0]
 
             if total == 0:
                 return {"source": "dvf_cache", "code_insee": code_insee, "count": 0}
 
             # Stats by type
-            cursor = conn.execute(f"""
+            cursor = conn.execute(
+                f"""
                 SELECT type_local,
                        COUNT(*) as count,
                        AVG(valeur) as avg_price,
@@ -378,7 +382,9 @@ class DVFLocalCache:
                 FROM transactions
                 WHERE {where}
                 GROUP BY type_local
-            """, params)
+            """,
+                params,
+            )
 
             by_type = {}
             for row in cursor.fetchall():

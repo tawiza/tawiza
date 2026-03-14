@@ -182,7 +182,7 @@ class ProxyPoolManager:
                     # Higher weight = better proxy
                     weight = stats.success_rate * 100
                     if stats.avg_response_time_ms > 0:
-                        weight /= (stats.avg_response_time_ms / 1000)  # Penalize slow proxies
+                        weight /= stats.avg_response_time_ms / 1000  # Penalize slow proxies
                     weights.append(max(weight, 0.1))
 
                 return random.choices(healthy, weights=weights, k=1)[0]

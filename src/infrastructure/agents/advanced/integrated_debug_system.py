@@ -24,6 +24,7 @@ from src.infrastructure.debugging.agent_debug_integration import (
 
 # Configuration du logging
 
+
 class IntegratedDebugSystem:
     """Système de débogage intégré pour Tawiza-V2"""
 
@@ -46,8 +47,8 @@ class IntegratedDebugSystem:
                 "memory_usage": 85.0,
                 "gpu_usage": 95.0,
                 "response_time_ms": 5000.0,
-                "error_rate": 10.0
-            }
+                "error_rate": 10.0,
+            },
         }
 
     async def initialize_debugging(self):
@@ -58,7 +59,7 @@ class IntegratedDebugSystem:
             # Créer et configurer le debugger
             self.debugger = create_advanced_debugger(
                 debug_level=self.debug_config["debug_level"],
-                enable_profiling=self.debug_config["enable_profiling"]
+                enable_profiling=self.debug_config["enable_profiling"],
             )
 
             # Démarrer le debugging
@@ -88,19 +89,21 @@ class IntegratedDebugSystem:
         logger.info("🔗 Intégration du debugging avec le système multi-agents...")
 
         # Wrapper les agents existants avec debugging
-        if hasattr(self.agent_integration, 'data_analyst'):
+        if hasattr(self.agent_integration, "data_analyst"):
             self._wrap_agent_with_debugging(self.agent_integration.data_analyst, "data_analyst")
 
-        if hasattr(self.agent_integration, 'ml_engineer'):
+        if hasattr(self.agent_integration, "ml_engineer"):
             self._wrap_agent_with_debugging(self.agent_integration.ml_engineer, "ml_engineer")
 
-        if hasattr(self.agent_integration, 'browser_automation'):
-            self._wrap_agent_with_debugging(self.agent_integration.browser_automation, "browser_automation")
+        if hasattr(self.agent_integration, "browser_automation"):
+            self._wrap_agent_with_debugging(
+                self.agent_integration.browser_automation, "browser_automation"
+            )
 
-        if hasattr(self.agent_integration, 'code_generator'):
+        if hasattr(self.agent_integration, "code_generator"):
             self._wrap_agent_with_debugging(self.agent_integration.code_generator, "code_generator")
 
-        if hasattr(self.agent_integration, 'gpu_optimizer'):
+        if hasattr(self.agent_integration, "gpu_optimizer"):
             self._wrap_agent_with_debugging(self.agent_integration.gpu_optimizer, "gpu_optimizer")
 
         logger.info("✅ Intégration multi-agents complétée")
@@ -112,9 +115,13 @@ class IntegratedDebugSystem:
 
         # Obtenir les méthodes principales de l'agent
         methods_to_wrap = [
-            "process_request", "execute_task", "analyze_dataset",
-            "create_ml_pipeline", "optimize_inference_performance",
-            "generate_code", "execute_task"
+            "process_request",
+            "execute_task",
+            "analyze_dataset",
+            "create_ml_pipeline",
+            "optimize_inference_performance",
+            "generate_code",
+            "execute_task",
         ]
 
         for method_name in methods_to_wrap:
@@ -126,7 +133,7 @@ class IntegratedDebugSystem:
                     if not self.debugger:
                         return await original_method(*args, **kwargs)
 
-                    agent_id = getattr(agent_instance, 'agent_id', f"{agent_type}_instance")
+                    agent_id = getattr(agent_instance, "agent_id", f"{agent_type}_instance")
                     start_time = datetime.now()
 
                     try:
@@ -138,7 +145,7 @@ class IntegratedDebugSystem:
                             method=method_name,
                             args_count=len(args),
                             kwargs_count=len(kwargs),
-                            timestamp=start_time.isoformat()
+                            timestamp=start_time.isoformat(),
                         )
 
                         # Exécuter la méthode originale
@@ -154,7 +161,7 @@ class IntegratedDebugSystem:
                             f"method_complete.{method_name}",
                             execution_time=execution_time,
                             success=True,
-                            timestamp=datetime.now().isoformat()
+                            timestamp=datetime.now().isoformat(),
                         )
 
                         return result
@@ -170,8 +177,8 @@ class IntegratedDebugSystem:
                             {
                                 "agent_id": agent_id,
                                 "execution_time": execution_time,
-                                "method": method_name
-                            }
+                                "method": method_name,
+                            },
                         )
 
                         # Log l'échec
@@ -182,7 +189,7 @@ class IntegratedDebugSystem:
                             error=str(e),
                             execution_time=execution_time,
                             success=False,
-                            timestamp=datetime.now().isoformat()
+                            timestamp=datetime.now().isoformat(),
                         )
 
                         raise
@@ -257,16 +264,16 @@ class IntegratedDebugSystem:
             ("ml_engineer", self.agent_integration.ml_engineer),
             ("browser_automation", self.agent_integration.browser_automation),
             ("code_generator", self.agent_integration.code_generator),
-            ("gpu_optimizer", self.agent_integration.gpu_optimizer)
+            ("gpu_optimizer", self.agent_integration.gpu_optimizer),
         ]
 
         for agent_type, agent in agents_to_check:
-            if agent and hasattr(agent, 'is_initialized') and not agent.is_initialized:
+            if agent and hasattr(agent, "is_initialized") and not agent.is_initialized:
                 self.debugger.log_debug(
                     f"health_check.{agent_type}",
                     f"Agent {agent_type} non initialisé",
                     level="WARNING",
-                    agent_type=agent_type
+                    agent_type=agent_type,
                 )
 
     async def _detect_anomalies(self):
@@ -288,7 +295,7 @@ class IntegratedDebugSystem:
                     "Utilisation CPU anormalement élevée détectée",
                     level="WARNING",
                     cpu_percent=latest_metrics.cpu_percent,
-                    threshold=thresholds["cpu_usage"]
+                    threshold=thresholds["cpu_usage"],
                 )
 
             # Memory usage
@@ -298,17 +305,20 @@ class IntegratedDebugSystem:
                     "Utilisation mémoire anormalement élevée détectée",
                     level="WARNING",
                     memory_percent=latest_metrics.memory_percent,
-                    threshold=thresholds["memory_usage"]
+                    threshold=thresholds["memory_usage"],
                 )
 
             # GPU usage (si disponible)
-            if latest_metrics.gpu_utilization and latest_metrics.gpu_utilization > thresholds["gpu_usage"]:
+            if (
+                latest_metrics.gpu_utilization
+                and latest_metrics.gpu_utilization > thresholds["gpu_usage"]
+            ):
                 self.debugger.log_debug(
                     "anomaly_detection",
                     "Utilisation GPU anormalement élevée détectée",
                     level="WARNING",
                     gpu_utilization=latest_metrics.gpu_utilization,
-                    threshold=thresholds["gpu_usage"]
+                    threshold=thresholds["gpu_usage"],
                 )
 
     def _setup_error_detection(self):
@@ -372,15 +382,23 @@ class IntegratedDebugSystem:
             # Ajouter des insights spécifiques aux agents
             agent_insights = {}
             if self.agent_debug_integration:
-                for agent_type in ["data_analyst", "ml_engineer", "browser_automation", "code_generator", "gpu_optimizer"]:
-                    agent_insights[agent_type] = self.agent_debug_integration.get_debug_summary(agent_type)
+                for agent_type in [
+                    "data_analyst",
+                    "ml_engineer",
+                    "browser_automation",
+                    "code_generator",
+                    "gpu_optimizer",
+                ]:
+                    agent_insights[agent_type] = self.agent_debug_integration.get_debug_summary(
+                        agent_type
+                    )
 
             return {
                 "system_report": report,
                 "agent_insights": agent_insights,
                 "debugging_active": self.is_debugging_active,
                 "config": self.debug_config,
-                "uptime": self._calculate_uptime()
+                "uptime": self._calculate_uptime(),
             }
 
         except Exception as e:
@@ -409,10 +427,10 @@ class IntegratedDebugSystem:
                 "integration_status": {
                     "multi_agent_system": self._check_multi_agent_system_status(),
                     "gpu_optimization": self._check_gpu_optimization_status(),
-                    "task_queue": self._check_task_queue_status()
+                    "task_queue": self._check_task_queue_status(),
                 },
                 "performance_analysis": await self._analyze_performance(),
-                "reliability_metrics": self._calculate_reliability_metrics()
+                "reliability_metrics": self._calculate_reliability_metrics(),
             }
 
             return enhanced_report
@@ -429,7 +447,7 @@ class IntegratedDebugSystem:
             "completed_tasks": 0,
             "failed_tasks": 0,
             "average_response_time": 0.0,
-            "gpu_performance": {}
+            "gpu_performance": {},
         }
 
         if self.agent_integration:
@@ -439,13 +457,19 @@ class IntegratedDebugSystem:
                 self.agent_integration.ml_engineer,
                 self.agent_integration.browser_automation,
                 self.agent_integration.code_generator,
-                self.agent_integration.gpu_optimizer
+                self.agent_integration.gpu_optimizer,
             ]
 
-            info["active_agents"] = sum(1 for agent in agents if agent and getattr(agent, 'is_initialized', False))
+            info["active_agents"] = sum(
+                1 for agent in agents if agent and getattr(agent, "is_initialized", False)
+            )
             info["queued_tasks"] = self.agent_integration.task_queue.qsize()
-            info["completed_tasks"] = len([t for t in self.agent_integration.task_history if t.get("status") == "completed"])
-            info["failed_tasks"] = len([t for t in self.agent_integration.task_history if t.get("status") == "failed"])
+            info["completed_tasks"] = len(
+                [t for t in self.agent_integration.task_history if t.get("status") == "completed"]
+            )
+            info["failed_tasks"] = len(
+                [t for t in self.agent_integration.task_history if t.get("status") == "failed"]
+            )
 
             # Performance GPU
             if self.agent_integration.performance_metrics:
@@ -462,7 +486,7 @@ class IntegratedDebugSystem:
             "status": "actif",
             "coordinator": self.agent_integration.multi_agent_system.coordinator is not None,
             "registry": self.agent_integration.multi_agent_system.registry is not None,
-            "memory": self.agent_integration.multi_agent_system.memory is not None
+            "memory": self.agent_integration.multi_agent_system.memory is not None,
         }
 
     def _check_gpu_optimization_status(self) -> dict[str, Any]:
@@ -473,7 +497,7 @@ class IntegratedDebugSystem:
         return {
             "status": "actif",
             "is_initialized": self.agent_integration.gpu_optimizer.is_initialized,
-            "models_optimized": len(self.agent_integration.gpu_optimizer.optimization_history)
+            "models_optimized": len(self.agent_integration.gpu_optimizer.optimization_history),
         }
 
     def _check_task_queue_status(self) -> dict[str, Any]:
@@ -485,7 +509,7 @@ class IntegratedDebugSystem:
             "status": "actif",
             "queue_size": self.agent_integration.task_queue.qsize(),
             "active_tasks": len(self.agent_integration.active_tasks),
-            "history_size": len(self.agent_integration.task_history)
+            "history_size": len(self.agent_integration.task_history),
         }
 
     async def _analyze_performance(self) -> dict[str, Any]:
@@ -506,14 +530,14 @@ class IntegratedDebugSystem:
             "cpu_analysis": {
                 "average": sum(cpu_values) / len(cpu_values),
                 "trend": self._calculate_trend(cpu_values),
-                "peak_usage": max(cpu_values)
+                "peak_usage": max(cpu_values),
             },
             "memory_analysis": {
                 "average": sum(memory_values) / len(memory_values),
                 "trend": self._calculate_trend(memory_values),
-                "peak_usage": max(memory_values)
+                "peak_usage": max(memory_values),
             },
-            "efficiency_score": self._calculate_efficiency_score(cpu_values, memory_values)
+            "efficiency_score": self._calculate_efficiency_score(cpu_values, memory_values),
         }
 
     def _calculate_trend(self, values: list[float]) -> str:
@@ -522,8 +546,8 @@ class IntegratedDebugSystem:
             return "stable"
 
         # Simple analyse de tendance
-        first_half = values[:len(values)//2]
-        second_half = values[len(values)//2:]
+        first_half = values[: len(values) // 2]
+        second_half = values[len(values) // 2 :]
 
         avg_first = sum(first_half) / len(first_half)
         avg_second = sum(second_half) / len(second_half)
@@ -535,7 +559,9 @@ class IntegratedDebugSystem:
         else:
             return "stable"
 
-    def _calculate_efficiency_score(self, cpu_values: list[float], memory_values: list[float]) -> float:
+    def _calculate_efficiency_score(
+        self, cpu_values: list[float], memory_values: list[float]
+    ) -> float:
         """Calculer un score d'efficacité basé sur l'utilisation des ressources"""
         if not cpu_values or not memory_values:
             return 0.0
@@ -575,7 +601,9 @@ class IntegratedDebugSystem:
             "warning_count": warning_entries,
             "error_rate": (error_entries / total_entries * 100) if total_entries > 0 else 0,
             "warning_rate": (warning_entries / total_entries * 100) if total_entries > 0 else 0,
-            "reliability_score": max(0, 100 - (error_entries / total_entries * 100)) if total_entries > 0 else 100
+            "reliability_score": max(0, 100 - (error_entries / total_entries * 100))
+            if total_entries > 0
+            else 100,
         }
 
     async def stop_debugging(self):
@@ -613,13 +641,18 @@ class IntegratedDebugSystem:
         """Vérifier si le debugging est activé"""
         return self.is_debugging_active
 
+
 # Fonctions utilitaires
 
-async def create_integrated_debug_system(agent_integration: AdvancedAgentIntegration) -> IntegratedDebugSystem:
+
+async def create_integrated_debug_system(
+    agent_integration: AdvancedAgentIntegration,
+) -> IntegratedDebugSystem:
     """Créer et initialiser le système de débogage intégré"""
     debug_system = IntegratedDebugSystem(agent_integration)
     await debug_system.initialize_debugging()
     return debug_system
+
 
 def get_debug_system_status(debug_system: IntegratedDebugSystem) -> dict[str, Any]:
     """Obtenir le statut du système de débogage"""
@@ -627,17 +660,19 @@ def get_debug_system_status(debug_system: IntegratedDebugSystem) -> dict[str, An
         "is_active": debug_system.is_debugging_enabled(),
         "config": debug_system.get_debug_config(),
         "uptime": debug_system._calculate_uptime(),
-        "last_updated": datetime.now().isoformat()
+        "last_updated": datetime.now().isoformat(),
     }
+
 
 async def generate_debug_report(debug_system: IntegratedDebugSystem) -> dict[str, Any]:
     """Générer un rapport de débogage complet"""
     return await debug_system.generate_comprehensive_debug_report()
 
+
 # Export
 __all__ = [
-    'IntegratedDebugSystem',
-    'create_integrated_debug_system',
-    'get_debug_system_status',
-    'generate_debug_report'
+    "IntegratedDebugSystem",
+    "create_integrated_debug_system",
+    "get_debug_system_status",
+    "generate_debug_report",
 ]

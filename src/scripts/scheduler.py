@@ -27,6 +27,7 @@ load_dotenv(project_root / ".env")
 async def job_collect_frequent():
     """Collecte fréquente : BODACC + France Travail."""
     from src.scripts.collect_all_v2 import run_full_collect
+
     logger.info("⏰ [SCHEDULER] Collecte fréquente")
     await run_full_collect(sources=["bodacc", "france_travail", "presse_locale"], days_back=7)
 
@@ -34,6 +35,7 @@ async def job_collect_frequent():
 async def job_collect_daily():
     """Collecte quotidienne : SIRENE + INSEE + OFGL."""
     from src.scripts.collect_all_v2 import run_full_collect
+
     logger.info("⏰ [SCHEDULER] Collecte quotidienne")
     await run_full_collect(sources=["sirene", "insee", "ofgl"], days_back=30)
 
@@ -41,6 +43,7 @@ async def job_collect_daily():
 async def job_collect_weekly():
     """Collecte hebdomadaire : DVF."""
     from src.scripts.collect_all_v2 import run_full_collect
+
     logger.info("⏰ [SCHEDULER] Collecte hebdo DVF")
     await run_full_collect(sources=["dvf"], days_back=90)
 
@@ -58,6 +61,7 @@ async def job_detect():
 
     logger.info("⏰ [SCHEDULER] Vérification alertes")
     from src.scripts.alert_telegram import send_alert
+
     await send_alert()
 
 

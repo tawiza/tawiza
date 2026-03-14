@@ -33,44 +33,23 @@ def _get_service(model: str, headless: bool):
     from src.application.services.autonomous_agent_service import (
         create_autonomous_agent_service,
     )
+
     return run_async(create_autonomous_agent_service(model=model, headless=headless))
 
 
 @app.command("run")
 def run_task(
     task: str = typer.Argument(..., help="Natural language task description"),
-    url: str | None = typer.Option(
-        None, "--url", "-u",
-        help="Starting URL (optional)"
-    ),
-    model: str = typer.Option(
-        "qwen3-coder:30b", "--model", "-m",
-        help="LLM model for planning"
-    ),
-    headless: bool = typer.Option(
-        True, "--headless/--headed",
-        help="Run browser in headless mode"
-    ),
-    auto_approve: bool = typer.Option(
-        False, "--auto", "-a",
-        help="Skip plan approval"
-    ),
+    url: str | None = typer.Option(None, "--url", "-u", help="Starting URL (optional)"),
+    model: str = typer.Option("qwen3-coder:30b", "--model", "-m", help="LLM model for planning"),
+    headless: bool = typer.Option(True, "--headless/--headed", help="Run browser in headless mode"),
+    auto_approve: bool = typer.Option(False, "--auto", "-a", help="Skip plan approval"),
     dry_run: bool = typer.Option(
-        False, "--dry-run", "-d",
-        help="Simulate execution without browser"
+        False, "--dry-run", "-d", help="Simulate execution without browser"
     ),
-    max_steps: int = typer.Option(
-        20, "--max-steps",
-        help="Maximum steps allowed"
-    ),
-    timeout: int = typer.Option(
-        300, "--timeout", "-t",
-        help="Total timeout in seconds"
-    ),
-    output: str | None = typer.Option(
-        None, "--output", "-o",
-        help="Save results to JSON file"
-    ),
+    max_steps: int = typer.Option(20, "--max-steps", help="Maximum steps allowed"),
+    timeout: int = typer.Option(300, "--timeout", "-t", help="Total timeout in seconds"),
+    output: str | None = typer.Option(None, "--output", "-o", help="Save results to JSON file"),
 ):
     """Execute autonomous browser task with AI planning.
 
@@ -102,10 +81,12 @@ def run_task(
     else:
         show_agent_mascot("browser", "Agent autonome prêt!", console)
 
-    console.print(get_sunset_banner(
-        f"\n[bold cyan]🤖 Autonomous Agent[/bold cyan] "
-        f"{'[yellow][DRY-RUN][/yellow]' if dry_run else ''}\n"
-    ))
+    console.print(
+        get_sunset_banner(
+            f"\n[bold cyan]🤖 Autonomous Agent[/bold cyan] "
+            f"{'[yellow][DRY-RUN][/yellow]' if dry_run else ''}\n"
+        )
+    )
 
     try:
         # Create service
@@ -172,22 +153,10 @@ def run_task(
 @app.command("plan")
 def show_plan(
     task: str = typer.Argument(..., help="Natural language task description"),
-    url: str | None = typer.Option(
-        None, "--url", "-u",
-        help="Starting URL"
-    ),
-    model: str = typer.Option(
-        "qwen3-coder:30b", "--model", "-m",
-        help="LLM model for planning"
-    ),
-    output: str | None = typer.Option(
-        None, "--output", "-o",
-        help="Save plan to JSON file"
-    ),
-    json_output: bool = typer.Option(
-        False, "--json",
-        help="Output as JSON only"
-    ),
+    url: str | None = typer.Option(None, "--url", "-u", help="Starting URL"),
+    model: str = typer.Option("qwen3-coder:30b", "--model", "-m", help="LLM model for planning"),
+    output: str | None = typer.Option(None, "--output", "-o", help="Save plan to JSON file"),
+    json_output: bool = typer.Option(False, "--json", help="Output as JSON only"),
 ):
     """Generate and display execution plan without running.
 
@@ -237,22 +206,10 @@ def show_plan(
 
 @app.command("status")
 def show_status(
-    plan_id: str | None = typer.Argument(
-        None,
-        help="Specific plan ID to check"
-    ),
-    all_tasks: bool = typer.Option(
-        False, "--all", "-a",
-        help="Show all recent tasks"
-    ),
-    limit: int = typer.Option(
-        10, "--limit", "-l",
-        help="Number of tasks to show"
-    ),
-    json_output: bool = typer.Option(
-        False, "--json",
-        help="Output as JSON"
-    ),
+    plan_id: str | None = typer.Argument(None, help="Specific plan ID to check"),
+    all_tasks: bool = typer.Option(False, "--all", "-a", help="Show all recent tasks"),
+    limit: int = typer.Option(10, "--limit", "-l", help="Number of tasks to show"),
+    json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
 ):
     """Show status of agent tasks.
 
@@ -304,13 +261,15 @@ def show_status(
 
 def _show_task_details(status: dict):
     """Show detailed status of a single task."""
-    console.print(Panel(
-        f"[cyan]Plan ID:[/cyan] {status.get('plan_id', 'N/A')}\n"
-        f"[cyan]Status:[/cyan] {status.get('status', 'unknown')}\n"
-        f"[cyan]Active:[/cyan] {status.get('is_active', False)}",
-        title="Task Status",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel(
+            f"[cyan]Plan ID:[/cyan] {status.get('plan_id', 'N/A')}\n"
+            f"[cyan]Status:[/cyan] {status.get('status', 'unknown')}\n"
+            f"[cyan]Active:[/cyan] {status.get('is_active', False)}",
+            title="Task Status",
+            border_style="cyan",
+        )
+    )
 
     if status.get("context"):
         ctx = status["context"]
@@ -358,9 +317,11 @@ def _show_tasks_table(tasks: list):
 
         table.add_row(
             task.get("plan_id", "N/A")[:16],
-            (task.get("original_task", "N/A")[:37] + "..."
-             if len(task.get("original_task", "")) > 40
-             else task.get("original_task", "N/A")),
+            (
+                task.get("original_task", "N/A")[:37] + "..."
+                if len(task.get("original_task", "")) > 40
+                else task.get("original_task", "N/A")
+            ),
             status_style,
             f"{task.get('steps_completed', 0)}/{task.get('steps_total', 0)}",
             f"{task.get('duration_seconds', 0):.1f}s",
@@ -397,10 +358,7 @@ def cancel_task(
 @app.command("resume")
 def resume_task(
     plan_id: str = typer.Argument(..., help="Plan ID to resume"),
-    dry_run: bool = typer.Option(
-        False, "--dry-run", "-d",
-        help="Resume in dry-run mode"
-    ),
+    dry_run: bool = typer.Option(False, "--dry-run", "-d", help="Resume in dry-run mode"),
 ):
     """Resume a paused or failed task from checkpoint.
 

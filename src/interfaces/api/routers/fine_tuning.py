@@ -57,7 +57,9 @@ class FineTuningRequest(BaseModel):
     base_model: str = Field(default="qwen3-coder:30b", description="Modèle de base")
     task_type: str = Field(default="classification", description="Type de tâche")
     model_name: str | None = Field(None, description="Nom du modèle fine-tuné")
-    annotations: list[dict[str, Any]] = Field(default_factory=list, description="Annotations (optionnel)")
+    annotations: list[dict[str, Any]] = Field(
+        default_factory=list, description="Annotations (optionnel)"
+    )
 
 
 class FineTuningResponse(BaseModel):
@@ -204,9 +206,7 @@ async def delete_model(model_name: str) -> dict[str, Any]:
 
 
 @router.post("/models/{model_name}/export")
-async def export_model(
-    model_name: str, export_path: str | None = None
-) -> dict[str, Any]:
+async def export_model(model_name: str, export_path: str | None = None) -> dict[str, Any]:
     """
     Exporte un modèle fine-tuné (POST - retourne JSON).
 
@@ -307,8 +307,7 @@ async def fine_tune_from_label_studio(
 
         # Filter to only include completed annotations
         completed_annotations = [
-            ann for ann in annotations
-            if ann.get("annotations") and len(ann["annotations"]) > 0
+            ann for ann in annotations if ann.get("annotations") and len(ann["annotations"]) > 0
         ]
 
         if not completed_annotations:

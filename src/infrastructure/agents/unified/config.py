@@ -38,15 +38,14 @@ class TrustConfig(BaseModel):
     history_weight: float = Field(default=0.25, ge=0, le=1)
 
     level_thresholds: list[float] = Field(
-        default=[0.3, 0.5, 0.7, 0.9],
-        description="Score thresholds for each autonomy level"
+        default=[0.3, 0.5, 0.7, 0.9], description="Score thresholds for each autonomy level"
     )
 
     cooldown_hours: int = Field(default=24, description="Cooldown after major error")
     rollback_on_regression: bool = Field(default=True)
 
-    @model_validator(mode='after')
-    def validate_weights_sum(self) -> 'TrustConfig':
+    @model_validator(mode="after")
+    def validate_weights_sum(self) -> "TrustConfig":
         """Ensure weights sum to 1.0."""
         total = self.metrics_weight + self.feedback_weight + self.history_weight
         if abs(total - 1.0) > 0.001:
@@ -127,5 +126,5 @@ class UnifiedAgentConfig(BaseModel):
         Args:
             path: Path to save YAML file
         """
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             yaml.dump(self.model_dump(), f, default_flow_style=False)

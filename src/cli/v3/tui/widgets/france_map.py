@@ -13,6 +13,7 @@ from textual.widgets import Static
 @dataclass
 class TerritoryData:
     """Data for a territory on the map."""
+
     code: str
     name: str
     companies: int = 0
@@ -56,15 +57,30 @@ FRANCE_MAP_TEMPLATE = """
 REGIONS = {
     "Île-de-France": {"pos": (14, 3), "depts": ["75", "77", "78", "91", "92", "93", "94", "95"]},
     "Hauts-de-France": {"pos": (22, 2), "depts": ["02", "59", "60", "62", "80"]},
-    "Grand Est": {"pos": (28, 6), "depts": ["08", "10", "51", "52", "54", "55", "57", "67", "68", "88"]},
+    "Grand Est": {
+        "pos": (28, 6),
+        "depts": ["08", "10", "51", "52", "54", "55", "57", "67", "68", "88"],
+    },
     "Normandie": {"pos": (6, 4), "depts": ["14", "27", "50", "61", "76"]},
     "Bretagne": {"pos": (2, 6), "depts": ["22", "29", "35", "56"]},
     "Pays de la Loire": {"pos": (4, 8), "depts": ["44", "49", "53", "72", "85"]},
     "Centre-Val de Loire": {"pos": (12, 8), "depts": ["18", "28", "36", "37", "41", "45"]},
-    "Bourgogne-Franche-Comté": {"pos": (22, 9), "depts": ["21", "25", "39", "58", "70", "71", "89", "90"]},
-    "Nouvelle-Aquitaine": {"pos": (6, 13), "depts": ["16", "17", "19", "23", "24", "33", "40", "47", "64", "79", "86", "87"]},
-    "Auvergne-Rhône-Alpes": {"pos": (20, 12), "depts": ["01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"]},
-    "Occitanie": {"pos": (12, 17), "depts": ["09", "11", "12", "30", "31", "32", "34", "46", "48", "65", "66", "81", "82"]},
+    "Bourgogne-Franche-Comté": {
+        "pos": (22, 9),
+        "depts": ["21", "25", "39", "58", "70", "71", "89", "90"],
+    },
+    "Nouvelle-Aquitaine": {
+        "pos": (6, 13),
+        "depts": ["16", "17", "19", "23", "24", "33", "40", "47", "64", "79", "86", "87"],
+    },
+    "Auvergne-Rhône-Alpes": {
+        "pos": (20, 12),
+        "depts": ["01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"],
+    },
+    "Occitanie": {
+        "pos": (12, 17),
+        "depts": ["09", "11", "12", "30", "31", "32", "34", "46", "48", "65", "66", "81", "82"],
+    },
     "Provence-Alpes-Côte d'Azur": {"pos": (26, 18), "depts": ["04", "05", "06", "13", "83", "84"]},
     "Corse": {"pos": (32, 20), "depts": ["2A", "2B"]},
 }
@@ -99,11 +115,7 @@ class FranceMapWidget(Static):
 
     selected_region = reactive("")
 
-    def __init__(
-        self,
-        territory_data: dict[str, TerritoryData] | None = None,
-        **kwargs
-    ):
+    def __init__(self, territory_data: dict[str, TerritoryData] | None = None, **kwargs):
         super().__init__(**kwargs)
         self._territory_data = territory_data or {}
         self._highlighted_cities: list[str] = []
@@ -219,11 +231,7 @@ class MoroccoMapWidget(Static):
     }
     """
 
-    def __init__(
-        self,
-        territory_data: dict[str, TerritoryData] | None = None,
-        **kwargs
-    ):
+    def __init__(self, territory_data: dict[str, TerritoryData] | None = None, **kwargs):
         super().__init__(**kwargs)
         self._territory_data = territory_data or {}
 

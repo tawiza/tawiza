@@ -37,7 +37,9 @@ def start(
     base_model: str = typer.Option("qwen3-coder:30b", "--model", "-m", help="Base model"),
     model_name: str | None = typer.Option(None, "--name", "-n", help="Fine-tuned model name"),
     task_type: str = typer.Option("classification", "--task", "-t", help="Task type"),
-    annotations_file: Path | None = typer.Option(None, "--annotations", "-a", help="JSON file with annotations"),
+    annotations_file: Path | None = typer.Option(
+        None, "--annotations", "-a", help="JSON file with annotations"
+    ),
 ):
     """
     🚀 Start a fine-tuning job with live progress tracking.
@@ -46,10 +48,9 @@ def start(
         tawiza finetune start --project 1 --model qwen3-coder:30b --name my-model
         tawiza finetune start -p 1 -m qwen3.5:27b -n custom-classifier -a data.json
     """
-    console.print(Panel.fit(
-        "[bold cyan]🎯 Fine-Tuning Job Launcher[/bold cyan]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel.fit("[bold cyan]🎯 Fine-Tuning Job Launcher[/bold cyan]", border_style="cyan")
+    )
 
     # Load annotations if provided
     annotations = []
@@ -67,8 +68,7 @@ def start(
         console.print(f"[cyan]Fetching annotations from project {project_id}...[/cyan]")
         try:
             response = httpx.get(
-                get_api_url(f"/annotations/projects/{project_id}/export"),
-                timeout=30.0
+                get_api_url(f"/annotations/projects/{project_id}/export"), timeout=30.0
             )
             response.raise_for_status()
             annotations = response.json()
@@ -94,11 +94,7 @@ def start(
     # Start job
     console.print(get_sunset_banner("\n[cyan]Starting fine-tuning job...[/cyan]"))
     try:
-        response = httpx.post(
-            get_api_url("/fine-tuning/start"),
-            json=request_data,
-            timeout=60.0
-        )
+        response = httpx.post(get_api_url("/fine-tuning/start"), json=request_data, timeout=60.0)
         response.raise_for_status()
         job_data = response.json()
 
@@ -123,7 +119,9 @@ def start(
             console.print(get_sunset_banner(""))
             asyncio.run(watch_job(job_data["job_id"]))
         else:
-            console.print(f"\n[cyan]💡 Use [bold]tawiza finetune watch {job_data['job_id']}[/bold] to monitor progress[/cyan]")
+            console.print(
+                f"\n[cyan]💡 Use [bold]tawiza finetune watch {job_data['job_id']}[/bold] to monitor progress[/cyan]"
+            )
 
     except httpx.HTTPStatusError as e:
         console.print(f"[red]❌ API Error: {e.response.status_code}[/red]")
@@ -147,10 +145,7 @@ def status(
     console.print(f"[cyan]Fetching status for job {job_id}...[/cyan]\n")
 
     try:
-        response = httpx.get(
-            get_api_url(f"/fine-tuning/jobs/{job_id}"),
-            timeout=10.0
-        )
+        response = httpx.get(get_api_url(f"/fine-tuning/jobs/{job_id}"), timeout=10.0)
         response.raise_for_status()
         job = response.json()
 
@@ -224,11 +219,7 @@ def list(
         if status_filter:
             params["status"] = status_filter
 
-        response = httpx.get(
-            get_api_url("/fine-tuning/jobs"),
-            params=params,
-            timeout=10.0
-        )
+        response = httpx.get(get_api_url("/fine-tuning/jobs"), params=params, timeout=10.0)
         response.raise_for_status()
         data = response.json()
 
@@ -250,9 +241,7 @@ def list(
 
         # Header with gradient
         header = ColorGradient.create_gradient(
-            f"Fine-Tuning Jobs ({len(jobs)})",
-            "#E74C3C",
-            "#F39C12"
+            f"Fine-Tuning Jobs ({len(jobs)})", "#E74C3C", "#F39C12"
         )
         console.print()
         console.print(header, justify="center")
@@ -315,11 +304,7 @@ def list(
         console.print()
 
         # Footer badge
-        badge = TextStyling.create_badge(
-            f"{len(jobs)} training jobs",
-            color="yellow",
-            symbol="🏋️"
-        )
+        badge = TextStyling.create_badge(f"{len(jobs)} training jobs", color="yellow", symbol="🏋️")
         console.print(badge, justify="center")
         console.print()
 
@@ -362,8 +347,7 @@ async def watch_job(job_id: str, interval: int = 2):
                 try:
                     # Fetch job status
                     response = await client.get(
-                        get_api_url(f"/fine-tuning/jobs/{job_id}"),
-                        timeout=10.0
+                        get_api_url(f"/fine-tuning/jobs/{job_id}"), timeout=10.0
                     )
                     response.raise_for_status()
                     job = response.json()
@@ -393,7 +377,9 @@ async def watch_job(job_id: str, interval: int = 2):
                         progress.update(task_id, completed=50)
                     elif job["status"] == "completed":
                         progress.update(task_id, completed=100)
-                        status_text.append(f"\n✅ Completed at: {job['completed_at']}", style="green")
+                        status_text.append(
+                            f"\n✅ Completed at: {job['completed_at']}", style="green"
+                        )
                     elif job["status"] == "failed":
                         progress.update(task_id, completed=0)
 
@@ -441,9 +427,7 @@ def models(
 
     try:
         response = httpx.get(
-            get_api_url("/fine-tuning/models"),
-            params={"limit": limit},
-            timeout=10.0
+            get_api_url("/fine-tuning/models"), params={"limit": limit}, timeout=10.0
         )
         response.raise_for_status()
         data = response.json()
@@ -465,11 +449,11 @@ def models(
             # Format size
             size = model.get("size", 0)
             if size > 1e9:
-                size_str = f"{size/1e9:.1f} GB"
+                size_str = f"{size / 1e9:.1f} GB"
             elif size > 1e6:
-                size_str = f"{size/1e6:.1f} MB"
+                size_str = f"{size / 1e6:.1f} MB"
             else:
-                size_str = f"{size/1e3:.1f} KB"
+                size_str = f"{size / 1e3:.1f} KB"
 
             # Format created time
             try:

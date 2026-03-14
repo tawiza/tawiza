@@ -46,9 +46,7 @@ class EventBus:
             >>> event_bus.subscribe(ModelTrainedEvent, handle_model_trained)
         """
         self._handlers[event_type].append(handler)
-        logger.info(
-            f"Subscribed handler {handler.__name__} to {event_type.__name__}"
-        )
+        logger.info(f"Subscribed handler {handler.__name__} to {event_type.__name__}")
 
     def subscribe_all(self, handler: EventHandler) -> None:
         """Subscribe to all events.
@@ -81,9 +79,7 @@ class EventBus:
             logger.debug(f"No handlers for event {event_type.__name__}")
             return
 
-        logger.info(
-            f"Publishing {event_type.__name__} to {len(all_handlers)} handlers"
-        )
+        logger.info(f"Publishing {event_type.__name__} to {len(all_handlers)} handlers")
 
         # Execute all handlers in parallel
         tasks = [self._safe_execute(handler, event) for handler in all_handlers]
@@ -117,8 +113,7 @@ class EventBus:
             await handler(event)
         except Exception as e:
             logger.error(
-                f"Error in handler {handler.__name__} "
-                f"for event {type(event).__name__}: {e}",
+                f"Error in handler {handler.__name__} for event {type(event).__name__}: {e}",
                 exc_info=True,
             )
 
@@ -188,16 +183,14 @@ def set_event_bus(event_bus: EventBus) -> None:
 
 # Event handlers examples (to be moved to appropriate modules)
 
+
 async def log_event_handler(event: DomainEvent) -> None:
     """Log all domain events (example handler).
 
     Args:
         event: Domain event
     """
-    logger.info(
-        f"Domain Event: {event.__class__.__name__} "
-        f"(aggregate_id={event.aggregate_id})"
-    )
+    logger.info(f"Domain Event: {event.__class__.__name__} (aggregate_id={event.aggregate_id})")
 
 
 async def publish_entity_events(entity: Any, event_bus: EventBus | None = None) -> None:

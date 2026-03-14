@@ -20,25 +20,28 @@ logger = logging.getLogger(__name__)
 
 class SignalSeverity(StrEnum):
     """Niveau de sévérité d'un signal détecté."""
+
     CRITICAL = "critical"  # 🔴 Action immédiate requise
-    WARNING = "warning"    # 🟡 À surveiller
-    INFO = "info"          # 🟢 Information
+    WARNING = "warning"  # 🟡 À surveiller
+    INFO = "info"  # 🟢 Information
     OPPORTUNITY = "opportunity"  # 🔵 Opportunité détectée
 
 
 class SignalCategory(StrEnum):
     """Catégorie de signal."""
-    CRISIS = "crisis"              # Crise / Alerte
-    GROWTH = "growth"              # Dynamisme / Croissance
-    MUTATION = "mutation"          # Transformation / Mutation
-    EMPLOYMENT = "employment"      # Emploi / Social
+
+    CRISIS = "crisis"  # Crise / Alerte
+    GROWTH = "growth"  # Dynamisme / Croissance
+    MUTATION = "mutation"  # Transformation / Mutation
+    EMPLOYMENT = "employment"  # Emploi / Social
     PUBLIC_MARKET = "public_market"  # Marchés publics
-    INNOVATION = "innovation"      # Innovation
+    INNOVATION = "innovation"  # Innovation
 
 
 @dataclass
 class SignalIndicator:
     """Un indicateur individuel contribuant à un signal."""
+
     name: str
     source: str  # sirene, bodacc, france_travail, dvf, etc.
     value: float
@@ -60,6 +63,7 @@ class SignalIndicator:
 @dataclass
 class DetectedSignal:
     """Un signal détecté avec tous ses détails."""
+
     pattern_id: str
     pattern_name: str
     category: SignalCategory
@@ -104,6 +108,7 @@ class DetectedSignal:
 @dataclass
 class SignalPattern:
     """Définition d'un pattern de signal à détecter."""
+
     id: str
     name: str
     category: SignalCategory
@@ -187,7 +192,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={3: SignalSeverity.CRITICAL, 2: SignalSeverity.WARNING},
             recommendation_template="Surveiller de près le secteur {sector} sur {territory}. "
-                "Envisager des actions de soutien aux entreprises fragilisées.",
+            "Envisager des actions de soutien aux entreprises fragilisées.",
         )
 
         # Pattern 2: Zone en décollage
@@ -231,9 +236,13 @@ class SignalDetector:
                 },
             ],
             min_indicators_triggered=2,
-            severity_rules={4: SignalSeverity.OPPORTUNITY, 3: SignalSeverity.OPPORTUNITY, 2: SignalSeverity.INFO},
+            severity_rules={
+                4: SignalSeverity.OPPORTUNITY,
+                3: SignalSeverity.OPPORTUNITY,
+                2: SignalSeverity.INFO,
+            },
             recommendation_template="Territoire {territory} en croissance. "
-                "Opportunité d'accompagner le développement et d'attirer de nouveaux acteurs.",
+            "Opportunité d'accompagner le développement et d'attirer de nouveaux acteurs.",
         )
 
         # Pattern 3: Désertification commerciale
@@ -271,7 +280,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={3: SignalSeverity.CRITICAL, 2: SignalSeverity.WARNING},
             recommendation_template="Risque de dévitalisation commerciale sur {territory}. "
-                "Actions recommandées: aide à la reprise, animation commerciale, urbanisme.",
+            "Actions recommandées: aide à la reprise, animation commerciale, urbanisme.",
         )
 
         # Pattern 4: Tension métiers
@@ -309,7 +318,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={3: SignalSeverity.WARNING, 2: SignalSeverity.INFO},
             recommendation_template="Tension sur les métiers {jobs} dans {territory}. "
-                "Actions: formation, attractivité, recrutement hors zone.",
+            "Actions: formation, attractivité, recrutement hors zone.",
         )
 
         # Pattern 5: Opportunité marchés publics
@@ -339,7 +348,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={2: SignalSeverity.OPPORTUNITY},
             recommendation_template="Opportunité: marchés publics en hausse dans {sector} "
-                "avec peu d'acteurs locaux sur {territory}. Potentiel d'implantation.",
+            "avec peu d'acteurs locaux sur {territory}. Potentiel d'implantation.",
         )
 
         # Pattern 6: Cluster émergent
@@ -377,7 +386,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={3: SignalSeverity.OPPORTUNITY, 2: SignalSeverity.INFO},
             recommendation_template="Cluster {sector} en émergence sur {territory}. "
-                "Opportunité de structuration et d'accompagnement de la filière.",
+            "Opportunité de structuration et d'accompagnement de la filière.",
         )
 
         # Pattern 7: Mutation territoriale
@@ -415,7 +424,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={3: SignalSeverity.WARNING, 2: SignalSeverity.INFO},
             recommendation_template="Mutation territoriale en cours sur {territory}. "
-                "Vigilance sur la dévitalisation du centre, accompagner la transition.",
+            "Vigilance sur la dévitalisation du centre, accompagner la transition.",
         )
 
         # Pattern 8: Vieillissement entrepreneurial
@@ -453,7 +462,7 @@ class SignalDetector:
             min_indicators_triggered=2,
             severity_rules={3: SignalSeverity.WARNING, 2: SignalSeverity.INFO},
             recommendation_template="Enjeu de transmission sur {territory}. "
-                "{count} entreprises potentiellement concernées. Actions: accompagnement cédants/repreneurs.",
+            "{count} entreprises potentiellement concernées. Actions: accompagnement cédants/repreneurs.",
         )
 
         logger.info(f"Loaded {len(self._patterns)} default signal patterns")
@@ -677,7 +686,7 @@ class SignalDetector:
         recommendation = pattern.recommendation_template.format(
             territory=territory_name,
             sector="",  # À enrichir avec le secteur détecté
-            jobs="",    # À enrichir avec les métiers concernés
+            jobs="",  # À enrichir avec les métiers concernés
             count=triggered_count,
         )
 

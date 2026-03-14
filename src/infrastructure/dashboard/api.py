@@ -55,8 +55,10 @@ def get_db() -> DashboardDB:
 # Pydantic models for API
 # ============================================================
 
+
 class AnalysisCreate(BaseModel):
     """Request model for creating an analysis."""
+
     query: str
     sources: list[str] | None = None
     limit: int = 20
@@ -65,12 +67,14 @@ class AnalysisCreate(BaseModel):
 
 class AlertCreate(BaseModel):
     """Request model for creating an alert/watch."""
+
     keywords: list[str]
     sources: list[str] = ["bodacc", "boamp", "gdelt"]
 
 
 class ExportRequest(BaseModel):
     """Request model for export."""
+
     analysis_id: int
     format: str = "pdf"  # pdf, excel, json
 
@@ -78,6 +82,7 @@ class ExportRequest(BaseModel):
 # ============================================================
 # Health & Status endpoints
 # ============================================================
+
 
 @app.get("/")
 async def root():
@@ -90,7 +95,7 @@ async def root():
             "analyses": "/api/analyses",
             "alerts": "/api/alerts",
             "export": "/api/export",
-        }
+        },
     }
 
 
@@ -119,6 +124,7 @@ async def get_status():
 # Stats endpoints
 # ============================================================
 
+
 @app.get("/api/stats")
 async def get_stats(period: str = "last_7_days"):
     """Get dashboard statistics."""
@@ -137,10 +143,7 @@ async def get_kpis():
     alerts_raw = db.get_unread_alerts(limit=1000)
 
     total_companies = sum(a.results_count for a in analyses)
-    avg_confidence = (
-        sum(a.confidence or 0 for a in analyses) / len(analyses)
-        if analyses else 0
-    )
+    avg_confidence = sum(a.confidence or 0 for a in analyses) / len(analyses) if analyses else 0
 
     return {
         "total_analyses": len(analyses),
@@ -153,6 +156,7 @@ async def get_kpis():
 # ============================================================
 # Analyses endpoints
 # ============================================================
+
 
 @app.get("/api/analyses")
 async def list_analyses(
@@ -170,7 +174,7 @@ async def list_analyses(
         analyses = [a for a in analyses if query_filter.lower() in a.query.lower()]
 
     # Apply pagination
-    analyses = analyses[offset:offset + limit]
+    analyses = analyses[offset : offset + limit]
 
     return {
         "analyses": [a.to_dict() for a in analyses],
@@ -251,6 +255,7 @@ async def create_analysis(request: AnalysisCreate):
 # Alerts endpoints
 # ============================================================
 
+
 @app.get("/api/alerts")
 async def list_alerts(
     unread_only: bool = False,
@@ -286,6 +291,7 @@ async def mark_all_alerts_read():
 # ============================================================
 # Watch/Veille endpoints
 # ============================================================
+
 
 @app.get("/api/watch")
 async def list_watch_items():
@@ -336,6 +342,7 @@ async def toggle_watch_item(watch_id: int):
 # ============================================================
 # Export endpoints
 # ============================================================
+
 
 @app.post("/api/export")
 async def export_analysis(request: ExportRequest):
@@ -444,7 +451,7 @@ async def export_analysis(request: ExportRequest):
                 </div>
 
                 <h3>Sources Used</h3>
-                <p>{', '.join(analysis.sources_used)}</p>
+                <p>{", ".join(analysis.sources_used)}</p>
 
                 <h3>Top Results</h3>
                 <table>
@@ -457,9 +464,9 @@ async def export_analysis(request: ExportRequest):
                     html_content += f"""
                     <tr>
                         <td>{name}</td>
-                        <td>{item.get('siret', '')}</td>
-                        <td>{item.get('source', '')}</td>
-                        <td>{item.get('commune', '')}</td>
+                        <td>{item.get("siret", "")}</td>
+                        <td>{item.get("source", "")}</td>
+                        <td>{item.get("commune", "")}</td>
                     </tr>
                     """
 
@@ -483,7 +490,12 @@ async def export_analysis(request: ExportRequest):
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(html_content)
 
-            return {"success": True, "path": str(filepath), "filename": filename, "note": "PDF unavailable, exported as HTML"}
+            return {
+                "success": True,
+                "path": str(filepath),
+                "filename": filename,
+                "note": "PDF unavailable, exported as HTML",
+            }
 
     else:
         raise HTTPException(status_code=400, detail=f"Unknown format: {request.format}")
@@ -504,6 +516,7 @@ async def download_export(filename: str):
 # ============================================================
 # Map endpoint
 # ============================================================
+
 
 @app.get("/api/map/{analysis_id}")
 async def get_analysis_map(analysis_id: int):
@@ -530,13 +543,15 @@ async def get_analysis_map(analysis_id: int):
     for item in analysis.metadata["results"]:
         geo = item.get("geo")
         if geo and geo.get("lat"):
-            locations.append({
-                "nom": item.get("nom") or item.get("name", "N/A"),
-                "lat": geo["lat"],
-                "lon": geo["lon"],
-                "type": "entreprise",
-                "source": item.get("source", ""),
-            })
+            locations.append(
+                {
+                    "nom": item.get("nom") or item.get("name", "N/A"),
+                    "lat": geo["lat"],
+                    "lon": geo["lon"],
+                    "type": "entreprise",
+                    "source": item.get("source", ""),
+                }
+            )
 
     if not locations:
         return HTMLResponse("<p>No locations to display</p>")
@@ -544,11 +559,14 @@ async def get_analysis_map(analysis_id: int):
     with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
         map_path = f.name
 
-    await registry.execute('geo.map', {
-        'locations': locations,
-        'title': f"Analysis: {analysis.query[:30]}",
-        'output_path': map_path,
-    })
+    await registry.execute(
+        "geo.map",
+        {
+            "locations": locations,
+            "title": f"Analysis: {analysis.query[:30]}",
+            "output_path": map_path,
+        },
+    )
 
     with open(map_path) as f:
         map_html = f.read()
@@ -560,15 +578,18 @@ async def get_analysis_map(analysis_id: int):
 # Run server
 # ============================================================
 
+
 def run_api_server(host: str = "0.0.0.0", port: int = 3001):
     """Run the API server."""
     import uvicorn
+
     print(f"Starting Tawiza Dashboard API on http://{host}:{port}")
     uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=3001)

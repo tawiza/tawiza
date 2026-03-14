@@ -37,6 +37,7 @@ async def _get_db() -> asyncpg.Connection:
 
 # ── Background detection ─────────────────────────────────────
 
+
 async def _run_detection():
     global _detection_state
     _detection_state["is_running"] = True
@@ -44,7 +45,8 @@ async def _run_detection():
     try:
         script = PROJECT_ROOT / "src" / "scripts" / "detect_microsignals_v2.py"
         proc = await asyncio.create_subprocess_exec(
-            "python3", str(script),
+            "python3",
+            str(script),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=str(PROJECT_ROOT),
@@ -54,7 +56,9 @@ async def _run_detection():
         if proc.returncode == 0:
             # Try to parse count from output
             output = stdout.decode()
-            _detection_state["last_count"] = output.strip().split("\n")[-1] if output.strip() else "done"
+            _detection_state["last_count"] = (
+                output.strip().split("\n")[-1] if output.strip() else "done"
+            )
         else:
             _detection_state["error"] = stderr.decode()[-300:]
     except Exception as e:
@@ -64,6 +68,7 @@ async def _run_detection():
 
 
 # ── Routes ───────────────────────────────────────────────────
+
 
 @router.get("/active")
 async def get_active_microsignals(
@@ -87,7 +92,7 @@ async def get_active_microsignals(
                    score, confidence, impact, novelty, description,
                    detected_at, event_period
             FROM micro_signals
-            WHERE {' AND '.join(where_clauses)}
+            WHERE {" AND ".join(where_clauses)}
             ORDER BY score DESC
             LIMIT ${len(params)}
         """
@@ -150,16 +155,23 @@ async def microsignal_stats():
         return {
             "total_active": total,
             "by_type": [
-                {"type": r["signal_type"], "count": r["cnt"], "avg_score": round(float(r["avg_score"]), 3)}
+                {
+                    "type": r["signal_type"],
+                    "count": r["cnt"],
+                    "avg_score": round(float(r["avg_score"]), 3),
+                }
                 for r in by_type
             ],
             "by_department": [
-                {"department": r["territory_code"], "count": r["cnt"], "max_score": round(float(r["max_score"]), 3)}
+                {
+                    "department": r["territory_code"],
+                    "count": r["cnt"],
+                    "max_score": round(float(r["max_score"]), 3),
+                }
                 for r in by_dept
             ],
             "severity_distribution": [
-                {"severity": r["severity"], "count": r["cnt"]}
-                for r in severity_dist
+                {"severity": r["severity"], "count": r["cnt"]} for r in severity_dist
             ],
         }
     finally:
@@ -182,14 +194,17 @@ async def microsignal_history(
             params.append(dept)
             where += f" AND territory_code = ${len(params)}"
 
-        rows = await conn.fetch(f"""
+        rows = await conn.fetch(
+            f"""
             SELECT id, territory_code, signal_type, score, description,
                    detected_at, is_active, validated_by, validation_date
             FROM micro_signals
             WHERE {where}
             ORDER BY detected_at DESC
             LIMIT $2
-        """, *params)
+        """,
+            *params,
+        )
 
         return {
             "total": len(rows),
@@ -203,7 +218,9 @@ async def microsignal_history(
                     "detected_at": r["detected_at"].isoformat() if r["detected_at"] else None,
                     "is_active": r["is_active"],
                     "validated_by": r["validated_by"],
-                    "validation_date": r["validation_date"].isoformat() if r["validation_date"] else None,
+                    "validation_date": r["validation_date"].isoformat()
+                    if r["validation_date"]
+                    else None,
                 }
                 for r in rows
             ],
@@ -217,13 +234,18 @@ async def validate_microsignal(ms_id: int, relevant: bool = True, user: str = "a
     """Mark a micro-signal as validated/rejected."""
     conn = await _get_db()
     try:
-        result = await conn.execute("""
+        result = await conn.execute(
+            """
             UPDATE micro_signals
             SET validated_by = $1,
                 validation_date = now(),
                 is_active = $2
             WHERE id = $3
-        """, user if relevant else f"rejected:{user}", relevant, ms_id)
+        """,
+            user if relevant else f"rejected:{user}",
+            relevant,
+            ms_id,
+        )
 
         if result == "UPDATE 0":
             raise HTTPException(404, f"Micro-signal {ms_id} not found")

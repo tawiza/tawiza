@@ -64,11 +64,14 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         if ctx:
             ctx.info(f"[Dashboard] Marked {count} alerts as read")
 
-        return json.dumps({
-            "success": True,
-            "marked_count": count,
-            "message": f"{count} alertes marquées comme lues",
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "success": True,
+                "marked_count": count,
+                "message": f"{count} alertes marquées comme lues",
+            },
+            ensure_ascii=False,
+        )
 
     @mcp.tool()
     async def dashboard_get_alert(
@@ -91,15 +94,22 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         alert = db.get_alert_detail(alert_id)
 
         if not alert:
-            return json.dumps({
-                "success": False,
-                "error": f"Alerte {alert_id} non trouvée",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Alerte {alert_id} non trouvée",
+                },
+                ensure_ascii=False,
+            )
 
-        return json.dumps({
-            "success": True,
-            "alert": alert,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "alert": alert,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     @mcp.tool()
     async def dashboard_get_alerts(
@@ -139,19 +149,27 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
             alerts = db.get_unread_alerts(limit=limit)
             if source:
                 alerts = [a for a in alerts if a["source"] == source]
-            return json.dumps({
-                "success": True,
-                "count": len(alerts),
-                "alerts": alerts,
-            }, ensure_ascii=False, indent=2)
+            return json.dumps(
+                {
+                    "success": True,
+                    "count": len(alerts),
+                    "alerts": alerts,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         alerts = [dict(row) for row in cursor.fetchall()]
 
-        return json.dumps({
-            "success": True,
-            "count": len(alerts),
-            "alerts": alerts,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "count": len(alerts),
+                "alerts": alerts,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     # =========== Watchlist Management ===========
 
@@ -173,10 +191,13 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         db = get_db()
 
         if not keywords:
-            return json.dumps({
-                "success": False,
-                "error": "Aucun mot-clé fourni",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Aucun mot-clé fourni",
+                },
+                ensure_ascii=False,
+            )
 
         if sources is None:
             sources = ["bodacc", "boamp", "gdelt"]
@@ -189,13 +210,16 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         if ctx:
             ctx.info(f"[Dashboard] Watchlist item created: {item_id}")
 
-        return json.dumps({
-            "success": True,
-            "id": item_id,
-            "keywords": keywords,
-            "sources": sources,
-            "message": f"Mots-clés ajoutés à la watchlist: {', '.join(keywords)}",
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "success": True,
+                "id": item_id,
+                "keywords": keywords,
+                "sources": sources,
+                "message": f"Mots-clés ajoutés à la watchlist: {', '.join(keywords)}",
+            },
+            ensure_ascii=False,
+        )
 
     @mcp.tool()
     async def watchlist_remove(
@@ -213,22 +237,28 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         db = get_db()
 
         if not keywords:
-            return json.dumps({
-                "success": False,
-                "error": "Aucun mot-clé fourni",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Aucun mot-clé fourni",
+                },
+                ensure_ascii=False,
+            )
 
         if ctx:
             ctx.info(f"[Dashboard] Removing keywords: {keywords}")
 
         count = db.remove_watchlist_keywords(keywords)
 
-        return json.dumps({
-            "success": True,
-            "removed_count": count,
-            "keywords": keywords,
-            "message": f"{count} entrées de watchlist désactivées",
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "success": True,
+                "removed_count": count,
+                "keywords": keywords,
+                "message": f"{count} entrées de watchlist désactivées",
+            },
+            ensure_ascii=False,
+        )
 
     @mcp.tool()
     async def watchlist_list(ctx: Context = None) -> str:
@@ -249,12 +279,16 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         for item in watchlist:
             all_keywords.update(item["keywords"])
 
-        return json.dumps({
-            "success": True,
-            "items": watchlist,
-            "all_keywords": sorted(all_keywords),
-            "total_items": len(watchlist),
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "items": watchlist,
+                "all_keywords": sorted(all_keywords),
+                "total_items": len(watchlist),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     # =========== Watcher Control ===========
 
@@ -329,14 +363,18 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         total_found = sum(r.get("alerts_found", 0) for r in results.values() if "error" not in r)
         total_saved = sum(r.get("alerts_saved", 0) for r in results.values() if "error" not in r)
 
-        return json.dumps({
-            "success": True,
-            "results": results,
-            "summary": {
-                "total_alerts_found": total_found,
-                "total_alerts_saved": total_saved,
+        return json.dumps(
+            {
+                "success": True,
+                "results": results,
+                "summary": {
+                    "total_alerts_found": total_found,
+                    "total_alerts_saved": total_saved,
+                },
             },
-        }, ensure_ascii=False, indent=2)
+            ensure_ascii=False,
+            indent=2,
+        )
 
     # =========== Dashboard Status & KPIs ===========
 
@@ -364,7 +402,8 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         total_companies = sum(a.get("results_count", 0) for a in analyses)
         avg_confidence = (
             sum(a.get("confidence", 0) or 0 for a in analyses) / total_analyses
-            if total_analyses else 0
+            if total_analyses
+            else 0
         )
 
         # Get alerts
@@ -373,17 +412,22 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         # Get recent analyses for display
         recent = db.get_recent_analyses(limit=5)
 
-        return json.dumps({
-            "success": True,
-            "kpis": {
-                "total_analyses": total_analyses,
-                "total_companies": total_companies,
-                "avg_confidence": round(avg_confidence, 1),
-                "unread_alerts": alerts_count.get("total_unread", 0),
+        return json.dumps(
+            {
+                "success": True,
+                "kpis": {
+                    "total_analyses": total_analyses,
+                    "total_companies": total_companies,
+                    "avg_confidence": round(avg_confidence, 1),
+                    "unread_alerts": alerts_count.get("total_unread", 0),
+                },
+                "recent_analyses": recent,
+                "alerts_by_source": alerts_count.get("by_source", {}),
             },
-            "recent_analyses": recent,
-            "alerts_by_source": alerts_count.get("by_source", {}),
-        }, ensure_ascii=False, indent=2, default=str)
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def tawiza_history(
@@ -409,16 +453,18 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
 
         # Apply filter if provided
         if query_filter:
-            analyses = [
-                a for a in analyses
-                if query_filter.lower() in a.get("query", "").lower()
-            ]
+            analyses = [a for a in analyses if query_filter.lower() in a.get("query", "").lower()]
 
-        return json.dumps({
-            "success": True,
-            "count": len(analyses),
-            "analyses": analyses,
-        }, ensure_ascii=False, indent=2, default=str)
+        return json.dumps(
+            {
+                "success": True,
+                "count": len(analyses),
+                "analyses": analyses,
+            },
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
     @mcp.tool()
     async def tawiza_export(
@@ -451,10 +497,13 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         row = cursor.fetchone()
 
         if not row:
-            return json.dumps({
-                "success": False,
-                "error": f"Analyse {analysis_id} non trouvée",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Analyse {analysis_id} non trouvée",
+                },
+                ensure_ascii=False,
+            )
 
         analysis = {
             "id": row["id"],
@@ -472,7 +521,11 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
         export_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_query = "".join(c for c in analysis["query"][:30] if c.isalnum() or c in " _-").strip().replace(" ", "_")
+        safe_query = (
+            "".join(c for c in analysis["query"][:30] if c.isalnum() or c in " _-")
+            .strip()
+            .replace(" ", "_")
+        )
 
         if format == "json":
             filename = f"{timestamp}_{safe_query}.json"
@@ -480,12 +533,15 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(analysis, f, ensure_ascii=False, indent=2, default=str)
 
-            return json.dumps({
-                "success": True,
-                "format": "json",
-                "path": str(filepath),
-                "filename": filename,
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": True,
+                    "format": "json",
+                    "path": str(filepath),
+                    "filename": filename,
+                },
+                ensure_ascii=False,
+            )
 
         elif format == "excel":
             try:
@@ -514,26 +570,34 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
                         ws.cell(row=8, column=col, value=h)
 
                     for row_idx, item in enumerate(results[:100], 9):
-                        ws.cell(row=row_idx, column=1, value=item.get("nom") or item.get("name", ""))
+                        ws.cell(
+                            row=row_idx, column=1, value=item.get("nom") or item.get("name", "")
+                        )
                         ws.cell(row=row_idx, column=2, value=item.get("siret", ""))
                         ws.cell(row=row_idx, column=3, value=item.get("source", ""))
                         ws.cell(row=row_idx, column=4, value=item.get("commune", ""))
 
                 wb.save(filepath)
 
-                return json.dumps({
-                    "success": True,
-                    "format": "excel",
-                    "path": str(filepath),
-                    "filename": filename,
-                    "rows": len(results),
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": True,
+                        "format": "excel",
+                        "path": str(filepath),
+                        "filename": filename,
+                        "rows": len(results),
+                    },
+                    ensure_ascii=False,
+                )
 
             except ImportError:
-                return json.dumps({
-                    "success": False,
-                    "error": "openpyxl non installé - utilisez: pip install openpyxl",
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": "openpyxl non installé - utilisez: pip install openpyxl",
+                    },
+                    ensure_ascii=False,
+                )
 
         elif format == "pdf":
             try:
@@ -555,12 +619,12 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
     th {{ background: #2563eb; color: white; }}
 </style></head><body>
 <h1>Tawiza - Rapport d'Analyse</h1>
-<h2>{analysis['query']}</h2>
-<div class="kpi"><strong>Confiance</strong><br>{analysis['confidence']}%</div>
-<div class="kpi"><strong>Résultats</strong><br>{analysis['results_count']}</div>
-<div class="kpi"><strong>Sources</strong><br>{len(analysis['sources_used'])}</div>
+<h2>{analysis["query"]}</h2>
+<div class="kpi"><strong>Confiance</strong><br>{analysis["confidence"]}%</div>
+<div class="kpi"><strong>Résultats</strong><br>{analysis["results_count"]}</div>
+<div class="kpi"><strong>Sources</strong><br>{len(analysis["sources_used"])}</div>
 <h3>Sources utilisées</h3>
-<p>{', '.join(analysis['sources_used'])}</p>
+<p>{", ".join(analysis["sources_used"])}</p>
 <h3>Entreprises trouvées</h3>
 <table><tr><th>Nom</th><th>SIRET</th><th>Source</th><th>Ville</th></tr>"""
 
@@ -574,24 +638,33 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
 
                 HTML(string=html).write_pdf(filepath)
 
-                return json.dumps({
-                    "success": True,
-                    "format": "pdf",
-                    "path": str(filepath),
-                    "filename": filename,
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": True,
+                        "format": "pdf",
+                        "path": str(filepath),
+                        "filename": filename,
+                    },
+                    ensure_ascii=False,
+                )
 
             except ImportError:
-                return json.dumps({
-                    "success": False,
-                    "error": "weasyprint non installé - utilisez: pip install weasyprint",
-                }, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": "weasyprint non installé - utilisez: pip install weasyprint",
+                    },
+                    ensure_ascii=False,
+                )
 
         else:
-            return json.dumps({
-                "success": False,
-                "error": f"Format inconnu: {format}. Utilisez: json, excel, pdf",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Format inconnu: {format}. Utilisez: json, excel, pdf",
+                },
+                ensure_ascii=False,
+            )
 
     @mcp.tool()
     async def watcher_status(ctx: Context = None) -> str:
@@ -619,7 +692,11 @@ def register_dashboard_tools(mcp: FastMCP) -> None:
                 "last_error": ps.get("last_error"),
             }
 
-        return json.dumps({
-            "success": True,
-            "sources": sources,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "success": True,
+                "sources": sources,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )

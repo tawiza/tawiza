@@ -68,20 +68,20 @@ class AgentContext:
 
     def add_message(self, role: str, content: str) -> None:
         """Add a message to the conversation history."""
-        self.messages.append({
-            "role": role,
-            "content": content,
-            "timestamp": datetime.utcnow().isoformat()
-        })
+        self.messages.append(
+            {"role": role, "content": content, "timestamp": datetime.utcnow().isoformat()}
+        )
 
     def add_tool_result(self, tool_name: str, result: Any, success: bool) -> None:
         """Add a tool execution result to context."""
-        self.recent_tool_results.append({
-            "tool_name": tool_name,
-            "result": result,
-            "success": success,
-            "timestamp": datetime.utcnow().isoformat()
-        })
+        self.recent_tool_results.append(
+            {
+                "tool_name": tool_name,
+                "result": result,
+                "success": success,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
 
         # Keep only last 5 tool results to avoid context bloat
         if len(self.recent_tool_results) > 5:
@@ -121,10 +121,7 @@ class ManusAgent(BaseAgent):
             model: LLM model to use for reasoning
             config: Additional agent configuration
         """
-        super().__init__(
-            agent_type=AgentType.CUSTOM,
-            config=config or {}
-        )
+        super().__init__(agent_type=AgentType.CUSTOM, config=config or {})
 
         self.llm_client = llm_client
         self.tool_registry = tool_registry
@@ -134,9 +131,7 @@ class ManusAgent(BaseAgent):
         # System prompt for the agent
         self.system_prompt = self._build_system_prompt()
 
-        logger.info(
-            f"Initialized ManusAgent with max_iterations={max_iterations}, model={model}"
-        )
+        logger.info(f"Initialized ManusAgent with max_iterations={max_iterations}, model={model}")
 
     def _build_system_prompt(self) -> str:
         """Build the system prompt for the agent.
@@ -210,10 +205,7 @@ When responding:
 
         return enriched
 
-    async def think(
-        self,
-        context: AgentContext
-    ) -> dict[str, Any]:
+    async def think(self, context: AgentContext) -> dict[str, Any]:
         """Think step: Analyze task and decide on action.
 
         Uses the LLM to reason about the task and determine
@@ -246,10 +238,9 @@ When responding:
 
             # Add context messages (filter out timestamps for LLM)
             for msg in context.messages:
-                messages.append({
-                    "role": msg.get("role", "user"),
-                    "content": msg.get("content", "")
-                })
+                messages.append(
+                    {"role": msg.get("role", "user"), "content": msg.get("content", "")}
+                )
 
             # Get tool schemas if tool registry available
             tool_schemas = []
@@ -274,7 +265,7 @@ When responding:
             return {
                 "action": AgentAction.ERROR,
                 "reasoning": f"Failed to reason: {str(e)}",
-                "error": str(e)
+                "error": str(e),
             }
 
     def _fallback_think(self, context: AgentContext) -> dict[str, Any]:
@@ -295,19 +286,17 @@ When responding:
                 return {
                     "action": AgentAction.RESPOND,
                     "reasoning": "Responding to user query",
-                    "response": "I received your request and will process it."
+                    "response": "I received your request and will process it.",
                 }
 
         return {
             "action": AgentAction.RESPOND,
             "reasoning": "No specific action needed",
-            "response": "Task initialized"
+            "response": "Task initialized",
         }
 
     def _parse_llm_response(
-        self,
-        response: dict[str, Any],
-        context: AgentContext
+        self, response: dict[str, Any], context: AgentContext
     ) -> dict[str, Any]:
         """Parse LLM response into action decision.
 
@@ -363,10 +352,7 @@ When responding:
                 "finished",
             ]
 
-            is_final = any(
-                indicator in content.lower()
-                for indicator in completion_indicators
-            )
+            is_final = any(indicator in content.lower() for indicator in completion_indicators)
 
             if is_final or len(context.recent_tool_results) > 0:
                 # This looks like a final response
@@ -390,11 +376,7 @@ When responding:
             "response": "I'm not sure how to proceed with this task.",
         }
 
-    async def execute_action(
-        self,
-        action: dict[str, Any],
-        context: AgentContext
-    ) -> dict[str, Any]:
+    async def execute_action(self, action: dict[str, Any], context: AgentContext) -> dict[str, Any]:
         """Execute the decided action.
 
         Args:
@@ -447,11 +429,7 @@ When responding:
                 "is_final": True,
             }
 
-    async def _execute_tool(
-        self,
-        action: dict[str, Any],
-        context: AgentContext
-    ) -> dict[str, Any]:
+    async def _execute_tool(self, action: dict[str, Any], context: AgentContext) -> dict[str, Any]:
         """Execute a tool based on action decision.
 
         Args:
@@ -465,56 +443,33 @@ When responding:
         tool_args = action.get("tool_args", {})
 
         if not self.tool_registry:
-            return {
-                "success": False,
-                "error": "Tool registry not available"
-            }
+            return {"success": False, "error": "Tool registry not available"}
 
         try:
             # Execute tool via registry
             result = await self.tool_registry.execute(tool_name, tool_args)
 
             # Convert ToolResult to dict if needed
-            if hasattr(result, 'to_dict'):
+            if hasattr(result, "to_dict"):
                 result_dict = result.to_dict()
-                result_output = result_dict.get('output', result_dict)
+                result_output = result_dict.get("output", result_dict)
             else:
                 result_output = result
 
             # Add to context
-            context.add_tool_result(
-                tool_name=tool_name,
-                result=result_output,
-                success=True
-            )
+            context.add_tool_result(tool_name=tool_name, result=result_output, success=True)
 
-            return {
-                "success": True,
-                "tool_name": tool_name,
-                "result": result_output
-            }
+            return {"success": True, "tool_name": tool_name, "result": result_output}
 
         except Exception as e:
             logger.error(f"Tool execution failed: {e}")
 
             # Add failure to context
-            context.add_tool_result(
-                tool_name=tool_name,
-                result=str(e),
-                success=False
-            )
+            context.add_tool_result(tool_name=tool_name, result=str(e), success=False)
 
-            return {
-                "success": False,
-                "tool_name": tool_name,
-                "error": str(e)
-            }
+            return {"success": False, "tool_name": tool_name, "error": str(e)}
 
-    async def reasoning_loop(
-        self,
-        task_config: dict[str, Any],
-        task_id: str
-    ) -> dict[str, Any]:
+    async def reasoning_loop(self, task_config: dict[str, Any], task_id: str) -> dict[str, Any]:
         """Main reasoning loop: think -> execute -> reflect.
 
         Args:
@@ -526,13 +481,15 @@ When responding:
         """
         # Initialize context
         context = AgentContext(
-            messages=[{
-                "role": "user",
-                "content": task_config.get("prompt", ""),
-                "timestamp": datetime.utcnow().isoformat()
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": task_config.get("prompt", ""),
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            ],
             available_tools=self.tool_registry.list_tools() if self.tool_registry else [],
-            task_config=task_config
+            task_config=task_config,
         )
 
         iteration = 0
@@ -545,7 +502,7 @@ When responding:
             self._update_progress(
                 task_id=task_id,
                 progress=int((iteration / self.max_iterations) * 100),
-                current_step=f"Reasoning iteration {iteration}/{self.max_iterations}"
+                current_step=f"Reasoning iteration {iteration}/{self.max_iterations}",
             )
 
             logger.info(f"Reasoning iteration {iteration}/{self.max_iterations}")
@@ -557,7 +514,7 @@ When responding:
             self._add_log(
                 task_id=task_id,
                 message=f"Action: {action_type} - {action.get('reasoning', '')[:100]}",
-                level="info"
+                level="info",
             )
 
             # Execute action
@@ -578,30 +535,30 @@ When responding:
 
                 # Add tool result to context for next iteration
                 if result.get("success"):
-                    all_tool_results.append({
-                        "tool": tool_name,
-                        "result": tool_result,
-                    })
+                    all_tool_results.append(
+                        {
+                            "tool": tool_name,
+                            "result": tool_result,
+                        }
+                    )
 
                     # Add tool result as assistant message for LLM context
-                    result_str = json.dumps(tool_result) if not isinstance(tool_result, str) else tool_result
+                    result_str = (
+                        json.dumps(tool_result) if not isinstance(tool_result, str) else tool_result
+                    )
                     context.add_message(
-                        "assistant",
-                        f"Tool '{tool_name}' returned: {result_str[:500]}"
+                        "assistant", f"Tool '{tool_name}' returned: {result_str[:500]}"
                     )
                 else:
                     # Tool failed - add error to context
                     context.add_message(
-                        "assistant",
-                        f"Tool '{tool_name}' failed: {result.get('error')}"
+                        "assistant", f"Tool '{tool_name}' failed: {result.get('error')}"
                     )
 
             # Check if we hit an error
             if not result.get("success"):
                 self._add_log(
-                    task_id=task_id,
-                    message=f"Error: {result.get('error')}",
-                    level="error"
+                    task_id=task_id, message=f"Error: {result.get('error')}", level="error"
                 )
                 # Continue to next iteration to try recovery
 
@@ -615,14 +572,11 @@ When responding:
             "tool_results": all_tool_results,
             "context": {
                 "messages": len(context.messages),
-                "tool_results": len(context.recent_tool_results)
-            }
+                "tool_results": len(context.recent_tool_results),
+            },
         }
 
-    async def execute_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute a task using the reasoning loop.
 
         This is the main entry point called by the framework.
@@ -641,14 +595,10 @@ When responding:
 
         try:
             # Update status
-            self._update_task(task_id, {
-                "status": TaskStatus.RUNNING
-            })
+            self._update_task(task_id, {"status": TaskStatus.RUNNING})
 
             self._add_log(
-                task_id=task_id,
-                message="Starting Manus Agent reasoning loop",
-                level="info"
+                task_id=task_id, message="Starting Manus Agent reasoning loop", level="info"
             )
 
             # Override max iterations if specified
@@ -663,16 +613,19 @@ When responding:
             self.max_iterations = original_max_iterations
 
             # Update task with result
-            self._update_task(task_id, {
-                "status": TaskStatus.COMPLETED if result["success"] else TaskStatus.FAILED,
-                "result": result,
-                "progress": 100
-            })
+            self._update_task(
+                task_id,
+                {
+                    "status": TaskStatus.COMPLETED if result["success"] else TaskStatus.FAILED,
+                    "result": result,
+                    "progress": 100,
+                },
+            )
 
             self._add_log(
                 task_id=task_id,
                 message=f"Task completed in {result['iterations']} iterations",
-                level="info"
+                level="info",
             )
 
             return await self.get_task_result(task_id)
@@ -680,16 +633,9 @@ When responding:
         except Exception as e:
             logger.error(f"Task execution failed: {e}")
 
-            self._update_task(task_id, {
-                "status": TaskStatus.FAILED,
-                "error": str(e)
-            })
+            self._update_task(task_id, {"status": TaskStatus.FAILED, "error": str(e)})
 
-            self._add_log(
-                task_id=task_id,
-                message=f"Task failed: {str(e)}",
-                level="error"
-            )
+            self._add_log(task_id=task_id, message=f"Task failed: {str(e)}", level="error")
 
             raise AgentExecutionError(f"Task execution failed: {str(e)}")
 
@@ -745,7 +691,7 @@ When responding:
                 "tool integration",
                 "browser automation",
                 "code execution",
-                "MCP tools"
+                "MCP tools",
             ],
             "max_iterations": self.max_iterations,
             "model": self.model,
@@ -793,6 +739,7 @@ async def create_manus_agent(
         tool_registry = create_unified_registry()
     else:
         from src.infrastructure.tools import ToolRegistry
+
         tool_registry = ToolRegistry()
 
     # Create agent

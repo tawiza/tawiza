@@ -31,6 +31,7 @@ except ImportError:
             fn.send = lambda *a, **kw: fn(*a, **kw)
             fn.send_with_options = lambda *a, **kw: fn(*a, **kw.get("args", ()))
             return fn
+
         if args and callable(args[0]):
             return decorator(args[0])
         return decorator
@@ -41,6 +42,7 @@ def _get_crawler():
     """Get AdaptiveCrawler instance."""
     try:
         from src.infrastructure.crawler.adaptive_crawler import AdaptiveCrawler
+
         return AdaptiveCrawler()
     except ImportError:
         logger.warning("AdaptiveCrawler not available")
@@ -51,6 +53,7 @@ def _get_headers_manager():
     """Get HeadersManager instance."""
     try:
         from src.infrastructure.crawler.workers.headers_manager import get_headers_manager
+
         return get_headers_manager()
     except ImportError:
         return None
@@ -60,6 +63,7 @@ def _get_proxy_pool():
     """Get ProxyPoolManager instance."""
     try:
         from src.infrastructure.crawler.workers.proxy_pool import get_proxy_pool
+
         return get_proxy_pool()
     except ImportError:
         return None
@@ -245,6 +249,7 @@ def crawl_batch(
             # Add delay between requests
             if results:
                 import random
+
                 time.sleep(random.uniform(1.0, 3.0))
 
             result = crawl_url(url, source_id, options)
@@ -257,12 +262,14 @@ def crawl_batch(
 
         except Exception as e:
             logger.error(f"Batch crawl error for {url}: {e}")
-            results.append({
-                "success": False,
-                "url": url,
-                "source_id": source_id,
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "success": False,
+                    "url": url,
+                    "source_id": source_id,
+                    "error": str(e),
+                }
+            )
             error_count += 1
 
     return {
@@ -303,6 +310,7 @@ def process_result(
             if processor == "clean_html":
                 # Basic HTML cleaning
                 import re
+
                 content = re.sub(r"<script[^>]*>.*?</script>", "", content, flags=re.DOTALL)
                 content = re.sub(r"<style[^>]*>.*?</style>", "", content, flags=re.DOTALL)
                 content = re.sub(r"<[^>]+>", " ", content)
@@ -315,11 +323,13 @@ def process_result(
 
             elif processor == "extract_links":
                 import re
+
                 links = re.findall(r'href=["\']([^"\']+)["\']', crawl_result.get("content", ""))
                 processed["extracted_links"] = links[:50]  # Limit to 50
 
             elif processor == "extract_meta":
                 import re
+
                 meta_pattern = r'<meta[^>]+(?:name|property)=["\']([^"\']+)["\'][^>]+content=["\']([^"\']+)["\']'
                 metas = re.findall(meta_pattern, crawl_result.get("content", ""), re.IGNORECASE)
                 processed["meta"] = dict(metas)

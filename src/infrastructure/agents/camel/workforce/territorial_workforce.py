@@ -134,17 +134,17 @@ Réponds toujours en français avec des instructions claires."""
         workers = [
             SingleAgentWorker(
                 description="Collecte les données d'entreprises via l'API Sirene. "
-                           "Peut rechercher par nom, activité, région, effectif.",
+                "Peut rechercher par nom, activité, région, effectif.",
                 worker=self.data_agent,
             ),
             SingleAgentWorker(
                 description="Génère des cartes interactives et gère la géolocalisation. "
-                           "Peut créer des cartes Folium avec marqueurs.",
+                "Peut créer des cartes Folium avec marqueurs.",
                 worker=self.geo_agent,
             ),
             SingleAgentWorker(
                 description="Analyse les données collectées et génère des rapports structurés. "
-                           "Peut créer des synthèses, identifier des tendances, formuler des recommandations.",
+                "Peut créer des synthèses, identifier des tendances, formuler des recommandations.",
                 worker=self.analyst_agent,
             ),
         ]
@@ -153,7 +153,7 @@ Réponds toujours en français avec des instructions claires."""
             workers.append(
                 SingleAgentWorker(
                     description="Enrichit les données depuis les sites web des entreprises. "
-                               "Peut extraire descriptions, services, contacts, actualités.",
+                    "Peut extraire descriptions, services, contacts, actualités.",
                     worker=self.web_agent,
                 )
             )
@@ -222,7 +222,7 @@ Réponds toujours en français avec des instructions claires."""
         Étapes à suivre:
         1. DataAgent: Recherche les entreprises correspondantes dans Sirene
         2. GeoAgent: Génère une carte des entreprises trouvées
-        3. {'WebAgent: Enrichit les données depuis les sites web' if self.enable_web_enrichment else ''}
+        3. {"WebAgent: Enrichit les données depuis les sites web" if self.enable_web_enrichment else ""}
         4. AnalystAgent: Analyse les données et génère un rapport complet
 
         Le rapport doit être sauvegardé dans: {output_dir}
@@ -242,6 +242,7 @@ Réponds toujours en français avec des instructions claires."""
     def process_sync(self, query: str, output_dir: str = "./outputs/analyses") -> dict[str, Any]:
         """Synchronous wrapper for analyze_market."""
         import asyncio
+
         return asyncio.run(self.analyze_market(query, output_dir))
 
 

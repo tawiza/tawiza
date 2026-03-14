@@ -106,6 +106,7 @@ class UnifiedAdaptiveAgent:
 
         # Lazily import learning engine to avoid circular imports
         from src.infrastructure.learning.learning_engine import LearningEngine
+
         self.learning_engine = LearningEngine(
             trust_manager=self.trust_manager,
             min_examples=self.config.learning.min_examples_for_training,
@@ -119,8 +120,7 @@ class UnifiedAdaptiveAgent:
         self._completed_count = 0
 
         logger.info(
-            f"UnifiedAdaptiveAgent initialized at autonomy level "
-            f"{self.trust_manager.level.name}"
+            f"UnifiedAdaptiveAgent initialized at autonomy level {self.trust_manager.level.name}"
         )
 
     @property

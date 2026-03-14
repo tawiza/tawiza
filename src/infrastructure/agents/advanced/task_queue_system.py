@@ -18,6 +18,7 @@ from loguru import logger
 
 class TaskPriority(Enum):
     """Priorités des tâches"""
+
     LOW = 1
     NORMAL = 5
     HIGH = 8
@@ -26,6 +27,7 @@ class TaskPriority(Enum):
 
 class TaskStatus(Enum):
     """Statuts des tâches"""
+
     PENDING = "pending"
     QUEUED = "queued"
     RUNNING = "running"
@@ -37,6 +39,7 @@ class TaskStatus(Enum):
 @dataclass
 class Task:
     """Tâche à exécuter"""
+
     task_id: str
     task_type: str
     agent_type: str  # data_analyst, ml_engineer, browser_automation, code_generator
@@ -62,6 +65,7 @@ class Task:
 @dataclass
 class WorkerStats:
     """Statistiques d'un worker"""
+
     worker_id: str
     tasks_completed: int = 0
     tasks_failed: int = 0
@@ -90,7 +94,9 @@ class SharedTaskQueue:
             heapq.heappush(self._queue, task)
             self._task_map[task.task_id] = task
             task.status = TaskStatus.QUEUED
-            logger.info(f"📥 Tâche ajoutée à la queue: {task.task_id} (priorité: {task.priority.name})")
+            logger.info(
+                f"📥 Tâche ajoutée à la queue: {task.task_id} (priorité: {task.priority.name})"
+            )
 
     async def get(self) -> Task | None:
         """Récupérer la tâche de plus haute priorité"""
@@ -127,12 +133,11 @@ class LoadBalancer:
     async def register_worker(self, worker_id: str, agent_type: str, max_load: int = 5):
         """Enregistrer un worker"""
         async with self._lock:
-            self.workers[worker_id] = WorkerStats(
-                worker_id=worker_id,
-                max_load=max_load
-            )
+            self.workers[worker_id] = WorkerStats(worker_id=worker_id, max_load=max_load)
             self.agent_to_workers[agent_type].append(worker_id)
-            logger.info(f"👷 Worker enregistré: {worker_id} (type: {agent_type}, max_load: {max_load})")
+            logger.info(
+                f"👷 Worker enregistré: {worker_id} (type: {agent_type}, max_load: {max_load})"
+            )
 
     async def get_best_worker(self, agent_type: str) -> str | None:
         """Obtenir le meilleur worker pour un type d'agent"""
@@ -144,7 +149,7 @@ class LoadBalancer:
 
             # Trouver le worker avec la charge la plus faible
             best_worker = None
-            min_load = float('inf')
+            min_load = float("inf")
 
             for worker_id in workers:
                 worker = self.workers[worker_id]
@@ -180,11 +185,12 @@ class LoadBalancer:
                 worker_id: {
                     "tasks_completed": worker.tasks_completed,
                     "tasks_failed": worker.tasks_failed,
-                    "avg_execution_time": worker.total_execution_time / max(worker.tasks_completed, 1),
+                    "avg_execution_time": worker.total_execution_time
+                    / max(worker.tasks_completed, 1),
                     "current_load": worker.current_load,
                     "max_load": worker.max_load,
                     "utilization": worker.current_load / worker.max_load * 100,
-                    "is_busy": worker.is_busy
+                    "is_busy": worker.is_busy,
                 }
                 for worker_id, worker in self.workers.items()
             }
@@ -193,7 +199,9 @@ class LoadBalancer:
 class WorkerPool:
     """Pool de workers pour exécution parallèle"""
 
-    def __init__(self, task_queue: SharedTaskQueue, load_balancer: LoadBalancer, num_workers: int = 4):
+    def __init__(
+        self, task_queue: SharedTaskQueue, load_balancer: LoadBalancer, num_workers: int = 4
+    ):
         self.task_queue = task_queue
         self.load_balancer = load_balancer
         self.num_workers = num_workers
@@ -258,8 +266,7 @@ class WorkerPool:
 
                     # Exécuter avec timeout
                     task.result = await asyncio.wait_for(
-                        task.func(*task.args, **task.kwargs),
-                        timeout=task.timeout
+                        task.func(*task.args, **task.kwargs), timeout=task.timeout
                     )
 
                     task.status = TaskStatus.COMPLETED
@@ -281,14 +288,18 @@ class WorkerPool:
                         task.retry_count += 1
                         task.status = TaskStatus.PENDING
                         await self.task_queue.put(task)
-                        logger.info(f"🔄 Retry {task.retry_count}/{task.max_retries}: {task.task_id}")
+                        logger.info(
+                            f"🔄 Retry {task.retry_count}/{task.max_retries}: {task.task_id}"
+                        )
 
                 finally:
                     execution_time = time.time() - start_time
                     task.completed_at = time.time()
 
                     # Mettre à jour les statistiques
-                    await self.load_balancer.record_task_completion(worker_id, success, execution_time)
+                    await self.load_balancer.record_task_completion(
+                        worker_id, success, execution_time
+                    )
                     await self.load_balancer.update_worker_load(worker_id, -1)
 
             except asyncio.CancelledError:
@@ -340,7 +351,7 @@ class TaskQueueSystem:
             "started_at": task.started_at,
             "completed_at": task.completed_at,
             "retry_count": task.retry_count,
-            "error": task.error
+            "error": task.error,
         }
 
     async def get_system_stats(self) -> dict[str, Any]:
@@ -354,7 +365,8 @@ class TaskQueueSystem:
             "workers": worker_stats,
             "total_tasks_completed": sum(w["tasks_completed"] for w in worker_stats.values()),
             "total_tasks_failed": sum(w["tasks_failed"] for w in worker_stats.values()),
-            "avg_utilization": sum(w["utilization"] for w in worker_stats.values()) / max(len(worker_stats), 1)
+            "avg_utilization": sum(w["utilization"] for w in worker_stats.values())
+            / max(len(worker_stats), 1),
         }
 
     def _calculate_progress(self, task: Task) -> float:
@@ -377,11 +389,11 @@ class TaskQueueSystem:
 
 # Export
 __all__ = [
-    'Task',
-    'TaskPriority',
-    'TaskStatus',
-    'SharedTaskQueue',
-    'LoadBalancer',
-    'WorkerPool',
-    'TaskQueueSystem'
+    "Task",
+    "TaskPriority",
+    "TaskStatus",
+    "SharedTaskQueue",
+    "LoadBalancer",
+    "WorkerPool",
+    "TaskQueueSystem",
 ]

@@ -54,5 +54,5 @@ __all__ = [
     "EnrichisseurDonnees",
     "ResultatRecherche",
     # Dashboard
-    "DashboardGenerator"
+    "DashboardGenerator",
 ]

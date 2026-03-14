@@ -55,14 +55,7 @@ class SidebarItem(Static):
             super().__init__()
             self.screen_id = screen_id
 
-    def __init__(
-        self,
-        icon: str,
-        label: str,
-        screen_id: str,
-        shortcut: str = "",
-        **kwargs
-    ):
+    def __init__(self, icon: str, label: str, screen_id: str, shortcut: str = "", **kwargs):
         super().__init__(**kwargs)
         self.icon = icon
         self.label = label

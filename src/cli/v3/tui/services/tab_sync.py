@@ -141,9 +141,7 @@ class TabSyncService:
         self._state.clear()
 
     def get_recent_events(
-        self,
-        event_type: SyncEventType | None = None,
-        limit: int = 10
+        self, event_type: SyncEventType | None = None, limit: int = 10
     ) -> list[SyncEvent]:
         """Get recent events from history.
 

@@ -28,17 +28,17 @@ class BanqueFranceCollector(BaseCollector):
         {
             "name": "webstat_banque_france_v2",
             "url": "https://webstat.banque-france.fr/api/explore/v2.1/catalog/datasets/tableaux_rapports_preetablis/records",
-            "params": {"limit": "20", "where": "theme_fr LIKE '%défaillance%'"}
+            "params": {"limit": "20", "where": "theme_fr LIKE '%défaillance%'"},
         },
         {
             "name": "data_gouv_defaillances",
             "url": "https://www.data.gouv.fr/api/1/datasets/",
-            "params": {"q": "defaillances entreprises banque france", "page_size": "5"}
+            "params": {"q": "defaillances entreprises banque france", "page_size": "5"},
         },
         {
             "name": "open_urssaf",
             "url": "https://open.urssaf.fr/api/explore/v2.1/catalog/datasets",
-            "params": {"q": "defaillances"}
+            "params": {"q": "defaillances"},
         },
     ]
 
@@ -69,7 +69,9 @@ class BanqueFranceCollector(BaseCollector):
                 source_signals = await self._collect_from_source(source, code_dept, since)
                 if source_signals:
                     signals.extend(source_signals)
-                    logger.info(f"[banque_france] Got {len(source_signals)} signals from {source['name']}")
+                    logger.info(
+                        f"[banque_france] Got {len(source_signals)} signals from {source['name']}"
+                    )
                     break  # Stop after first successful source
 
             except Exception as e:
@@ -167,10 +169,7 @@ class BanqueFranceCollector(BaseCollector):
                 metric_value=float(failures),
                 signal_type="negatif" if float(failures) > 10 else "neutre",
                 confidence=0.8,
-                raw_data={
-                    "source_row": dict(row),
-                    "data_source": "csv"
-                }
+                raw_data={"source_row": dict(row), "data_source": "csv"},
             )
 
         except Exception as e:
@@ -202,10 +201,7 @@ class BanqueFranceCollector(BaseCollector):
                 metric_value=0.0,  # Would be extracted from actual data
                 signal_type="neutre",
                 confidence=0.3,
-                raw_data={
-                    "dataset": dataset,
-                    "data_source": "api"
-                }
+                raw_data={"dataset": dataset, "data_source": "api"},
             )
             signals.append(signal)
 
@@ -222,14 +218,14 @@ class BanqueFranceCollector(BaseCollector):
 
         # French departments with estimated monthly business failure patterns
         dept_patterns = {
-            "75": 45,    # Paris - high business activity, higher failures
-            "13": 25,    # Bouches-du-Rhône
-            "69": 20,    # Rhône
-            "59": 18,    # Nord
-            "92": 15,    # Hauts-de-Seine
-            "93": 12,    # Seine-Saint-Denis
-            "94": 10,    # Val-de-Marne
-            "95": 8,     # Val-d'Oise
+            "75": 45,  # Paris - high business activity, higher failures
+            "13": 25,  # Bouches-du-Rhône
+            "69": 20,  # Rhône
+            "59": 18,  # Nord
+            "92": 15,  # Hauts-de-Seine
+            "93": 12,  # Seine-Saint-Denis
+            "94": 10,  # Val-de-Marne
+            "95": 8,  # Val-d'Oise
         }
 
         # If specific department requested
@@ -255,8 +251,8 @@ class BanqueFranceCollector(BaseCollector):
                     raw_data={
                         "estimated": True,
                         "data_source": "fallback",
-                        "note": "External sources unavailable"
-                    }
+                        "note": "External sources unavailable",
+                    },
                 )
                 signals.append(signal)
 
@@ -274,10 +270,7 @@ class BanqueFranceCollector(BaseCollector):
                 metric_value=float(failure_count),
                 signal_type="negatif" if failure_count > 10 else "neutre",
                 confidence=0.2,
-                raw_data={
-                    "estimated": True,
-                    "data_source": "fallback"
-                }
+                raw_data={"estimated": True, "data_source": "fallback"},
             )
             signals.append(signal)
 
@@ -289,8 +282,12 @@ class BanqueFranceCollector(BaseCollector):
         desc = dataset.get("description", "").lower()
 
         relevant_terms = [
-            "defaillance", "faillite", "liquidation",
-            "cessation", "entreprise", "societe"
+            "defaillance",
+            "faillite",
+            "liquidation",
+            "cessation",
+            "entreprise",
+            "societe",
         ]
 
         text_to_check = f"{title} {desc}"

@@ -1,4 +1,5 @@
 """Extended KnowledgeGraph with Neo4j integration."""
+
 import asyncio
 from typing import Any
 
@@ -25,9 +26,7 @@ class ExtendedKnowledgeGraph(KnowledgeGraph):
     """
 
     def __init__(
-        self,
-        neo4j_config: Neo4jConfig | None = None,
-        sync_config: SyncConfig | None = None
+        self, neo4j_config: Neo4jConfig | None = None, sync_config: SyncConfig | None = None
     ):
         """
         Initialize extended KnowledgeGraph.
@@ -50,11 +49,7 @@ class ExtendedKnowledgeGraph(KnowledgeGraph):
         if neo4j_config:
             self._neo4j_client = Neo4jClient(neo4j_config)
             self._sync_queue = SyncQueue()
-            self._batch_writer = BatchWriter(
-                self._sync_queue,
-                self._neo4j_client,
-                sync_config
-            )
+            self._batch_writer = BatchWriter(self._sync_queue, self._neo4j_client, sync_config)
 
             # Initialize algorithm helpers
             self._community_detector = CommunityDetector(self._neo4j_client)
@@ -84,7 +79,7 @@ class ExtendedKnowledgeGraph(KnowledgeGraph):
         predicate: str,
         obj: Any,
         source: str | None = None,
-        confidence: float = 1.0
+        confidence: float = 1.0,
     ) -> Triple:
         """Add triple to cache and queue for Neo4j sync."""
         # Add to in-memory cache
@@ -104,8 +99,8 @@ class ExtendedKnowledgeGraph(KnowledgeGraph):
                     "id": entity_id,
                     predicate: obj,
                     "_source": source,
-                    "_confidence": confidence
-                }
+                    "_confidence": confidence,
+                },
             )
             # Queue without blocking
             try:
@@ -121,31 +116,21 @@ class ExtendedKnowledgeGraph(KnowledgeGraph):
         return triple
 
     # Graph algorithm methods
-    async def get_communities(
-        self,
-        territory_code: str,
-        min_size: int = 2
-    ) -> list[Community]:
+    async def get_communities(self, territory_code: str, min_size: int = 2) -> list[Community]:
         """Detect communities in territory."""
         if not self._community_detector:
             return []
         return await self._community_detector.detect(territory_code, min_size)
 
     async def get_top_companies(
-        self,
-        territory_code: str,
-        top_k: int = 20
+        self, territory_code: str, top_k: int = 20
     ) -> list[CentralityScore]:
         """Get top companies by PageRank centrality."""
         if not self._centrality_calc:
             return []
         return await self._centrality_calc.pagerank(territory_code, top_k)
 
-    async def find_similar_companies(
-        self,
-        siren: str,
-        top_k: int = 10
-    ) -> list[SimilarCompany]:
+    async def find_similar_companies(self, siren: str, top_k: int = 10) -> list[SimilarCompany]:
         """Find companies similar to given SIREN."""
         if not self._similarity_finder:
             return []

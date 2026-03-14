@@ -193,11 +193,13 @@ Réponds en français avec cette structure :
         for source, items in by_source.items():
             findings.append(f"- {source}: {len(items)} résultats trouvés")
             if items:
-                evidence.append({
-                    "source": source,
-                    "count": len(items),
-                    "sample": items[0] if items else None,
-                })
+                evidence.append(
+                    {
+                        "source": source,
+                        "count": len(items),
+                        "sample": items[0] if items else None,
+                    }
+                )
 
         # Calculate initial confidence based on data quantity and diversity
         source_diversity = len(by_source)
@@ -208,20 +210,29 @@ Réponds en français avec cette structure :
             content = "Aucun résultat trouvé dans les sources interrogées."
         elif source_diversity >= 3 and total_results >= 10:
             confidence = 80
-            content = f"Données riches collectées: {total_results} résultats de {source_diversity} sources.\n" + "\n".join(findings)
+            content = (
+                f"Données riches collectées: {total_results} résultats de {source_diversity} sources.\n"
+                + "\n".join(findings)
+            )
         elif source_diversity >= 2:
             confidence = 60
-            content = f"Données modérées: {total_results} résultats de {source_diversity} sources.\n" + "\n".join(findings)
+            content = (
+                f"Données modérées: {total_results} résultats de {source_diversity} sources.\n"
+                + "\n".join(findings)
+            )
         else:
             confidence = 40
-            content = f"Données limitées: {total_results} résultats d'une seule source.\n" + "\n".join(findings)
+            content = (
+                f"Données limitées: {total_results} résultats d'une seule source.\n"
+                + "\n".join(findings)
+            )
 
         # Use LLM for enhanced analysis if available
         if self.has_llm and results:
             llm_prompt = f"""Analyse ces données de recherche et fournis un résumé:
 
 Nombre total de résultats: {total_results}
-Sources consultées: {', '.join(by_source.keys())}
+Sources consultées: {", ".join(by_source.keys())}
 
 Résultats par source:
 {chr(10).join(findings)}
@@ -332,7 +343,9 @@ Tu RÉDUIS la confiance des agents précédents selon les problèmes trouvés :
         # Check for missing critical fields
         missing_siret = sum(1 for r in results if not r.get("siret"))
         if missing_siret > len(results) * 0.5:
-            issues.append(f"{missing_siret}/{len(results)} résultats sans SIRET - identification difficile")
+            issues.append(
+                f"{missing_siret}/{len(results)} résultats sans SIRET - identification difficile"
+            )
 
         # Check for date freshness
         old_data = 0
@@ -378,10 +391,10 @@ Tu RÉDUIS la confiance des agents précédents selon les problèmes trouvés :
             llm_prompt = f"""Analyse critique des données collectées:
 
 Problèmes détectés automatiquement:
-{chr(10).join(f'- {i}' for i in issues) if issues else '- Aucun problème détecté'}
+{chr(10).join(f"- {i}" for i in issues) if issues else "- Aucun problème détecté"}
 
 Résumé du Chercheur:
-{chercheur_content[:500] if chercheur_content else 'Non disponible'}
+{chercheur_content[:500] if chercheur_content else "Non disponible"}
 
 Échantillon de données:
 {results[:2]}
@@ -509,9 +522,7 @@ Toujours montrer l'AMPLEUR de l'analyse :
         sirets = [r.get("siret") for r in results if r.get("siret")]
         valid_sirets = [s for s in sirets if len(str(s).replace(" ", "")) == 14]
         if sirets:
-            verification_results.append(
-                f"SIRET valides: {len(valid_sirets)}/{len(sirets)}"
-            )
+            verification_results.append(f"SIRET valides: {len(valid_sirets)}/{len(sirets)}")
 
         # Check for corroborating evidence
         by_entity: dict[str, list] = {}
@@ -521,9 +532,7 @@ Toujours montrer l'AMPLEUR de l'analyse :
 
         multi_source_entities = sum(1 for sources in by_entity.values() if len(set(sources)) > 1)
         if multi_source_entities > 0:
-            verification_results.append(
-                f"Entités multi-sources (fiables): {multi_source_entities}"
-            )
+            verification_results.append(f"Entités multi-sources (fiables): {multi_source_entities}")
 
         # Calculate final confidence
         base_confidence = context[-1].confidence if context else 50
@@ -547,7 +556,9 @@ Toujours montrer l'AMPLEUR de l'analyse :
         else:
             verdict = "❌ CONFIANCE TRÈS FAIBLE - Données insuffisantes"
 
-        content = f"{verdict}\n\nVérifications effectuées:\n" + "\n".join(f"• {v}" for v in verification_results)
+        content = f"{verdict}\n\nVérifications effectuées:\n" + "\n".join(
+            f"• {v}" for v in verification_results
+        )
 
         if all_issues:
             content += "\n\nProblèmes non résolus:\n" + "\n".join(f"• {i}" for i in all_issues[:3])
@@ -564,10 +575,10 @@ Contexte des agents précédents:
 {context_summary}
 
 Vérifications effectuées:
-{chr(10).join(f'- {v}' for v in verification_results)}
+{chr(10).join(f"- {v}" for v in verification_results)}
 
 Problèmes identifiés:
-{chr(10).join(f'- {i}' for i in all_issues[:5]) if all_issues else '- Aucun'}
+{chr(10).join(f"- {i}" for i in all_issues[:5]) if all_issues else "- Aucun"}
 
 Fournis:
 1. Une évaluation finale de la fiabilité des données
@@ -679,16 +690,20 @@ Ton rôle : établir ce qui est PROUVÉ vs ce qui est SUPPOSÉ.
             auth_sources = sources.intersection(self.AUTHORITATIVE_SOURCES)
 
             if auth_sources:
-                verified_facts.append({
-                    "entity": entity_key,
-                    "verified_by": list(auth_sources),
-                    "claim_count": len(entity_results),
-                })
+                verified_facts.append(
+                    {
+                        "entity": entity_key,
+                        "verified_by": list(auth_sources),
+                        "claim_count": len(entity_results),
+                    }
+                )
             else:
-                unverified_claims.append({
-                    "entity": entity_key,
-                    "sources": list(sources),
-                })
+                unverified_claims.append(
+                    {
+                        "entity": entity_key,
+                        "sources": list(sources),
+                    }
+                )
 
         # Calculate confidence based on verification ratio
         total_entities = len(entities)
@@ -713,9 +728,7 @@ Ton rôle : établir ce qui est PROUVÉ vs ce qui est SUPPOSÉ.
                     )
 
             if unverified_claims:
-                issues.append(
-                    f"{len(unverified_claims)} entités sans source officielle"
-                )
+                issues.append(f"{len(unverified_claims)} entités sans source officielle")
                 content_parts.append("\n⚠️ Claims non vérifiés:")
                 for claim in unverified_claims[:3]:
                     content_parts.append(
@@ -729,13 +742,13 @@ Ton rôle : établir ce qui est PROUVÉ vs ce qui est SUPPOSÉ.
             llm_prompt = f"""Analyse de fact-checking:
 
 Entités vérifiées: {verified_count}/{total_entities}
-Sources autoritatives utilisées: {', '.join(self.AUTHORITATIVE_SOURCES)}
+Sources autoritatives utilisées: {", ".join(self.AUTHORITATIVE_SOURCES)}
 
 Faits vérifiés:
-{chr(10).join(f"- {f['entity']}: {f['verified_by']}" for f in verified_facts[:5]) if verified_facts else '- Aucun'}
+{chr(10).join(f"- {f['entity']}: {f['verified_by']}" for f in verified_facts[:5]) if verified_facts else "- Aucun"}
 
 Claims non vérifiés:
-{chr(10).join(f"- {c['entity']}: {c['sources']}" for c in unverified_claims[:5]) if unverified_claims else '- Aucun'}
+{chr(10).join(f"- {c['entity']}: {c['sources']}" for c in unverified_claims[:5]) if unverified_claims else "- Aucun"}
 
 Évalue:
 1. La fiabilité globale des informations
@@ -814,15 +827,15 @@ Tu reçois l'analyse du Chercheur. Utilise ses observations pour contextualiser 
 
     # Source reliability scores (0-100)
     SOURCE_RELIABILITY = {
-        "sirene": 95,      # Official INSEE registry
-        "bodacc": 90,      # Official legal announcements
-        "boamp": 90,       # Official public procurement
-        "ban": 85,         # Official address database
-        "subventions": 80, # Government grants data
-        "gdelt": 60,       # News aggregator
-        "google_news": 55, # RSS news feed
-        "rss": 50,         # Generic RSS feeds
-        "unknown": 30,     # Unknown sources
+        "sirene": 95,  # Official INSEE registry
+        "bodacc": 90,  # Official legal announcements
+        "boamp": 90,  # Official public procurement
+        "ban": 85,  # Official address database
+        "subventions": 80,  # Government grants data
+        "gdelt": 60,  # News aggregator
+        "google_news": 55,  # RSS news feed
+        "rss": 50,  # Generic RSS feeds
+        "unknown": 30,  # Unknown sources
     }
 
     def __init__(self, llm: LLMProvider | None = None):
@@ -866,12 +879,14 @@ Tu reçois l'analyse du Chercheur. Utilise ses observations pour contextualiser 
                 score += int(date_ratio * 5)  # +5 for all dated
                 score += int(siret_ratio * 10)  # +10 for all with SIRET
 
-            ranked_sources.append({
-                "source": source,
-                "score": min(score, 100),
-                "count": stats["count"],
-                "reliability": stats["reliability"],
-            })
+            ranked_sources.append(
+                {
+                    "source": source,
+                    "score": min(score, 100),
+                    "count": stats["count"],
+                    "reliability": stats["reliability"],
+                }
+            )
 
         # Sort by score descending
         ranked_sources.sort(key=lambda x: x["score"], reverse=True)
@@ -887,7 +902,9 @@ Tu reçois l'analyse du Chercheur. Utilise ses observations pour contextualiser 
 
             content_parts = ["Classement des sources:"]
             for i, src in enumerate(ranked_sources, 1):
-                reliability_label = "🟢" if src["score"] >= 80 else "🟡" if src["score"] >= 60 else "🔴"
+                reliability_label = (
+                    "🟢" if src["score"] >= 80 else "🟡" if src["score"] >= 60 else "🔴"
+                )
                 content_parts.append(
                     f"{i}. {reliability_label} {src['source']}: {src['score']}/100 ({src['count']} résultats)"
                 )
@@ -1039,7 +1056,9 @@ Ton rôle : rendre tout ça ACTIONNABLE.
         # Key metrics
         synthesis_parts.append(f"**Résultats analysés:** {len(results)}")
         synthesis_parts.append(f"**Agents consultés:** {len(context)}")
-        synthesis_parts.append(f"**Confiance moyenne:** {int(avg_confidence) if confidence_scores else 0}%")
+        synthesis_parts.append(
+            f"**Confiance moyenne:** {int(avg_confidence) if confidence_scores else 0}%"
+        )
 
         # Key findings
         if all_evidence:
@@ -1075,8 +1094,7 @@ Ton rôle : rendre tout ça ACTIONNABLE.
         # Use LLM for enhanced synthesis if available
         if self.has_llm and context:
             agents_summary = "\n".join(
-                f"**{m.agent}** (confiance: {m.confidence}%): {m.content[:300]}"
-                for m in context
+                f"**{m.agent}** (confiance: {m.confidence}%): {m.content[:300]}" for m in context
             )
             llm_prompt = f"""Synthèse finale de l'analyse multi-agents:
 
@@ -1088,7 +1106,7 @@ Contributions des agents:
 {agents_summary}
 
 Problèmes identifiés:
-{chr(10).join(f'- {i}' for i in unique_issues[:5]) if unique_issues else '- Aucun'}
+{chr(10).join(f"- {i}" for i in unique_issues[:5]) if unique_issues else "- Aucun"}
 
 Fournis:
 1. Une synthèse exécutive en 3-5 points clés

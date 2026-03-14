@@ -72,10 +72,7 @@ class GoogleNewsAdapter(BaseAdapter):
                 logger.warning(f"Feed parse error: {feed.bozo_exception}")
                 return []
 
-            return [
-                self._transform_entry(entry)
-                for entry in feed.entries[:limit]
-            ]
+            return [self._transform_entry(entry) for entry in feed.entries[:limit]]
 
         except httpx.HTTPError as e:
             logger.error(f"Google News search failed: {e}")

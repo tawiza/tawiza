@@ -35,7 +35,7 @@ class OpenManusAdapter(BaseAgent):
         self,
         headless: bool = True,
         screenshots_dir: str = "/tmp/tawiza-screenshots",
-        llm_client: Any | None = None
+        llm_client: Any | None = None,
     ) -> None:
         """Initialize OpenManus adapter.
 
@@ -55,17 +55,14 @@ class OpenManusAdapter(BaseAgent):
         self.browser: Browser | None = None
 
         logger.info(
-            f"Initialized OpenManus adapter "
-            f"(headless={headless}, screenshots={screenshots_dir})"
+            f"Initialized OpenManus adapter (headless={headless}, screenshots={screenshots_dir})"
         )
 
     async def _ensure_browser(self) -> Browser:
         """Ensure browser is running."""
         if not self.browser:
             self.playwright = await async_playwright().start()
-            self.browser = await self.playwright.chromium.launch(
-                headless=self.headless
-            )
+            self.browser = await self.playwright.chromium.launch(headless=self.headless)
             logger.info("Started Chromium browser")
 
         return self.browser
@@ -81,10 +78,7 @@ class OpenManusAdapter(BaseAgent):
             await self.playwright.stop()
             self.playwright = None
 
-    async def execute_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute web automation task.
 
         Args:
@@ -152,17 +146,15 @@ class OpenManusAdapter(BaseAgent):
                 try:
                     await page.goto(url, wait_until="networkidle", timeout=30000)
                 except Exception as e:
-                    logger.warning(f"Navigation with networkidle failed, retrying with domcontentloaded: {e}")
+                    logger.warning(
+                        f"Navigation with networkidle failed, retrying with domcontentloaded: {e}"
+                    )
                     await page.goto(url, wait_until="domcontentloaded", timeout=60000)
                     # Wait a bit for dynamic content
                     await page.wait_for_timeout(2000)
 
                 # Take initial screenshot
-                _screenshot_path = await self._take_screenshot(
-                    page,
-                    task_id,
-                    "initial"
-                )
+                _screenshot_path = await self._take_screenshot(page, task_id, "initial")
 
                 # Execute action
                 self._update_progress(task_id, 40, f"Executing action: {action}")
@@ -189,10 +181,7 @@ class OpenManusAdapter(BaseAgent):
 
                 # Mark as completed
                 self._update_progress(task_id, 100, "Completed")
-                self._update_task(task_id, {
-                    "status": TaskStatus.COMPLETED,
-                    "result": result
-                })
+                self._update_task(task_id, {"status": TaskStatus.COMPLETED, "result": result})
 
                 self._add_log(task_id, "Task completed successfully")
 
@@ -203,20 +192,12 @@ class OpenManusAdapter(BaseAgent):
 
         except Exception as e:
             logger.error(f"Task {task_id} failed: {e}", exc_info=True)
-            self._update_task(task_id, {
-                "status": TaskStatus.FAILED,
-                "error": str(e)
-            })
+            self._update_task(task_id, {"status": TaskStatus.FAILED, "error": str(e)})
             self._add_log(task_id, f"Task failed: {e}", level="error")
 
             raise AgentExecutionError(f"Task execution failed: {e}") from e
 
-    async def _take_screenshot(
-        self,
-        page: Page,
-        task_id: str,
-        label: str
-    ) -> str:
+    async def _take_screenshot(self, page: Page, task_id: str, label: str) -> str:
         """Take screenshot and save it."""
         filename = f"{task_id}_{label}.png"
         filepath = self.screenshots_dir / filename
@@ -230,24 +211,17 @@ class OpenManusAdapter(BaseAgent):
 
         return screenshot_url
 
-    async def _action_navigate(
-        self,
-        page: Page,
-        config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def _action_navigate(self, page: Page, config: dict[str, Any]) -> dict[str, Any]:
         """Execute navigate action."""
         return {
             "action": "navigate",
             "url": page.url,
             "title": await page.title(),
-            "status": "success"
+            "status": "success",
         }
 
     async def _action_extract(
-        self,
-        page: Page,
-        config: dict[str, Any],
-        task_id: str
+        self, page: Page, config: dict[str, Any], task_id: str
     ) -> dict[str, Any]:
         """Extract data from page.
 
@@ -257,7 +231,7 @@ class OpenManusAdapter(BaseAgent):
 
         # Get page HTML
         html = await page.content()
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, "html.parser")
 
         # Extract based on target
         target = config.get("data", {}).get("target", "")
@@ -279,24 +253,16 @@ class OpenManusAdapter(BaseAgent):
                 "text": soup.get_text(strip=True)[:1000],  # First 1000 chars
                 "links": [
                     {"text": a.get_text(strip=True), "href": a.get("href")}
-                    for a in soup.find_all('a', href=True)[:10]  # First 10 links
-                ]
+                    for a in soup.find_all("a", href=True)[:10]  # First 10 links
+                ],
             }
 
         self._update_progress(task_id, 80, "Data extracted")
 
-        return {
-            "action": "extract",
-            "target": target,
-            "data": extracted_data,
-            "status": "success"
-        }
+        return {"action": "extract", "target": target, "data": extracted_data, "status": "success"}
 
     async def _action_fill_form(
-        self,
-        page: Page,
-        config: dict[str, Any],
-        task_id: str
+        self, page: Page, config: dict[str, Any], task_id: str
     ) -> dict[str, Any]:
         """Fill form with provided data."""
         selectors = config.get("selectors", {})
@@ -318,11 +284,7 @@ class OpenManusAdapter(BaseAgent):
 
             except Exception as e:
                 logger.error(f"Failed to fill {field_name}: {e}")
-                self._add_log(
-                    task_id,
-                    f"Failed to fill {field_name}: {e}",
-                    level="error"
-                )
+                self._add_log(task_id, f"Failed to fill {field_name}: {e}", level="error")
 
         # Take screenshot after filling
         await self._take_screenshot(page, task_id, "form_filled")
@@ -340,7 +302,7 @@ class OpenManusAdapter(BaseAgent):
                     "action": "fill_form",
                     "filled_fields": filled_fields,
                     "submitted": True,
-                    "status": "success"
+                    "status": "success",
                 }
 
             except Exception as e:
@@ -350,14 +312,11 @@ class OpenManusAdapter(BaseAgent):
             "action": "fill_form",
             "filled_fields": filled_fields,
             "submitted": False,
-            "status": "success"
+            "status": "success",
         }
 
     async def _action_click(
-        self,
-        page: Page,
-        config: dict[str, Any],
-        task_id: str
+        self, page: Page, config: dict[str, Any], task_id: str
     ) -> dict[str, Any]:
         """Click element."""
         selector = config.get("selector")
@@ -375,7 +334,7 @@ class OpenManusAdapter(BaseAgent):
             "selector": selector,
             "url": page.url,
             "title": await page.title(),
-            "status": "success"
+            "status": "success",
         }
 
     async def cleanup(self) -> None:
@@ -431,21 +390,14 @@ async def test_openmanus():
 
     try:
         # Test navigation
-        result = await agent.execute_task({
-            "url": "https://example.com",
-            "action": "navigate"
-        })
+        result = await agent.execute_task({"url": "https://example.com", "action": "navigate"})
 
         print("Navigation result:", json.dumps(result, indent=2))
 
         # Test extraction
-        result = await agent.execute_task({
-            "url": "https://example.com",
-            "action": "extract",
-            "data": {
-                "target": "page content"
-            }
-        })
+        result = await agent.execute_task(
+            {"url": "https://example.com", "action": "extract", "data": {"target": "page content"}}
+        )
 
         print("Extraction result:", json.dumps(result, indent=2))
 

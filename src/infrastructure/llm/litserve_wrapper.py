@@ -29,6 +29,7 @@ from src.infrastructure.ml.ollama.ollama_adapter import OllamaAdapter
 @dataclass
 class CompletionRequest:
     """Request for text completion"""
+
     model: str
     prompt: str
     system: str | None = None
@@ -39,6 +40,7 @@ class CompletionRequest:
 @dataclass
 class ChatRequest:
     """Request for chat completion"""
+
     model: str
     messages: list[dict[str, str]]
     temperature: float = 0.7
@@ -47,6 +49,7 @@ class ChatRequest:
 @dataclass
 class EmbeddingRequest:
     """Request for embeddings"""
+
     model: str
     text: str
 
@@ -64,7 +67,7 @@ class OllamaLitServe(ls.LitAPI):
         ollama_base_url: str = "http://localhost:11434",
         default_model: str = "qwen2.5:7b",
         pool_connections: int = 20,
-        pool_maxsize: int = 40
+        pool_maxsize: int = 40,
     ):
         """
         Initialize LitServe wrapper.
@@ -98,12 +101,10 @@ class OllamaLitServe(ls.LitAPI):
             base_url=self.ollama_base_url,
             use_gpu=(device != "cpu"),
             pool_connections=self.pool_connections,
-            pool_maxsize=self.pool_maxsize
+            pool_maxsize=self.pool_maxsize,
         )
 
-        logger.info(
-            f"OllamaLitServe ready with {self.pool_connections} connections"
-        )
+        logger.info(f"OllamaLitServe ready with {self.pool_connections} connections")
 
     def decode_request(self, request: dict[str, Any]) -> Any:
         """
@@ -128,18 +129,17 @@ class OllamaLitServe(ls.LitAPI):
                 prompt=request.get("prompt", ""),
                 system=request.get("system"),
                 temperature=request.get("temperature", 0.7),
-                max_tokens=request.get("max_tokens")
+                max_tokens=request.get("max_tokens"),
             )
         elif request_type == "chat":
             return ChatRequest(
                 model=request.get("model", self.default_model),
                 messages=request.get("messages", []),
-                temperature=request.get("temperature", 0.7)
+                temperature=request.get("temperature", 0.7),
             )
         elif request_type == "embedding":
             return EmbeddingRequest(
-                model=request.get("model", "nomic-embed-text"),
-                text=request.get("text", "")
+                model=request.get("model", "nomic-embed-text"), text=request.get("text", "")
             )
         else:
             raise ValueError(f"Unknown request type: {request_type}")
@@ -194,17 +194,12 @@ class OllamaLitServe(ls.LitAPI):
         asyncio.set_event_loop(loop)
 
         try:
-            results = loop.run_until_complete(
-                self._process_batch(inputs)
-            )
+            results = loop.run_until_complete(self._process_batch(inputs))
             return results
         finally:
             loop.close()
 
-    async def _process_batch(
-        self,
-        inputs: list[Any]
-    ) -> list[dict[str, Any]]:
+    async def _process_batch(self, inputs: list[Any]) -> list[dict[str, Any]]:
         """
         Process batch of requests concurrently.
 
@@ -235,19 +230,13 @@ class OllamaLitServe(ls.LitAPI):
         processed_results = []
         for result in results:
             if isinstance(result, Exception):
-                processed_results.append({
-                    "error": str(result),
-                    "type": "error"
-                })
+                processed_results.append({"error": str(result), "type": "error"})
             else:
                 processed_results.append(result)
 
         return processed_results
 
-    async def _handle_completion(
-        self,
-        req: CompletionRequest
-    ) -> dict[str, Any]:
+    async def _handle_completion(self, req: CompletionRequest) -> dict[str, Any]:
         """Handle completion request"""
         try:
             result = await self.adapter.generate(
@@ -256,13 +245,13 @@ class OllamaLitServe(ls.LitAPI):
                 system=req.system,
                 temperature=req.temperature,
                 max_tokens=req.max_tokens,
-                stream=False
+                stream=False,
             )
             return {
                 "type": "completion",
                 "response": result.get("response", ""),
                 "model": req.model,
-                "done": True
+                "done": True,
             }
         except Exception as e:
             logger.error(f"Completion failed: {e}")
@@ -272,36 +261,23 @@ class OllamaLitServe(ls.LitAPI):
         """Handle chat request"""
         try:
             result = await self.adapter.chat(
-                model=req.model,
-                messages=req.messages,
-                temperature=req.temperature,
-                stream=False
+                model=req.model, messages=req.messages, temperature=req.temperature, stream=False
             )
             return {
                 "type": "chat",
                 "message": result.get("message", {}),
                 "model": req.model,
-                "done": True
+                "done": True,
             }
         except Exception as e:
             logger.error(f"Chat failed: {e}")
             return {"error": str(e), "type": "error"}
 
-    async def _handle_embedding(
-        self,
-        req: EmbeddingRequest
-    ) -> dict[str, Any]:
+    async def _handle_embedding(self, req: EmbeddingRequest) -> dict[str, Any]:
         """Handle embedding request"""
         try:
-            embedding = await self.adapter.get_embedding(
-                model=req.model,
-                text=req.text
-            )
-            return {
-                "type": "embedding",
-                "embedding": embedding,
-                "model": req.model
-            }
+            embedding = await self.adapter.get_embedding(model=req.model, text=req.text)
+            return {"type": "embedding", "embedding": embedding, "model": req.model}
         except Exception as e:
             logger.error(f"Embedding failed: {e}")
             return {"error": str(e), "type": "error"}
@@ -346,7 +322,7 @@ def serve(
     ollama_url: str = "http://localhost:11434",
     max_batch_size: int = 8,
     batch_timeout: float = 0.05,  # 50ms window to collect requests
-    workers: int = 1
+    workers: int = 1,
 ):
     """
     Start LitServe server for Ollama.
@@ -370,7 +346,7 @@ def serve(
         accelerator="auto",
         max_batch_size=max_batch_size,
         batch_timeout=batch_timeout,
-        workers_per_device=workers
+        workers_per_device=workers,
     )
 
     logger.info(f"Starting OllamaLitServe on {host}:{port}")

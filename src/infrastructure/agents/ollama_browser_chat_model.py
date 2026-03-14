@@ -80,9 +80,7 @@ class OllamaBrowserChatModel:
                     if isinstance(msg_dict, dict):
                         ollama_messages.append(msg_dict)
 
-            logger.debug(
-                f"Sending {len(ollama_messages)} messages to Ollama model {self.model}"
-            )
+            logger.debug(f"Sending {len(ollama_messages)} messages to Ollama model {self.model}")
 
             # Call Ollama chat API
             response = await self.ollama.chat(

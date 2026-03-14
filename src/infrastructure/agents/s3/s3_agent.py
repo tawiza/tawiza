@@ -34,6 +34,7 @@ if TYPE_CHECKING:
 
 class S3Mode(StrEnum):
     """Execution modes for S3Agent."""
+
     BROWSER = "browser"
     DESKTOP = "desktop"
     HYBRID = "hybrid"  # Agent decides per action
@@ -41,6 +42,7 @@ class S3Mode(StrEnum):
 
 class S3Action(StrEnum):
     """Types of actions the S3 agent can take."""
+
     NAVIGATE = "navigate"
     CLICK = "click"
     TYPE = "type"
@@ -93,10 +95,7 @@ class S3Agent(BaseAgent):
             max_iterations: Maximum action iterations
             config: Additional agent configuration
         """
-        super().__init__(
-            agent_type=AgentType.CUSTOM,
-            config=config or {}
-        )
+        super().__init__(agent_type=AgentType.CUSTOM, config=config or {})
 
         self.llm_client = llm_client
         self.tool_registry = tool_registry
@@ -159,11 +158,7 @@ When deciding mode, respond with JSON:
 }
 """
 
-    async def decide_mode(
-        self,
-        task: str,
-        context: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    async def decide_mode(self, task: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """Use LLM to decide whether to use browser or desktop mode.
 
         Args:
@@ -175,7 +170,14 @@ When deciding mode, respond with JSON:
         """
         if not self.llm_client:
             # Default to browser for web-related keywords
-            desktop_keywords = ["libreoffice", "terminal", "file", "folder", "desktop", "application"]
+            desktop_keywords = [
+                "libreoffice",
+                "terminal",
+                "file",
+                "folder",
+                "desktop",
+                "application",
+            ]
 
             task_lower = task.lower()
 
@@ -183,26 +185,25 @@ When deciding mode, respond with JSON:
                 return {
                     "mode": S3Mode.DESKTOP,
                     "reasoning": "Task mentions desktop applications",
-                    "first_action": {"type": "screenshot", "target": "desktop"}
+                    "first_action": {"type": "screenshot", "target": "desktop"},
                 }
             else:
                 return {
                     "mode": S3Mode.BROWSER,
                     "reasoning": "Default to browser mode",
-                    "first_action": {"type": "navigate", "target": "about:blank"}
+                    "first_action": {"type": "navigate", "target": "about:blank"},
                 }
 
         # Use LLM to decide
         messages = [
             {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": f"Task: {task}\n\nDecide the mode and first action."}
+            {"role": "user", "content": f"Task: {task}\n\nDecide the mode and first action."},
         ]
 
         if context:
-            messages.insert(1, {
-                "role": "assistant",
-                "content": f"Previous context: {json.dumps(context)}"
-            })
+            messages.insert(
+                1, {"role": "assistant", "content": f"Previous context: {json.dumps(context)}"}
+            )
 
         try:
             response = await self.llm_client.chat(
@@ -216,7 +217,8 @@ When deciding mode, respond with JSON:
             try:
                 # Find JSON in response
                 import re
-                json_match = re.search(r'\{[^{}]*\}', content, re.DOTALL)
+
+                json_match = re.search(r"\{[^{}]*\}", content, re.DOTALL)
                 if json_match:
                     decision = json.loads(json_match.group())
                     decision["mode"] = S3Mode(decision.get("mode", "browser"))
@@ -229,13 +231,13 @@ When deciding mode, respond with JSON:
                 return {
                     "mode": S3Mode.DESKTOP,
                     "reasoning": content,
-                    "first_action": {"type": "screenshot", "target": "desktop"}
+                    "first_action": {"type": "screenshot", "target": "desktop"},
                 }
             else:
                 return {
                     "mode": S3Mode.BROWSER,
                     "reasoning": content,
-                    "first_action": {"type": "navigate", "target": "about:blank"}
+                    "first_action": {"type": "navigate", "target": "about:blank"},
                 }
 
         except Exception as e:
@@ -243,7 +245,7 @@ When deciding mode, respond with JSON:
             return {
                 "mode": S3Mode.BROWSER,
                 "reasoning": f"Error: {str(e)}, defaulting to browser",
-                "first_action": {"type": "navigate", "target": "about:blank"}
+                "first_action": {"type": "navigate", "target": "about:blank"},
             }
 
     async def _init_browser(self) -> None:
@@ -388,10 +390,7 @@ When deciding mode, respond with JSON:
             logger.error(f"Desktop action failed: {e}")
             return {"success": False, "error": str(e)}
 
-    async def execute_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute a task using hybrid browser/desktop automation.
 
         Args:
@@ -420,9 +419,7 @@ When deciding mode, respond with JSON:
                 mode = decision["mode"]
 
             self._add_log(
-                task_id,
-                f"Mode selected: {mode.value} - {decision.get('reasoning', '')}",
-                "info"
+                task_id, f"Mode selected: {mode.value} - {decision.get('reasoning', '')}", "info"
             )
 
             # Execute based on mode
@@ -435,20 +432,20 @@ When deciding mode, respond with JSON:
             )
 
             # Update task
-            self._update_task(task_id, {
-                "status": TaskStatus.COMPLETED if result["success"] else TaskStatus.FAILED,
-                "result": result,
-                "progress": 100
-            })
+            self._update_task(
+                task_id,
+                {
+                    "status": TaskStatus.COMPLETED if result["success"] else TaskStatus.FAILED,
+                    "result": result,
+                    "progress": 100,
+                },
+            )
 
             return await self.get_task_result(task_id)
 
         except Exception as e:
             logger.error(f"S3 Agent task failed: {e}")
-            self._update_task(task_id, {
-                "status": TaskStatus.FAILED,
-                "error": str(e)
-            })
+            self._update_task(task_id, {"status": TaskStatus.FAILED, "error": str(e)})
             raise AgentExecutionError(f"Task failed: {str(e)}")
 
     async def _execution_loop(
@@ -479,7 +476,7 @@ When deciding mode, respond with JSON:
             self._update_progress(
                 task_id=task_id,
                 progress=int((iteration / max_iterations) * 100),
-                current_step=f"Action {iteration}/{max_iterations}"
+                current_step=f"Action {iteration}/{max_iterations}",
             )
 
             # For now, simple execution based on mode
@@ -534,7 +531,7 @@ When deciding mode, respond with JSON:
                 "desktop automation",
                 "vision-based UI detection",
                 "hybrid mode switching",
-                "VM-400 sandbox execution"
+                "VM-400 sandbox execution",
             ],
             "modes": [m.value for m in S3Mode],
             "vision_model": self.vision_model,
@@ -592,7 +589,7 @@ class DesktopClient:
         Returns:
             Tuple of (stdout, stderr, returncode)
         """
-        full_cmd = f"ssh -o StrictHostKeyChecking=no {self.ssh_user}@{self.host} \"{command}\""
+        full_cmd = f'ssh -o StrictHostKeyChecking=no {self.ssh_user}@{self.host} "{command}"'
 
         proc = await asyncio.create_subprocess_shell(
             full_cmd,
@@ -601,14 +598,11 @@ class DesktopClient:
         )
 
         try:
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
             return (
                 stdout.decode("utf-8", errors="replace"),
                 stderr.decode("utf-8", errors="replace"),
-                proc.returncode or 0
+                proc.returncode or 0,
             )
         except TimeoutError:
             proc.kill()
@@ -830,12 +824,14 @@ class DesktopClient:
             if line:
                 parts = line.split(None, 3)
                 if len(parts) >= 4:
-                    windows.append({
-                        "id": parts[0],
-                        "desktop": parts[1],
-                        "host": parts[2],
-                        "title": parts[3],
-                    })
+                    windows.append(
+                        {
+                            "id": parts[0],
+                            "desktop": parts[1],
+                            "host": parts[2],
+                            "title": parts[3],
+                        }
+                    )
 
         return {"success": True, "windows": windows}
 
@@ -918,9 +914,6 @@ async def create_s3_agent(
         max_iterations=max_iterations,
     )
 
-    logger.info(
-        f"Created S3Agent with vision_model={vision_model}, "
-        f"vm={vm_host}:{vm_vnc_port}"
-    )
+    logger.info(f"Created S3Agent with vision_model={vision_model}, vm={vm_host}:{vm_vnc_port}")
 
     return agent

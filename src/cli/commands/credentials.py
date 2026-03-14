@@ -20,8 +20,12 @@ def add(
     site_name: str = typer.Argument(..., help="Unique name for the site"),
     url: str = typer.Option(..., "--url", "-u", help="Base URL of the site"),
     username: str | None = typer.Option(None, "--username", help="Username/email"),
-    password: str | None = typer.Option(None, "--password", help="Password (will prompt if not provided)"),
-    auth_type: str = typer.Option("form", "--type", "-t", help="Authentication type: form, oauth, api_key"),
+    password: str | None = typer.Option(
+        None, "--password", help="Password (will prompt if not provided)"
+    ),
+    auth_type: str = typer.Option(
+        "form", "--type", "-t", help="Authentication type: form, oauth, api_key"
+    ),
 ):
     """
     Add a new credential for a website.
@@ -89,7 +93,9 @@ def add(
 @app.command("list")
 def list_credentials(
     tag: str | None = typer.Option(None, "--tag", "-t", help="Filter by tag"),
-    show_passwords: bool = typer.Option(False, "--show-passwords", help="Show passwords (dangerous!)"),
+    show_passwords: bool = typer.Option(
+        False, "--show-passwords", help="Show passwords (dangerous!)"
+    ),
 ):
     """
     List all stored credentials.
@@ -108,6 +114,7 @@ def list_credentials(
         console.print("[dim]Using file-based credential storage as fallback.[/dim]\n")
         try:
             from src.infrastructure.auth.credential_manager import CredentialManager
+
             manager = CredentialManager(use_keyring=False)
         except Exception as e2:
             console.print(f"[red]❌ Failed to initialize credential manager: {e2}[/red]")
@@ -239,8 +246,12 @@ def remove(
 
 @app.command()
 def export(
-    output: Path = typer.Option("credentials_backup.json", "--output", "-o", help="Output file path"),
-    include_passwords: bool = typer.Option(False, "--include-passwords", help="Include passwords (DANGEROUS!)"),
+    output: Path = typer.Option(
+        "credentials_backup.json", "--output", "-o", help="Output file path"
+    ),
+    include_passwords: bool = typer.Option(
+        False, "--include-passwords", help="Include passwords (DANGEROUS!)"
+    ),
 ):
     """
     Export credentials to JSON file.
@@ -276,7 +287,9 @@ def export(
 @app.command()
 def import_creds(
     input_file: Path = typer.Argument(..., help="JSON file to import"),
-    merge: bool = typer.Option(True, "--merge/--replace", help="Merge with existing or replace all"),
+    merge: bool = typer.Option(
+        True, "--merge/--replace", help="Merge with existing or replace all"
+    ),
 ):
     """
     Import credentials from JSON file.

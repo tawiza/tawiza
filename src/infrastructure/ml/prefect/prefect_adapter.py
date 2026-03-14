@@ -21,9 +21,7 @@ try:
     PREFECT_AVAILABLE = True
 except ImportError:
     PREFECT_AVAILABLE = False
-    logger.warning(
-        "Prefect not installed. Install with: pip install prefect"
-    )
+    logger.warning("Prefect not installed. Install with: pip install prefect")
 
 
 class PrefectAdapter(IWorkflowOrchestrator):
@@ -52,18 +50,13 @@ class PrefectAdapter(IWorkflowOrchestrator):
             work_pool: Name of the work pool for flow execution
         """
         if not PREFECT_AVAILABLE:
-            raise ImportError(
-                "Prefect is not installed. "
-                "Install with: pip install prefect"
-            )
+            raise ImportError("Prefect is not installed. Install with: pip install prefect")
 
         self.api_url = api_url
         self.work_pool = work_pool
         self._client = None
 
-        logger.info(
-            f"PrefectAdapter initialized with work_pool={work_pool}"
-        )
+        logger.info(f"PrefectAdapter initialized with work_pool={work_pool}")
 
     async def _get_client(self):
         """Get or create Prefect client."""
@@ -93,9 +86,7 @@ class PrefectAdapter(IWorkflowOrchestrator):
         Returns:
             Flow run ID
         """
-        logger.info(
-            f"Triggering training workflow for job {training_job_id}"
-        )
+        logger.info(f"Triggering training workflow for job {training_job_id}")
 
         client = await self._get_client()
 
@@ -111,9 +102,7 @@ class PrefectAdapter(IWorkflowOrchestrator):
 
         flow_run_id = str(flow_run.id)
 
-        logger.info(
-            f"Training workflow started: flow_run_id={flow_run_id}"
-        )
+        logger.info(f"Training workflow started: flow_run_id={flow_run_id}")
 
         return flow_run_id
 
@@ -182,9 +171,7 @@ class PrefectAdapter(IWorkflowOrchestrator):
             error_message = str(state.message) if state.message else "Unknown error"
 
         # Get task runs
-        task_runs = await client.read_task_runs(
-            flow_run_filter={"id": {"any_": [flow_run_id]}}
-        )
+        task_runs = await client.read_task_runs(flow_run_filter={"id": {"any_": [flow_run_id]}})
 
         task_statuses = [
             {
@@ -201,12 +188,8 @@ class PrefectAdapter(IWorkflowOrchestrator):
             "status": status,
             "state_name": state_name,
             "name": flow_run.name,
-            "start_time": (
-                flow_run.start_time.isoformat() if flow_run.start_time else None
-            ),
-            "end_time": (
-                flow_run.end_time.isoformat() if flow_run.end_time else None
-            ),
+            "start_time": (flow_run.start_time.isoformat() if flow_run.start_time else None),
+            "end_time": (flow_run.end_time.isoformat() if flow_run.end_time else None),
             "duration_seconds": duration_seconds,
             "error_message": error_message,
             "task_runs": task_statuses,
@@ -258,9 +241,7 @@ class PrefectAdapter(IWorkflowOrchestrator):
         Returns:
             Flow run ID
         """
-        logger.info(
-            f"Triggering retraining workflow for model {model_id}: {trigger_reason}"
-        )
+        logger.info(f"Triggering retraining workflow for model {model_id}: {trigger_reason}")
 
         client = await self._get_client()
 
@@ -276,9 +257,7 @@ class PrefectAdapter(IWorkflowOrchestrator):
 
         flow_run_id = str(flow_run.id)
 
-        logger.info(
-            f"Retraining workflow started: flow_run_id={flow_run_id}"
-        )
+        logger.info(f"Retraining workflow started: flow_run_id={flow_run_id}")
 
         return flow_run_id
 
@@ -314,9 +293,7 @@ class PrefectAdapter(IWorkflowOrchestrator):
 
         flow_run_id = str(flow_run.id)
 
-        logger.info(
-            f"Deployment workflow started: flow_run_id={flow_run_id}"
-        )
+        logger.info(f"Deployment workflow started: flow_run_id={flow_run_id}")
 
         return flow_run_id
 
@@ -396,6 +373,7 @@ if PREFECT_AVAILABLE:
     def validate_training_data(dataset_path: str) -> bool:
         """Validate training data exists and is valid."""
         from pathlib import Path
+
         path = Path(dataset_path)
         return path.exists() and path.stat().st_size > 0
 

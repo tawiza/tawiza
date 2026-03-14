@@ -20,15 +20,28 @@ class GoogleTrendsCollector(BaseCollector):
     # Keywords to monitor with their signal implications
     KEYWORDS = [
         "liquidation judiciaire",  # Business liquidation (negative)
-        "pôle emploi",            # Job center (negative/neutral)
-        "RSA",                    # Social assistance (negative)
-        "chômage partiel",        # Partial unemployment (negative)
-        "plan social"             # Social plan/layoffs (negative)
+        "pôle emploi",  # Job center (negative/neutral)
+        "RSA",  # Social assistance (negative)
+        "chômage partiel",  # Partial unemployment (negative)
+        "plan social",  # Social plan/layoffs (negative)
     ]
 
     # Google Trends region codes to French departments mapping
     REGION_TO_DEPT = {
-        "FR-ARA": ["01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"],  # Auvergne-Rhône-Alpes
+        "FR-ARA": [
+            "01",
+            "03",
+            "07",
+            "15",
+            "26",
+            "38",
+            "42",
+            "43",
+            "63",
+            "69",
+            "73",
+            "74",
+        ],  # Auvergne-Rhône-Alpes
         "FR-BFC": ["21", "25", "39", "58", "70", "71", "89", "90"],  # Bourgogne-Franche-Comté
         "FR-BRE": ["22", "29", "35", "56"],  # Bretagne
         "FR-CVL": ["18", "28", "36", "37", "41", "45"],  # Centre-Val de Loire
@@ -37,10 +50,37 @@ class GoogleTrendsCollector(BaseCollector):
         "FR-HDF": ["02", "59", "60", "62", "80"],  # Hauts-de-France
         "FR-IDF": ["75", "77", "78", "91", "92", "93", "94", "95"],  # Île-de-France
         "FR-NOR": ["14", "27", "50", "61", "76"],  # Normandie
-        "FR-NAQ": ["16", "17", "19", "23", "24", "33", "40", "47", "64", "79", "86", "87"],  # Nouvelle-Aquitaine
-        "FR-OCC": ["09", "11", "12", "30", "31", "32", "34", "46", "48", "65", "66", "81", "82"],  # Occitanie
+        "FR-NAQ": [
+            "16",
+            "17",
+            "19",
+            "23",
+            "24",
+            "33",
+            "40",
+            "47",
+            "64",
+            "79",
+            "86",
+            "87",
+        ],  # Nouvelle-Aquitaine
+        "FR-OCC": [
+            "09",
+            "11",
+            "12",
+            "30",
+            "31",
+            "32",
+            "34",
+            "46",
+            "48",
+            "65",
+            "66",
+            "81",
+            "82",
+        ],  # Occitanie
         "FR-PDL": ["44", "49", "53", "72", "85"],  # Pays de la Loire
-        "FR-PAC": ["04", "05", "06", "13", "83", "84"]  # Provence-Alpes-Côte d'Azur
+        "FR-PAC": ["04", "05", "06", "13", "83", "84"],  # Provence-Alpes-Côte d'Azur
     }
 
     def __init__(self) -> None:
@@ -64,7 +104,7 @@ class GoogleTrendsCollector(BaseCollector):
 
         # Create pytrends instance
         try:
-            pytrends = TrendReq(hl='fr-FR', tz=360)
+            pytrends = TrendReq(hl="fr-FR", tz=360)
         except Exception as e:
             logger.error(f"[google_trends] Failed to initialize pytrends: {e}")
             return []
@@ -74,18 +114,11 @@ class GoogleTrendsCollector(BaseCollector):
 
             try:
                 # Get interest by region for France
-                pytrends.build_payload(
-                    kw_list=[keyword],
-                    cat=0,
-                    timeframe='now 7-d',
-                    geo='FR'
-                )
+                pytrends.build_payload(kw_list=[keyword], cat=0, timeframe="now 7-d", geo="FR")
 
                 # Get regional data
                 interest_data = pytrends.interest_by_region(
-                    resolution='REGION',
-                    inc_low_vol=True,
-                    inc_geo_code=False
+                    resolution="REGION", inc_low_vol=True, inc_geo_code=False
                 )
 
                 if interest_data.empty:
@@ -118,12 +151,14 @@ class GoogleTrendsCollector(BaseCollector):
                                 "keyword": keyword,
                                 "region": region_name,
                                 "interest_value": interest_value,
-                                "timeframe": "7d"
-                            }
+                                "timeframe": "7d",
+                            },
                         )
                         signals.append(signal)
 
-                logger.info(f"[google_trends] Processed '{keyword}': {len([s for s in signals if s.raw_data.get('keyword') == keyword])} signals")
+                logger.info(
+                    f"[google_trends] Processed '{keyword}': {len([s for s in signals if s.raw_data.get('keyword') == keyword])} signals"
+                )
 
             except Exception as e:
                 logger.warning(f"[google_trends] Error fetching '{keyword}': {e}")
@@ -138,7 +173,7 @@ class GoogleTrendsCollector(BaseCollector):
         """Map a Google Trends region name to department codes."""
         # Try to find exact match first
         for code, depts in self.REGION_TO_DEPT.items():
-            region_short = code.split('-')[1]  # Extract ARA, BFC, etc.
+            region_short = code.split("-")[1]  # Extract ARA, BFC, etc.
             if region_short.lower() in region_name.lower():
                 return depts
 
@@ -161,7 +196,7 @@ class GoogleTrendsCollector(BaseCollector):
             "pays": self.REGION_TO_DEPT["FR-PDL"],
             "loire": self.REGION_TO_DEPT["FR-PDL"],
             "provence": self.REGION_TO_DEPT["FR-PAC"],
-            "côte": self.REGION_TO_DEPT["FR-PAC"]
+            "côte": self.REGION_TO_DEPT["FR-PAC"],
         }
 
         for name_part, depts in region_mapping.items():

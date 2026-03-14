@@ -15,24 +15,30 @@ from rich.console import Console
 
 console = Console()
 
+
 class AgentStatus(Enum):
     """Statut des agents"""
+
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
     ERROR = "error"
     COMPLETED = "completed"
 
+
 class AgentPriority(Enum):
     """Priorité des agents"""
+
     LOW = 1
     MEDIUM = 2
     HIGH = 3
     CRITICAL = 4
 
+
 @dataclass
 class AgentTask:
     """Tâche pour un agent"""
+
     id: str
     name: str
     agent_type: str
@@ -43,15 +49,18 @@ class AgentTask:
     result: Any | None = None
     error: str | None = None
 
+
 @dataclass
 class AgentMetrics:
     """Métriques de performance des agents"""
+
     total_tasks: int = 0
     completed_tasks: int = 0
     failed_tasks: int = 0
     average_execution_time: float = 0.0
     success_rate: float = 0.0
     last_execution_time: float | None = None
+
 
 class BaseAgent:
     """Agent de base avec fonctionnalités avancées"""
@@ -93,6 +102,7 @@ class BaseAgent:
         self.capabilities.append(capability)
         logger.info(f"✅ Capacité ajoutée à {self.name}: {capability}")
 
+
 class AgentCoordinator:
     """Coordinateur central pour tous les agents"""
 
@@ -129,8 +139,7 @@ class AgentCoordinator:
 
         # Trier par priorité et disponibilité
         suitable_agents.sort(
-            key=lambda x: (x.status == AgentStatus.IDLE, x.metrics.success_rate),
-            reverse=True
+            key=lambda x: (x.status == AgentStatus.IDLE, x.metrics.success_rate), reverse=True
         )
 
         return suitable_agents
@@ -202,10 +211,13 @@ class AgentCoordinator:
         return {
             "running": self.running,
             "total_agents": len(self.agents),
-            "active_agents": len([a for a in self.agents.values() if a.status == AgentStatus.RUNNING]),
+            "active_agents": len(
+                [a for a in self.agents.values() if a.status == AgentStatus.RUNNING]
+            ),
             "queued_tasks": len(self.task_queue),
-            "agents_metrics": {name: agent.get_metrics() for name, agent in self.agents.items()}
+            "agents_metrics": {name: agent.get_metrics() for name, agent in self.agents.items()},
         }
+
 
 # Classe principale du système multi-agents
 class MultiAgentSystem:
@@ -248,17 +260,18 @@ class MultiAgentSystem:
                 "Intelligent task distribution",
                 "Advanced memory management",
                 "Real-time monitoring",
-                "GPU acceleration support"
-            ]
+                "GPU acceleration support",
+            ],
         }
+
 
 # Export des classes principales
 __all__ = [
-    'BaseAgent',
-    'AgentCoordinator',
-    'MultiAgentSystem',
-    'AgentTask',
-    'AgentStatus',
-    'AgentPriority',
-    'AgentMetrics'
+    "BaseAgent",
+    "AgentCoordinator",
+    "MultiAgentSystem",
+    "AgentTask",
+    "AgentStatus",
+    "AgentPriority",
+    "AgentMetrics",
 ]

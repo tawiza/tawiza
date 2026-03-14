@@ -1,4 +1,5 @@
 """Async queue for Neo4j sync operations."""
+
 import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -8,6 +9,7 @@ from typing import Any
 @dataclass
 class SyncItem:
     """Item to sync to Neo4j."""
+
     operation: str  # merge, create, delete
     node_type: str  # Company, Establishment, etc.
     data: dict[str, Any]
@@ -50,11 +52,7 @@ class SyncQueue:
         except asyncio.QueueFull:
             return False
 
-    async def get_batch(
-        self,
-        batch_size: int,
-        timeout: float | None = None
-    ) -> list[SyncItem]:
+    async def get_batch(self, batch_size: int, timeout: float | None = None) -> list[SyncItem]:
         """
         Get a batch of items from queue.
 
@@ -74,10 +72,7 @@ class SyncQueue:
                     remaining = deadline - asyncio.get_event_loop().time()
                     if remaining <= 0:
                         break
-                    item = await asyncio.wait_for(
-                        self._queue.get(),
-                        timeout=remaining
-                    )
+                    item = await asyncio.wait_for(self._queue.get(), timeout=remaining)
                 else:
                     item = self._queue.get_nowait()
                 items.append(item)

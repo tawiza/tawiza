@@ -114,9 +114,7 @@ class DataSourceManager:
 
         return all_results
 
-    async def get_enterprise(
-        self, siret: str, use_cache: bool = True
-    ) -> dict[str, Any] | None:
+    async def get_enterprise(self, siret: str, use_cache: bool = True) -> dict[str, Any] | None:
         """Get enterprise data, trying all sources.
 
         Args:
@@ -166,9 +164,7 @@ class DataSourceManager:
                     merged["_sources"].append(adapter.name)
                     # Merge non-None values
                     for key, value in result.items():
-                        if value is not None and (
-                            key not in merged or merged[key] is None
-                        ):
+                        if value is not None and (key not in merged or merged[key] is None):
                             merged[key] = value
             except Exception as e:
                 logger.warning(f"get_by_id failed for {adapter.name}: {e}")

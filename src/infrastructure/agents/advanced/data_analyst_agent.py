@@ -20,9 +20,11 @@ from sklearn.impute import SimpleImputer
 
 # Configuration du logging
 
+
 @dataclass
 class DataAnalysisReport:
     """Rapport complet d'analyse de données"""
+
     dataset_id: str
     file_path: str
     rows: int
@@ -38,9 +40,11 @@ class DataAnalysisReport:
     preprocessing_suggestions: list[dict[str, Any]]
     generated_at: float
 
+
 @dataclass
 class PreprocessingRecommendation:
     """Recommandation de preprocessing"""
+
     step_name: str
     description: str
     priority: str  # high, medium, low
@@ -48,6 +52,7 @@ class PreprocessingRecommendation:
     implementation_complexity: str  # simple, medium, complex
     code_example: str
     expected_benefits: list[str]
+
 
 class DataAnalystAgent:
     """Agent spécialisé dans l'analyse et le preprocessing des données"""
@@ -60,16 +65,16 @@ class DataAnalystAgent:
             "anomaly_detection",
             "preprocessing_recommendations",
             "data_quality_assessment",
-            "feature_engineering_suggestions"
+            "feature_engineering_suggestions",
         ]
 
         # Configuration des analyses
         self.analysis_config = {
             "missing_data_threshold": 0.05,  # 5%
             "quality_score_threshold": 0.7,  # 70%
-            "anomaly_contamination": 0.1,    # 10%
-            "feature_selection_k": 10,       # Top 10 features
-            "correlation_threshold": 0.8,    # 80% correlation
+            "anomaly_contamination": 0.1,  # 10%
+            "feature_selection_k": 10,  # Top 10 features
+            "correlation_threshold": 0.8,  # 80% correlation
         }
 
         # Modèles d'analyse
@@ -114,7 +119,7 @@ class DataAnalystAgent:
                 recommendations=[rec.description for rec in recommendations],
                 anomalies_detected=anomalies,
                 preprocessing_suggestions=[asdict(rec) for rec in recommendations],
-                generated_at=time.time()
+                generated_at=time.time(),
             )
 
             logger.info(f"✅ Analyse complétée pour {dataset_id}")
@@ -132,15 +137,15 @@ class DataAnalystAgent:
             raise FileNotFoundError(f"Fichier non trouvé: {file_path}")
 
         try:
-            if file_path.suffix.lower() == '.csv':
+            if file_path.suffix.lower() == ".csv":
                 df = pd.read_csv(file_path)
-            elif file_path.suffix.lower() in ['.xlsx', '.xls']:
+            elif file_path.suffix.lower() in [".xlsx", ".xls"]:
                 df = pd.read_excel(file_path)
-            elif file_path.suffix.lower() == '.json':
+            elif file_path.suffix.lower() == ".json":
                 df = pd.read_json(file_path)
-            elif file_path.suffix.lower() == '.jsonl':
+            elif file_path.suffix.lower() == ".jsonl":
                 df = pd.read_json(file_path, lines=True)
-            elif file_path.suffix.lower() == '.parquet':
+            elif file_path.suffix.lower() == ".parquet":
                 df = pd.read_parquet(file_path)
             else:
                 raise ValueError(f"Format de fichier non supporté: {file_path.suffix}")
@@ -172,7 +177,7 @@ class DataAnalystAgent:
 
         # Colonnes numériques et catégorielles
         numerical_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+        categorical_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
 
         # Statistiques de base pour les colonnes numériques
         numerical_stats = {}
@@ -182,7 +187,7 @@ class DataAnalystAgent:
                 "std": float(df[col].std()),
                 "min": float(df[col].min()),
                 "max": float(df[col].max()),
-                "missing": int(df[col].isnull().sum())
+                "missing": int(df[col].isnull().sum()),
             }
 
         analysis = {
@@ -193,10 +198,12 @@ class DataAnalystAgent:
             "data_types": data_types,
             "numerical_cols": numerical_cols,
             "categorical_cols": categorical_cols,
-            "numerical_stats": numerical_stats
+            "numerical_stats": numerical_stats,
         }
 
-        logger.info(f"📊 Analyse de base complétée: {missing_percentage:.1f}% de données manquantes")
+        logger.info(
+            f"📊 Analyse de base complétée: {missing_percentage:.1f}% de données manquantes"
+        )
         return analysis
 
     async def _detect_anomalies(self, df: pd.DataFrame) -> list[dict[str, Any]]:
@@ -215,13 +222,12 @@ class DataAnalystAgent:
             numerical_data = df[numerical_cols].copy()
 
             # Imputer les valeurs manquantes pour l'anomaly detection
-            imputer = SimpleImputer(strategy='mean')
+            imputer = SimpleImputer(strategy="mean")
             numerical_data_imputed = imputer.fit_transform(numerical_data)
 
             # Détection d'anomalies avec Isolation Forest
             iso_forest = IsolationForest(
-                contamination=self.analysis_config["anomaly_contamination"],
-                random_state=42
+                contamination=self.analysis_config["anomaly_contamination"], random_state=42
             )
 
             anomaly_labels = iso_forest.fit_predict(numerical_data_imputed)
@@ -236,12 +242,16 @@ class DataAnalystAgent:
                     "row_index": int(idx),
                     "anomaly_score": float(anomaly_scores[idx]),
                     "affected_columns": [],
-                    "description": "Donnée anormale détectée"
+                    "description": "Donnée anormale détectée",
                 }
 
                 # Identifier les colonnes affectées
                 for col in numerical_cols:
-                    if pd.isna(row_data[col]) or abs(row_data[col] - numerical_data[col].mean()) > 3 * numerical_data[col].std():
+                    if (
+                        pd.isna(row_data[col])
+                        or abs(row_data[col] - numerical_data[col].mean())
+                        > 3 * numerical_data[col].std()
+                    ):
                         anomaly_info["affected_columns"].append(col)
 
                 anomalies.append(anomaly_info)
@@ -289,10 +299,10 @@ class DataAnalystAgent:
 
             # Score final pondéré
             quality_score = (
-                completeness_score * 0.4 +
-                consistency_score * 0.3 +
-                validity_score * 0.2 +
-                distribution_score * 0.1
+                completeness_score * 0.4
+                + consistency_score * 0.3
+                + validity_score * 0.2
+                + distribution_score * 0.1
             )
 
             # Normaliser sur 100
@@ -305,7 +315,9 @@ class DataAnalystAgent:
             logger.error(f"❌ Erreur lors de l'évaluation de la qualité: {str(e)}")
             return 50.0  # Score par défaut en cas d'erreur
 
-    async def _generate_preprocessing_recommendations(self, df: pd.DataFrame, quality_score: float) -> list[PreprocessingRecommendation]:
+    async def _generate_preprocessing_recommendations(
+        self, df: pd.DataFrame, quality_score: float
+    ) -> list[PreprocessingRecommendation]:
         """Générer des recommandations de preprocessing intelligentes"""
         logger.info("🎯 Génération de recommandations de preprocessing...")
 
@@ -318,66 +330,85 @@ class DataAnalystAgent:
             missing_percentage = (missing_data.sum() / total_cells) * 100
 
             if missing_percentage > 5:
-                recommendations.append(PreprocessingRecommendation(
-                    step_name="Gestion des données manquantes",
-                    description=f"{missing_percentage:.1f}% de données manquantes détectées. Imputation intelligente recommandée.",
-                    priority="high",
-                    estimated_impact=0.8,
-                    implementation_complexity="medium",
-                    code_example="""
+                recommendations.append(
+                    PreprocessingRecommendation(
+                        step_name="Gestion des données manquantes",
+                        description=f"{missing_percentage:.1f}% de données manquantes détectées. Imputation intelligente recommandée.",
+                        priority="high",
+                        estimated_impact=0.8,
+                        implementation_complexity="medium",
+                        code_example="""
 # Imputation intelligente des données manquantes
 from sklearn.impute import KNNImputer
 imputer = KNNImputer(n_neighbors=5)
 df_imputed = imputer.fit_transform(df[numerical_cols])
 """,
-                    expected_benefits=["Amélioration de la qualité des données", "Meilleures performances du modèle", "Réduction des biais"]
-                ))
+                        expected_benefits=[
+                            "Amélioration de la qualité des données",
+                            "Meilleures performances du modèle",
+                            "Réduction des biais",
+                        ],
+                    )
+                )
 
             # Analyse des doublons
             duplicate_percentage = (df.duplicated().sum() / len(df)) * 100
             if duplicate_percentage > 1:
-                recommendations.append(PreprocessingRecommendation(
-                    step_name="Suppression des doublons",
-                    description=f"{duplicate_percentage:.1f}% de lignes dupliquées détectées.",
-                    priority="medium",
-                    estimated_impact=0.6,
-                    implementation_complexity="simple",
-                    code_example="""
+                recommendations.append(
+                    PreprocessingRecommendation(
+                        step_name="Suppression des doublons",
+                        description=f"{duplicate_percentage:.1f}% de lignes dupliquées détectées.",
+                        priority="medium",
+                        estimated_impact=0.6,
+                        implementation_complexity="simple",
+                        code_example="""
 # Suppression des doublons
 df_cleaned = df.drop_duplicates()
 """,
-                    expected_benefits=["Données plus propres", "Réduction de la taille du dataset", "Élimination du biais"]
-                ))
+                        expected_benefits=[
+                            "Données plus propres",
+                            "Réduction de la taille du dataset",
+                            "Élimination du biais",
+                        ],
+                    )
+                )
 
             # Analyse des colonnes numériques
             numerical_cols = df.select_dtypes(include=[np.number]).columns.tolist()
             if numerical_cols:
                 # Normalisation si nécessaire
-                recommendations.append(PreprocessingRecommendation(
-                    step_name="Normalisation des données numériques",
-                    description=f"Normalisation des {len(numerical_cols)} colonnes numériques pour optimisation GPU.",
-                    priority="medium",
-                    estimated_impact=0.7,
-                    implementation_complexity="simple",
-                    code_example="""
+                recommendations.append(
+                    PreprocessingRecommendation(
+                        step_name="Normalisation des données numériques",
+                        description=f"Normalisation des {len(numerical_cols)} colonnes numériques pour optimisation GPU.",
+                        priority="medium",
+                        estimated_impact=0.7,
+                        implementation_complexity="simple",
+                        code_example="""
 # Normalisation pour GPU acceleration
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 df_scaled = scaler.fit_transform(df[numerical_cols])
 """,
-                    expected_benefits=["Optimisation GPU", "Convergence plus rapide", "Stabilité numérique"]
-                ))
+                        expected_benefits=[
+                            "Optimisation GPU",
+                            "Convergence plus rapide",
+                            "Stabilité numérique",
+                        ],
+                    )
+                )
 
             # Analyse des colonnes catégorielles
-            categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+            categorical_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
             if categorical_cols:
-                recommendations.append(PreprocessingRecommendation(
-                    step_name="Encodage des variables catégorielles",
-                    description=f"Encodage intelligent des {len(categorical_cols)} colonnes catégorielles.",
-                    priority="medium",
-                    estimated_impact=0.6,
-                    implementation_complexity="medium",
-                    code_example="""
+                recommendations.append(
+                    PreprocessingRecommendation(
+                        step_name="Encodage des variables catégorielles",
+                        description=f"Encodage intelligent des {len(categorical_cols)} colonnes catégorielles.",
+                        priority="medium",
+                        estimated_impact=0.6,
+                        implementation_complexity="medium",
+                        code_example="""
 # Encodage intelligent
 from sklearn.preprocessing import LabelEncoder
 encoders = {}
@@ -386,35 +417,47 @@ for col in categorical_cols:
         encoders[col] = LabelEncoder()
         df[col] = encoders[col].fit_transform(df[col])
 """,
-                    expected_benefits=["Compatibilité avec les algorithmes", "Réduction de la dimension", "Meilleure performance"]
-                ))
+                        expected_benefits=[
+                            "Compatibilité avec les algorithmes",
+                            "Réduction de la dimension",
+                            "Meilleure performance",
+                        ],
+                    )
+                )
 
             # Sélection de features si beaucoup de colonnes
             if len(df.columns) > 20:
-                recommendations.append(PreprocessingRecommendation(
-                    step_name="Sélection de features",
-                    description=f"Sélection des features les plus pertinentes parmi {len(df.columns)} colonnes.",
-                    priority="medium",
-                    estimated_impact=0.8,
-                    implementation_complexity="medium",
-                    code_example="""
+                recommendations.append(
+                    PreprocessingRecommendation(
+                        step_name="Sélection de features",
+                        description=f"Sélection des features les plus pertinentes parmi {len(df.columns)} colonnes.",
+                        priority="medium",
+                        estimated_impact=0.8,
+                        implementation_complexity="medium",
+                        code_example="""
 # Sélection de features
 from sklearn.feature_selection import SelectKBest, f_classif
 selector = SelectKBest(f_classif, k=15)
 X_selected = selector.fit_transform(X, y)
 """,
-                    expected_benefits=["Réduction de la complexité", "Amélioration de la vitesse", "Évitement du overfitting"]
-                ))
+                        expected_benefits=[
+                            "Réduction de la complexité",
+                            "Amélioration de la vitesse",
+                            "Évitement du overfitting",
+                        ],
+                    )
+                )
 
             # Recommandations basées sur le score de qualité
             if quality_score < 70:
-                recommendations.append(PreprocessingRecommendation(
-                    step_name="Amélioration globale de la qualité",
-                    description=f"Score de qualité de {quality_score:.1f}/100. Amélioration globale recommandée.",
-                    priority="high",
-                    estimated_impact=0.9,
-                    implementation_complexity="complex",
-                    code_example="""
+                recommendations.append(
+                    PreprocessingRecommendation(
+                        step_name="Amélioration globale de la qualité",
+                        description=f"Score de qualité de {quality_score:.1f}/100. Amélioration globale recommandée.",
+                        priority="high",
+                        estimated_impact=0.9,
+                        implementation_complexity="complex",
+                        code_example="""
 # Pipeline complet d'amélioration
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -426,8 +469,13 @@ pipeline = Pipeline([
     ('feature_selection', SelectKBest(f_classif, k=20))
 ])
 """,
-                    expected_benefits=["Amélioration significative de la qualité", "Meilleures performances du modèle", "Réduction des erreurs"]
-                ))
+                        expected_benefits=[
+                            "Amélioration significative de la qualité",
+                            "Meilleures performances du modèle",
+                            "Réduction des erreurs",
+                        ],
+                    )
+                )
 
             logger.info(f"🎯 {len(recommendations)} recommandations générées")
             return recommendations
@@ -471,19 +519,13 @@ pipeline = Pipeline([
 
         # Ajouter les recommandations
         if analysis_report.recommendations:
-            report_lines.extend([
-                "\n## Recommandations de Preprocessing",
-                ""
-            ])
+            report_lines.extend(["\n## Recommandations de Preprocessing", ""])
             for i, rec in enumerate(analysis_report.recommendations, 1):
                 report_lines.append(f"{i}. **{rec}**")
 
         # Ajouter les anomalies
         if analysis_report.anomalies_detected:
-            report_lines.extend([
-                "\n## Anomalies Détectées",
-                ""
-            ])
+            report_lines.extend(["\n## Anomalies Détectées", ""])
             for anomaly in analysis_report.anomalies_detected:
                 report_lines.append(f"- Ligne {anomaly['row_index']}: {anomaly['description']}")
 
@@ -498,8 +540,9 @@ pipeline = Pipeline([
             "Génération de recommandations de preprocessing",
             "Création de rapports détaillés",
             "Support multiple formats de fichiers",
-            "Optimisation pour GPU acceleration"
+            "Optimisation pour GPU acceleration",
         ]
+
 
 # Classe pour intégration avec le système multi-agents
 class DataAnalystAgentIntegration:
@@ -534,11 +577,10 @@ class DataAnalystAgentIntegration:
                 "key_findings": [
                     f"Score de qualité: {report.quality_score:.1f}/100",
                     f"{len(report.recommendations)} recommandations générées",
-                    f"{len(report.anomalies_detected)} anomalies détectées"
-                ]
+                    f"{len(report.anomalies_detected)} anomalies détectées",
+                ],
             }
 
         except Exception as e:
             logger.error(f"❌ Erreur lors de l'analyse: {str(e)}")
             return {"error": str(e), "success": False}
-

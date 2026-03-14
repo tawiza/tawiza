@@ -67,6 +67,7 @@ class AgentResult:
 
 # ─── Tools ────────────────────────────────────────────────────
 
+
 async def _get_conn():
     return await asyncpg.connect(DB_URL)
 
@@ -99,20 +100,28 @@ async def tool_query_signals(args: dict) -> str:
         where = " AND ".join(conditions)
         limit = min(args.get("limit", 10), 20)
 
-        rows = await conn.fetch(f"""
+        rows = await conn.fetch(
+            f"""
             SELECT id, source, metric_name, code_dept, metric_value, event_date, extracted_text
             FROM signals WHERE {where}
             ORDER BY collected_at DESC LIMIT ${idx}
-        """, *params, limit)
+        """,
+            *params,
+            limit,
+        )
 
         results = []
         for r in rows:
-            text = (r['extracted_text'] or '')[:200]
+            text = (r["extracted_text"] or "")[:200]
             results.append(
                 f"[SIG-{r['id']}] {r['source']}/{r['metric_name']} dept={r['code_dept']} "
                 f"val={r['metric_value']} date={r['event_date']} | {text}"
             )
-        return f"{len(rows)} signaux trouves:\n" + "\n".join(results) if results else "Aucun signal trouve."
+        return (
+            f"{len(rows)} signaux trouves:\n" + "\n".join(results)
+            if results
+            else "Aucun signal trouve."
+        )
     finally:
         await conn.close()
 
@@ -123,25 +132,34 @@ async def tool_department_profile(args: dict) -> str:
     conn = await _get_conn()
     try:
         # Signal counts by source
-        counts = await conn.fetch("""
+        counts = await conn.fetch(
+            """
             SELECT source, count(*) as cnt FROM signals
             WHERE code_dept = $1 GROUP BY source ORDER BY cnt DESC
-        """, dept)
+        """,
+            dept,
+        )
 
         # Key metrics (latest values)
-        metrics = await conn.fetch("""
+        metrics = await conn.fetch(
+            """
             SELECT DISTINCT ON (metric_name) metric_name, metric_value, event_date, source
             FROM signals WHERE code_dept = $1 AND metric_value IS NOT NULL
             ORDER BY metric_name, collected_at DESC
             LIMIT 20
-        """, dept)
+        """,
+            dept,
+        )
 
         # Micro-signals count
-        ms_count = await conn.fetchval("""
+        ms_count = await conn.fetchval(
+            """
             SELECT count(*) FROM micro_signals WHERE is_active = TRUE AND territory_code = $1
-        """, dept)
+        """,
+            dept,
+        )
 
-        total = sum(r['cnt'] for r in counts)
+        total = sum(r["cnt"] for r in counts)
         lines = [
             f"Dept {dept} — {total} signaux totaux, {ms_count} micro-signaux actifs",
             "  Sources: " + ", ".join(f"{r['source']}={r['cnt']}" for r in counts),
@@ -150,7 +168,9 @@ async def tool_department_profile(args: dict) -> str:
         if metrics:
             lines.append("  Metriques recentes:")
             for m in metrics[:10]:
-                lines.append(f"    {m['source']}/{m['metric_name']}: {m['metric_value']:.2f} ({m['event_date']})")
+                lines.append(
+                    f"    {m['source']}/{m['metric_name']}: {m['metric_value']:.2f} ({m['event_date']})"
+                )
 
         return "\n".join(lines)
     finally:
@@ -163,11 +183,14 @@ async def tool_microsignals(args: dict) -> str:
     conn = await _get_conn()
     try:
         if dept:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT territory_code, signal_type, score, description
                 FROM micro_signals WHERE is_active = TRUE AND territory_code = $1
                 ORDER BY score DESC LIMIT 10
-            """, dept)
+            """,
+                dept,
+            )
         else:
             rows = await conn.fetch("""
                 SELECT territory_code, signal_type, score, description
@@ -178,7 +201,10 @@ async def tool_microsignals(args: dict) -> str:
         if not rows:
             return "Aucun micro-signal actif" + (f" pour {dept}" if dept else "")
 
-        lines = [f"{r['territory_code']}: {r['signal_type']} (score={r['score']:.2f}) — {(r['description'] or '')[:100]}" for r in rows]
+        lines = [
+            f"{r['territory_code']}: {r['signal_type']} (score={r['score']:.2f}) — {(r['description'] or '')[:100]}"
+            for r in rows
+        ]
         return f"{len(rows)} micro-signaux:\n" + "\n".join(lines)
     finally:
         await conn.close()
@@ -199,8 +225,10 @@ async def tool_convergences(args: dict) -> str:
 
         lines = []
         for r in rows:
-            dims = r['dimensions'] if isinstance(r['dimensions'], list) else []
-            lines.append(f"{r['territory_code']}: score={r['score']:.2f}, dimensions={','.join(dims)}")
+            dims = r["dimensions"] if isinstance(r["dimensions"], list) else []
+            lines.append(
+                f"{r['territory_code']}: score={r['score']:.2f}, dimensions={','.join(dims)}"
+            )
         return f"{len(rows)} convergences:\n" + "\n".join(lines)
     finally:
         await conn.close()
@@ -221,9 +249,9 @@ async def tool_anomalies(args: dict) -> str:
 
         lines = []
         for r in rows:
-            iso = json.loads(r['isolation_forest']) if r['isolation_forest'] else {}
-            contribs = iso.get('contributing', [])
-            top_feat = contribs[0]['feature'] if contribs else 'N/A'
+            iso = json.loads(r["isolation_forest"]) if r["isolation_forest"] else {}
+            contribs = iso.get("contributing", [])
+            top_feat = contribs[0]["feature"] if contribs else "N/A"
             lines.append(
                 f"{r['department']}: risque={r['risk_score']:.2f}, "
                 f"convergence={r['convergence_score']:.2f}, microsignaux={r['nb_micro_signals']}, "
@@ -240,11 +268,14 @@ async def tool_watcher_alerts(args: dict) -> str:
     conn = await _get_conn()
     try:
         if dept:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT department, metric, priority, z_score, direction, message
                 FROM watcher_alerts WHERE acknowledged = FALSE AND department = $1
                 ORDER BY detected_at DESC LIMIT 10
-            """, dept)
+            """,
+                dept,
+            )
         else:
             rows = await conn.fetch("""
                 SELECT department, metric, priority, z_score, direction, message
@@ -267,11 +298,14 @@ async def tool_predictions(args: dict) -> str:
     conn = await _get_conn()
     try:
         if dept:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT department, metric, label, trend, change_pct, data_points
                 FROM predictions_prophet WHERE department = $1
                 ORDER BY abs(change_pct) DESC LIMIT 10
-            """, dept)
+            """,
+                dept,
+            )
         else:
             rows = await conn.fetch("""
                 SELECT department, metric, label, trend, change_pct, data_points
@@ -282,7 +316,10 @@ async def tool_predictions(args: dict) -> str:
         if not rows:
             return "Aucune prediction disponible" + (f" pour {dept}" if dept else "")
 
-        lines = [f"{r['department']}: {r['label']} → {r['trend']} ({r['change_pct']:+.1f}%, {r['data_points']} points)" for r in rows]
+        lines = [
+            f"{r['department']}: {r['label']} → {r['trend']} ({r['change_pct']:+.1f}%, {r['data_points']} points)"
+            for r in rows
+        ]
         return f"{len(rows)} predictions:\n" + "\n".join(lines)
     finally:
         await conn.close()
@@ -296,13 +333,16 @@ async def tool_compare_departments(args: dict) -> str:
 
     conn = await _get_conn()
     try:
-        rows = await conn.fetch("""
+        rows = await conn.fetch(
+            """
             SELECT code_dept, score_composite,
                 alpha1_sante_entreprises, alpha2_tension_emploi,
                 alpha3_dynamisme_immo, alpha4_sante_financiere,
                 alpha5_declin_ratio, alpha6_sentiment
             FROM scoring_composite WHERE code_dept = ANY($1)
-        """, depts)
+        """,
+            depts,
+        )
 
         if not rows:
             return "Aucune donnee pour ces departements."
@@ -311,9 +351,12 @@ async def tool_compare_departments(args: dict) -> str:
         lines = [header, "-" * len(header)]
 
         for label, key in [
-            ("Score", "score_composite"), ("Entreprises", "alpha1_sante_entreprises"),
-            ("Emploi", "alpha2_tension_emploi"), ("Immobilier", "alpha3_dynamisme_immo"),
-            ("Finances", "alpha4_sante_financiere"), ("Declin", "alpha5_declin_ratio"),
+            ("Score", "score_composite"),
+            ("Entreprises", "alpha1_sante_entreprises"),
+            ("Emploi", "alpha2_tension_emploi"),
+            ("Immobilier", "alpha3_dynamisme_immo"),
+            ("Finances", "alpha4_sante_financiere"),
+            ("Declin", "alpha5_declin_ratio"),
             ("Sentiment", "alpha6_sentiment"),
         ]:
             line = f"{label:<15}" + "".join(f"{r[key]:>8.1f}" for r in rows)
@@ -330,7 +373,8 @@ async def tool_knowledge_graph(args: dict) -> str:
     conn = await _get_conn()
     try:
         # Get causal links from KG-like data
-        rows = await conn.fetch("""
+        rows = await conn.fetch(
+            """
             SELECT DISTINCT s1.source as src1, s2.source as src2, s1.code_dept,
                    s1.metric_name as m1, s2.metric_name as m2
             FROM signals s1
@@ -339,7 +383,9 @@ async def tool_knowledge_graph(args: dict) -> str:
             AND s1.event_date > NOW() - INTERVAL '90 days'
             AND s2.event_date > NOW() - INTERVAL '90 days'
             LIMIT 20
-        """, dept or "75")
+        """,
+            dept or "75",
+        )
 
         if not rows:
             return f"Aucun lien inter-sources pour {dept or '75'}"
@@ -455,23 +501,23 @@ def _parse_react_output(text: str) -> dict:
     result = {"thought": "", "action": None, "action_input": None, "answer": None}
 
     # Extract THOUGHT
-    thought_match = re.search(r'THOUGHT:\s*(.+?)(?=ACTION:|ANSWER:|$)', text, re.DOTALL)
+    thought_match = re.search(r"THOUGHT:\s*(.+?)(?=ACTION:|ANSWER:|$)", text, re.DOTALL)
     if thought_match:
         result["thought"] = thought_match.group(1).strip()
 
     # Extract ANSWER (takes priority)
-    answer_match = re.search(r'ANSWER:\s*(.+)', text, re.DOTALL)
+    answer_match = re.search(r"ANSWER:\s*(.+)", text, re.DOTALL)
     if answer_match:
         result["answer"] = answer_match.group(1).strip()
         return result
 
     # Extract ACTION
-    action_match = re.search(r'ACTION:\s*(\w+)', text)
+    action_match = re.search(r"ACTION:\s*(\w+)", text)
     if action_match:
         result["action"] = action_match.group(1).strip()
 
     # Extract ACTION_INPUT
-    input_match = re.search(r'ACTION_INPUT:\s*(\{.*?\})', text, re.DOTALL)
+    input_match = re.search(r"ACTION_INPUT:\s*(\{.*?\})", text, re.DOTALL)
     if input_match:
         try:
             result["action_input"] = json.loads(input_match.group(1))
@@ -495,7 +541,12 @@ async def run_react_agent(
 
     # Add department context hint
     if department:
-        messages.append({"role": "user", "content": f"Contexte: departement cible = {department}\n\nQuestion: {query}"})
+        messages.append(
+            {
+                "role": "user",
+                "content": f"Contexte: departement cible = {department}\n\nQuestion: {query}",
+            }
+        )
     else:
         messages.append({"role": "user", "content": f"Question: {query}"})
 
@@ -504,7 +555,7 @@ async def run_react_agent(
     citations = []
 
     for i in range(max_iterations):
-        logger.info(f"[REACT] Iteration {i+1}/{max_iterations}")
+        logger.info(f"[REACT] Iteration {i + 1}/{max_iterations}")
 
         # Call LLM
         llm_output = await _call_llm(messages)
@@ -521,9 +572,9 @@ async def run_react_agent(
 
         # If ANSWER, we're done
         if parsed["answer"]:
-            logger.info(f"[REACT] Agent answered after {i+1} iterations")
+            logger.info(f"[REACT] Agent answered after {i + 1} iterations")
             # Extract citations
-            cites = re.findall(r'\[SIG-(\d+)\]', parsed["answer"])
+            cites = re.findall(r"\[SIG-(\d+)\]", parsed["answer"])
             return AgentResult(
                 answer=parsed["answer"],
                 steps=steps,
@@ -560,17 +611,32 @@ async def run_react_agent(
             # No valid action and no answer — force conclusion
             if parsed["action"] and parsed["action"] not in TOOLS:
                 messages.append({"role": "assistant", "content": llm_output})
-                messages.append({"role": "user", "content": f"OBSERVATION: Outil '{parsed['action']}' non disponible. Outils: {', '.join(TOOLS.keys())}. Reponds avec ANSWER si tu as assez d'info."})
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": f"OBSERVATION: Outil '{parsed['action']}' non disponible. Outils: {', '.join(TOOLS.keys())}. Reponds avec ANSWER si tu as assez d'info.",
+                    }
+                )
             else:
                 # Force answer
                 messages.append({"role": "assistant", "content": llm_output})
-                messages.append({"role": "user", "content": "Tu n'as pas specifie d'ACTION ni d'ANSWER. Reponds avec ANSWER: suivi de ta reponse."})
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": "Tu n'as pas specifie d'ACTION ni d'ANSWER. Reponds avec ANSWER: suivi de ta reponse.",
+                    }
+                )
 
         steps.append(step)
 
     # Max iterations reached — force answer from what we have
     logger.warning(f"[REACT] Max iterations ({max_iterations}) reached, forcing answer")
-    messages.append({"role": "user", "content": "Tu as atteint le maximum d'iterations. Reponds maintenant avec ANSWER: suivi de ta synthese basee sur les informations collectees."})
+    messages.append(
+        {
+            "role": "user",
+            "content": "Tu as atteint le maximum d'iterations. Reponds maintenant avec ANSWER: suivi de ta synthese basee sur les informations collectees.",
+        }
+    )
     final_output = await _call_llm(messages)
     parsed = _parse_react_output(final_output)
 
@@ -580,11 +646,12 @@ async def run_react_agent(
         tools_used=list(set(tools_used)),
         confidence=min(0.4 + 0.1 * len(tools_used), 0.9),
         department=department,
-        citations=re.findall(r'\[SIG-(\d+)\]', final_output),
+        citations=re.findall(r"\[SIG-(\d+)\]", final_output),
     )
 
 
 # ─── Streaming variant ───────────────────────────────────────
+
 
 async def stream_react_agent(
     query: str,
@@ -601,14 +668,19 @@ async def stream_react_agent(
     ]
 
     if department:
-        messages.append({"role": "user", "content": f"Contexte: departement cible = {department}\n\nQuestion: {query}"})
+        messages.append(
+            {
+                "role": "user",
+                "content": f"Contexte: departement cible = {department}\n\nQuestion: {query}",
+            }
+        )
     else:
         messages.append({"role": "user", "content": f"Question: {query}"})
 
     tools_used = []
 
     for i in range(max_iterations):
-        yield f"data: {json_mod.dumps({'type': 'step', 'iteration': i+1, 'status': 'thinking'})}\n\n"
+        yield f"data: {json_mod.dumps({'type': 'step', 'iteration': i + 1, 'status': 'thinking'})}\n\n"
 
         llm_output = await _call_llm(messages)
         parsed = _parse_react_output(llm_output)
@@ -617,7 +689,7 @@ async def stream_react_agent(
             yield f"data: {json_mod.dumps({'type': 'thought', 'text': parsed['thought']})}\n\n"
 
         if parsed["answer"]:
-            yield f"data: {json_mod.dumps({'type': 'answer', 'text': parsed['answer'], 'tools_used': list(set(tools_used)), 'iterations': i+1})}\n\n"
+            yield f"data: {json_mod.dumps({'type': 'answer', 'text': parsed['answer'], 'tools_used': list(set(tools_used)), 'iterations': i + 1})}\n\n"
             return
 
         if parsed["action"] and parsed["action"] in TOOLS:
@@ -641,9 +713,16 @@ async def stream_react_agent(
         else:
             messages.append({"role": "assistant", "content": llm_output})
             if parsed["action"]:
-                messages.append({"role": "user", "content": f"OBSERVATION: Outil '{parsed['action']}' non disponible. Outils: {', '.join(TOOLS.keys())}."})
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": f"OBSERVATION: Outil '{parsed['action']}' non disponible. Outils: {', '.join(TOOLS.keys())}.",
+                    }
+                )
             else:
-                messages.append({"role": "user", "content": "Reponds avec ANSWER: suivi de ta synthese."})
+                messages.append(
+                    {"role": "user", "content": "Reponds avec ANSWER: suivi de ta synthese."}
+                )
 
     # Force final
     messages.append({"role": "user", "content": "Maximum d'iterations atteint. ANSWER:"})

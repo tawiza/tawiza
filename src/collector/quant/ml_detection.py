@@ -2,6 +2,7 @@
 Machine Learning Detection for Tawiza-V2
 Phase 4: Unsupervised anomaly detection and clustering
 """
+
 import asyncio
 import json
 import logging
@@ -22,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class MLDetection:
     """
     Machine Learning Detection for Tawiza-V2
@@ -30,7 +32,9 @@ class MLDetection:
     and clustering with HDBSCAN/DBSCAN for département analysis.
     """
 
-    def __init__(self, db_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza")):
+    def __init__(
+        self, db_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza")
+    ):
         self.db_url = db_url
         self.engine = create_async_engine(db_url)
         self.session_factory = async_sessionmaker(self.engine, expire_on_commit=False)
@@ -56,7 +60,7 @@ class MLDetection:
             """,
             "CREATE INDEX IF NOT EXISTS idx_ml_anomalies_dept ON ml_anomalies(code_dept)",
             "CREATE INDEX IF NOT EXISTS idx_ml_anomalies_method ON ml_anomalies(method)",
-            "CREATE INDEX IF NOT EXISTS idx_ml_anomalies_detected_at ON ml_anomalies(detected_at)"
+            "CREATE INDEX IF NOT EXISTS idx_ml_anomalies_detected_at ON ml_anomalies(detected_at)",
         ]
 
         async with self.session_factory() as session:
@@ -136,51 +140,68 @@ class MLDetection:
             return pd.DataFrame()
 
         # Convertir en DataFrame et pivoter
-        df = pd.DataFrame(rows, columns=[
-            'code_dept', 'metric_name', 'avg_value', 'signal_count',
-            'max_value', 'min_value', 'std_value', 'unique_metrics',
-            'unique_sources', 'total_signals', 'avg_confidence'
-        ])
+        df = pd.DataFrame(
+            rows,
+            columns=[
+                "code_dept",
+                "metric_name",
+                "avg_value",
+                "signal_count",
+                "max_value",
+                "min_value",
+                "std_value",
+                "unique_metrics",
+                "unique_sources",
+                "total_signals",
+                "avg_confidence",
+            ],
+        )
 
-        logger.info(f"Données brutes: {len(df)} lignes pour {df['code_dept'].nunique()} départements")
+        logger.info(
+            f"Données brutes: {len(df)} lignes pour {df['code_dept'].nunique()} départements"
+        )
 
         # Features de base par département
-        dept_base_features = df.groupby('code_dept').agg({
-            'unique_metrics': 'first',
-            'unique_sources': 'first',
-            'total_signals': 'first',
-            'avg_confidence': 'first'
-        })
+        dept_base_features = df.groupby("code_dept").agg(
+            {
+                "unique_metrics": "first",
+                "unique_sources": "first",
+                "total_signals": "first",
+                "avg_confidence": "first",
+            }
+        )
 
         # Pivoter les métriques principales
         key_metrics = [
-            'prix_m2_moyen', 'offres_emploi', 'transactions_immobilieres',
-            'liquidation_judiciaire', 'vente_fonds_commerce',
-            'creation_entreprise', 'fermeture_entreprise'
+            "prix_m2_moyen",
+            "offres_emploi",
+            "transactions_immobilieres",
+            "liquidation_judiciaire",
+            "vente_fonds_commerce",
+            "creation_entreprise",
+            "fermeture_entreprise",
         ]
 
         features_matrix = dept_base_features.copy()
 
         for metric in key_metrics:
-            metric_data = df[df['metric_name'] == metric].set_index('code_dept')
+            metric_data = df[df["metric_name"] == metric].set_index("code_dept")
             if not metric_data.empty:
-                features_matrix[f'{metric}_avg'] = metric_data['avg_value']
-                features_matrix[f'{metric}_count'] = metric_data['signal_count']
-                features_matrix[f'{metric}_std'] = metric_data['std_value']
+                features_matrix[f"{metric}_avg"] = metric_data["avg_value"]
+                features_matrix[f"{metric}_count"] = metric_data["signal_count"]
+                features_matrix[f"{metric}_std"] = metric_data["std_value"]
 
         # Ratios calculés
-        liq_avg = features_matrix.get('liquidation_judiciaire_avg', 0)
-        creation_avg = features_matrix.get('creation_entreprise_avg', 0)
+        liq_avg = features_matrix.get("liquidation_judiciaire_avg", 0)
+        creation_avg = features_matrix.get("creation_entreprise_avg", 0)
 
         # Ratio liquidations/créations (avec gestion division par zéro)
-        features_matrix['ratio_liquidation_creation'] = np.where(
-            creation_avg > 0,
-            liq_avg / creation_avg,
-            liq_avg
+        features_matrix["ratio_liquidation_creation"] = np.where(
+            creation_avg > 0, liq_avg / creation_avg, liq_avg
         )
 
         # Densité de signaux par mille habitants (approximation simple)
-        features_matrix['signal_density'] = features_matrix['total_signals'] / 1000
+        features_matrix["signal_density"] = features_matrix["total_signals"] / 1000
 
         # Remplir les NaN avec des médiannes
         numeric_cols = features_matrix.select_dtypes(include=[np.number]).columns
@@ -188,7 +209,9 @@ class MLDetection:
             features_matrix[numeric_cols].median()
         )
 
-        logger.info(f"Matrice construite: {len(features_matrix)} départements x {len(features_matrix.columns)} features")
+        logger.info(
+            f"Matrice construite: {len(features_matrix)} départements x {len(features_matrix.columns)} features"
+        )
         logger.info(f"Features: {list(features_matrix.columns)}")
 
         return features_matrix
@@ -217,11 +240,7 @@ class MLDetection:
         X_scaled = scaler.fit_transform(features_df)
 
         # Appliquer Isolation Forest
-        iso_forest = IsolationForest(
-            contamination=contamination,
-            random_state=42,
-            n_estimators=200
-        )
+        iso_forest = IsolationForest(contamination=contamination, random_state=42, n_estimators=200)
 
         outliers = iso_forest.fit_predict(X_scaled)
         anomaly_scores = iso_forest.score_samples(X_scaled)
@@ -235,20 +254,25 @@ class MLDetection:
             if is_anomaly:
                 feature_values = features_df.loc[dept_code].to_dict()
                 # Convertir les valeurs numpy en types Python natifs
-                feature_values = {k: (float(v) if not pd.isna(v) else None)
-                                for k, v in feature_values.items()}
+                feature_values = {
+                    k: (float(v) if not pd.isna(v) else None) for k, v in feature_values.items()
+                }
 
-                results.append({
-                    "code_dept": dept_code,
-                    "anomaly_score": score,
-                    "is_anomaly": True,
-                    "method": "isolation_forest",
-                    "features_used": list(features_df.columns),
-                    "feature_values": feature_values,
-                    "description": f"Département détecté comme outlier (score: {score:.3f})"
-                })
+                results.append(
+                    {
+                        "code_dept": dept_code,
+                        "anomaly_score": score,
+                        "is_anomaly": True,
+                        "method": "isolation_forest",
+                        "features_used": list(features_df.columns),
+                        "feature_values": feature_values,
+                        "description": f"Département détecté comme outlier (score: {score:.3f})",
+                    }
+                )
 
-        logger.info(f"Isolation Forest: {len(results)} anomalies détectées sur {len(features_df)} départements")
+        logger.info(
+            f"Isolation Forest: {len(results)} anomalies détectées sur {len(features_df)} départements"
+        )
 
         # Sauvegarder en DB
         await self._save_anomalies_to_db(results)
@@ -256,10 +280,12 @@ class MLDetection:
         return {
             "anomalies": results,
             "total_departments": len(features_df),
-            "contamination_used": contamination
+            "contamination_used": contamination,
         }
 
-    async def cluster_departments(self, use_hdbscan: bool = True, min_cluster_size: int = 3) -> dict[str, Any]:
+    async def cluster_departments(
+        self, use_hdbscan: bool = True, min_cluster_size: int = 3
+    ) -> dict[str, Any]:
         """
         Grouper les départements par clustering HDBSCAN/DBSCAN
 
@@ -288,8 +314,8 @@ class MLDetection:
             try:
                 clusterer = hdbscan.HDBSCAN(
                     min_cluster_size=min_cluster_size,
-                    metric='euclidean',
-                    cluster_selection_method='eom'
+                    metric="euclidean",
+                    cluster_selection_method="eom",
                 )
                 cluster_labels = clusterer.fit_predict(X_scaled)
                 method = "hdbscan"
@@ -321,20 +347,25 @@ class MLDetection:
             is_noise = cluster_id == -1
 
             feature_values = features_df.loc[dept_code].to_dict()
-            feature_values = {k: (float(v) if not pd.isna(v) else None)
-                            for k, v in feature_values.items()}
+            feature_values = {
+                k: (float(v) if not pd.isna(v) else None) for k, v in feature_values.items()
+            }
 
-            all_records.append({
-                "code_dept": dept_code,
-                "anomaly_score": None,
-                "is_anomaly": is_noise,
-                "method": method,
-                "features_used": list(features_df.columns),
-                "feature_values": feature_values,
-                "cluster_id": cluster_id if not is_noise else None,
-                "cluster_size": cluster_sizes.get(cluster_id, 0) if not is_noise else None,
-                "description": f"Cluster {cluster_id} ({cluster_sizes.get(cluster_id, 0)} depts)" if not is_noise else "Département isolé (noise)"
-            })
+            all_records.append(
+                {
+                    "code_dept": dept_code,
+                    "anomaly_score": None,
+                    "is_anomaly": is_noise,
+                    "method": method,
+                    "features_used": list(features_df.columns),
+                    "feature_values": feature_values,
+                    "cluster_id": cluster_id if not is_noise else None,
+                    "cluster_size": cluster_sizes.get(cluster_id, 0) if not is_noise else None,
+                    "description": f"Cluster {cluster_id} ({cluster_sizes.get(cluster_id, 0)} depts)"
+                    if not is_noise
+                    else "Département isolé (noise)",
+                }
+            )
 
             if is_noise:
                 noise_depts.append(dept_code)
@@ -346,18 +377,17 @@ class MLDetection:
         cluster_stats = {}
         for cluster_id, depts in clusters.items():
             if cluster_id != -1:
-                cluster_stats[f"cluster_{cluster_id}"] = {
-                    "size": len(depts),
-                    "departments": depts
-                }
+                cluster_stats[f"cluster_{cluster_id}"] = {"size": len(depts), "departments": depts}
 
-        logger.info(f"Clustering: {len(cluster_stats)} clusters, {len(noise_depts)} départements isolés")
+        logger.info(
+            f"Clustering: {len(cluster_stats)} clusters, {len(noise_depts)} départements isolés"
+        )
 
         return {
             "method": method,
             "clusters": cluster_stats,
             "noise_departments": noise_depts,
-            "total_departments": len(features_df)
+            "total_departments": len(features_df),
         }
 
     async def _save_anomalies_to_db(self, anomalies: list[dict[str, Any]]) -> None:
@@ -392,8 +422,8 @@ class MLDetection:
                             "feature_values": json.dumps(anomaly["feature_values"]),
                             "description": anomaly["description"],
                             "cluster_id": anomaly.get("cluster_id"),
-                            "cluster_size": anomaly.get("cluster_size")
-                        }
+                            "cluster_size": anomaly.get("cluster_size"),
+                        },
                     )
 
                 await session.commit()
@@ -424,7 +454,7 @@ class MLDetection:
         results = {
             "timestamp": datetime.now().isoformat(),
             "isolation_forest": {},
-            "clustering": {}
+            "clustering": {},
         }
 
         try:
@@ -433,7 +463,9 @@ class MLDetection:
             results["isolation_forest"] = isolation_results
 
             # Étape 2: Clustering — min_cluster_size=2 pour mieux grouper
-            clustering_results = await self.cluster_departments(use_hdbscan=True, min_cluster_size=2)
+            clustering_results = await self.cluster_departments(
+                use_hdbscan=True, min_cluster_size=2
+            )
             results["clustering"] = clustering_results
 
             # Étape 3: Feature importance
@@ -464,11 +496,13 @@ class MLDetection:
             # Corrélation entre la feature et le score d'anomalie
             corr = float(np.corrcoef(X_scaled[:, i], scores)[0, 1])
             variance = float(np.var(X_scaled[:, i]))
-            importances.append({
-                "feature": col,
-                "correlation_with_anomaly": round(abs(corr), 4),
-                "variance": round(variance, 4)
-            })
+            importances.append(
+                {
+                    "feature": col,
+                    "correlation_with_anomaly": round(abs(corr), 4),
+                    "variance": round(variance, 4),
+                }
+            )
 
         importances.sort(key=lambda x: x["correlation_with_anomaly"], reverse=True)
         return importances

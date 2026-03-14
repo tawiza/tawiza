@@ -17,9 +17,11 @@ from playwright.async_api import Page, async_playwright
 
 # Configuration du logging
 
+
 @dataclass
 class BrowserAction:
     """Action du navigateur"""
+
     action_type: str  # click, type, scroll, screenshot, etc.
     selector: str | None = None
     value: str | None = None
@@ -27,9 +29,11 @@ class BrowserAction:
     wait_time: float = 0.5
     description: str = ""
 
+
 @dataclass
 class AutomationTask:
     """Tâche d'automatisation"""
+
     task_id: str
     url: str
     objective: str
@@ -40,9 +44,11 @@ class AutomationTask:
     user_agent: str | None = None
     viewport: dict[str, int] | None = None
 
+
 @dataclass
 class AutomationResult:
     """Résultat de l'automatisation"""
+
     task_id: str
     success: bool
     url: str
@@ -54,9 +60,11 @@ class AutomationResult:
     execution_time: float = 0.0
     timestamp: str = ""
 
+
 @dataclass
 class ElementInfo:
     """Informations sur un élément web"""
+
     tag_name: str
     text: str
     attributes: dict[str, str]
@@ -64,6 +72,7 @@ class ElementInfo:
     size: dict[str, int]
     is_visible: bool
     is_interactable: bool
+
 
 class BrowserAutomationAgent:
     """Agent d'automatisation de navigateur avancé"""
@@ -77,7 +86,7 @@ class BrowserAutomationAgent:
             "data_extraction",
             "screenshot_capture",
             "element_interaction",
-            "page_analysis"
+            "page_analysis",
         ]
         self.playwright = None
         self.browser = None
@@ -109,8 +118,8 @@ class BrowserAutomationAgent:
                     "--disable-renderer-backgrounding",
                     "--disable-features=TranslateUI",
                     "--disable-ipc-flooding-protection",
-                    "--enable-features=NetworkService,NetworkServiceInProcess"
-                ]
+                    "--enable-features=NetworkService,NetworkServiceInProcess",
+                ],
             }
 
             # Lancer le navigateur
@@ -123,7 +132,7 @@ class BrowserAutomationAgent:
                 locale="fr-FR",
                 timezone_id="Europe/Paris",
                 permissions=["geolocation", "notifications"],
-                java_script_enabled=True
+                java_script_enabled=True,
             )
 
             # Activer la console et les logs
@@ -211,7 +220,7 @@ class BrowserAutomationAgent:
                 screenshots=[],
                 error_message=str(e),
                 execution_time=time.time() - start_time,
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
     async def _setup_page(self, page: Page, task: AutomationTask):
@@ -245,7 +254,7 @@ class BrowserAutomationAgent:
                 break
 
             try:
-                logger.info(f"🎯 Action {i+1}/{len(task.actions)}: {action.description}")
+                logger.info(f"🎯 Action {i + 1}/{len(task.actions)}: {action.description}")
 
                 # Exécuter l'action
                 success = await self._perform_action(page, action)
@@ -288,7 +297,7 @@ class BrowserAutomationAgent:
             screenshots=screenshots,
             error_message=None,
             execution_time=0.0,
-            timestamp=""
+            timestamp="",
         )
 
     async def _perform_action(self, page: Page, action: BrowserAction) -> bool:
@@ -350,7 +359,7 @@ class BrowserAutomationAgent:
         """Capturer une capture d'écran de la page"""
         try:
             screenshot_bytes = await page.screenshot(full_page=True)
-            screenshot_b64 = base64.b64encode(screenshot_bytes).decode('utf-8')
+            screenshot_b64 = base64.b64encode(screenshot_bytes).decode("utf-8")
             return screenshot_b64
         except Exception as e:
             logger.error(f"❌ Erreur lors de la capture d'écran: {e}")
@@ -363,25 +372,35 @@ class BrowserAutomationAgent:
             main_text = await page.inner_text("body")
 
             # Extraire les liens
-            links = await page.eval_on_selector_all("a", "elements => elements.map(e => ({href: e.href, text: e.textContent}))")
+            links = await page.eval_on_selector_all(
+                "a", "elements => elements.map(e => ({href: e.href, text: e.textContent}))"
+            )
 
             # Extraire les images
-            images = await page.eval_on_selector_all("img", "elements => elements.map(e => ({src: e.src, alt: e.alt}))")
+            images = await page.eval_on_selector_all(
+                "img", "elements => elements.map(e => ({src: e.src, alt: e.alt}))"
+            )
 
             # Extraire les formulaires
-            forms = await page.eval_on_selector_all("form", "elements => elements.map(e => ({action: e.action, method: e.method}))")
+            forms = await page.eval_on_selector_all(
+                "form", "elements => elements.map(e => ({action: e.action, method: e.method}))"
+            )
 
             # Extraire les titres
             title = await page.title()
 
             # Extraire les métadonnées (avec timeout court pour éviter blocage)
             try:
-                meta_description = await page.get_attribute('meta[name="description"]', "content", timeout=2000)
+                meta_description = await page.get_attribute(
+                    'meta[name="description"]', "content", timeout=2000
+                )
             except Exception as e:
                 logger.debug(f"Failed to extract meta description: {e}")
                 meta_description = None
             try:
-                meta_keywords = await page.get_attribute('meta[name="keywords"]', "content", timeout=2000)
+                meta_keywords = await page.get_attribute(
+                    'meta[name="keywords"]', "content", timeout=2000
+                )
             except Exception as e:
                 logger.debug(f"Failed to extract meta keywords: {e}")
                 meta_keywords = None
@@ -394,7 +413,7 @@ class BrowserAutomationAgent:
                 "forms": forms[:10],
                 "meta_description": meta_description,
                 "meta_keywords": meta_keywords,
-                "url": page.url
+                "url": page.url,
             }
 
         except Exception as e:
@@ -413,18 +432,16 @@ class BrowserAutomationAgent:
                     errors.append(error_text.strip())
 
             # Vérifier s'il y a des messages de succès
-            success_elements = await page.query_selector_all(".success, .alert-success, .message-success")
+            success_elements = await page.query_selector_all(
+                ".success, .alert-success, .message-success"
+            )
             successes = []
             for element in success_elements:
                 success_text = await element.text_content()
                 if success_text:
                     successes.append(success_text.strip())
 
-            return {
-                "errors": errors,
-                "successes": successes,
-                "current_url": page.url
-            }
+            return {"errors": errors, "successes": successes, "current_url": page.url}
 
         except Exception as e:
             logger.error(f"❌ Erreur lors de l'extraction des données actuelles: {e}")
@@ -448,7 +465,7 @@ class BrowserAutomationAgent:
             "extract_data_after_actions": True,
             "handle_popups": True,
             "auto_scroll": True,
-            "smart_wait": True
+            "smart_wait": True,
         }
 
     async def create_automation_task(self, url: str, objective: str, **kwargs) -> AutomationTask:
@@ -467,10 +484,12 @@ class BrowserAutomationAgent:
             timeout=kwargs.get("timeout", 300.0),
             headless=kwargs.get("headless", True),
             user_agent=kwargs.get("user_agent"),
-            viewport=kwargs.get("viewport")
+            viewport=kwargs.get("viewport"),
         )
 
-    async def _generate_actions_from_objective(self, objective: str, url: str) -> list[BrowserAction]:
+    async def _generate_actions_from_objective(
+        self, objective: str, url: str
+    ) -> list[BrowserAction]:
         """Générer des actions à partir de l'objectif"""
         actions = []
 
@@ -479,36 +498,34 @@ class BrowserAutomationAgent:
 
         # Actions basiques selon l'objectif
         if "remplir" in objective_lower or "saisir" in objective_lower:
-            actions.append(BrowserAction(
-                action_type="wait",
-                wait_time=2.0,
-                description="Attendre le chargement du formulaire"
-            ))
+            actions.append(
+                BrowserAction(
+                    action_type="wait",
+                    wait_time=2.0,
+                    description="Attendre le chargement du formulaire",
+                )
+            )
 
         if "cliquer" in objective_lower or "clic" in objective_lower:
-            actions.append(BrowserAction(
-                action_type="wait",
-                wait_time=1.0,
-                description="Attendre avant de cliquer"
-            ))
+            actions.append(
+                BrowserAction(
+                    action_type="wait", wait_time=1.0, description="Attendre avant de cliquer"
+                )
+            )
 
         if "extraire" in objective_lower or "récupérer" in objective_lower:
-            actions.append(BrowserAction(
-                action_type="wait",
-                wait_time=1.0,
-                description="Attendre avant l'extraction"
-            ))
+            actions.append(
+                BrowserAction(
+                    action_type="wait", wait_time=1.0, description="Attendre avant l'extraction"
+                )
+            )
 
         # Toujours finir par une capture d'écran et une extraction
-        actions.append(BrowserAction(
-            action_type="screenshot",
-            description="Capturer l'état final"
-        ))
+        actions.append(BrowserAction(action_type="screenshot", description="Capturer l'état final"))
 
-        actions.append(BrowserAction(
-            action_type="extract",
-            description="Extraire les données finales"
-        ))
+        actions.append(
+            BrowserAction(action_type="extract", description="Extraire les données finales")
+        )
 
         return actions
 
@@ -552,7 +569,7 @@ class BrowserAutomationAgent:
                 position=properties["position"],
                 size=properties["size"],
                 is_visible=properties["isVisible"],
-                is_interactable=properties["isInteractable"]
+                is_interactable=properties["isInteractable"],
             )
 
         except Exception as e:
@@ -606,11 +623,11 @@ class BrowserAutomationAgent:
         import re
 
         # Extract URL from prompt
-        url_pattern = r'https?://[^\s]+'
+        url_pattern = r"https?://[^\s]+"
         urls = re.findall(url_pattern, prompt)
 
         # Also check for domain-like patterns without protocol
-        domain_pattern = r'\b([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b'
+        domain_pattern = r"\b([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b"
         domains = re.findall(domain_pattern, prompt)
 
         if urls:
@@ -667,6 +684,7 @@ def create_browser_automation_agent() -> BrowserAutomationAgent:
     """Créer et initialiser l'agent d'automatisation"""
     return BrowserAutomationAgent()
 
+
 async def automate_web_task(url: str, objective: str, **kwargs) -> AutomationResult:
     """Automatiser une tâche web simple"""
     agent = create_browser_automation_agent()
@@ -685,13 +703,14 @@ async def automate_web_task(url: str, objective: str, **kwargs) -> AutomationRes
     finally:
         await agent.cleanup()
 
+
 # Export
 __all__ = [
-    'BrowserAutomationAgent',
-    'AutomationTask',
-    'AutomationResult',
-    'BrowserAction',
-    'ElementInfo',
-    'create_browser_automation_agent',
-    'automate_web_task'
+    "BrowserAutomationAgent",
+    "AutomationTask",
+    "AutomationResult",
+    "BrowserAction",
+    "ElementInfo",
+    "create_browser_automation_agent",
+    "automate_web_task",
 ]

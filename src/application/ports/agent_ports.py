@@ -237,10 +237,7 @@ class IWebAgent(ABC):
     """
 
     @abstractmethod
-    async def execute_task(
-        self,
-        task_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_task(self, task_config: dict[str, Any]) -> dict[str, Any]:
         """Execute a web automation task.
 
         Args:
@@ -267,10 +264,7 @@ class IWebAgent(ABC):
         pass
 
     @abstractmethod
-    async def stream_progress(
-        self,
-        task_id: str
-    ) -> AsyncGenerator[dict[str, Any]]:
+    async def stream_progress(self, task_id: str) -> AsyncGenerator[dict[str, Any]]:
         """Stream task execution progress.
 
         Yields progress updates in real-time via async generator.
@@ -293,10 +287,7 @@ class IWebAgent(ABC):
         pass
 
     @abstractmethod
-    async def get_task_status(
-        self,
-        task_id: str
-    ) -> dict[str, Any]:
+    async def get_task_status(self, task_id: str) -> dict[str, Any]:
         """Get current status of a task.
 
         Args:
@@ -311,10 +302,7 @@ class IWebAgent(ABC):
         pass
 
     @abstractmethod
-    async def cancel_task(
-        self,
-        task_id: str
-    ) -> bool:
+    async def cancel_task(self, task_id: str) -> bool:
         """Cancel a running task.
 
         Args:
@@ -330,10 +318,7 @@ class IWebAgent(ABC):
         pass
 
     @abstractmethod
-    async def get_task_result(
-        self,
-        task_id: str
-    ) -> dict[str, Any]:
+    async def get_task_result(self, task_id: str) -> dict[str, Any]:
         """Get task result after completion.
 
         Args:
@@ -350,10 +335,7 @@ class IWebAgent(ABC):
 
     @abstractmethod
     async def list_tasks(
-        self,
-        status: TaskStatus | None = None,
-        limit: int = 100,
-        offset: int = 0
+        self, status: TaskStatus | None = None, limit: int = 100, offset: int = 0
     ) -> list[dict[str, Any]]:
         """List tasks with optional filtering.
 
@@ -376,10 +358,7 @@ class IServiceOrchestrator(ABC):
     """
 
     @abstractmethod
-    async def execute_pipeline(
-        self,
-        pipeline_config: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def execute_pipeline(self, pipeline_config: dict[str, Any]) -> dict[str, Any]:
         """Execute a multi-service pipeline.
 
         Args:
@@ -414,10 +393,7 @@ class IServiceOrchestrator(ABC):
         pass
 
     @abstractmethod
-    async def get_pipeline_status(
-        self,
-        pipeline_id: str
-    ) -> dict[str, Any]:
+    async def get_pipeline_status(self, pipeline_id: str) -> dict[str, Any]:
         """Get pipeline execution status.
 
         Args:
@@ -435,10 +411,7 @@ class IServiceOrchestrator(ABC):
         pass
 
     @abstractmethod
-    async def cancel_pipeline(
-        self,
-        pipeline_id: str
-    ) -> bool:
+    async def cancel_pipeline(self, pipeline_id: str) -> bool:
         """Cancel a running pipeline.
 
         Args:
@@ -450,10 +423,7 @@ class IServiceOrchestrator(ABC):
         pass
 
     @abstractmethod
-    async def stream_pipeline_progress(
-        self,
-        pipeline_id: str
-    ) -> AsyncGenerator[dict[str, Any]]:
+    async def stream_pipeline_progress(self, pipeline_id: str) -> AsyncGenerator[dict[str, Any]]:
         """Stream pipeline execution progress.
 
         Args:
@@ -465,11 +435,7 @@ class IServiceOrchestrator(ABC):
         pass
 
     @abstractmethod
-    async def register_service(
-        self,
-        service_name: str,
-        service_adapter: Any
-    ) -> None:
+    async def register_service(self, service_name: str, service_adapter: Any) -> None:
         """Register a service adapter.
 
         Args:
@@ -492,65 +458,63 @@ class IAgentMetrics(ABC):
     """Interface for agent metrics and monitoring."""
 
     @abstractmethod
-    async def record_task_start(
-        self,
-        task_id: str,
-        agent_type: AgentType
-    ) -> None:
+    async def record_task_start(self, task_id: str, agent_type: AgentType) -> None:
         """Record task start."""
         pass
 
     @abstractmethod
     async def record_task_completion(
-        self,
-        task_id: str,
-        duration_seconds: float,
-        status: TaskStatus
+        self, task_id: str, duration_seconds: float, status: TaskStatus
     ) -> None:
         """Record task completion."""
         pass
 
     @abstractmethod
-    async def get_agent_metrics(
-        self,
-        agent_type: AgentType | None = None
-    ) -> dict[str, Any]:
+    async def get_agent_metrics(self, agent_type: AgentType | None = None) -> dict[str, Any]:
         """Get agent performance metrics."""
         pass
 
 
 # Exception classes
 
+
 class AgentError(Exception):
     """Base exception for agent errors."""
+
     pass
 
 
 class AgentExecutionError(AgentError):
     """Raised when agent execution fails."""
+
     pass
 
 
 class TaskNotFoundError(AgentError):
     """Raised when task is not found."""
+
     pass
 
 
 class TaskNotCompletedError(AgentError):
     """Raised when attempting to get result of incomplete task."""
+
     pass
 
 
 class TaskNotCancellableError(AgentError):
     """Raised when task cannot be cancelled."""
+
     pass
 
 
 class PipelineExecutionError(AgentError):
     """Raised when pipeline execution fails."""
+
     pass
 
 
 class ServiceNotRegisteredError(AgentError):
     """Raised when service is not registered."""
+
     pass

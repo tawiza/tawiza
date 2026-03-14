@@ -103,7 +103,7 @@ class BaseCollector(ABC):
                 return response
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in (429, 503):
-                    wait = 2 ** attempt
+                    wait = 2**attempt
                     logger.warning(
                         f"[{self.name}] Rate limited ({e.response.status_code}), "
                         f"retry in {wait}s (attempt {attempt + 1}/{self.config.max_retries})"
@@ -114,7 +114,7 @@ class BaseCollector(ABC):
                     self._stats["errors"] += 1
                     return None
             except httpx.RequestError as e:
-                wait = 2 ** attempt
+                wait = 2**attempt
                 logger.warning(
                     f"[{self.name}] Request error: {e}, "
                     f"retry in {wait}s (attempt {attempt + 1}/{self.config.max_retries})"

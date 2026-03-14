@@ -3,6 +3,7 @@
 High-level facade providing semantic search with automatic fallback
 between primary (pgvector) and fallback (Qdrant) vector stores.
 """
+
 import os
 from typing import Any
 
@@ -67,11 +68,13 @@ class SemanticSearchService:
         # Lazy import adapters
         if self.primary is None:
             from src.infrastructure.agents.tajine.semantic.pgvector_adapter import PGVectorAdapter
+
             self.primary = PGVectorAdapter()
 
         if self.fallback is None:
             try:
                 from src.infrastructure.agents.tajine.semantic.qdrant_adapter import QdrantAdapter
+
                 self.fallback = QdrantAdapter()
             except ImportError:
                 logger.warning("Qdrant not available, running without fallback")
@@ -269,13 +272,15 @@ class SemanticSearchService:
 
         raw_data_list = []
         for result in results:
-            raw_data_list.append(RawData(
-                source=f"semantic:{result.source_store}",
-                content={"text": result.content, "semantic_score": result.score},
-                url=f"semantic://{result.source_store}/{result.id}",
-                fetched_at=result.fetched_at,
-                quality_hint=result.score,
-            ))
+            raw_data_list.append(
+                RawData(
+                    source=f"semantic:{result.source_store}",
+                    content={"text": result.content, "semantic_score": result.score},
+                    url=f"semantic://{result.source_store}/{result.id}",
+                    fetched_at=result.fetched_at,
+                    quality_hint=result.score,
+                )
+            )
 
         return raw_data_list
 

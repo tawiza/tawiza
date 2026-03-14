@@ -1,6 +1,5 @@
 """Session Recorder - Simplified interface to ReplayEngine for TUI."""
 
-
 from src.cli.v3.tui.controllers.replay_engine import (
     SessionRecording,
     get_replay_engine,
@@ -24,13 +23,7 @@ class SessionRecorder:
         """Get current recording session ID."""
         return self._current_session_id
 
-    def start(
-        self,
-        session_id: str,
-        agent_name: str,
-        task: str,
-        model: str = "default"
-    ) -> None:
+    def start(self, session_id: str, agent_name: str, task: str, model: str = "default") -> None:
         """Start recording a session."""
         self._engine.start_recording(
             session_id=session_id,

@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TerritorialMetrics:
     """Métriques calculées pour un territoire."""
+
     territory_code: str
     territory_name: str
     period_start: datetime
@@ -75,14 +76,18 @@ class TerritorialMetrics:
         """Variation des créations vs période précédente."""
         if self.creations_previous_period == 0:
             return 0.0 if self.creations_count == 0 else 1.0
-        return (self.creations_count - self.creations_previous_period) / self.creations_previous_period
+        return (
+            self.creations_count - self.creations_previous_period
+        ) / self.creations_previous_period
 
     @property
     def procedures_variation(self) -> float:
         """Variation des procédures collectives."""
         if self.collective_procedures_previous == 0:
             return 0.0 if self.collective_procedures_count == 0 else 1.0
-        return (self.collective_procedures_count - self.collective_procedures_previous) / self.collective_procedures_previous
+        return (
+            self.collective_procedures_count - self.collective_procedures_previous
+        ) / self.collective_procedures_previous
 
     @property
     def job_offers_variation(self) -> float:
@@ -144,13 +149,15 @@ class TerritorialMetrics:
             net_rate = self.net_creation / self.total_establishments
             creations_impact = min(15, max(-15, net_rate * 750))
         score += creations_impact
-        components.append({
-            "source": "BODACC/SIRENE",
-            "name": "Créations nettes",
-            "impact": round(creations_impact, 1),
-            "detail": f"{self.net_creation:+d} (créations - fermetures)",
-            "weight": "30%",
-        })
+        components.append(
+            {
+                "source": "BODACC/SIRENE",
+                "name": "Créations nettes",
+                "impact": round(creations_impact, 1),
+                "detail": f"{self.net_creation:+d} (créations - fermetures)",
+                "weight": "30%",
+            }
+        )
 
         # 2. Procédures collectives (poids: 20%)
         proc_impact = 0.0
@@ -159,13 +166,15 @@ class TerritorialMetrics:
             proc_impact = -min(10, proc_rate * 1000)
         score += proc_impact
         if self.collective_procedures_count > 0:
-            components.append({
-                "source": "BODACC",
-                "name": "Procédures collectives",
-                "impact": round(proc_impact, 1),
-                "detail": f"{self.collective_procedures_count} procédures",
-                "weight": "20%",
-            })
+            components.append(
+                {
+                    "source": "BODACC",
+                    "name": "Procédures collectives",
+                    "impact": round(proc_impact, 1),
+                    "detail": f"{self.collective_procedures_count} procédures",
+                    "weight": "20%",
+                }
+            )
 
         # 3. Offres d'emploi (poids: 20%)
         offers_impact = 0.0
@@ -177,13 +186,15 @@ class TerritorialMetrics:
                 offers_impact = min(8, self.job_offers_count / 15)
         score += offers_impact
         if self.job_offers_count > 0:
-            components.append({
-                "source": "France Travail",
-                "name": "Offres d'emploi",
-                "impact": round(offers_impact, 1),
-                "detail": f"{self.job_offers_count} offres actives",
-                "weight": "20%",
-            })
+            components.append(
+                {
+                    "source": "France Travail",
+                    "name": "Offres d'emploi",
+                    "impact": round(offers_impact, 1),
+                    "detail": f"{self.job_offers_count} offres actives",
+                    "weight": "20%",
+                }
+            )
 
         # 4. Taux de chômage (poids: 20%)
         chom_impact = 0.0
@@ -191,13 +202,15 @@ class TerritorialMetrics:
             chom_impact = min(10, max(-10, (7.0 - self.unemployment_rate) * 1.5))
         score += chom_impact
         if self.unemployment_rate > 0:
-            components.append({
-                "source": "INSEE",
-                "name": "Taux de chômage",
-                "impact": round(chom_impact, 1),
-                "detail": f"{self.unemployment_rate:.1f}% (réf: 7%)",
-                "weight": "20%",
-            })
+            components.append(
+                {
+                    "source": "INSEE",
+                    "name": "Taux de chômage",
+                    "impact": round(chom_impact, 1),
+                    "detail": f"{self.unemployment_rate:.1f}% (réf: 7%)",
+                    "weight": "20%",
+                }
+            )
 
         # 5. Transactions immobilières (poids: 10%)
         immo_impact = 0.0
@@ -206,13 +219,15 @@ class TerritorialMetrics:
             immo_impact = min(5, tx_rate * 0.5)
         score += immo_impact
         if self.real_estate_transactions > 0:
-            components.append({
-                "source": "DVF",
-                "name": "Transactions immobilières",
-                "impact": round(immo_impact, 1),
-                "detail": f"{self.real_estate_transactions} transactions",
-                "weight": "10%",
-            })
+            components.append(
+                {
+                    "source": "DVF",
+                    "name": "Transactions immobilières",
+                    "impact": round(immo_impact, 1),
+                    "detail": f"{self.real_estate_transactions} transactions",
+                    "weight": "10%",
+                }
+            )
 
         total = max(0, min(100, score))
 
@@ -421,7 +436,7 @@ class TerritorialMetricsCollector:
             metrics.establishments_per_1000 = round((total_est / population) * 1000, 1)
 
         # Flag si job_offers est un sample (max API = 150)
-        metrics.job_offers_sample = (job_offers >= 150)
+        metrics.job_offers_sample = job_offers >= 150
 
         # Score qualité des données (0-1)
         quality_factors = []
@@ -432,11 +447,17 @@ class TerritorialMetricsCollector:
         if insee_data.get("unemployment_rate", 0) > 0:
             quality_factors.append(1.0)  # INSEE chômage ok
         if job_offers > 0:
-            quality_factors.append(0.7 if job_offers >= 150 else 1.0)  # France Travail (partial if max)
+            quality_factors.append(
+                0.7 if job_offers >= 150 else 1.0
+            )  # France Travail (partial if max)
         if dvf_data.get("transactions", 0) > 0:
             quality_factors.append(1.0)  # DVF ok
 
-        metrics.data_quality_score = round(sum(quality_factors) / max(5, len(quality_factors)), 2) if quality_factors else 0.0
+        metrics.data_quality_score = (
+            round(sum(quality_factors) / max(5, len(quality_factors)), 2)
+            if quality_factors
+            else 0.0
+        )
 
         # Mettre en cache
         self._cache[cache_key] = (now, metrics)
@@ -458,7 +479,9 @@ class TerritorialMetricsCollector:
         """Collecte les données BODACC pour une période."""
         try:
             # Déterminer si c'est un département ou une commune
-            is_department = len(territory_code) == 2 or (len(territory_code) == 3 and territory_code.startswith("97"))
+            is_department = len(territory_code) == 2 or (
+                len(territory_code) == 3 and territory_code.startswith("97")
+            )
 
             # Utiliser les paramètres supportés par l'adaptateur BODACC
             query = {"limit": 100}
@@ -495,7 +518,12 @@ class TerritorialMetricsCollector:
                     counts["modifications"] += 1
                 elif type_val == "vente":
                     counts["sales"] += 1
-                elif type_val == "procedure" or "liquidation" in type_label or "redressement" in type_label or "sauvegarde" in type_label:
+                elif (
+                    type_val == "procedure"
+                    or "liquidation" in type_label
+                    or "redressement" in type_label
+                    or "sauvegarde" in type_label
+                ):
                     counts["procedures"] += 1
                 elif "cession" in type_label or "vente" in type_label:
                     counts["sales"] += 1
@@ -504,7 +532,14 @@ class TerritorialMetricsCollector:
 
         except Exception as e:
             logger.error(f"BODACC collection failed: {e}")
-            return {"creations": 0, "procedures": 0, "modifications": 0, "sales": 0, "radiations": 0, "total": 0}
+            return {
+                "creations": 0,
+                "procedures": 0,
+                "modifications": 0,
+                "sales": 0,
+                "radiations": 0,
+                "total": 0,
+            }
 
     async def _collect_sirene(
         self,
@@ -515,7 +550,9 @@ class TerritorialMetricsCollector:
         """Collecte les données SIRENE."""
         try:
             # Pour SIRENE, on utilise une recherche par département/commune
-            is_department = len(territory_code) == 2 or (len(territory_code) == 3 and territory_code.startswith("97"))
+            is_department = len(territory_code) == 2 or (
+                len(territory_code) == 3 and territory_code.startswith("97")
+            )
 
             # Construire la requête selon le format attendu par l'API
             if is_department:
@@ -557,7 +594,14 @@ class TerritorialMetricsCollector:
 
     async def _empty_bodacc(self) -> dict[str, int]:
         """Retourne des données BODACC vides."""
-        return {"creations": 0, "procedures": 0, "modifications": 0, "sales": 0, "radiations": 0, "total": 0}
+        return {
+            "creations": 0,
+            "procedures": 0,
+            "modifications": 0,
+            "sales": 0,
+            "radiations": 0,
+            "total": 0,
+        }
 
     async def _empty_sirene(self) -> dict[str, int]:
         """Retourne des données SIRENE vides."""
@@ -569,7 +613,9 @@ class TerritorialMetricsCollector:
     ) -> dict[str, int]:
         """Collecte les offres d'emploi France Travail."""
         try:
-            is_department = len(territory_code) == 2 or (len(territory_code) == 3 and territory_code.startswith("97"))
+            is_department = len(territory_code) == 2 or (
+                len(territory_code) == 3 and territory_code.startswith("97")
+            )
 
             # Récupérer les offres d'emploi
             # Note: l'API retourne max 150 offres par requête
@@ -629,7 +675,9 @@ class TerritorialMetricsCollector:
     ) -> dict[str, Any]:
         """Collecte les données INSEE (population, chômage)."""
         try:
-            is_department = len(territory_code) == 2 or (len(territory_code) == 3 and territory_code.startswith("97"))
+            is_department = len(territory_code) == 2 or (
+                len(territory_code) == 3 and territory_code.startswith("97")
+            )
 
             data = {"population": 0, "unemployment_rate": 0.0}
 
@@ -661,7 +709,9 @@ class TerritorialMetricsCollector:
     ) -> dict[str, Any]:
         """Collecte les données DVF (transactions immobilières)."""
         try:
-            is_department = len(territory_code) == 2 or (len(territory_code) == 3 and territory_code.startswith("97"))
+            is_department = len(territory_code) == 2 or (
+                len(territory_code) == 3 and territory_code.startswith("97")
+            )
 
             # Rechercher les transactions récentes
             query = {"limit": 100}
@@ -672,6 +722,7 @@ class TerritorialMetricsCollector:
 
             # Année courante - 1 (DVF a du retard)
             from datetime import datetime
+
             query["annee_min"] = datetime.now().year - 1
 
             transactions = await self.dvf.search(query)
@@ -688,7 +739,12 @@ class TerritorialMetricsCollector:
                 for tx in transactions:
                     # DVF adapter returns "valeur" and "surface_reelle"
                     price = tx.get("valeur") or tx.get("valeur_fonciere") or tx.get("prix")
-                    surface = tx.get("surface_reelle") or tx.get("surface_reelle_bati") or tx.get("surface") or 1
+                    surface = (
+                        tx.get("surface_reelle")
+                        or tx.get("surface_reelle_bati")
+                        or tx.get("surface")
+                        or 1
+                    )
                     if price and surface and surface > 0:
                         prices.append(price / surface)
                 if prices:
@@ -724,9 +780,9 @@ async def demo_metrics(department: str = "69", name: str = "Rhône"):
         period_months=1,
     )
 
-    print(f"\n{'='*50}")
+    print(f"\n{'=' * 50}")
     print(f"MÉTRIQUES TERRITORIALES: {metrics.territory_name}")
-    print(f"{'='*50}")
+    print(f"{'=' * 50}")
     print(f"Période: {metrics.period_start.date()} → {metrics.period_end.date()}")
     print("\n📊 Données brutes:")
     print(f"  - Créations: {metrics.creations_count}")
@@ -735,8 +791,8 @@ async def demo_metrics(department: str = "69", name: str = "Rhône"):
     print(f"  - Modifications: {metrics.modifications_count}")
     print(f"  - Ventes/Cessions: {metrics.sales_count}")
     print("\n📈 Indicateurs calculés:")
-    print(f"  - Taux de création: {metrics.creation_rate*100:.2f}%")
-    print(f"  - Variation créations: {metrics.creation_variation*100:+.1f}%")
+    print(f"  - Taux de création: {metrics.creation_rate * 100:.2f}%")
+    print(f"  - Variation créations: {metrics.creation_variation * 100:+.1f}%")
     print(f"  - Solde net: {metrics.net_creation:+d}")
     print(f"  - Indice de vitalité: {metrics.vitality_index:.1f}/100")
 
@@ -745,4 +801,5 @@ async def demo_metrics(department: str = "69", name: str = "Rhône"):
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(demo_metrics())

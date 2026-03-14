@@ -230,61 +230,73 @@ class RiskScorer:
         if bodacc.nb_privileges_12m > 0:
             contrib = bodacc.nb_privileges_12m * FEATURE_WEIGHTS["nb_privileges_12m"]
             score += contrib
-            factors.append({
-                "name": "Privilèges récents (12 mois)",
-                "value": bodacc.nb_privileges_12m,
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Privilèges récents (12 mois)",
+                    "value": bodacc.nb_privileges_12m,
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
 
         if bodacc.nb_privileges_24m > bodacc.nb_privileges_12m:
             older = bodacc.nb_privileges_24m - bodacc.nb_privileges_12m
             contrib = older * FEATURE_WEIGHTS["nb_privileges_24m"]
             score += contrib
-            factors.append({
-                "name": "Privilèges anciens (12-24 mois)",
-                "value": older,
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Privilèges anciens (12-24 mois)",
+                    "value": older,
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
 
         if bodacc.has_liquidation:
             contrib = FEATURE_WEIGHTS["has_liquidation"]
             score += contrib
-            factors.append({
-                "name": "Liquidation judiciaire",
-                "value": True,
-                "contribution": contrib,
-                "direction": "critical",
-            })
+            factors.append(
+                {
+                    "name": "Liquidation judiciaire",
+                    "value": True,
+                    "contribution": contrib,
+                    "direction": "critical",
+                }
+            )
         elif bodacc.has_redressement:
             contrib = FEATURE_WEIGHTS["has_redressement"]
             score += contrib
-            factors.append({
-                "name": "Redressement judiciaire",
-                "value": True,
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Redressement judiciaire",
+                    "value": True,
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
         elif bodacc.has_procedure_collective:
             contrib = FEATURE_WEIGHTS["has_procedure_collective"]
             score += contrib
-            factors.append({
-                "name": "Procédure collective",
-                "value": True,
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Procédure collective",
+                    "value": True,
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
 
         if bodacc.nb_jugements_12m > 0:
             contrib = bodacc.nb_jugements_12m * FEATURE_WEIGHTS["nb_jugements_12m"]
             score += contrib
-            factors.append({
-                "name": "Jugements récents",
-                "value": bodacc.nb_jugements_12m,
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Jugements récents",
+                    "value": bodacc.nb_jugements_12m,
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
 
         # SIRENE signals
         sirene = features.sirene
@@ -294,56 +306,69 @@ class RiskScorer:
             age_reduction = min(sirene.age_years, 10) * abs(FEATURE_WEIGHTS["age_years_penalty"])
             score -= age_reduction
             if sirene.age_years >= 5:
-                factors.append({
-                    "name": "Entreprise établie",
-                    "value": f"{sirene.age_years:.1f} ans",
-                    "contribution": -age_reduction,
-                    "direction": "positive",
-                })
+                factors.append(
+                    {
+                        "name": "Entreprise établie",
+                        "value": f"{sirene.age_years:.1f} ans",
+                        "contribution": -age_reduction,
+                        "direction": "positive",
+                    }
+                )
 
         # Size bonus (larger = less risky)
         if sirene.effectif_actuel > 0:
-            size_reduction = min(sirene.effectif_actuel, 50) * abs(FEATURE_WEIGHTS["effectif_bonus"])
+            size_reduction = min(sirene.effectif_actuel, 50) * abs(
+                FEATURE_WEIGHTS["effectif_bonus"]
+            )
             score -= size_reduction
             if sirene.effectif_actuel >= 10:
-                factors.append({
-                    "name": "Effectif significatif",
-                    "value": sirene.effectif_actuel,
-                    "contribution": -size_reduction,
-                    "direction": "positive",
-                })
+                factors.append(
+                    {
+                        "name": "Effectif significatif",
+                        "value": sirene.effectif_actuel,
+                        "contribution": -size_reduction,
+                        "direction": "positive",
+                    }
+                )
 
         # Sector risk
         if features.secteur_risque_national > 0.05:
             contrib = features.secteur_risque_national * FEATURE_WEIGHTS["secteur_risque_national"]
             score += contrib
-            factors.append({
-                "name": "Secteur à risque",
-                "value": f"{features.secteur_risque_national*100:.1f}%",
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Secteur à risque",
+                    "value": f"{features.secteur_risque_national * 100:.1f}%",
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
 
         # Regional risk
         if features.region_risque > 0.045:
             contrib = features.region_risque * FEATURE_WEIGHTS["region_risque"]
             score += contrib
-            factors.append({
-                "name": "Région à risque",
-                "value": f"{features.region_risque*100:.1f}%",
-                "contribution": contrib,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": "Région à risque",
+                    "value": f"{features.region_risque * 100:.1f}%",
+                    "contribution": contrib,
+                    "direction": "negative",
+                }
+            )
 
         # Inactive company is critical
         if not sirene.is_active:
             score = 95.0
-            factors.insert(0, {
-                "name": "Entreprise inactive",
-                "value": True,
-                "contribution": 95.0,
-                "direction": "critical",
-            })
+            factors.insert(
+                0,
+                {
+                    "name": "Entreprise inactive",
+                    "value": True,
+                    "contribution": 95.0,
+                    "direction": "critical",
+                },
+            )
 
         # Clamp score
         score = max(0, min(100, score))
@@ -387,25 +412,31 @@ class RiskScorer:
         sirene = features.sirene
 
         if bodacc.has_liquidation:
-            factors.append({
-                "name": "Liquidation",
-                "contribution": 35.0,
-                "direction": "critical",
-            })
+            factors.append(
+                {
+                    "name": "Liquidation",
+                    "contribution": 35.0,
+                    "direction": "critical",
+                }
+            )
 
         if bodacc.nb_privileges_12m > 0:
-            factors.append({
-                "name": f"{bodacc.nb_privileges_12m} privilèges",
-                "contribution": bodacc.nb_privileges_12m * 15.0,
-                "direction": "negative",
-            })
+            factors.append(
+                {
+                    "name": f"{bodacc.nb_privileges_12m} privilèges",
+                    "contribution": bodacc.nb_privileges_12m * 15.0,
+                    "direction": "negative",
+                }
+            )
 
         if sirene.age_years >= 10:
-            factors.append({
-                "name": "Ancienneté",
-                "contribution": -20.0,
-                "direction": "positive",
-            })
+            factors.append(
+                {
+                    "name": "Ancienneté",
+                    "contribution": -20.0,
+                    "direction": "positive",
+                }
+            )
 
         return factors
 

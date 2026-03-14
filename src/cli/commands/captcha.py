@@ -17,23 +17,12 @@ app = typer.Typer(help="Configure CAPTCHA solving")
 @app.command()
 def config(
     provider: str = typer.Option(
-        "2captcha",
-        "--provider",
-        "-p",
-        help="CAPTCHA solver provider: 2captcha, anti-captcha"
+        "2captcha", "--provider", "-p", help="CAPTCHA solver provider: 2captcha, anti-captcha"
     ),
     api_key: str | None = typer.Option(
-        None,
-        "--api-key",
-        "-k",
-        help="API key (will prompt if not provided)"
+        None, "--api-key", "-k", help="API key (will prompt if not provided)"
     ),
-    timeout: int = typer.Option(
-        120,
-        "--timeout",
-        "-t",
-        help="Max solving time in seconds"
-    ),
+    timeout: int = typer.Option(120, "--timeout", "-t", help="Max solving time in seconds"),
 ):
     """
     Configure CAPTCHA solving service.
@@ -85,17 +74,9 @@ def config(
 @app.command()
 def test(
     provider: str | None = typer.Option(
-        None,
-        "--provider",
-        "-p",
-        help="Override configured provider"
+        None, "--provider", "-p", help="Override configured provider"
     ),
-    api_key: str | None = typer.Option(
-        None,
-        "--api-key",
-        "-k",
-        help="Override configured API key"
-    ),
+    api_key: str | None = typer.Option(None, "--api-key", "-k", help="Override configured API key"),
 ):
     """
     Test CAPTCHA solver configuration.
@@ -120,9 +101,7 @@ def test(
         api_key = os.environ.get(env_var_name)
 
     if not api_key:
-        console.print(
-            "[red]❌ No API key configured. Run 'tawiza captcha config' first.[/red]"
-        )
+        console.print("[red]❌ No API key configured. Run 'tawiza captcha config' first.[/red]")
         raise typer.Exit(1)
 
     timeout = int(os.environ.get("TAWIZA_CAPTCHA_TIMEOUT", "120"))
@@ -142,7 +121,7 @@ def test(
 
             result = await solver.solve_recaptcha_v2(
                 site_key="6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-",
-                page_url="https://www.google.com/recaptcha/api2/demo"
+                page_url="https://www.google.com/recaptcha/api2/demo",
             )
 
             if result.success:
@@ -166,17 +145,9 @@ def test(
 @app.command()
 def balance(
     provider: str | None = typer.Option(
-        None,
-        "--provider",
-        "-p",
-        help="Override configured provider"
+        None, "--provider", "-p", help="Override configured provider"
     ),
-    api_key: str | None = typer.Option(
-        None,
-        "--api-key",
-        "-k",
-        help="Override configured API key"
-    ),
+    api_key: str | None = typer.Option(None, "--api-key", "-k", help="Override configured API key"),
 ):
     """
     Check account balance for CAPTCHA solving service.
@@ -197,9 +168,7 @@ def balance(
         api_key = os.environ.get(env_var_name)
 
     if not api_key:
-        console.print(
-            "[red]❌ No API key configured. Run 'tawiza captcha config' first.[/red]"
-        )
+        console.print("[red]❌ No API key configured. Run 'tawiza captcha config' first.[/red]")
         raise typer.Exit(1)
 
     console.print(f"\n[bold cyan]Checking balance for {provider}...[/bold cyan]\n")
@@ -213,7 +182,7 @@ def balance(
                         "key": api_key,
                         "action": "getbalance",
                         "json": 1,
-                    }
+                    },
                 )
                 data = response.json()
 
@@ -226,8 +195,7 @@ def balance(
 
             elif provider == "anti-captcha":
                 response = await client.post(
-                    "https://api.anti-captcha.com/getBalance",
-                    json={"clientKey": api_key}
+                    "https://api.anti-captcha.com/getBalance", json={"clientKey": api_key}
                 )
                 data = response.json()
 
@@ -259,27 +227,9 @@ def pricing():
     table.add_column("hCaptcha", style="green", width=15)
     table.add_column("Image", style="green", width=15)
 
-    table.add_row(
-        "2Captcha",
-        "$2.99 / 1000",
-        "$2.99 / 1000",
-        "$2.99 / 1000",
-        "$0.50 / 1000"
-    )
-    table.add_row(
-        "Anti-Captcha",
-        "$2.00 / 1000",
-        "$2.00 / 1000",
-        "$2.00 / 1000",
-        "$0.50 / 1000"
-    )
-    table.add_row(
-        "CapSolver",
-        "$0.80 / 1000",
-        "$0.80 / 1000",
-        "$0.80 / 1000",
-        "$0.50 / 1000"
-    )
+    table.add_row("2Captcha", "$2.99 / 1000", "$2.99 / 1000", "$2.99 / 1000", "$0.50 / 1000")
+    table.add_row("Anti-Captcha", "$2.00 / 1000", "$2.00 / 1000", "$2.00 / 1000", "$0.50 / 1000")
+    table.add_row("CapSolver", "$0.80 / 1000", "$0.80 / 1000", "$0.80 / 1000", "$0.50 / 1000")
 
     console.print(table)
     console.print("\n[yellow]Note:[/yellow] Prices are approximate and may vary.\n")

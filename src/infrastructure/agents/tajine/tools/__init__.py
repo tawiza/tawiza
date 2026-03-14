@@ -41,12 +41,14 @@ def get_tajine_tools() -> list[BaseTool]:
     tools.extend(get_datasource_tools())
 
     # Territorial tools (SIRENE, analysis, veille)
-    tools.extend([
-        DataCollectTool(),
-        VeilleScanTool(),
-        SireneQueryTool(),
-        TerritorialAnalysisTool(),
-    ])
+    tools.extend(
+        [
+            DataCollectTool(),
+            VeilleScanTool(),
+            SireneQueryTool(),
+            TerritorialAnalysisTool(),
+        ]
+    )
 
     # Browser automation tools
     tools.extend(get_browser_tools())

@@ -21,6 +21,7 @@ from src.cli.v3.tui.widgets.task_list import TaskInfo, TaskStatus
 
 class AgentState(Enum):
     """Agent execution state."""
+
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
@@ -32,6 +33,7 @@ class AgentState(Enum):
 @dataclass
 class AgentSession:
     """Represents an agent session."""
+
     session_id: str
     agent_name: str
     task_description: str
@@ -99,7 +101,7 @@ class AgentController:
         agent_name: str,
         task_description: str,
         model: str = "qwen3.5:27b",
-        parent_session_id: str | None = None
+        parent_session_id: str | None = None,
     ) -> AgentSession:
         """Create a new agent session."""
         session_id = str(uuid.uuid4())[:8]
@@ -288,10 +290,7 @@ class AgentController:
         return count
 
     def update_session_stats(
-        self,
-        session_id: str,
-        iterations: int | None = None,
-        tokens: int | None = None
+        self, session_id: str, iterations: int | None = None, tokens: int | None = None
     ) -> None:
         """Update session statistics."""
         session = self._sessions.get(session_id)
@@ -355,10 +354,7 @@ class WebSocketAgentController(AgentController):
         return self._connected and self._ws_client and self._ws_client.is_connected
 
     async def create_remote_session(
-        self,
-        agent_name: str,
-        task_description: str,
-        model: str = "qwen3.5:27b"
+        self, agent_name: str, task_description: str, model: str = "qwen3.5:27b"
     ) -> AgentSession | None:
         """Create a session via WebSocket."""
         if not self.is_connected:
@@ -372,7 +368,7 @@ class WebSocketAgentController(AgentController):
         await self._ws_client.create_task(
             agent=agent_name,
             prompt=task_description,
-            context={"model": model, "local_session_id": session.session_id}
+            context={"model": model, "local_session_id": session.session_id},
         )
 
         return session

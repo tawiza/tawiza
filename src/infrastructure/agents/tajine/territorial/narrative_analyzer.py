@@ -17,15 +17,16 @@ from loguru import logger
 @dataclass
 class NarrativeAnalysis:
     """Analyse narrative d'un territoire."""
+
     territory_code: str
     territory_name: str
     generated_at: datetime
 
     # Sections narratives
-    situation: str          # État actuel
-    diagnostic: str         # Causes identifiées
-    tendance: str          # Évolution probable
-    recommandations: str   # Actions suggérées
+    situation: str  # État actuel
+    diagnostic: str  # Causes identifiées
+    tendance: str  # Évolution probable
+    recommandations: str  # Actions suggérées
 
     # Metadata
     confidence: float
@@ -63,7 +64,7 @@ class NarrativeAnalysis:
 {self.recommandations}
 
 ---
-*Analyse générée le {self.generated_at.strftime('%d/%m/%Y')} par {self.model_used}*
+*Analyse générée le {self.generated_at.strftime("%d/%m/%Y")} par {self.model_used}*
 """
 
 
@@ -109,6 +110,7 @@ Sois factuel, concis et actionnable. Évite le jargon."""
         if self._ollama_client is None:
             try:
                 from src.infrastructure.llm.ollama_client import OllamaClient
+
                 self._ollama_client = OllamaClient(model=self.model)
             except Exception as e:
                 logger.warning(f"Ollama client not available: {e}")
@@ -138,20 +140,21 @@ Sois factuel, concis et actionnable. Évite le jargon."""
         # Formater les signaux
         signals_text = "Aucun signal particulier"
         if signals:
-            signals_text = "\n".join([
-                f"- {s.get('severity', 'info').upper()}: {s.get('title', 'Signal')}"
-                for s in signals[:5]
-            ])
+            signals_text = "\n".join(
+                [
+                    f"- {s.get('severity', 'info').upper()}: {s.get('title', 'Signal')}"
+                    for s in signals[:5]
+                ]
+            )
 
         # Formater les secteurs
         sectors_text = "Données sectorielles non disponibles"
         if sectors and sectors.get("summary"):
             top = sectors["summary"].get("top_creators", [])[:3]
             if top:
-                sectors_text = "\n".join([
-                    f"- {s['short_name']}: {s['creations']} créations"
-                    for s in top
-                ])
+                sectors_text = "\n".join(
+                    [f"- {s['short_name']}: {s['creations']} créations" for s in top]
+                )
 
         # Construire le prompt
         prompt = self.ANALYSIS_PROMPT.format(
@@ -271,7 +274,9 @@ Sois factuel, concis et actionnable. Évite le jargon."""
         if net > 0:
             diagnostic = f"Le solde net de +{net} entreprises indique une création supérieure aux fermetures."
         elif net < 0:
-            diagnostic = f"Le solde négatif de {net} entreprises révèle plus de fermetures que de créations."
+            diagnostic = (
+                f"Le solde négatif de {net} entreprises révèle plus de fermetures que de créations."
+            )
         else:
             diagnostic = "Le nombre de créations équilibre les fermetures."
 
@@ -284,7 +289,9 @@ Sois factuel, concis et actionnable. Évite le jargon."""
         if signals:
             critical = [s for s in signals if s.get("severity") in ("alert", "critical")]
             if critical:
-                tendance = "Plusieurs signaux d'alerte suggèrent une vigilance accrue à court terme."
+                tendance = (
+                    "Plusieurs signaux d'alerte suggèrent une vigilance accrue à court terme."
+                )
             else:
                 tendance = "Les indicateurs ne montrent pas de dégradation imminente."
         else:

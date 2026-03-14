@@ -147,8 +147,10 @@ def print_welcome(console: Console = None) -> None:
         console = Console()
 
     from .mascot import mascot_welcome
+
     try:
         from src.core.constants import APP_VERSION
+
         version = APP_VERSION
     except ImportError:
         version = "2.0"
@@ -171,10 +173,8 @@ def print_status(console: Console = None) -> None:
     # Check GPU
     try:
         import subprocess
-        result = subprocess.run(
-            ["rocm-smi", "--showid"],
-            capture_output=True, text=True, timeout=5
-        )
+
+        result = subprocess.run(["rocm-smi", "--showid"], capture_output=True, text=True, timeout=5)
         if result.returncode == 0:
             bar.add("gpu", "amd ready", "ok")
         else:
@@ -185,9 +185,12 @@ def print_status(console: Console = None) -> None:
     # Check Ollama
     try:
         import subprocess
+
         result = subprocess.run(
             ["curl", "-s", "http://localhost:11434/api/tags"],
-            capture_output=True, text=True, timeout=5
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         if result.returncode == 0:
             bar.add("ollama", "running", "ok")

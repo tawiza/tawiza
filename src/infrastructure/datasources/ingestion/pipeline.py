@@ -1,4 +1,5 @@
 """Document ingestion pipeline."""
+
 import uuid
 from dataclasses import dataclass
 from typing import Any
@@ -12,6 +13,7 @@ from src.infrastructure.storage.qdrant import EmbeddingsService, QdrantClient
 @dataclass
 class IngestionConfig:
     """Ingestion pipeline configuration."""
+
     chunk_size: int = 512
     chunk_overlap: int = 50
 
@@ -23,12 +25,11 @@ class IngestionPipeline:
         self,
         config: IngestionConfig | None = None,
         qdrant: QdrantClient | None = None,
-        embeddings: EmbeddingsService | None = None
+        embeddings: EmbeddingsService | None = None,
     ) -> None:
         self.config = config or IngestionConfig()
         self.chunker = TextChunker(
-            chunk_size=self.config.chunk_size,
-            overlap=self.config.chunk_overlap
+            chunk_size=self.config.chunk_size, overlap=self.config.chunk_overlap
         )
         self._qdrant = qdrant
         self._embeddings = embeddings
@@ -44,11 +45,7 @@ class IngestionPipeline:
             self._embeddings = EmbeddingsService()
         return self._embeddings
 
-    async def ingest(
-        self,
-        content: str,
-        metadata: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def ingest(self, content: str, metadata: dict[str, Any]) -> dict[str, Any]:
         """Ingest document content into vector store."""
         chunks = self.chunker.chunk(content)
         chunk_ids = []
@@ -61,19 +58,10 @@ class IngestionPipeline:
             embedding = await embeddings_service.embed(chunk)
 
             await qdrant.upsert(
-                id=chunk_id,
-                vector=embedding,
-                payload={
-                    **metadata,
-                    "chunk_index": i,
-                    "text": chunk
-                }
+                id=chunk_id, vector=embedding, payload={**metadata, "chunk_index": i, "text": chunk}
             )
             chunk_ids.append(chunk_id)
 
         logger.info(f"Ingested {len(chunks)} chunks for {metadata.get('source', 'unknown')}")
 
-        return {
-            "chunk_ids": chunk_ids,
-            "chunk_count": len(chunks)
-        }
+        return {"chunk_ids": chunk_ids, "chunk_count": len(chunks)}

@@ -1,4 +1,5 @@
 """Node similarity for finding similar companies."""
+
 from dataclasses import dataclass, field
 
 from loguru import logger
@@ -7,6 +8,7 @@ from loguru import logger
 @dataclass
 class SimilarCompany:
     """Similar company result."""
+
     siren: str
     similarity: float
     name: str = ""
@@ -24,11 +26,7 @@ class SimilarityFinder:
         """Initialize with Neo4j client."""
         self.client = client
 
-    async def find_similar(
-        self,
-        siren: str,
-        top_k: int = 10
-    ) -> list[SimilarCompany]:
+    async def find_similar(self, siren: str, top_k: int = 10) -> list[SimilarCompany]:
         """
         Find companies similar to given SIREN.
 
@@ -54,28 +52,17 @@ class SimilarityFinder:
         """
 
         try:
-            results = await self.client.execute(query, {
-                "siren": siren,
-                "limit": top_k
-            })
+            results = await self.client.execute(query, {"siren": siren, "limit": top_k})
         except Exception as e:
             logger.warning(f"GDS similarity failed, using Jaccard: {e}")
             return await self._jaccard_similarity(siren, top_k)
 
         return [
-            SimilarCompany(
-                siren=r["siren"],
-                name=r.get("name", ""),
-                similarity=r["similarity"]
-            )
+            SimilarCompany(siren=r["siren"], name=r.get("name", ""), similarity=r["similarity"])
             for r in results
         ]
 
-    async def _jaccard_similarity(
-        self,
-        siren: str,
-        top_k: int
-    ) -> list[SimilarCompany]:
+    async def _jaccard_similarity(self, siren: str, top_k: int) -> list[SimilarCompany]:
         """Calculate Jaccard similarity based on shared sectors."""
         query = """
         MATCH (c1:Company {siren: $siren})-[:OPERATES_IN]->(s:Sector)<-[:OPERATES_IN]-(c2:Company)
@@ -92,17 +79,14 @@ class SimilarityFinder:
         LIMIT $limit
         """
 
-        results = await self.client.execute(query, {
-            "siren": siren,
-            "limit": top_k
-        })
+        results = await self.client.execute(query, {"siren": siren, "limit": top_k})
 
         return [
             SimilarCompany(
                 siren=r["siren"],
                 name=r.get("name", ""),
                 similarity=r["similarity"],
-                shared_sectors=r.get("shared", [])
+                shared_sectors=r.get("shared", []),
             )
             for r in results
         ]

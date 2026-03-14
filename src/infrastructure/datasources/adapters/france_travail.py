@@ -55,7 +55,9 @@ class FranceTravailAdapter(BaseAdapter):
     """
 
     # OAuth2 configuration
-    TOKEN_URL = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire"
+    TOKEN_URL = (
+        "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire"
+    )
 
     # API scopes mapping (API name -> required scopes)
     # Use FRANCE_TRAVAIL_SCOPES env var to override
@@ -81,34 +83,38 @@ class FranceTravailAdapter(BaseAdapter):
 
     # Working scopes (validated through OAuth2 token tests)
     # Note: New APIs (marche-travail, labonneboite, etc.) require subscription on francetravail.io
-    DEFAULT_SCOPES = " ".join([
-        # Offres d'emploi v2 ✅
-        "api_offresdemploiv2", "o2dsoffre",
-        # ROME 4.0 (all 4 APIs) ✅
-        "api_rome-fiches-metiersv1", "nomenclatureRome",
-        "api_rome-metiersv1",
-        "api_rome-competencesv1",
-        "api_rome-contextes-travailv1",
-        # ROMEO AI matching ✅
-        "api_romeov2",
-        # Open Formation ✅
-        "api_openformationv1",
-        # Anotéa reviews ✅
-        "api_anoteav1",
-        # La Bonne Boîte v2 ✅ (validated 2026-02-06)
-        "api_labonneboitev2",
-        # Référentiel agences ✅ (validated 2026-02-06)
-        "api_referentielagencesv1",
-        # Synthèse pages employeurs ✅ (validated 2026-02-06)
-        "api_synthese-pages-employeursv1",
-        # TODO: Find correct scope names for these (subscribed but scope unknown):
-        # - Marché du travail v1
-        # - Informations territoire v1
-        # - Cadre de vie communes v1
-        # - Sortants formation v1
-        # - Accès emploi v1
-        # - Mes évènements emploi v1
-    ])
+    DEFAULT_SCOPES = " ".join(
+        [
+            # Offres d'emploi v2 ✅
+            "api_offresdemploiv2",
+            "o2dsoffre",
+            # ROME 4.0 (all 4 APIs) ✅
+            "api_rome-fiches-metiersv1",
+            "nomenclatureRome",
+            "api_rome-metiersv1",
+            "api_rome-competencesv1",
+            "api_rome-contextes-travailv1",
+            # ROMEO AI matching ✅
+            "api_romeov2",
+            # Open Formation ✅
+            "api_openformationv1",
+            # Anotéa reviews ✅
+            "api_anoteav1",
+            # La Bonne Boîte v2 ✅ (validated 2026-02-06)
+            "api_labonneboitev2",
+            # Référentiel agences ✅ (validated 2026-02-06)
+            "api_referentielagencesv1",
+            # Synthèse pages employeurs ✅ (validated 2026-02-06)
+            "api_synthese-pages-employeursv1",
+            # TODO: Find correct scope names for these (subscribed but scope unknown):
+            # - Marché du travail v1
+            # - Informations territoire v1
+            # - Cadre de vie communes v1
+            # - Sortants formation v1
+            # - Accès emploi v1
+            # - Mes évènements emploi v1
+        ]
+    )
 
     def __init__(
         self,
@@ -254,13 +260,15 @@ class FranceTravailAdapter(BaseAdapter):
         Uses the Offres d'emploi API v2.
         """
         if not self.has_credentials:
-            return [{
-                "source": "france_travail",
-                "type": "marche_travail",
-                "error": "OAuth2 credentials required",
-                "setup": "Set FRANCE_TRAVAIL_CLIENT_ID and FRANCE_TRAVAIL_CLIENT_SECRET",
-                "registration": "https://francetravail.io/inscription",
-            }]
+            return [
+                {
+                    "source": "france_travail",
+                    "type": "marche_travail",
+                    "error": "OAuth2 credentials required",
+                    "setup": "Set FRANCE_TRAVAIL_CLIENT_ID and FRANCE_TRAVAIL_CLIENT_SECRET",
+                    "registration": "https://francetravail.io/inscription",
+                }
+            ]
 
         params = {"range": f"0-{query.get('limit', 50) - 1}"}
 
@@ -302,12 +310,14 @@ class FranceTravailAdapter(BaseAdapter):
         if rome := query.get("rome"):
             params["codeRome"] = rome
 
-        return [{
-            "source": "france_travail",
-            "type": "tensions",
-            "message": "Use BMO survey data for job tensions",
-            "url": "https://statistiques.pole-emploi.org/bmo",
-        }]
+        return [
+            {
+                "source": "france_travail",
+                "type": "tensions",
+                "message": "Use BMO survey data for job tensions",
+                "url": "https://statistiques.pole-emploi.org/bmo",
+            }
+        ]
 
     async def _search_agences(self, query: dict[str, Any]) -> list[dict[str, Any]]:
         """Search France Travail agencies."""
@@ -404,12 +414,14 @@ class FranceTravailAdapter(BaseAdapter):
             List of high-demand jobs
         """
         # This would require BMO data access
-        return [{
-            "source": "france_travail",
-            "type": "metiers_tension",
-            "message": "Consultez l'enquête BMO pour les métiers en tension",
-            "url": "https://statistiques.pole-emploi.org/bmo",
-        }]
+        return [
+            {
+                "source": "france_travail",
+                "type": "metiers_tension",
+                "message": "Consultez l'enquête BMO pour les métiers en tension",
+                "url": "https://statistiques.pole-emploi.org/bmo",
+            }
+        ]
 
     async def search_offres(
         self,
@@ -433,15 +445,17 @@ class FranceTravailAdapter(BaseAdapter):
         Returns:
             List of job offers
         """
-        return await self.search({
-            "type": "marche_travail",
-            "code_departement": departement,
-            "code_insee": commune,
-            "rome": rome,
-            "motscles": motscles,
-            "type_contrat": type_contrat,
-            "limit": limit,
-        })
+        return await self.search(
+            {
+                "type": "marche_travail",
+                "code_departement": departement,
+                "code_insee": commune,
+                "rome": rome,
+                "motscles": motscles,
+                "type_contrat": type_contrat,
+                "limit": limit,
+            }
+        )
 
     async def health_check(self) -> bool:
         """Check if France Travail API is available.
@@ -704,7 +718,11 @@ class FranceTravailAdapter(BaseAdapter):
             params=params,
         )
         if not response:
-            return {"source": "france_travail", "type": "marche_travail", "error": "API unavailable"}
+            return {
+                "source": "france_travail",
+                "type": "marche_travail",
+                "error": "API unavailable",
+            }
 
         data = response.json()
         return {
@@ -857,9 +875,7 @@ class FranceTravailAdapter(BaseAdapter):
     # ROMEO API - AI Job Matching
     # =========================================================================
 
-    async def get_romeo_matching(
-        self, texte: str, nb_resultats: int = 10
-    ) -> list[dict[str, Any]]:
+    async def get_romeo_matching(self, texte: str, nb_resultats: int = 10) -> list[dict[str, Any]]:
         """AI-powered job matching from free text (CV, description).
 
         Args:

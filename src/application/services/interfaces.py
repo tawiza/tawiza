@@ -8,6 +8,7 @@ Benefits:
 - Easy to mock for testing
 - Follows Dependency Inversion Principle
 """
+
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -16,6 +17,7 @@ from src.core.system_state import InitializationConfig, SystemState
 # ============================================================================
 # System Verification Services
 # ============================================================================
+
 
 class ISystemVerificationService(Protocol):
     """Interface for system requirement verification.
@@ -100,6 +102,7 @@ class IGPUDetectionService(Protocol):
 # Directory Management Services
 # ============================================================================
 
+
 class IDirectoryManagerService(Protocol):
     """Interface for directory management operations."""
 
@@ -135,16 +138,14 @@ class IDirectoryManagerService(Protocol):
 # System Initialization Services
 # ============================================================================
 
+
 class ISystemInitializationService(Protocol):
     """Interface for system initialization.
 
     Coordinates the entire system initialization process.
     """
 
-    async def initialize_system(
-        self,
-        config: InitializationConfig
-    ) -> SystemState:
+    async def initialize_system(self, config: InitializationConfig) -> SystemState:
         """Initialize the complete system.
 
         Args:
@@ -166,10 +167,7 @@ class ISystemInitializationService(Protocol):
         """
         ...
 
-    async def restart_system(
-        self,
-        config: InitializationConfig | None = None
-    ) -> SystemState:
+    async def restart_system(self, config: InitializationConfig | None = None) -> SystemState:
         """Restart the system.
 
         Args:
@@ -184,6 +182,7 @@ class ISystemInitializationService(Protocol):
 # ============================================================================
 # Health Check Services
 # ============================================================================
+
 
 class IHealthCheckService(Protocol):
     """Interface for system health checking."""
@@ -232,10 +231,7 @@ class IHealthCheckService(Protocol):
         """
         ...
 
-    def calculate_health_score(
-        self,
-        check_results: dict[str, Any]
-    ) -> int:
+    def calculate_health_score(self, check_results: dict[str, Any]) -> int:
         """Calculate overall health score from check results.
 
         Args:
@@ -250,6 +246,7 @@ class IHealthCheckService(Protocol):
 # ============================================================================
 # Configuration Services
 # ============================================================================
+
 
 class IConfigurationService(Protocol):
     """Interface for configuration management."""
@@ -269,11 +266,7 @@ class IConfigurationService(Protocol):
         """
         ...
 
-    async def save_configuration(
-        self,
-        config: dict[str, Any],
-        config_path: Path
-    ) -> None:
+    async def save_configuration(self, config: dict[str, Any], config_path: Path) -> None:
         """Save configuration to file.
 
         Args:
@@ -285,10 +278,7 @@ class IConfigurationService(Protocol):
         """
         ...
 
-    async def validate_configuration(
-        self,
-        config: dict[str, Any]
-    ) -> bool:
+    async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration values.
 
         Args:
@@ -307,14 +297,12 @@ class IConfigurationService(Protocol):
 # Logging Services
 # ============================================================================
 
+
 class ILoggingService(Protocol):
     """Interface for logging operations."""
 
     async def get_logs(
-        self,
-        lines: int = 50,
-        component: str | None = None,
-        level: str | None = None
+        self, lines: int = 50, component: str | None = None, level: str | None = None
     ) -> list[str]:
         """Get recent log entries.
 
@@ -328,10 +316,7 @@ class ILoggingService(Protocol):
         """
         ...
 
-    async def follow_logs(
-        self,
-        component: str | None = None
-    ):
+    async def follow_logs(self, component: str | None = None):
         """Follow logs in real-time (async generator).
 
         Args:
@@ -355,6 +340,7 @@ class ILoggingService(Protocol):
 # Metric Collection Services
 # ============================================================================
 
+
 class IMetricsCollectionService(Protocol):
     """Interface for collecting system metrics."""
 
@@ -374,10 +360,7 @@ class IMetricsCollectionService(Protocol):
         """
         ...
 
-    async def get_historical_metrics(
-        self,
-        duration_minutes: int = 60
-    ) -> dict[str, list]:
+    async def get_historical_metrics(self, duration_minutes: int = 60) -> dict[str, list]:
         """Get historical metrics.
 
         Args:
@@ -392,6 +375,7 @@ class IMetricsCollectionService(Protocol):
 # ============================================================================
 # Agent Management Services
 # ============================================================================
+
 
 class IAgentManagementService(Protocol):
     """Interface for agent lifecycle management."""
@@ -423,6 +407,7 @@ class IAgentManagementService(Protocol):
 # ============================================================================
 # Monitoring Services
 # ============================================================================
+
 
 class IMonitoringService(Protocol):
     """Interface for monitoring and debugging."""

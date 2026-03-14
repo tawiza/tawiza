@@ -81,11 +81,14 @@ class EntityNotFoundError(DomainError):
         details: dict[str, Any] | None = None,
     ):
         message = f"{entity_type} with ID '{entity_id}' not found"
-        super().__init__(message, details={
-            "entity_type": entity_type,
-            "entity_id": str(entity_id),
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "entity_type": entity_type,
+                "entity_id": str(entity_id),
+                **(details or {}),
+            },
+        )
 
 
 class EntityAlreadyExistsError(DomainError):
@@ -101,11 +104,14 @@ class EntityAlreadyExistsError(DomainError):
         details: dict[str, Any] | None = None,
     ):
         message = f"{entity_type} with identifier '{identifier}' already exists"
-        super().__init__(message, details={
-            "entity_type": entity_type,
-            "identifier": str(identifier),
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "entity_type": entity_type,
+                "identifier": str(identifier),
+                **(details or {}),
+            },
+        )
 
 
 class ValidationError(DomainError):
@@ -120,10 +126,13 @@ class ValidationError(DomainError):
         field: str | None = None,
         details: dict[str, Any] | None = None,
     ):
-        super().__init__(message, details={
-            "field": field,
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "field": field,
+                **(details or {}),
+            },
+        )
 
 
 class InvalidStateError(DomainError):
@@ -144,13 +153,16 @@ class InvalidStateError(DomainError):
             f"Cannot {operation} {entity_type}: "
             f"current state is '{current_state}', requires '{required_state}'"
         )
-        super().__init__(message, details={
-            "entity_type": entity_type,
-            "current_state": current_state,
-            "required_state": required_state,
-            "operation": operation,
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "entity_type": entity_type,
+                "current_state": current_state,
+                "required_state": required_state,
+                "operation": operation,
+                **(details or {}),
+            },
+        )
 
 
 class BusinessRuleViolationError(DomainError):
@@ -165,10 +177,13 @@ class BusinessRuleViolationError(DomainError):
         message: str,
         details: dict[str, Any] | None = None,
     ):
-        super().__init__(message, details={
-            "rule": rule,
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "rule": rule,
+                **(details or {}),
+            },
+        )
 
 
 # =============================================================================
@@ -218,12 +233,15 @@ class RateLimitError(ApplicationError):
         details: dict[str, Any] | None = None,
     ):
         message = f"Rate limit exceeded for {resource}: max {limit} requests"
-        super().__init__(message, details={
-            "resource": resource,
-            "limit": limit,
-            "reset_seconds": reset_seconds,
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "resource": resource,
+                "limit": limit,
+                "reset_seconds": reset_seconds,
+                **(details or {}),
+            },
+        )
 
 
 # =============================================================================
@@ -259,11 +277,14 @@ class ExternalServiceError(InfrastructureError):
         details: dict[str, Any] | None = None,
     ):
         full_message = f"External service '{service}' error: {message}"
-        super().__init__(full_message, details={
-            "service": service,
-            "status_code": status_code,
-            **(details or {}),
-        })
+        super().__init__(
+            full_message,
+            details={
+                "service": service,
+                "status_code": status_code,
+                **(details or {}),
+            },
+        )
 
 
 class ConnectionError(InfrastructureError):
@@ -284,12 +305,15 @@ class ConnectionError(InfrastructureError):
             message += f" at {host}"
             if port:
                 message += f":{port}"
-        super().__init__(message, details={
-            "service": service,
-            "host": host,
-            "port": port,
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "service": service,
+                "host": host,
+                "port": port,
+                **(details or {}),
+            },
+        )
 
 
 class TimeoutError(InfrastructureError):
@@ -305,11 +329,14 @@ class TimeoutError(InfrastructureError):
         details: dict[str, Any] | None = None,
     ):
         message = f"Operation '{operation}' timed out after {timeout_seconds}s"
-        super().__init__(message, details={
-            "operation": operation,
-            "timeout_seconds": timeout_seconds,
-            **(details or {}),
-        })
+        super().__init__(
+            message,
+            details={
+                "operation": operation,
+                "timeout_seconds": timeout_seconds,
+                **(details or {}),
+            },
+        )
 
 
 class ConfigurationError(InfrastructureError):
@@ -325,10 +352,13 @@ class ConfigurationError(InfrastructureError):
         details: dict[str, Any] | None = None,
     ):
         full_message = message or f"Configuration error for '{config_key}'"
-        super().__init__(full_message, details={
-            "config_key": config_key,
-            **(details or {}),
-        })
+        super().__init__(
+            full_message,
+            details={
+                "config_key": config_key,
+                **(details or {}),
+            },
+        )
 
 
 # =============================================================================
@@ -385,11 +415,14 @@ class AgentError(MLError):
         details: dict[str, Any] | None = None,
     ):
         full_message = f"Agent '{agent_name}' error: {message}"
-        super().__init__(full_message, details={
-            "agent_name": agent_name,
-            "task_id": task_id,
-            **(details or {}),
-        })
+        super().__init__(
+            full_message,
+            details={
+                "agent_name": agent_name,
+                "task_id": task_id,
+                **(details or {}),
+            },
+        )
 
 
 class AgentTimeoutError(AgentError):

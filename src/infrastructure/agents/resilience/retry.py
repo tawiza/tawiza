@@ -27,18 +27,18 @@ from loguru import logger
 class RetryStrategy(StrEnum):
     """Retry backoff strategies."""
 
-    FIXED = "fixed"                    # Fixed delay between retries
-    EXPONENTIAL = "exponential"        # Exponential backoff
+    FIXED = "fixed"  # Fixed delay between retries
+    EXPONENTIAL = "exponential"  # Exponential backoff
     EXPONENTIAL_JITTER = "exp_jitter"  # Exponential with random jitter
-    LINEAR = "linear"                  # Linear backoff
-    FIBONACCI = "fibonacci"            # Fibonacci sequence backoff
+    LINEAR = "linear"  # Linear backoff
+    FIBONACCI = "fibonacci"  # Fibonacci sequence backoff
 
 
 class CircuitState(StrEnum):
     """Circuit breaker states."""
 
-    CLOSED = "closed"      # Normal operation
-    OPEN = "open"          # Failing, reject calls
+    CLOSED = "closed"  # Normal operation
+    OPEN = "open"  # Failing, reject calls
     HALF_OPEN = "half_open"  # Testing if recovered
 
 
@@ -62,12 +62,8 @@ class RetryConfig:
     backoff_max: float = 60.0
     strategy: RetryStrategy = RetryStrategy.EXPONENTIAL_JITTER
     jitter_factor: float = 0.5
-    retryable_exceptions: set[type[Exception]] = field(
-        default_factory=lambda: {Exception}
-    )
-    non_retryable_exceptions: set[type[Exception]] = field(
-        default_factory=set
-    )
+    retryable_exceptions: set[type[Exception]] = field(default_factory=lambda: {Exception})
+    non_retryable_exceptions: set[type[Exception]] = field(default_factory=set)
     on_retry: Callable | None = None
 
     def calculate_delay(self, attempt: int) -> float:
@@ -161,12 +157,7 @@ class RetryHandler:
             "total_retries": 0,
         }
 
-    async def execute(
-        self,
-        func: Callable,
-        *args,
-        **kwargs
-    ) -> RetryResult:
+    async def execute(self, func: Callable, *args, **kwargs) -> RetryResult:
         """Execute function with retry logic.
 
         Args:
@@ -213,9 +204,7 @@ class RetryHandler:
                 attempt_info["error"] = str(e)
                 result.attempt_history.append(attempt_info)
 
-                logger.warning(
-                    f"Attempt {attempt}/{self.config.max_attempts} failed: {e}"
-                )
+                logger.warning(f"Attempt {attempt}/{self.config.max_attempts} failed: {e}")
 
                 # Check if should retry
                 if not self.config.should_retry(e):
@@ -336,9 +325,7 @@ class CircuitBreaker:
             self._half_open_calls = 0
             self._success_count = 0
 
-        logger.info(
-            f"Circuit '{self.name}' transitioned: {old_state.value} -> {new_state.value}"
-        )
+        logger.info(f"Circuit '{self.name}' transitioned: {old_state.value} -> {new_state.value}")
 
     def _record_success(self) -> None:
         """Record a successful call."""
@@ -359,13 +346,7 @@ class CircuitBreaker:
         elif self._state == CircuitState.HALF_OPEN:
             self._transition_to(CircuitState.OPEN)
 
-    async def call(
-        self,
-        func: Callable,
-        *args,
-        fallback: Callable | None = None,
-        **kwargs
-    ) -> Any:
+    async def call(self, func: Callable, *args, fallback: Callable | None = None, **kwargs) -> Any:
         """Execute function through circuit breaker.
 
         Args:
@@ -422,6 +403,7 @@ class CircuitBreaker:
 
 class CircuitOpenError(Exception):
     """Raised when circuit breaker is open."""
+
     pass
 
 
@@ -445,6 +427,7 @@ def with_retry(
         >>> async def fetch_data():
         ...     return await api.get("/data")
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         config = RetryConfig(
             max_attempts=max_attempts,
@@ -508,6 +491,7 @@ def with_circuit_breaker(
 
 # Utility: Combine retry and circuit breaker
 
+
 class ResilientExecutor:
     """Combines retry and circuit breaker for maximum resilience.
 
@@ -536,16 +520,13 @@ class ResilientExecutor:
         self.circuit_breaker = CircuitBreaker(name, circuit_config)
 
     async def execute(
-        self,
-        func: Callable,
-        *args,
-        fallback: Callable | None = None,
-        **kwargs
+        self, func: Callable, *args, fallback: Callable | None = None, **kwargs
     ) -> Any:
         """Execute with full resilience.
 
         First applies circuit breaker, then retry logic.
         """
+
         async def retryable_call():
             result = await self.retry_handler.execute(func, *args, **kwargs)
             if not result.success:

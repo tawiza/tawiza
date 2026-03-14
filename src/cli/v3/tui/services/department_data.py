@@ -24,33 +24,102 @@ DEPT_CODES = [f"{i:02d}" for i in range(1, 96) if i != 20] + ["2A", "2B"]
 
 # Department names
 DEPT_NAMES = {
-    "01": "Ain", "02": "Aisne", "03": "Allier", "04": "Alpes-Hte-Prov",
-    "05": "Hautes-Alpes", "06": "Alpes-Maritimes", "07": "Ardèche",
-    "08": "Ardennes", "09": "Ariège", "10": "Aube", "11": "Aude",
-    "12": "Aveyron", "13": "Bouches-du-Rhône", "14": "Calvados",
-    "15": "Cantal", "16": "Charente", "17": "Charente-Maritime",
-    "18": "Cher", "19": "Corrèze", "21": "Côte-d'Or", "22": "Côtes-d'Armor",
-    "23": "Creuse", "24": "Dordogne", "25": "Doubs", "26": "Drôme",
-    "27": "Eure", "28": "Eure-et-Loir", "29": "Finistère", "30": "Gard",
-    "31": "Haute-Garonne", "32": "Gers", "33": "Gironde", "34": "Hérault",
-    "35": "Ille-et-Vilaine", "36": "Indre", "37": "Indre-et-Loire",
-    "38": "Isère", "39": "Jura", "40": "Landes", "41": "Loir-et-Cher",
-    "42": "Loire", "43": "Haute-Loire", "44": "Loire-Atlantique",
-    "45": "Loiret", "46": "Lot", "47": "Lot-et-Garonne", "48": "Lozère",
-    "49": "Maine-et-Loire", "50": "Manche", "51": "Marne",
-    "52": "Haute-Marne", "53": "Mayenne", "54": "Meurthe-et-Moselle",
-    "55": "Meuse", "56": "Morbihan", "57": "Moselle", "58": "Nièvre",
-    "59": "Nord", "60": "Oise", "61": "Orne", "62": "Pas-de-Calais",
-    "63": "Puy-de-Dôme", "64": "Pyrénées-Atlantiques", "65": "Hautes-Pyrénées",
-    "66": "Pyrénées-Orientales", "67": "Bas-Rhin", "68": "Haut-Rhin",
-    "69": "Rhône", "70": "Haute-Saône", "71": "Saône-et-Loire",
-    "72": "Sarthe", "73": "Savoie", "74": "Haute-Savoie", "75": "Paris",
-    "76": "Seine-Maritime", "77": "Seine-et-Marne", "78": "Yvelines",
-    "79": "Deux-Sèvres", "80": "Somme", "81": "Tarn", "82": "Tarn-et-Garonne",
-    "83": "Var", "84": "Vaucluse", "85": "Vendée", "86": "Vienne",
-    "87": "Haute-Vienne", "88": "Vosges", "89": "Yonne", "90": "Belfort",
-    "91": "Essonne", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
-    "94": "Val-de-Marne", "95": "Val-d'Oise", "2A": "Corse-du-Sud", "2B": "Haute-Corse",
+    "01": "Ain",
+    "02": "Aisne",
+    "03": "Allier",
+    "04": "Alpes-Hte-Prov",
+    "05": "Hautes-Alpes",
+    "06": "Alpes-Maritimes",
+    "07": "Ardèche",
+    "08": "Ardennes",
+    "09": "Ariège",
+    "10": "Aube",
+    "11": "Aude",
+    "12": "Aveyron",
+    "13": "Bouches-du-Rhône",
+    "14": "Calvados",
+    "15": "Cantal",
+    "16": "Charente",
+    "17": "Charente-Maritime",
+    "18": "Cher",
+    "19": "Corrèze",
+    "21": "Côte-d'Or",
+    "22": "Côtes-d'Armor",
+    "23": "Creuse",
+    "24": "Dordogne",
+    "25": "Doubs",
+    "26": "Drôme",
+    "27": "Eure",
+    "28": "Eure-et-Loir",
+    "29": "Finistère",
+    "30": "Gard",
+    "31": "Haute-Garonne",
+    "32": "Gers",
+    "33": "Gironde",
+    "34": "Hérault",
+    "35": "Ille-et-Vilaine",
+    "36": "Indre",
+    "37": "Indre-et-Loire",
+    "38": "Isère",
+    "39": "Jura",
+    "40": "Landes",
+    "41": "Loir-et-Cher",
+    "42": "Loire",
+    "43": "Haute-Loire",
+    "44": "Loire-Atlantique",
+    "45": "Loiret",
+    "46": "Lot",
+    "47": "Lot-et-Garonne",
+    "48": "Lozère",
+    "49": "Maine-et-Loire",
+    "50": "Manche",
+    "51": "Marne",
+    "52": "Haute-Marne",
+    "53": "Mayenne",
+    "54": "Meurthe-et-Moselle",
+    "55": "Meuse",
+    "56": "Morbihan",
+    "57": "Moselle",
+    "58": "Nièvre",
+    "59": "Nord",
+    "60": "Oise",
+    "61": "Orne",
+    "62": "Pas-de-Calais",
+    "63": "Puy-de-Dôme",
+    "64": "Pyrénées-Atlantiques",
+    "65": "Hautes-Pyrénées",
+    "66": "Pyrénées-Orientales",
+    "67": "Bas-Rhin",
+    "68": "Haut-Rhin",
+    "69": "Rhône",
+    "70": "Haute-Saône",
+    "71": "Saône-et-Loire",
+    "72": "Sarthe",
+    "73": "Savoie",
+    "74": "Haute-Savoie",
+    "75": "Paris",
+    "76": "Seine-Maritime",
+    "77": "Seine-et-Marne",
+    "78": "Yvelines",
+    "79": "Deux-Sèvres",
+    "80": "Somme",
+    "81": "Tarn",
+    "82": "Tarn-et-Garonne",
+    "83": "Var",
+    "84": "Vaucluse",
+    "85": "Vendée",
+    "86": "Vienne",
+    "87": "Haute-Vienne",
+    "88": "Vosges",
+    "89": "Yonne",
+    "90": "Belfort",
+    "91": "Essonne",
+    "92": "Hauts-de-Seine",
+    "93": "Seine-Saint-Denis",
+    "94": "Val-de-Marne",
+    "95": "Val-d'Oise",
+    "2A": "Corse-du-Sud",
+    "2B": "Haute-Corse",
 }
 
 # Top sectors by NAF code
@@ -68,6 +137,7 @@ TOP_SECTORS = {
 
 class LoadingState(Enum):
     """State of data loading."""
+
     IDLE = "idle"
     LOADING = "loading"
     LOADED = "loaded"
@@ -77,6 +147,7 @@ class LoadingState(Enum):
 @dataclass
 class DepartmentStats:
     """Statistics for a single department."""
+
     code: str
     name: str
     companies_count: int
@@ -89,6 +160,7 @@ class DepartmentStats:
 @dataclass
 class LoadingProgress:
     """Progress of data loading."""
+
     total: int
     loaded: int
     current_dept: str
@@ -142,7 +214,9 @@ class DepartmentDataService:
             except Exception as e:
                 logger.error(f"Progress callback error: {e}")
 
-    async def fetch_all_departments(self, force_refresh: bool = False) -> dict[str, DepartmentStats]:
+    async def fetch_all_departments(
+        self, force_refresh: bool = False
+    ) -> dict[str, DepartmentStats]:
         """Fetch statistics for all French departments.
 
         Args:
@@ -160,24 +234,25 @@ class DepartmentDataService:
         total = len(DEPT_CODES)
 
         # Emit initial progress
-        self._emit_progress(LoadingProgress(
-            total=total,
-            loaded=0,
-            current_dept="Démarrage...",
-            state=LoadingState.LOADING
-        ))
+        self._emit_progress(
+            LoadingProgress(
+                total=total, loaded=0, current_dept="Démarrage...", state=LoadingState.LOADING
+            )
+        )
 
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 for i, code in enumerate(DEPT_CODES):
                     # Emit progress only every 10 departments to avoid UI blocking
                     if i % 10 == 0:
-                        self._emit_progress(LoadingProgress(
-                            total=total,
-                            loaded=i,
-                            current_dept=f"{code} - {DEPT_NAMES.get(code, code)}",
-                            state=LoadingState.LOADING
-                        ))
+                        self._emit_progress(
+                            LoadingProgress(
+                                total=total,
+                                loaded=i,
+                                current_dept=f"{code} - {DEPT_NAMES.get(code, code)}",
+                                state=LoadingState.LOADING,
+                            )
+                        )
                         # Yield to event loop to allow UI updates
                         await asyncio.sleep(0)
 
@@ -197,31 +272,32 @@ class DepartmentDataService:
                             companies_count=0,
                             growth_rate=0.0,
                             top_sector="N/A",
-                            confidence=0.0
+                            confidence=0.0,
                         )
 
             self._last_fetch = datetime.now()
             self._loading_state = LoadingState.LOADED
 
-            self._emit_progress(LoadingProgress(
-                total=total,
-                loaded=total,
-                current_dept="",
-                state=LoadingState.LOADED
-            ))
+            self._emit_progress(
+                LoadingProgress(
+                    total=total, loaded=total, current_dept="", state=LoadingState.LOADED
+                )
+            )
 
             logger.info(f"Loaded {len(self._cache)} departments from API")
             return self._cache.copy()
 
         except Exception as e:
             self._loading_state = LoadingState.ERROR
-            self._emit_progress(LoadingProgress(
-                total=total,
-                loaded=len(self._cache),
-                current_dept="",
-                state=LoadingState.ERROR,
-                error=str(e)
-            ))
+            self._emit_progress(
+                LoadingProgress(
+                    total=total,
+                    loaded=len(self._cache),
+                    current_dept="",
+                    state=LoadingState.ERROR,
+                    error=str(e),
+                )
+            )
             logger.error(f"Department fetch failed: {e}")
             raise
 
@@ -250,6 +326,7 @@ class DepartmentDataService:
 
         # Get recent creations (last year) for growth estimation
         from datetime import date
+
         one_year_ago = (date.today() - timedelta(days=365)).isoformat()
 
         params_recent = {

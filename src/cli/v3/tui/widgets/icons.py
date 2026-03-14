@@ -5,19 +5,18 @@ for use throughout the TUI interface.
 """
 
 
-
 class Icons:
     """Collection of Unicode icons organized by category."""
 
     # =========================================================================
     # Status Indicators
     # =========================================================================
-    STATUS_OK = "●"           # Filled circle - online/active
-    STATUS_ERROR = "○"        # Empty circle - offline/error
-    STATUS_WARNING = "◌"      # Dotted circle - warning
-    STATUS_PENDING = "◐"      # Half circle - pending
-    STATUS_RUNNING = "◉"      # Target circle - running
-    STATUS_PAUSED = "◎"       # Double circle - paused
+    STATUS_OK = "●"  # Filled circle - online/active
+    STATUS_ERROR = "○"  # Empty circle - offline/error
+    STATUS_WARNING = "◌"  # Dotted circle - warning
+    STATUS_PENDING = "◐"  # Half circle - pending
+    STATUS_RUNNING = "◉"  # Target circle - running
+    STATUS_PAUSED = "◎"  # Double circle - paused
 
     # Checkmarks and crosses
     CHECK = "✓"
@@ -228,7 +227,7 @@ class ProgressBar:
         max_value: float = 100,
         width: int = 20,
         show_percent: bool = True,
-        color_thresholds: bool = True
+        color_thresholds: bool = True,
     ) -> str:
         """Render a progress bar.
 
@@ -307,5 +306,6 @@ FILE_ICONS = {
 def get_file_icon(filename: str) -> str:
     """Get an icon for a file based on its extension."""
     import os
+
     _, ext = os.path.splitext(filename)
     return FILE_ICONS.get(ext.lower(), Icons.FILE)

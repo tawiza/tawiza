@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 # Cognitive level prompts for territorial intelligence
 COGNITIVE_PROMPTS = {
-    'discovery': """You are analyzing territorial economic data to detect weak signals and emerging patterns.
+    "discovery": """You are analyzing territorial economic data to detect weak signals and emerging patterns.
 
 Given the following execution results, identify:
 1. Growth/decline signals (type, description, strength 0-1, source)
@@ -42,8 +42,7 @@ Respond in JSON format:
   "confidence": 0.0-1.0
 }
 ```""",
-
-    'causal': """You are analyzing cause-effect relationships in territorial economic data.
+    "causal": """You are analyzing cause-effect relationships in territorial economic data.
 
 Given the discovered signals and patterns, identify:
 1. Contributing factors (what causes these signals)
@@ -65,8 +64,7 @@ Respond in JSON format:
   "confidence": 0.0-1.0
 }
 ```""",
-
-    'scenario': """You are generating future scenarios for territorial economic development.
+    "scenario": """You are generating future scenarios for territorial economic development.
 
 Based on the causal analysis, generate three scenarios:
 1. Optimistic (best case, 20% probability)
@@ -88,8 +86,7 @@ Respond in JSON format:
   "confidence": 0.0-1.0
 }
 ```""",
-
-    'strategy': """You are recommending strategic actions for territorial development.
+    "strategy": """You are recommending strategic actions for territorial development.
 
 Based on the scenario analysis, recommend:
 1. Immediate actions (0-6 months)
@@ -113,8 +110,7 @@ Respond in JSON format:
   "confidence": 0.0-1.0
 }
 ```""",
-
-    'theoretical': """You are validating the analysis against established economic theories.
+    "theoretical": """You are validating the analysis against established economic theories.
 
 Evaluate the strategic recommendations against:
 1. Porter's competitive advantage theory
@@ -141,7 +137,7 @@ Respond in JSON format:
   "caveats": ["..."],
   "confidence": 0.0-1.0
 }
-```"""
+```""",
 }
 
 
@@ -159,11 +155,11 @@ class LLMProvider:
 
     # Map cognitive levels to task complexity
     LEVEL_COMPLEXITY = {
-        'discovery': 'moderate',
-        'causal': 'moderate',
-        'scenario': 'complex',
-        'strategy': 'complex',
-        'theoretical': 'critical',
+        "discovery": "moderate",
+        "causal": "moderate",
+        "scenario": "complex",
+        "strategy": "complex",
+        "theoretical": "critical",
     }
 
     def __init__(
@@ -171,9 +167,9 @@ class LLMProvider:
         model: str = "qwen3.5:27b",
         base_url: str = "http://localhost:11434",
         client: Any | None = None,
-        router: Optional['HybridLLMRouter'] = None,
+        router: Optional["HybridLLMRouter"] = None,
         timeout: int = 120,
-        tier_override: str | None = None  # Force specific tier for all calls (COMPLETE mode)
+        tier_override: str | None = None,  # Force specific tier for all calls (COMPLETE mode)
     ):
         """
         Initialize LLMProvider.
@@ -205,10 +201,9 @@ class LLMProvider:
 
         try:
             from src.infrastructure.llm.ollama_client import OllamaClient
+
             self._client = OllamaClient(
-                base_url=self.base_url,
-                model=self.model,
-                timeout=self.timeout
+                base_url=self.base_url, model=self.model, timeout=self.timeout
             )
             self._initialized = True
             logger.info("LLMProvider initialized with OllamaClient")
@@ -226,7 +221,7 @@ class LLMProvider:
         system: str | None = None,
         temperature: float = 0.7,
         complexity: str | None = None,
-        **kwargs  # Accept extra args like task_type for compatibility
+        **kwargs,  # Accept extra args like task_type for compatibility
     ) -> str:
         """
         Generate text completion.
@@ -251,14 +246,13 @@ class LLMProvider:
 
                 # Map string complexity to enum
                 complexity_map = {
-                    'simple': TaskComplexity.SIMPLE,
-                    'moderate': TaskComplexity.MODERATE,
-                    'complex': TaskComplexity.COMPLEX,
-                    'critical': TaskComplexity.CRITICAL,
+                    "simple": TaskComplexity.SIMPLE,
+                    "moderate": TaskComplexity.MODERATE,
+                    "complex": TaskComplexity.COMPLEX,
+                    "critical": TaskComplexity.CRITICAL,
                 }
                 task_complexity = complexity_map.get(
-                    complexity or 'moderate',
-                    TaskComplexity.MODERATE
+                    complexity or "moderate", TaskComplexity.MODERATE
                 )
 
                 # Build full prompt with system
@@ -270,14 +264,16 @@ class LLMProvider:
                 tier_override_enum = None
                 if self._tier_override:
                     tier_map = {
-                        'local': ModelTier.LOCAL,
-                        'standard': ModelTier.STANDARD,
-                        'powerful': ModelTier.POWERFUL,
-                        'maximum': ModelTier.MAXIMUM,
+                        "local": ModelTier.LOCAL,
+                        "standard": ModelTier.STANDARD,
+                        "powerful": ModelTier.POWERFUL,
+                        "maximum": ModelTier.MAXIMUM,
                     }
                     tier_override_enum = tier_map.get(self._tier_override.lower())
                     if tier_override_enum:
-                        logger.info(f"[COMPLETE mode] Forcing tier={tier_override_enum.value} for cognitive processing")
+                        logger.info(
+                            f"[COMPLETE mode] Forcing tier={tier_override_enum.value} for cognitive processing"
+                        )
 
                 request = LLMRequest(
                     prompt=full_prompt,
@@ -301,9 +297,7 @@ class LLMProvider:
 
         try:
             result = await self._client.generate(
-                prompt=prompt,
-                system=system,
-                temperature=temperature
+                prompt=prompt, system=system, temperature=temperature
             )
             return result if result else ""
         except Exception as e:
@@ -315,7 +309,7 @@ class LLMProvider:
         prompt: str,
         system: str | None = None,
         temperature: float = 0.3,  # Lower temp for structured output
-        complexity: str | None = None
+        complexity: str | None = None,
     ) -> dict[str, Any]:
         """
         Generate and parse JSON response.
@@ -347,7 +341,7 @@ class LLMProvider:
             Parsed JSON dict or empty dict
         """
         # Try to find JSON in markdown code blocks
-        json_match = re.search(r'```(?:json)?\s*\n?([\s\S]*?)\n?```', text)
+        json_match = re.search(r"```(?:json)?\s*\n?([\s\S]*?)\n?```", text)
         if json_match:
             text = json_match.group(1).strip()
 
@@ -358,7 +352,7 @@ class LLMProvider:
             pass
 
         # Try to find JSON object in text
-        brace_match = re.search(r'\{[\s\S]*\}', text)
+        brace_match = re.search(r"\{[\s\S]*\}", text)
         if brace_match:
             try:
                 return json.loads(brace_match.group())
@@ -381,10 +375,7 @@ class LLMProvider:
         return COGNITIVE_PROMPTS.get(level, "")
 
     async def process_level(
-        self,
-        level: str,
-        results: Any,
-        previous: dict[str, Any]
+        self, level: str, results: Any, previous: dict[str, Any]
     ) -> dict[str, Any]:
         """
         Process a cognitive level using LLM.
@@ -410,26 +401,32 @@ class LLMProvider:
         # Format prompt using str.replace() to avoid conflicts with JSON braces
         # (.format() would try to substitute {causes}, {signals}, etc. as placeholders)
         prompt = prompt_template
-        if level == 'discovery':
-            prompt = prompt.replace('{results}', json.dumps(results, indent=2))
-            prompt = prompt.replace('{previous}', json.dumps(previous, indent=2))
-        elif level == 'causal':
-            prompt = prompt.replace('{discovery}', json.dumps(previous.get('discovery', {}), indent=2))
-            prompt = prompt.replace('{results}', json.dumps(results, indent=2))
-        elif level == 'scenario':
-            prompt = prompt.replace('{causal}', json.dumps(previous.get('causal', {}), indent=2))
-            prompt = prompt.replace('{previous}', json.dumps(previous, indent=2))
-        elif level == 'strategy':
-            prompt = prompt.replace('{scenarios}', json.dumps(previous.get('scenario', {}), indent=2))
-            prompt = prompt.replace('{previous}', json.dumps(previous, indent=2))
-        elif level == 'theoretical':
-            prompt = prompt.replace('{strategy}', json.dumps(previous.get('strategy', {}), indent=2))
-            prompt = prompt.replace('{previous}', json.dumps(previous, indent=2))
+        if level == "discovery":
+            prompt = prompt.replace("{results}", json.dumps(results, indent=2))
+            prompt = prompt.replace("{previous}", json.dumps(previous, indent=2))
+        elif level == "causal":
+            prompt = prompt.replace(
+                "{discovery}", json.dumps(previous.get("discovery", {}), indent=2)
+            )
+            prompt = prompt.replace("{results}", json.dumps(results, indent=2))
+        elif level == "scenario":
+            prompt = prompt.replace("{causal}", json.dumps(previous.get("causal", {}), indent=2))
+            prompt = prompt.replace("{previous}", json.dumps(previous, indent=2))
+        elif level == "strategy":
+            prompt = prompt.replace(
+                "{scenarios}", json.dumps(previous.get("scenario", {}), indent=2)
+            )
+            prompt = prompt.replace("{previous}", json.dumps(previous, indent=2))
+        elif level == "theoretical":
+            prompt = prompt.replace(
+                "{strategy}", json.dumps(previous.get("strategy", {}), indent=2)
+            )
+            prompt = prompt.replace("{previous}", json.dumps(previous, indent=2))
 
         system = "You are an expert in territorial economic analysis and intelligence."
 
         # Get complexity for this cognitive level
-        complexity = self.LEVEL_COMPLEXITY.get(level, 'moderate')
+        complexity = self.LEVEL_COMPLEXITY.get(level, "moderate")
         logger.debug(f"Processing cognitive level '{level}' with complexity={complexity}")
 
         return await self.generate_json(prompt, system, complexity=complexity)

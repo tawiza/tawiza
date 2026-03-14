@@ -109,9 +109,7 @@ class PerformanceDriftDetector(IDriftDetector):
             Drift report if detected, None otherwise
         """
         # Find error rate metric
-        error_rate_metric = next(
-            (m for m in drift_metrics if m.metric_name == "error_rate"), None
-        )
+        error_rate_metric = next((m for m in drift_metrics if m.metric_name == "error_rate"), None)
 
         if error_rate_metric and error_rate_metric.is_drifted:
             # Calculate drift score based on deviation
@@ -205,9 +203,7 @@ class PerformanceDriftDetector(IDriftDetector):
 
         return metrics
 
-    async def get_baseline_metrics(
-        self, model_name: str, model_version: str
-    ) -> dict[str, float]:
+    async def get_baseline_metrics(self, model_name: str, model_version: str) -> dict[str, float]:
         """Get baseline metrics for a model.
 
         Args:

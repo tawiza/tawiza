@@ -17,19 +17,28 @@ from loguru import logger
 from prometheus_client import Counter, Gauge, Histogram, start_http_server
 
 # Métriques Prometheus
-VM_CREATION_COUNTER = Counter('vm_sandbox_creation_total', 'Total VM creations', ['provider', 'status'])
-VM_DESTRUCTION_COUNTER = Counter('vm_sandbox_destruction_total', 'Total VM destructions', ['provider'])
-VM_EXECUTION_DURATION = Histogram('vm_sandbox_execution_duration_seconds', 'VM execution duration', ['provider'])
-VM_ACTIVE_GAUGE = Gauge('vm_sandbox_active_vms', 'Number of active VMs', ['provider'])
-VM_CPU_USAGE = Gauge('vm_sandbox_cpu_usage_percent', 'VM CPU usage percentage', ['vm_id'])
-VM_MEMORY_USAGE = Gauge('vm_sandbox_memory_usage_bytes', 'VM memory usage in bytes', ['vm_id'])
-VM_DISK_USAGE = Gauge('vm_sandbox_disk_usage_bytes', 'VM disk usage in bytes', ['vm_id'])
-VM_NETWORK_IO = Counter('vm_sandbox_network_io_bytes', 'VM network I/O in bytes', ['vm_id', 'direction'])
+VM_CREATION_COUNTER = Counter(
+    "vm_sandbox_creation_total", "Total VM creations", ["provider", "status"]
+)
+VM_DESTRUCTION_COUNTER = Counter(
+    "vm_sandbox_destruction_total", "Total VM destructions", ["provider"]
+)
+VM_EXECUTION_DURATION = Histogram(
+    "vm_sandbox_execution_duration_seconds", "VM execution duration", ["provider"]
+)
+VM_ACTIVE_GAUGE = Gauge("vm_sandbox_active_vms", "Number of active VMs", ["provider"])
+VM_CPU_USAGE = Gauge("vm_sandbox_cpu_usage_percent", "VM CPU usage percentage", ["vm_id"])
+VM_MEMORY_USAGE = Gauge("vm_sandbox_memory_usage_bytes", "VM memory usage in bytes", ["vm_id"])
+VM_DISK_USAGE = Gauge("vm_sandbox_disk_usage_bytes", "VM disk usage in bytes", ["vm_id"])
+VM_NETWORK_IO = Counter(
+    "vm_sandbox_network_io_bytes", "VM network I/O in bytes", ["vm_id", "direction"]
+)
 
 
 @dataclass
 class VMMetrics:
     """Métriques d'une VM."""
+
     vm_id: str
     timestamp: datetime
     cpu_percent: float
@@ -51,6 +60,7 @@ class VMMetrics:
 @dataclass
 class VMHealth:
     """État de santé d'une VM."""
+
     vm_id: str
     status: str  # healthy, warning, critical, unknown
     message: str
@@ -61,7 +71,7 @@ class VMHealth:
         """Convertit en dictionnaire."""
         data = asdict(self)
         if self.metrics:
-            data['metrics'] = self.metrics.to_dict()
+            data["metrics"] = self.metrics.to_dict()
         return data
 
 
@@ -74,7 +84,7 @@ class VMMonitor:
         check_interval: int = 30,
         metrics_retention_hours: int = 24,
         alerting_enabled: bool = True,
-        prometheus_port: int | None = None
+        prometheus_port: int | None = None,
     ):
         """Initialise le moniteur.
 
@@ -102,14 +112,16 @@ class VMMonitor:
 
         # Seuil d'alerte
         self.alert_thresholds = {
-            'cpu_percent': 80.0,
-            'memory_percent': 85.0,
-            'disk_percent': 90.0,
-            'uptime_hours': 24.0,
-            'error_rate': 0.1  # 10% d'erreurs
+            "cpu_percent": 80.0,
+            "memory_percent": 85.0,
+            "disk_percent": 90.0,
+            "uptime_hours": 24.0,
+            "error_rate": 0.1,  # 10% d'erreurs
         }
 
-        logger.info(f"VM Monitor initialisé (interval={check_interval}s, prometheus={prometheus_port})")
+        logger.info(
+            f"VM Monitor initialisé (interval={check_interval}s, prometheus={prometheus_port})"
+        )
 
     def add_alert_handler(self, handler: Callable) -> None:
         """Ajoute un gestionnaire d'alertes.
@@ -215,10 +227,7 @@ class VMMonitor:
 
             # Créer l'objet santé
             health = VMHealth(
-                vm_id=vm_id,
-                status=health_status,
-                message=message,
-                last_check=datetime.now()
+                vm_id=vm_id, status=health_status, message=message, last_check=datetime.now()
             )
 
             # Stocker l'état
@@ -238,7 +247,7 @@ class VMMonitor:
                 vm_id=vm_id,
                 status="critical",
                 message=f"Erreur santé VM: {e}",
-                last_check=datetime.now()
+                last_check=datetime.now(),
             )
 
             self.health_status[vm_id] = health
@@ -288,7 +297,7 @@ class VMMonitor:
                 network_bytes_recv=0,
                 uptime_seconds=0.0,
                 status="error",
-                error_count=1
+                error_count=1,
             )
 
     async def _collect_docker_metrics(self, vm_id: str) -> VMMetrics:
@@ -310,10 +319,13 @@ class VMMonitor:
             stats = container.stats(stream=False)
 
             # CPU
-            cpu_delta = stats["cpu_stats"]["cpu_usage"]["total_usage"] - \
-                       stats["precpu_stats"]["cpu_usage"]["total_usage"]
-            system_delta = stats["cpu_stats"]["system_cpu_usage"] - \
-                          stats["precpu_stats"]["system_cpu_usage"]
+            cpu_delta = (
+                stats["cpu_stats"]["cpu_usage"]["total_usage"]
+                - stats["precpu_stats"]["cpu_usage"]["total_usage"]
+            )
+            system_delta = (
+                stats["cpu_stats"]["system_cpu_usage"] - stats["precpu_stats"]["system_cpu_usage"]
+            )
 
             cpu_percent = 0.0
             if system_delta > 0 and cpu_delta > 0:
@@ -347,7 +359,7 @@ class VMMonitor:
                 network_bytes_sent=bytes_sent,
                 network_bytes_recv=bytes_recv,
                 uptime_seconds=uptime,
-                status="running"
+                status="running",
             )
 
         except Exception as e:
@@ -379,7 +391,7 @@ class VMMonitor:
             network_bytes_sent=0,
             network_bytes_recv=0,
             uptime_seconds=uptime,
-            status="unknown"
+            status="unknown",
         )
 
     def _update_prometheus_metrics(self, vm_id: str, metrics: VMMetrics) -> None:
@@ -422,32 +434,40 @@ class VMMonitor:
 
             # Calculer les moyennes
             avg_cpu = sum(m.cpu_percent for m in recent_metrics) / len(recent_metrics)
-            avg_memory_percent = sum((m.memory_used / m.memory_total * 100) if m.memory_total > 0 else 0
-                                   for m in recent_metrics) / len(recent_metrics)
+            avg_memory_percent = sum(
+                (m.memory_used / m.memory_total * 100) if m.memory_total > 0 else 0
+                for m in recent_metrics
+            ) / len(recent_metrics)
 
             # Vérifier les seuils
             alerts = []
 
-            if avg_cpu > self.alert_thresholds['cpu_percent']:
-                alerts.append({
-                    'type': 'high_cpu',
-                    'severity': 'warning',
-                    'message': f"CPU usage élevé: {avg_cpu:.1f}%"
-                })
+            if avg_cpu > self.alert_thresholds["cpu_percent"]:
+                alerts.append(
+                    {
+                        "type": "high_cpu",
+                        "severity": "warning",
+                        "message": f"CPU usage élevé: {avg_cpu:.1f}%",
+                    }
+                )
 
-            if avg_memory_percent > self.alert_thresholds['memory_percent']:
-                alerts.append({
-                    'type': 'high_memory',
-                    'severity': 'warning',
-                    'message': f"Memory usage élevé: {avg_memory_percent:.1f}%"
-                })
+            if avg_memory_percent > self.alert_thresholds["memory_percent"]:
+                alerts.append(
+                    {
+                        "type": "high_memory",
+                        "severity": "warning",
+                        "message": f"Memory usage élevé: {avg_memory_percent:.1f}%",
+                    }
+                )
 
             if health.status == "critical":
-                alerts.append({
-                    'type': 'vm_down',
-                    'severity': 'critical',
-                    'message': f"VM en état critique: {health.message}"
-                })
+                alerts.append(
+                    {
+                        "type": "vm_down",
+                        "severity": "critical",
+                        "message": f"VM en état critique: {health.message}",
+                    }
+                )
 
             # Déclencher les alertes
             for alert in alerts:
@@ -465,11 +485,11 @@ class VMMonitor:
         """
         try:
             alert_data = {
-                'vm_id': vm_id,
-                'timestamp': datetime.now().isoformat(),
-                'type': alert['type'],
-                'severity': alert['severity'],
-                'message': alert['message']
+                "vm_id": vm_id,
+                "timestamp": datetime.now().isoformat(),
+                "type": alert["type"],
+                "severity": alert["severity"],
+                "message": alert["message"],
             }
 
             logger.warning(f"Alerte VM {vm_id}: {alert['message']}")
@@ -495,10 +515,7 @@ class VMMonitor:
 
             for vm_id, metrics_list in self.metrics_history.items():
                 # Filtrer les métriques récentes
-                self.metrics_history[vm_id] = [
-                    m for m in metrics_list
-                    if m.timestamp > cutoff_time
-                ]
+                self.metrics_history[vm_id] = [m for m in metrics_list if m.timestamp > cutoff_time]
 
         except Exception as e:
             logger.error(f"Erreur nettoyage anciennes métriques: {e}")
@@ -511,31 +528,31 @@ class VMMonitor:
         """
         try:
             health_summary = {
-                'total_vms': len(self.health_status),
-                'healthy_vms': 0,
-                'warning_vms': 0,
-                'critical_vms': 0,
-                'unknown_vms': 0,
-                'vms': {}
+                "total_vms": len(self.health_status),
+                "healthy_vms": 0,
+                "warning_vms": 0,
+                "critical_vms": 0,
+                "unknown_vms": 0,
+                "vms": {},
             }
 
             for vm_id, health in self.health_status.items():
-                health_summary['vms'][vm_id] = health.to_dict()
+                health_summary["vms"][vm_id] = health.to_dict()
 
-                if health.status == 'healthy':
-                    health_summary['healthy_vms'] += 1
-                elif health.status == 'warning':
-                    health_summary['warning_vms'] += 1
-                elif health.status == 'critical':
-                    health_summary['critical_vms'] += 1
+                if health.status == "healthy":
+                    health_summary["healthy_vms"] += 1
+                elif health.status == "warning":
+                    health_summary["warning_vms"] += 1
+                elif health.status == "critical":
+                    health_summary["critical_vms"] += 1
                 else:
-                    health_summary['unknown_vms'] += 1
+                    health_summary["unknown_vms"] += 1
 
             return health_summary
 
         except Exception as e:
             logger.error(f"Erreur obtention résumé santé: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def get_metrics_summary(self, vm_id: str | None = None) -> dict[str, Any]:
         """Obtient un résumé des métriques.
@@ -552,30 +569,32 @@ class VMMonitor:
                 metrics_list = self.metrics_history.get(vm_id, [])
 
                 if not metrics_list:
-                    return {'vm_id': vm_id, 'error': 'Aucune métrique disponible'}
+                    return {"vm_id": vm_id, "error": "Aucune métrique disponible"}
 
                 # Calculer les statistiques
                 cpu_values = [m.cpu_percent for m in metrics_list]
-                memory_values = [(m.memory_used / m.memory_total * 100) if m.memory_total > 0 else 0
-                               for m in metrics_list]
+                memory_values = [
+                    (m.memory_used / m.memory_total * 100) if m.memory_total > 0 else 0
+                    for m in metrics_list
+                ]
 
                 return {
-                    'vm_id': vm_id,
-                    'metrics_count': len(metrics_list),
-                    'time_range': {
-                        'start': metrics_list[0].timestamp.isoformat(),
-                        'end': metrics_list[-1].timestamp.isoformat()
+                    "vm_id": vm_id,
+                    "metrics_count": len(metrics_list),
+                    "time_range": {
+                        "start": metrics_list[0].timestamp.isoformat(),
+                        "end": metrics_list[-1].timestamp.isoformat(),
                     },
-                    'cpu_stats': {
-                        'avg': sum(cpu_values) / len(cpu_values) if cpu_values else 0,
-                        'min': min(cpu_values) if cpu_values else 0,
-                        'max': max(cpu_values) if cpu_values else 0
+                    "cpu_stats": {
+                        "avg": sum(cpu_values) / len(cpu_values) if cpu_values else 0,
+                        "min": min(cpu_values) if cpu_values else 0,
+                        "max": max(cpu_values) if cpu_values else 0,
                     },
-                    'memory_stats': {
-                        'avg': sum(memory_values) / len(memory_values) if memory_values else 0,
-                        'min': min(memory_values) if memory_values else 0,
-                        'max': max(memory_values) if memory_values else 0
-                    }
+                    "memory_stats": {
+                        "avg": sum(memory_values) / len(memory_values) if memory_values else 0,
+                        "min": min(memory_values) if memory_values else 0,
+                        "max": max(memory_values) if memory_values else 0,
+                    },
                 }
 
             else:
@@ -585,14 +604,14 @@ class VMMonitor:
                     all_metrics.extend(vm_metrics)
 
                 return {
-                    'total_metrics': len(all_metrics),
-                    'monitored_vms': len(self.metrics_history),
-                    'vms_with_metrics': list(self.metrics_history.keys())
+                    "total_metrics": len(all_metrics),
+                    "monitored_vms": len(self.metrics_history),
+                    "vms_with_metrics": list(self.metrics_history.keys()),
                 }
 
         except Exception as e:
             logger.error(f"Erreur obtention résumé métriques: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
 
 # Fonctions utilitaires d'alerte
@@ -602,13 +621,13 @@ async def log_alert_handler(alert_data: dict[str, Any]) -> None:
     Args:
         alert_data: Données d'alerte
     """
-    severity = alert_data['severity']
-    message = alert_data['message']
-    vm_id = alert_data['vm_id']
+    severity = alert_data["severity"]
+    message = alert_data["message"]
+    vm_id = alert_data["vm_id"]
 
-    if severity == 'critical':
+    if severity == "critical":
         logger.critical(f"Alerte VM {vm_id}: {message}")
-    elif severity == 'warning':
+    elif severity == "warning":
         logger.warning(f"Alerte VM {vm_id}: {message}")
     else:
         logger.info(f"Alerte VM {vm_id}: {message}")
@@ -623,6 +642,7 @@ async def webhook_alert_handler(webhook_url: str) -> Callable:
     Returns:
         Fonction gestionnaire
     """
+
     async def handler(alert_data: dict[str, Any]) -> None:
         try:
             async with aiohttp.ClientSession() as session:
@@ -645,17 +665,11 @@ if __name__ == "__main__":
         from unittest.mock import Mock
 
         mock_adapter = Mock()
-        mock_adapter.active_vms = {
-            "test-vm-1": {"created_at": datetime.now(), "status": "running"}
-        }
+        mock_adapter.active_vms = {"test-vm-1": {"created_at": datetime.now(), "status": "running"}}
         mock_adapter.vm_provider = "docker"
 
         # Créer le moniteur
-        monitor = VMMonitor(
-            adapter=mock_adapter,
-            check_interval=5,
-            prometheus_port=None
-        )
+        monitor = VMMonitor(adapter=mock_adapter, check_interval=5, prometheus_port=None)
 
         # Ajouter un gestionnaire d'alerte
         monitor.add_alert_handler(log_alert_handler)

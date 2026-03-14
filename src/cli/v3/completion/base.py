@@ -18,7 +18,9 @@ class CompletionProvider(ABC):
     """Abstract base class for completion providers."""
 
     @abstractmethod
-    def get_completions(self, incomplete: str, context: dict | None = None) -> list[CompletionResult]:
+    def get_completions(
+        self, incomplete: str, context: dict | None = None
+    ) -> list[CompletionResult]:
         """Get completion suggestions.
 
         Args:

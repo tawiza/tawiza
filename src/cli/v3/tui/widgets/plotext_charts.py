@@ -143,10 +143,7 @@ class PerformanceChart(PlotextPlot):
         self._update_chart()
 
     def update_metrics(
-        self,
-        tokens_per_sec: float = 0,
-        avg_duration: float = 0,
-        success_rate: float = 0
+        self, tokens_per_sec: float = 0, avg_duration: float = 0, success_rate: float = 0
     ) -> None:
         """Update performance metrics."""
         self._metrics["tokens_per_sec"] = min(tokens_per_sec, 200)  # Cap at 200

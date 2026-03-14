@@ -1,6 +1,5 @@
 """Metric Gauge widget with sparkline history."""
 
-
 from textual.reactive import reactive
 from textual.widgets import Static
 from textual_plotext import PlotextPlot
@@ -23,12 +22,7 @@ class MetricGauge(Static):
     max_value = reactive(100.0)
 
     def __init__(
-        self,
-        label: str,
-        value: float = 0.0,
-        unit: str = "%",
-        max_value: float = 100.0,
-        **kwargs
+        self, label: str, value: float = 0.0, unit: str = "%", max_value: float = 100.0, **kwargs
     ):
         super().__init__(**kwargs)
         self.label = label

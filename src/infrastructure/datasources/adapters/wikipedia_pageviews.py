@@ -305,12 +305,14 @@ class WikipediaPageviewsAdapter(BaseAdapter):
         for article in articles:
             data = await self.get_pageviews(article, start, end)
             if "error" not in data:
-                results.append({
-                    "article": article,
-                    "total_views": data.get("total_views", 0),
-                    "avg_daily": data.get("avg_daily_views", 0),
-                    "max_views": data.get("max_views", 0),
-                })
+                results.append(
+                    {
+                        "article": article,
+                        "total_views": data.get("total_views", 0),
+                        "avg_daily": data.get("avg_daily_views", 0),
+                        "max_views": data.get("max_views", 0),
+                    }
+                )
 
         # Sort by total views
         results.sort(key=lambda x: x["total_views"], reverse=True)

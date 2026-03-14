@@ -27,11 +27,8 @@ def browser_navigate(url: str) -> dict:
     async def _navigate():
         adapter = OpenManusAdapter(headless=True)
         try:
-            result = await adapter.execute_task({
-                'url': url,
-                'action': 'navigate'
-            })
-            return result.get('result', {})
+            result = await adapter.execute_task({"url": url, "action": "navigate"})
+            return result.get("result", {})
         finally:
             await adapter.cleanup()
 
@@ -39,9 +36,7 @@ def browser_navigate(url: str) -> dict:
 
 
 def browser_extract(
-    url: str,
-    selectors: dict[str, str] | None = None,
-    target: str | None = None
+    url: str, selectors: dict[str, str] | None = None, target: str | None = None
 ) -> dict:
     """Extract data from a web page.
 
@@ -64,15 +59,15 @@ def browser_extract(
         adapter = OpenManusAdapter(headless=True)
         try:
             config = {
-                'url': url,
-                'action': 'extract',
-                'data': {'target': target or 'page content'},
+                "url": url,
+                "action": "extract",
+                "data": {"target": target or "page content"},
             }
             if selectors:
-                config['selectors'] = selectors
+                config["selectors"] = selectors
 
             result = await adapter.execute_task(config)
-            return result.get('result', {})
+            return result.get("result", {})
         finally:
             await adapter.cleanup()
 
@@ -84,7 +79,7 @@ def browser_fill_form(
     selectors: dict[str, str],
     data: dict[str, str],
     submit: bool = False,
-    submit_selector: str | None = None
+    submit_selector: str | None = None,
 ) -> dict:
     """Fill a web form with data.
 
@@ -107,17 +102,17 @@ def browser_fill_form(
         adapter = OpenManusAdapter(headless=True)
         try:
             config = {
-                'url': url,
-                'action': 'fill_form',
-                'selectors': selectors,
-                'data': data,
-                'submit': submit,
+                "url": url,
+                "action": "fill_form",
+                "selectors": selectors,
+                "data": data,
+                "submit": submit,
             }
             if submit_selector:
-                config['submit_selector'] = submit_selector
+                config["submit_selector"] = submit_selector
 
             result = await adapter.execute_task(config)
-            return result.get('result', {})
+            return result.get("result", {})
         finally:
             await adapter.cleanup()
 
@@ -142,12 +137,14 @@ def browser_click(url: str, selector: str) -> dict:
     async def _click():
         adapter = OpenManusAdapter(headless=True)
         try:
-            result = await adapter.execute_task({
-                'url': url,
-                'action': 'click',
-                'selector': selector,
-            })
-            return result.get('result', {})
+            result = await adapter.execute_task(
+                {
+                    "url": url,
+                    "action": "click",
+                    "selector": selector,
+                }
+            )
+            return result.get("result", {})
         finally:
             await adapter.cleanup()
 
@@ -172,10 +169,13 @@ def browser_search(query: str, engine: str = "duckduckgo") -> dict:
     async def _search():
         registry = ToolRegistry()
         register_all_tools(registry)
-        return await registry.execute('browser.search', {
-            'query': query,
-            'engine': engine,
-        })
+        return await registry.execute(
+            "browser.search",
+            {
+                "query": query,
+                "engine": engine,
+            },
+        )
 
     return asyncio.run(_search())
 
@@ -183,6 +183,7 @@ def browser_search(query: str, engine: str = "duckduckgo") -> dict:
 # ============================================================================
 # TOOL REGISTRATION
 # ============================================================================
+
 
 def get_browser_tools() -> list[FunctionTool]:
     """Get all browser automation tools as Camel FunctionTools.

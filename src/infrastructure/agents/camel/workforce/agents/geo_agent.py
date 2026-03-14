@@ -15,7 +15,6 @@ Example:
     >>> # Génère une carte interactive dans le répertoire output/
 """
 
-
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import FunctionTool
@@ -71,8 +70,7 @@ Géolocaliser les entreprises collectées et générer des cartes interactives p
 
 
 def create_geo_agent(
-    model_id: str = "qwen3.5:27b",
-    base_url: str = "http://localhost:11434/v1"
+    model_id: str = "qwen3.5:27b", base_url: str = "http://localhost:11434/v1"
 ) -> ChatAgent:
     """Create a GeoAgent for territorial cartography.
 

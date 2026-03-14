@@ -8,9 +8,10 @@ from .mascot import LOADING_EYES, MASCOT
 
 class DisplayMode(Enum):
     """Mascot display modes."""
-    STATUS_BAR = "status_bar"    # Single line indicator
-    CONTEXTUAL = "contextual"    # Medium display with message
-    FULL = "full"                # Full mascot art
+
+    STATUS_BAR = "status_bar"  # Single line indicator
+    CONTEXTUAL = "contextual"  # Medium display with message
+    FULL = "full"  # Full mascot art
 
 
 # Eye symbols for each mood (for status bar)

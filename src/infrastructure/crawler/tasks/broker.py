@@ -24,6 +24,7 @@ def _get_dramatiq():
     if _dramatiq is None:
         try:
             import dramatiq
+
             _dramatiq = dramatiq
         except ImportError:
             logger.warning("dramatiq not installed. Run: pip install dramatiq[redis]")
@@ -74,6 +75,7 @@ def _create_broker():
         # Try to add Prometheus middleware if available
         try:
             from dramatiq.middleware.prometheus import Prometheus
+
             broker.add_middleware(Prometheus())
             logger.debug("Prometheus middleware enabled for Dramatiq")
         except ImportError:
@@ -166,12 +168,14 @@ class MockBroker:
 
     def actor(self, fn=None, **options):
         """Decorator to register an actor."""
+
         def decorator(func):
             self.actors[func.__name__] = func
             # Make it callable as sync
             func.send = lambda *args, **kwargs: func(*args, **kwargs)
             func.send_with_options = lambda *args, **kwargs: func(*args, **kwargs.get("args", ()))
             return func
+
         if fn is not None:
             return decorator(fn)
         return decorator

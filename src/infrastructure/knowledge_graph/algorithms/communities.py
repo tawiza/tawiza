@@ -1,4 +1,5 @@
 """Community detection using Louvain algorithm."""
+
 import contextlib
 from collections import defaultdict
 from dataclasses import dataclass
@@ -10,6 +11,7 @@ from loguru import logger
 @dataclass
 class Community:
     """A detected community of companies."""
+
     id: int
     members: list[str]  # List of SIRENs
     size: int
@@ -27,11 +29,7 @@ class CommunityDetector:
         """Initialize with Neo4j client."""
         self.client = client
 
-    async def detect(
-        self,
-        territory_code: str,
-        min_community_size: int = 2
-    ) -> list[Community]:
+    async def detect(self, territory_code: str, min_community_size: int = 2) -> list[Community]:
         """
         Detect communities in a territory.
 
@@ -77,11 +75,7 @@ class CommunityDetector:
 
         return self._build_communities(results, min_community_size)
 
-    async def _detect_simple(
-        self,
-        territory_code: str,
-        min_size: int
-    ) -> list[Community]:
+    async def _detect_simple(self, territory_code: str, min_size: int) -> list[Community]:
         """Simple community detection without GDS."""
         query = """
         MATCH (c:Company)-[:HAS_ESTABLISHMENT]->(:Establishment)-[:LOCATED_IN]->(:Territory {code: $code})
@@ -98,20 +92,13 @@ class CommunityDetector:
         communities = []
         for i, (sector, members) in enumerate(by_sector.items()):
             if len(members) >= min_size:
-                communities.append(Community(
-                    id=i,
-                    members=members,
-                    size=len(members),
-                    dominant_sector=sector
-                ))
+                communities.append(
+                    Community(id=i, members=members, size=len(members), dominant_sector=sector)
+                )
 
         return sorted(communities, key=lambda c: c.size, reverse=True)
 
-    def _build_communities(
-        self,
-        results: list[dict[str, Any]],
-        min_size: int
-    ) -> list[Community]:
+    def _build_communities(self, results: list[dict[str, Any]], min_size: int) -> list[Community]:
         """Build Community objects from query results."""
         by_community = defaultdict(list)
         for r in results:
@@ -120,10 +107,6 @@ class CommunityDetector:
         communities = []
         for cid, members in by_community.items():
             if len(members) >= min_size:
-                communities.append(Community(
-                    id=cid,
-                    members=members,
-                    size=len(members)
-                ))
+                communities.append(Community(id=cid, members=members, size=len(members)))
 
         return sorted(communities, key=lambda c: c.size, reverse=True)

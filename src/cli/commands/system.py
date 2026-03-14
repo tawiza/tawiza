@@ -35,25 +35,30 @@ app = typer.Typer(
     name="system",
     help="Gestion du système Tawiza-V2",
     add_completion=False,
-    rich_markup_mode="rich"
+    rich_markup_mode="rich",
 )
 
 # Variables globales
 system_instance: AdvancedAgentIntegration | None = None
 debug_system: IntegratedDebugSystem | None = None
 
+
 @app.command("init")
 def init_system(
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="Activer l'optimisation GPU"),
-    monitoring: bool = typer.Option(True, "--monitoring/--no-monitoring", help="Activer le monitoring"),
+    monitoring: bool = typer.Option(
+        True, "--monitoring/--no-monitoring", help="Activer le monitoring"
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Mode verbeux"),
-    force: bool = typer.Option(False, "--force", "-f", help="Forcer la réinitialisation")
+    force: bool = typer.Option(False, "--force", "-f", help="Forcer la réinitialisation"),
 ):
     """Initialiser le système Tawiza-V2"""
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]⚡ Initialisation du système Tawiza-V2...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]⚡ Initialisation du système Tawiza-V2...[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     global system_instance, debug_system
@@ -61,19 +66,22 @@ def init_system(
     try:
         # Vérifier si le système est déjà initialisé
         if system_instance and not force:
-            console.print(f"[bold {SUNSET_THEME['warning_color']}]⚠️  Le système est déjà initialisé.[/bold {SUNSET_THEME['warning_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['warning_color']}]⚠️  Le système est déjà initialisé.[/bold {SUNSET_THEME['warning_color']}]"
+            )
             if not typer.confirm("Voulez-vous réinitialiser le système?", default=False):
                 return
 
         # Étape 1: Vérification du système
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]📋 Étape 1: Vérification du système...[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]📋 Étape 1: Vérification du système...[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-
             # Vérifier Python
             task1 = progress.add_task("🐍 Vérification Python...", total=None)
             console.print(f"  ✅ Python {sys.version_info.major}.{sys.version_info.minor} détecté")
@@ -81,23 +89,33 @@ def init_system(
             # Vérifier Docker
             task2 = progress.add_task("🐳 Vérification Docker...", total=None)
             try:
-                result = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=10)
+                result = subprocess.run(
+                    ["docker", "--version"], capture_output=True, text=True, timeout=10
+                )
                 if result.returncode == 0:
                     console.print("  ✅ Docker disponible")
                 else:
-                    console.print("  ⚠️  Docker non disponible - certaines fonctionnalités seront limitées")
+                    console.print(
+                        "  ⚠️  Docker non disponible - certaines fonctionnalités seront limitées"
+                    )
             except:
-                console.print("  ⚠️  Docker non installé - certaines fonctionnalités seront limitées")
+                console.print(
+                    "  ⚠️  Docker non installé - certaines fonctionnalités seront limitées"
+                )
 
             # Vérifier GPU si demandé
             if gpu:
                 task3 = progress.add_task("🎮 Vérification GPU...", total=None)
                 try:
-                    result = subprocess.run(["rocm-smi", "--showid"], capture_output=True, text=True, timeout=10)
+                    result = subprocess.run(
+                        ["rocm-smi", "--showid"], capture_output=True, text=True, timeout=10
+                    )
                     if result.returncode == 0:
                         console.print("  ✅ GPU AMD détecté")
                     else:
-                        console.print("  ⚠️  GPU AMD non détecté - désactivation de l'optimisation GPU")
+                        console.print(
+                            "  ⚠️  GPU AMD non détecté - désactivation de l'optimisation GPU"
+                        )
                         gpu = False
                 except:
                     console.print("  ⚠️  ROCm non disponible - désactivation de l'optimisation GPU")
@@ -111,16 +129,11 @@ def init_system(
         console.print()
 
         # Étape 2: Création des répertoires
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]📁 Étape 2: Création des répertoires...[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]📁 Étape 2: Création des répertoires...[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
-        directories = [
-            "logs",
-            "data",
-            "models",
-            "configs",
-            "debug_reports",
-            "outputs"
-        ]
+        directories = ["logs", "data", "models", "configs", "debug_reports", "outputs"]
 
         for directory in directories:
             Path(directory).mkdir(exist_ok=True)
@@ -129,7 +142,9 @@ def init_system(
         console.print()
 
         # Étape 3: Initialisation du système principal
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]⚡ Étape 3: Initialisation du système...[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]⚡ Étape 3: Initialisation du système...[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         from src.infrastructure.agents.advanced.agent_integration import (
             create_advanced_agent_integration,
@@ -143,7 +158,7 @@ def init_system(
             "enable_performance_monitoring": monitoring,
             "max_concurrent_tasks": 5,
             "auto_scale": True,
-            "retry_failed_tasks": 3
+            "retry_failed_tasks": 3,
         }
 
         # Créer et initialiser le système
@@ -154,12 +169,15 @@ def init_system(
 
         # Étape 4: Initialisation du debugging
         if monitoring:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]🔍 Étape 4: Initialisation du debugging...[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]🔍 Étape 4: Initialisation du debugging...[/bold {SUNSET_THEME['accent_color']}]"
+            )
 
             try:
                 from src.infrastructure.agents.advanced.integrated_debug_system import (
                     create_integrated_debug_system,
                 )
+
                 debug_system = run_async(create_integrated_debug_system(system_instance))
                 console.print("  ✅ Système de debugging initialisé")
             except ImportError:
@@ -169,7 +187,9 @@ def init_system(
         console.print()
 
         # Étape 5: Configuration finale
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]⚙️ Étape 5: Configuration finale...[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]⚙️ Étape 5: Configuration finale...[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         # Sauvegarder la configuration
         config_file = Path("configs/system_config.json")
@@ -178,30 +198,38 @@ def init_system(
             "initialized_at": time.time(),
             "gpu_enabled": gpu,
             "monitoring_enabled": monitoring,
-            "config": config
+            "config": config,
         }
 
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             json.dump(config_data, f, indent=2)
 
         console.print("  ✅ Configuration sauvegardée")
 
         # Étape 6: Vérification finale
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]✅ Étape 6: Vérification finale...[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]✅ Étape 6: Vérification finale...[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         # Afficher le statut
         run_async(show_system_status_internal())
 
         console.print()
-        console.print(f"[bold {SUNSET_THEME['success_color']}]✅ Système Tawiza-V2 initialisé avec succès![/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['success_color']}]✅ Système Tawiza-V2 initialisé avec succès![/bold {SUNSET_THEME['success_color']}]"
+        )
         console.print()
 
         # Afficher les prochaines étapes
-        console.print(f"[bold {SUNSET_THEME['info_color']}]Prochaines étapes suggérées:[/bold {SUNSET_THEME['info_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]Prochaines étapes suggérées:[/bold {SUNSET_THEME['info_color']}]"
+        )
         console.print()
 
         if gpu:
-            console.print("  🎮 [bold]tawiza agents gpu-optimize --model qwen3.5:27b --benchmark[/bold]")
+            console.print(
+                "  🎮 [bold]tawiza agents gpu-optimize --model qwen3.5:27b --benchmark[/bold]"
+            )
             console.print("     Optimiser les performances GPU")
             console.print()
 
@@ -214,7 +242,9 @@ def init_system(
         console.print("     Analyser un dataset")
         console.print()
 
-        console.print("  💻 [bold]tawiza agents generate-code 'Créer une API REST' --language python --framework fastapi[/bold]")
+        console.print(
+            "  💻 [bold]tawiza agents generate-code 'Créer une API REST' --language python --framework fastapi[/bold]"
+        )
         console.print("     Générer du code")
         console.print()
 
@@ -225,9 +255,14 @@ def init_system(
     except Exception as e:
         # Échapper les caractères spéciaux Rich dans le message d'erreur
         error_msg = str(e).replace("[", "\\[").replace("]", "\\]")
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'initialisation: {error_msg}[/bold {SUNSET_THEME['error_color']}]")
-        console.print(f"[bold {SUNSET_THEME['info_color']}]💡 Utilisez 'tawiza system status' pour diagnostiquer le problème[/bold {SUNSET_THEME['info_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'initialisation: {error_msg}[/bold {SUNSET_THEME['error_color']}]"
+        )
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]💡 Utilisez 'tawiza system status' pour diagnostiquer le problème[/bold {SUNSET_THEME['info_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("status")
 def show_status():
@@ -235,11 +270,14 @@ def show_status():
     show_sunset_header()
     run_async(show_system_status_internal())
 
+
 async def show_system_status_internal():
     """Afficher le statut interne du système"""
     global system_instance, debug_system
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]📊 Statut du Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]📊 Statut du Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     # Créer le tableau de statut
@@ -272,7 +310,9 @@ async def show_system_status_internal():
 
     # Métriques système si disponibles
     if system_instance:
-        console.print(f"\n[bold {SUNSET_THEME['info_color']}]📈 Métriques Système:[/bold {SUNSET_THEME['info_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['info_color']}]📈 Métriques Système:[/bold {SUNSET_THEME['info_color']}]"
+        )
 
         # CPU et mémoire
         cpu_percent = psutil.cpu_percent(interval=1)
@@ -284,61 +324,79 @@ async def show_system_status_internal():
         metrics_table.add_column("Status", justify="center")
 
         # Déterminer les couleurs selon les valeurs
-        cpu_color = SUNSET_THEME["success_color"] if cpu_percent < 70 else SUNSET_THEME["warning_color"] if cpu_percent < 85 else SUNSET_THEME["error_color"]
-        memory_color = SUNSET_THEME["success_color"] if memory.percent < 70 else SUNSET_THEME["warning_color"] if memory.percent < 85 else SUNSET_THEME["error_color"]
+        cpu_color = (
+            SUNSET_THEME["success_color"]
+            if cpu_percent < 70
+            else SUNSET_THEME["warning_color"]
+            if cpu_percent < 85
+            else SUNSET_THEME["error_color"]
+        )
+        memory_color = (
+            SUNSET_THEME["success_color"]
+            if memory.percent < 70
+            else SUNSET_THEME["warning_color"]
+            if memory.percent < 85
+            else SUNSET_THEME["error_color"]
+        )
 
         metrics_table.add_row(
             "CPU Utilisation",
             f"[{cpu_color}]{cpu_percent:.1f}%[/{cpu_color}]",
-            "🟢" if cpu_percent < 70 else "🟡" if cpu_percent < 85 else "🔴"
+            "🟢" if cpu_percent < 70 else "🟡" if cpu_percent < 85 else "🔴",
         )
 
         metrics_table.add_row(
             "Memory Utilisation",
             f"[{memory_color}]{memory.percent:.1f}%[/{memory_color}]",
-            "🟢" if memory.percent < 70 else "🟡" if memory.percent < 85 else "🔴"
+            "🟢" if memory.percent < 70 else "🟡" if memory.percent < 85 else "🔴",
         )
 
         metrics_table.add_row(
-            "Memory Disponible",
-            f"{memory.available / 1024 / 1024 / 1024:.1f} GB",
-            "✅"
+            "Memory Disponible", f"{memory.available / 1024 / 1024 / 1024:.1f} GB", "✅"
         )
 
         metrics_table.add_row(
-            "Tâches Actives",
-            str(len(system_instance.active_tasks) if system_instance else 0),
-            "📋"
+            "Tâches Actives", str(len(system_instance.active_tasks) if system_instance else 0), "📋"
         )
 
         metrics_table.add_row(
             "File d'Attente",
             str(system_instance.task_queue.qsize() if system_instance else 0),
-            "⏰"
+            "⏰",
         )
 
         console.print(metrics_table)
 
         # Performance GPU si disponible
-        if hasattr(system_instance, 'gpu_optimizer') and system_instance.gpu_optimizer:
+        if hasattr(system_instance, "gpu_optimizer") and system_instance.gpu_optimizer:
             try:
                 gpu_metrics = system_instance.gpu_optimizer.performance_metrics
                 if gpu_metrics:
-                    console.print(f"\n[bold {SUNSET_THEME['info_color']}]🎮 Performance GPU:[/bold {SUNSET_THEME['info_color']}]")
+                    console.print(
+                        f"\n[bold {SUNSET_THEME['info_color']}]🎮 Performance GPU:[/bold {SUNSET_THEME['info_color']}]"
+                    )
 
                     for model, metrics in list(gpu_metrics.items())[:3]:  # Limiter l'affichage
                         if model != "system" and "optimized_performance" in metrics:
-                            console.print(f"  🎯 {model}: {metrics['optimized_performance']:.1f} tokens/sec "
-                                        f"([bold]+{metrics.get('improvement', 0):.1f}%[/bold])")
+                            console.print(
+                                f"  🎯 {model}: {metrics['optimized_performance']:.1f} tokens/sec "
+                                f"([bold]+{metrics.get('improvement', 0):.1f}%[/bold])"
+                            )
             except Exception as e:
                 logger.debug(f"Erreur lors de la récupération des métriques GPU: {e}")
 
     else:
-        console.print(f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Le système n'est pas initialisé.[/bold {SUNSET_THEME['warning_color']}]")
-        console.print(f"Utilisez: [bold]{SUNSET_THEME['accent_color']}tawiza system init[/bold]{SUNSET_THEME['text_color']}")
+        console.print(
+            f"\n[bold {SUNSET_THEME['warning_color']}]⚠️  Le système n'est pas initialisé.[/bold {SUNSET_THEME['warning_color']}]"
+        )
+        console.print(
+            f"Utilisez: [bold]{SUNSET_THEME['accent_color']}tawiza system init[/bold]{SUNSET_THEME['text_color']}"
+        )
 
     # Recommandations
-    console.print(f"\n[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]"
+    )
 
     recommendations = []
 
@@ -355,22 +413,27 @@ async def show_system_status_internal():
     for rec in recommendations:
         console.print(f"  • {rec}")
 
+
 @app.command("stop")
 def stop_system(
     force: bool = typer.Option(False, "--force", "-f", help="Forcer l'arrêt"),
-    cleanup: bool = typer.Option(False, "--cleanup", help="Nettoyer les ressources")
+    cleanup: bool = typer.Option(False, "--cleanup", help="Nettoyer les ressources"),
 ):
     """Arrêter le système Tawiza-V2"""
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]🛑 Arrêt du système Tawiza-V2...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]🛑 Arrêt du système Tawiza-V2...[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     global system_instance, debug_system
 
     if not system_instance:
-        console.print(f"[bold {SUNSET_THEME['warning_color']}]⚠️  Le système n'est pas en cours d'exécution.[/bold {SUNSET_THEME['warning_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['warning_color']}]⚠️  Le système n'est pas en cours d'exécution.[/bold {SUNSET_THEME['warning_color']}]"
+        )
         return
 
     try:
@@ -381,19 +444,25 @@ def stop_system(
 
         # Arrêter le debugging
         if debug_system:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]🔍 Arrêt du debugging...[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]🔍 Arrêt du debugging...[/bold {SUNSET_THEME['accent_color']}]"
+            )
             run_async(debug_system.stop_debugging())
             console.print("  ✅ Debugging arrêté")
 
         # Arrêter le système principal
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]⚡ Arrêt du système principal...[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]⚡ Arrêt du système principal...[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         # Nettoyer les ressources
         if cleanup:
-            console.print(f"[bold {SUNSET_THEME['accent_color']}]🧹 Nettoyage des ressources...[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"[bold {SUNSET_THEME['accent_color']}]🧹 Nettoyage des ressources...[/bold {SUNSET_THEME['accent_color']}]"
+            )
 
             # Nettoyer les files d'attente
-            if hasattr(system_instance, 'task_queue'):
+            if hasattr(system_instance, "task_queue"):
                 while not system_instance.task_queue.empty():
                     try:
                         system_instance.task_queue.get_nowait()
@@ -401,7 +470,7 @@ def stop_system(
                         break
 
             # Nettoyer les tâches actives
-            if hasattr(system_instance, 'active_tasks'):
+            if hasattr(system_instance, "active_tasks"):
                 system_instance.active_tasks.clear()
 
             console.print("  ✅ Ressources nettoyées")
@@ -413,23 +482,32 @@ def stop_system(
         console.print("  ✅ Système arrêté")
         console.print()
 
-        console.print(f"[bold {SUNSET_THEME['success_color']}]✅ Système Tawiza-V2 arrêté avec succès![/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['success_color']}]✅ Système Tawiza-V2 arrêté avec succès![/bold {SUNSET_THEME['success_color']}]"
+        )
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'arrêt: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de l'arrêt: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("restart")
 def restart_system(
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="Réactiver l'optimisation GPU"),
-    monitoring: bool = typer.Option(True, "--monitoring/--no-monitoring", help="Réactiver le monitoring"),
-    cleanup: bool = typer.Option(False, "--cleanup", help="Nettoyer avant le redémarrage")
+    monitoring: bool = typer.Option(
+        True, "--monitoring/--no-monitoring", help="Réactiver le monitoring"
+    ),
+    cleanup: bool = typer.Option(False, "--cleanup", help="Nettoyer avant le redémarrage"),
 ):
     """Redémarrer le système Tawiza-V2"""
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]🔄 Redémarrage du système Tawiza-V2...[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]🔄 Redémarrage du système Tawiza-V2...[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     try:
@@ -443,8 +521,11 @@ def restart_system(
         init_system(gpu=gpu, monitoring=monitoring, verbose=False)
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du redémarrage: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors du redémarrage: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("config")
 def show_config():
@@ -452,21 +533,29 @@ def show_config():
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]⚙️ Configuration du Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]⚙️ Configuration du Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     config_file = Path("configs/system_config.json")
 
     if not config_file.exists():
-        console.print(f"[bold {SUNSET_THEME['warning_color']}]⚠️  Aucune configuration trouvée.[/bold {SUNSET_THEME['warning_color']}]")
-        console.print(f"Utilisez: [bold]{SUNSET_THEME['accent_color']}tawiza system init[/bold]{SUNSET_THEME['text_color']} pour créer une configuration")
+        console.print(
+            f"[bold {SUNSET_THEME['warning_color']}]⚠️  Aucune configuration trouvée.[/bold {SUNSET_THEME['warning_color']}]"
+        )
+        console.print(
+            f"Utilisez: [bold]{SUNSET_THEME['accent_color']}tawiza system init[/bold]{SUNSET_THEME['text_color']} pour créer une configuration"
+        )
         return
 
     try:
         with open(config_file) as f:
             config = json.load(f)
 
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]📋 Configuration actuelle:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]📋 Configuration actuelle:[/bold {SUNSET_THEME['accent_color']}]"
+        )
         console.print()
 
         # Tableau de configuration
@@ -475,14 +564,21 @@ def show_config():
         table.add_column("Valeur", style=SUNSET_THEME["text_color"])
 
         table.add_row("Version", config.get("version", "N/A"))
-        table.add_row("Initialisé le", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(config.get("initialized_at", 0))))
+        table.add_row(
+            "Initialisé le",
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(config.get("initialized_at", 0))),
+        )
         table.add_row("GPU Activé", "✅ Oui" if config.get("gpu_enabled") else "❌ Non")
-        table.add_row("Monitoring Activé", "✅ Oui" if config.get("monitoring_enabled") else "❌ Non")
+        table.add_row(
+            "Monitoring Activé", "✅ Oui" if config.get("monitoring_enabled") else "❌ Non"
+        )
 
         # Configuration détaillée
         system_config = config.get("config", {})
         if system_config:
-            table.add_row("Max Tâches Concurrentes", str(system_config.get("max_concurrent_tasks", "N/A")))
+            table.add_row(
+                "Max Tâches Concurrentes", str(system_config.get("max_concurrent_tasks", "N/A"))
+            )
             table.add_row("Auto-scaling", "✅ Oui" if system_config.get("auto_scale") else "❌ Non")
             table.add_row("Retry Failed Tasks", str(system_config.get("retry_failed_tasks", "N/A")))
 
@@ -491,25 +587,32 @@ def show_config():
         # Métriques actuelles si le système est en cours d'exécution
         global system_instance
         if system_instance:
-            console.print(f"\n[bold {SUNSET_THEME['accent_color']}]📊 Métriques actuelles:[/bold {SUNSET_THEME['accent_color']}]")
+            console.print(
+                f"\n[bold {SUNSET_THEME['accent_color']}]📊 Métriques actuelles:[/bold {SUNSET_THEME['accent_color']}]"
+            )
 
             metrics_table = Table(box=box.ROUNDED)
             metrics_table.add_column("Métrique", style=SUNSET_THEME["info_color"])
             metrics_table.add_column("Valeur", justify="right")
 
-            if hasattr(system_instance, 'active_tasks'):
+            if hasattr(system_instance, "active_tasks"):
                 metrics_table.add_row("Tâches Actives", str(len(system_instance.active_tasks)))
 
-            if hasattr(system_instance, 'task_queue'):
+            if hasattr(system_instance, "task_queue"):
                 metrics_table.add_row("File d'Attente", str(system_instance.task_queue.qsize()))
 
-            if hasattr(system_instance, 'performance_metrics'):
-                metrics_table.add_row("Métriques Performance", str(len(system_instance.performance_metrics)))
+            if hasattr(system_instance, "performance_metrics"):
+                metrics_table.add_row(
+                    "Métriques Performance", str(len(system_instance.performance_metrics))
+                )
 
             console.print(metrics_table)
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la lecture de la configuration: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la lecture de la configuration: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
+
 
 @app.command("health")
 def health_check():
@@ -517,14 +620,18 @@ def health_check():
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]🏥 Vérification de Santé du Système[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]🏥 Vérification de Santé du Système[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     health_issues = []
     health_score = 100
 
     # Vérification 1: Système
-    console.print(f"[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 1: Système[/bold {SUNSET_THEME['accent_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 1: Système[/bold {SUNSET_THEME['accent_color']}]"
+    )
 
     if not system_instance:
         health_issues.append("Système non initialisé")
@@ -534,7 +641,9 @@ def health_check():
         console.print("  ✅ Système initialisé")
 
     # Vérification 2: Ressources système
-    console.print(f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 2: Ressources Système[/bold {SUNSET_THEME['accent_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 2: Ressources Système[/bold {SUNSET_THEME['accent_color']}]"
+    )
 
     # CPU
     cpu_percent = psutil.cpu_percent(interval=1)
@@ -563,7 +672,7 @@ def health_check():
         console.print(f"  ✅ Mémoire: {memory.percent}%")
 
     # Disque
-    disk_usage = psutil.disk_usage('/').percent
+    disk_usage = psutil.disk_usage("/").percent
     if disk_usage > 90:
         health_issues.append(f"Disque très utilisé: {disk_usage}%")
         health_score -= 10
@@ -576,7 +685,9 @@ def health_check():
         console.print(f"  ✅ Disque: {disk_usage}%")
 
     # Vérification 3: Services externes
-    console.print(f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 3: Services Externes[/bold {SUNSET_THEME['accent_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 3: Services Externes[/bold {SUNSET_THEME['accent_color']}]"
+    )
 
     # Docker
     try:
@@ -593,7 +704,9 @@ def health_check():
         console.print("  ⚠️  Docker non disponible")
 
     # Vérification 4: Configuration
-    console.print(f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 4: Configuration[/bold {SUNSET_THEME['accent_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['accent_color']}]🔍 Vérification 4: Configuration[/bold {SUNSET_THEME['accent_color']}]"
+    )
 
     config_file = Path("configs/system_config.json")
     if config_file.exists():
@@ -618,7 +731,9 @@ def health_check():
         console.print("  ❌ Configuration manquante")
 
     # Résultat final
-    console.print(f"\n[bold {SUNSET_THEME['accent_color']}]📊 Résultat de la Vérification[/bold {SUNSET_THEME['accent_color']}]")
+    console.print(
+        f"\n[bold {SUNSET_THEME['accent_color']}]📊 Résultat de la Vérification[/bold {SUNSET_THEME['accent_color']}]"
+    )
 
     # Score de santé
     if health_score >= 90:
@@ -634,18 +749,26 @@ def health_check():
         status_color = SUNSET_THEME["error_color"]
         status_text = "Critique"
 
-    console.print(f"Score de Santé: [{status_color}]{health_score}/100[/{status_color}] - {status_text}")
+    console.print(
+        f"Score de Santé: [{status_color}]{health_score}/100[/{status_color}] - {status_text}"
+    )
 
     if health_issues:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]Problèmes Détectés:[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]Problèmes Détectés:[/bold {SUNSET_THEME['error_color']}]"
+        )
         for issue in health_issues:
             console.print(f"  • {issue}")
     else:
-        console.print(f"[bold {SUNSET_THEME["success_color"]}]✅ Aucun problème détecté - Système en excellente santé![/bold {SUNSET_THEME["success_color"]}]")
+        console.print(
+            f"[bold {SUNSET_THEME['success_color']}]✅ Aucun problème détecté - Système en excellente santé![/bold {SUNSET_THEME['success_color']}]"
+        )
 
     # Recommandations
     if health_score < 90:
-        console.print(f"\n[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['accent_color']}]💡 Recommandations:[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         if health_score < 60:
             console.print("  • Réinitialisez le système avec 'tawiza system init'")
@@ -663,24 +786,31 @@ def health_check():
         if any("Configuration" in issue for issue in health_issues):
             console.print("  • Réinitialisez la configuration avec 'tawiza system init'")
 
+
 @app.command("logs")
 def show_logs(
     lines: int = typer.Option(50, "--lines", "-n", help="Nombre de lignes à afficher"),
     follow: bool = typer.Option(False, "--follow", "-f", help="Suivre les logs en temps réel"),
     component: str = typer.Option(None, "--component", "-c", help="Filtrer par composant"),
-    level: str = typer.Option(None, "--level", "-l", help="Filtrer par niveau (DEBUG, INFO, WARNING, ERROR)")
+    level: str = typer.Option(
+        None, "--level", "-l", help="Filtrer par niveau (DEBUG, INFO, WARNING, ERROR)"
+    ),
 ):
     """Afficher les logs du système"""
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]📋 Logs du Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]📋 Logs du Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     log_file = Path("logs/advanced_debug.log")
 
     if not log_file.exists():
-        console.print(f"[bold {SUNSET_THEME['warning_color']}]⚠️  Aucun log trouvé.[/bold {SUNSET_THEME['warning_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['warning_color']}]⚠️  Aucun log trouvé.[/bold {SUNSET_THEME['warning_color']}]"
+        )
         console.print("Assurez-vous que le debugging est activé avec 'tawiza debug start'")
         return
 
@@ -706,11 +836,17 @@ def show_logs(
 
                             # Colorer selon le niveau
                             if "ERROR" in line:
-                                console.print(f"[{SUNSET_THEME['error_color']}]{line.strip()}[/{SUNSET_THEME['error_color']}]")
+                                console.print(
+                                    f"[{SUNSET_THEME['error_color']}]{line.strip()}[/{SUNSET_THEME['error_color']}]"
+                                )
                             elif "WARNING" in line:
-                                console.print(f"[{SUNSET_THEME['warning_color']}]{line.strip()}[/{SUNSET_THEME['warning_color']}]")
+                                console.print(
+                                    f"[{SUNSET_THEME['warning_color']}]{line.strip()}[/{SUNSET_THEME['warning_color']}]"
+                                )
                             elif "INFO" in line:
-                                console.print(f"[{SUNSET_THEME['info_color']}]{line.strip()}[/{SUNSET_THEME['info_color']}]")
+                                console.print(
+                                    f"[{SUNSET_THEME['info_color']}]{line.strip()}[/{SUNSET_THEME['info_color']}]"
+                                )
                             else:
                                 console.print(line.strip())
                         else:
@@ -734,7 +870,9 @@ def show_logs(
                 filtered_lines.append(line)
 
             # Afficher les dernières lignes (lines est le nombre demandé)
-            display_lines = filtered_lines[-lines:] if len(filtered_lines) > lines else filtered_lines
+            display_lines = (
+                filtered_lines[-lines:] if len(filtered_lines) > lines else filtered_lines
+            )
 
             console.print(f"[dim]Affichage des {len(display_lines)} dernières lignes[/dim]")
             console.print()
@@ -742,18 +880,28 @@ def show_logs(
             for line in display_lines:
                 # Colorer selon le niveau
                 if "ERROR" in line:
-                    console.print(f"[{SUNSET_THEME['error_color']}]{line.strip()}[/{SUNSET_THEME['error_color']}]")
+                    console.print(
+                        f"[{SUNSET_THEME['error_color']}]{line.strip()}[/{SUNSET_THEME['error_color']}]"
+                    )
                 elif "WARNING" in line:
-                    console.print(f"[{SUNSET_THEME['warning_color']}]{line.strip()}[/{SUNSET_THEME['warning_color']}]")
+                    console.print(
+                        f"[{SUNSET_THEME['warning_color']}]{line.strip()}[/{SUNSET_THEME['warning_color']}]"
+                    )
                 elif "INFO" in line:
-                    console.print(f"[{SUNSET_THEME['info_color']}]{line.strip()}[/{SUNSET_THEME['info_color']}]")
+                    console.print(
+                        f"[{SUNSET_THEME['info_color']}]{line.strip()}[/{SUNSET_THEME['info_color']}]"
+                    )
                 else:
                     console.print(line.strip())
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la lecture des logs: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur lors de la lecture des logs: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
+
 
 # Fonctions utilitaires
+
 
 def get_system_info() -> dict[str, Any]:
     """Obtenir des informations sur le système"""
@@ -763,35 +911,45 @@ def get_system_info() -> dict[str, Any]:
         "cpu_count": psutil.cpu_count(),
         "memory_total": psutil.virtual_memory().total,
         "memory_available": psutil.virtual_memory().available,
-        "disk_usage": psutil.disk_usage('/').percent,
+        "disk_usage": psutil.disk_usage("/").percent,
         "boot_time": psutil.boot_time(),
-        "load_average": getattr(psutil, 'getloadavg', lambda: (0, 0, 0))()
+        "load_average": getattr(psutil, "getloadavg", lambda: (0, 0, 0))(),
     }
+
 
 @app.command("monitor")
 def monitor_system(
     duration: int = typer.Option(60, "--duration", "-d", help="Durée du monitoring en secondes"),
-    refresh: int = typer.Option(1, "--refresh", "-r", help="Taux de rafraîchissement par seconde")
+    refresh: int = typer.Option(1, "--refresh", "-r", help="Taux de rafraîchissement par seconde"),
 ):
     """Lancer le monitoring système en temps réel avec dashboard live"""
 
     try:
         from src.cli.ui.live_dashboard import SystemDashboard
 
-        console.print(f"[bold {SUNSET_THEME['info_color']}]📊 Lancement du monitoring système...[/bold {SUNSET_THEME['info_color']}]")
-        console.print(f"[dim]Durée: {duration}s | Refresh: {refresh}fps | Ctrl+C pour quitter[/dim]")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]📊 Lancement du monitoring système...[/bold {SUNSET_THEME['info_color']}]"
+        )
+        console.print(
+            f"[dim]Durée: {duration}s | Refresh: {refresh}fps | Ctrl+C pour quitter[/dim]"
+        )
         console.print()
 
         # Lancer le dashboard live
         SystemDashboard.run(duration=duration, refresh_rate=refresh)
 
-        console.print(f"\n[bold {SUNSET_THEME['success_color']}]✅ Monitoring terminé[/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['success_color']}]✅ Monitoring terminé[/bold {SUNSET_THEME['success_color']}]"
+        )
 
     except KeyboardInterrupt:
         console.print("\n[yellow]⚠️  Monitoring interrompu par l'utilisateur[/yellow]")
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("tui")
 def launch_tui():
@@ -800,7 +958,9 @@ def launch_tui():
     try:
         from src.cli.ui.tui_app import TawizaTUI
 
-        console.print(f"[bold {SUNSET_THEME['info_color']}]🚀 Lancement de l'interface TUI...[/bold {SUNSET_THEME['info_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['info_color']}]🚀 Lancement de l'interface TUI...[/bold {SUNSET_THEME['info_color']}]"
+        )
         console.print("[dim]Navigation: q (Quit) | d (Dashboard) | a (Agents) | s (Settings)[/dim]")
         console.print()
 
@@ -811,18 +971,23 @@ def launch_tui():
     except KeyboardInterrupt:
         console.print("\n[yellow]⚠️  TUI interrompu par l'utilisateur[/yellow]")
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
+
 
 @app.command("dashboard")
 def show_dashboard(
-    style: str = typer.Option("full", "--style", "-s", help="Style: full, compact, minimal")
+    style: str = typer.Option("full", "--style", "-s", help="Style: full, compact, minimal"),
 ):
     """Afficher un dashboard système avec graphiques"""
 
     show_sunset_header()
 
-    console.print(f"[bold {SUNSET_THEME['info_color']}]📊 Dashboard Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]")
+    console.print(
+        f"[bold {SUNSET_THEME['info_color']}]📊 Dashboard Système Tawiza-V2[/bold {SUNSET_THEME['info_color']}]"
+    )
     console.print()
 
     try:
@@ -843,48 +1008,45 @@ def show_dashboard(
 
         # Afficher les graphiques
         console.print()
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]CPU Usage (10s):[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]CPU Usage (10s):[/bold {SUNSET_THEME['accent_color']}]"
+        )
         cpu_chart = LineChart.create(
-            data=cpu_history,
-            width=60,
-            height=8,
-            title="CPU Usage Over Time",
-            color="cyan"
+            data=cpu_history, width=60, height=8, title="CPU Usage Over Time", color="cyan"
         )
         console.print(cpu_chart)
 
         console.print()
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]Memory Usage (10s):[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]Memory Usage (10s):[/bold {SUNSET_THEME['accent_color']}]"
+        )
         mem_chart = LineChart.create(
-            data=mem_history,
-            width=60,
-            height=8,
-            title="Memory Usage Over Time",
-            color="yellow"
+            data=mem_history, width=60, height=8, title="Memory Usage Over Time", color="yellow"
         )
         console.print(mem_chart)
 
         console.print()
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]Current Resources:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]Current Resources:[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         # Bar chart pour les ressources actuelles
         current_resources = {
             "CPU": cpu_history[-1],
             "Memory": mem_history[-1],
-            "Disk": psutil.disk_usage('/').percent
+            "Disk": psutil.disk_usage("/").percent,
         }
 
         bar_chart = BarChart.create_horizontal(
-            data=current_resources,
-            width=50,
-            title="Resource Usage",
-            color="cyan"
+            data=current_resources, width=50, title="Resource Usage", color="cyan"
         )
         console.print(bar_chart)
 
         # Sparklines
         console.print()
-        console.print(f"[bold {SUNSET_THEME['accent_color']}]History Sparklines:[/bold {SUNSET_THEME['accent_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['accent_color']}]History Sparklines:[/bold {SUNSET_THEME['accent_color']}]"
+        )
 
         cpu_sparkline = LineChart.create_sparkline(cpu_history)
         mem_sparkline = LineChart.create_sparkline(mem_history)
@@ -893,11 +1055,16 @@ def show_dashboard(
         console.print(f"Memory: {mem_sparkline}  [{mem_history[-1]:.1f}%]")
 
         console.print()
-        console.print(f"[bold {SUNSET_THEME['success_color']}]✅ Dashboard affiché avec succès[/bold {SUNSET_THEME['success_color']}]")
+        console.print(
+            f"[bold {SUNSET_THEME['success_color']}]✅ Dashboard affiché avec succès[/bold {SUNSET_THEME['success_color']}]"
+        )
 
     except Exception as e:
-        console.print(f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur: {e}[/bold {SUNSET_THEME['error_color']}]")
+        console.print(
+            f"\n[bold {SUNSET_THEME['error_color']}]❌ Erreur: {e}[/bold {SUNSET_THEME['error_color']}]"
+        )
         raise typer.Exit(1)
 
+
 # Export
-__all__ = ['app', 'init_system', 'show_status', 'get_system_info']
+__all__ = ["app", "init_system", "show_status", "get_system_info"]

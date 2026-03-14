@@ -23,7 +23,7 @@ from src.infrastructure.agents.openmanus.vm_sandbox_api import VMSandboxAPI
 app = typer.Typer(
     name="vm-sandbox",
     help="Gestion des machines virtuelles sandbox pour OpenManus",
-    rich_markup_mode="rich"
+    rich_markup_mode="rich",
 )
 
 console = Console()
@@ -44,10 +44,7 @@ class VMSandboxCLI:
             provider: Fournisseur VM
             max_vms: Nombre maximum de VMs
         """
-        self.adapter = VMSandboxAdapter(
-            vm_provider=provider,
-            max_vms=max_vms
-        )
+        self.adapter = VMSandboxAdapter(vm_provider=provider, max_vms=max_vms)
 
         if provider == "api":
             self.api = VMSandboxAPI(self.adapter)
@@ -56,7 +53,7 @@ class VMSandboxCLI:
 @app.command("list")
 def list_vms(
     provider: str = typer.Option("docker", "--provider", "-p", help="Fournisseur VM"),
-    json_output: bool = typer.Option(False, "--json", "-j", help="Sortie JSON")
+    json_output: bool = typer.Option(False, "--json", "-j", help="Sortie JSON"),
 ):
     """Liste toutes les VMs sandbox actives."""
 
@@ -104,7 +101,7 @@ def list_vms(
                         f"[{status_style}]{status}[/{status_style}]",
                         datetime.fromisoformat(vm["created_at"]).strftime("%H:%M:%S"),
                         uptime_str,
-                        vm["config"].get("provider", "unknown")
+                        vm["config"].get("provider", "unknown"),
                     )
 
                 console.print(table)
@@ -129,7 +126,7 @@ def create_vm(
     disk_size: str = typer.Option("20g", "--disk", "-d", help="Taille disque"),
     image: str = typer.Option("ubuntu:22.04", "--image", "-i", help="Image Docker"),
     timeout: int = typer.Option(3600, "--timeout", "-t", help="Timeout VM (secondes)"),
-    wait: bool = typer.Option(True, "--wait", help="Attendre la création")
+    wait: bool = typer.Option(True, "--wait", help="Attendre la création"),
 ):
     """Crée une nouvelle VM sandbox."""
 
@@ -145,7 +142,7 @@ def create_vm(
                 "cpus": cpus,
                 "disk_size": disk_size,
                 "image": image,
-                "timeout": timeout
+                "timeout": timeout,
             }
 
             # Générer un ID de tâche
@@ -156,9 +153,8 @@ def create_vm(
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
-                console=console
+                console=console,
             ) as progress:
-
                 task = progress.add_task("Création VM...", total=None)
 
                 # Créer la VM
@@ -179,12 +175,14 @@ def create_vm(
                     else:
                         progress.update(task, description="VM créée mais statut inconnu")
 
-            console.print(create_success_panel(
-                f"VM créée avec succès!\n"
-                f"ID: {vm_id}\n"
-                f"Provider: {provider}\n"
-                f"Config: {memory}, {cpus} CPUs, {disk_size}"
-            ))
+            console.print(
+                create_success_panel(
+                    f"VM créée avec succès!\n"
+                    f"ID: {vm_id}\n"
+                    f"Provider: {provider}\n"
+                    f"Config: {memory}, {cpus} CPUs, {disk_size}"
+                )
+            )
 
             return vm_id
 
@@ -202,7 +200,7 @@ def create_vm(
 @app.command("destroy")
 def destroy_vm(
     vm_id: str = typer.Argument(..., help="ID de la VM à détruire"),
-    force: bool = typer.Option(False, "--force", "-f", help="Forcer la destruction")
+    force: bool = typer.Option(False, "--force", "-f", help="Forcer la destruction"),
 ):
     """Détruit une VM sandbox."""
 
@@ -237,14 +235,16 @@ def destroy_vm(
 
 @app.command("execute")
 def execute_task(
-    vm_config_file: Path | None = typer.Option(None, "--config", "-c", help="Fichier config VM (JSON)"),
+    vm_config_file: Path | None = typer.Option(
+        None, "--config", "-c", help="Fichier config VM (JSON)"
+    ),
     task_file: Path | None = typer.Option(None, "--task", "-t", help="Fichier tâche (JSON)"),
     url: str = typer.Option(None, "--url", "-u", help="URL cible"),
     action: str = typer.Option("navigate", "--action", "-a", help="Action à effectuer"),
     provider: str = typer.Option("docker", "--provider", "-p", help="Fournisseur VM"),
     cleanup: bool = typer.Option(True, "--cleanup", help="Nettoyer VM après exécution"),
     wait: bool = typer.Option(True, "--wait", help="Attendre la fin de l'exécution"),
-    json_output: bool = typer.Option(False, "--json", "-j", help="Sortie JSON")
+    json_output: bool = typer.Option(False, "--json", "-j", help="Sortie JSON"),
 ):
     """Exécute une tâche automation dans une VM sandbox."""
 
@@ -265,7 +265,7 @@ def execute_task(
                     "cpus": 2,
                     "disk_size": "20g",
                     "image": "ubuntu:22.04",
-                    "timeout": 3600
+                    "timeout": 3600,
                 }
 
             # Charger la tâche
@@ -273,10 +273,7 @@ def execute_task(
                 with open(task_file) as f:
                     automation_task = json.load(f)
             elif url:
-                automation_task = {
-                    "url": url,
-                    "action": action
-                }
+                automation_task = {"url": url, "action": action}
             else:
                 console.print(create_error_panel("URL ou fichier tâche requis"))
                 raise typer.Exit(1)
@@ -285,7 +282,7 @@ def execute_task(
             task_config = {
                 "vm_config": vm_config,
                 "automation_task": automation_task,
-                "cleanup_vm": cleanup
+                "cleanup_vm": cleanup,
             }
 
             console.print(create_info_panel("Exécution tâche dans VM sandbox..."))
@@ -293,9 +290,8 @@ def execute_task(
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
-                console=console
+                console=console,
             ) as progress:
-
                 task = progress.add_task("Exécution tâche...", total=None)
 
                 # Exécuter la tâche
@@ -308,21 +304,25 @@ def execute_task(
             else:
                 # Afficher les résultats
                 if result["status"] == "completed":
-                    console.print(create_success_panel(
-                        f"Tâche exécutée avec succès!\n"
-                        f"VM ID: {result.get('vm_id', 'N/A')}\n"
-                        f"Durée: {result.get('execution_time', 'N/A')}\n"
-                        f"Screenshots: {len(result.get('screenshots', []))}"
-                    ))
+                    console.print(
+                        create_success_panel(
+                            f"Tâche exécutée avec succès!\n"
+                            f"VM ID: {result.get('vm_id', 'N/A')}\n"
+                            f"Durée: {result.get('execution_time', 'N/A')}\n"
+                            f"Screenshots: {len(result.get('screenshots', []))}"
+                        )
+                    )
 
                     # Afficher les détails si disponibles
                     if result.get("result"):
                         console.print("\n[bold]Résultat détaillé:[/bold]")
                         console.print_json(json.dumps(result["result"], indent=2))
                 else:
-                    console.print(create_error_panel(
-                        f"Tâche échouée: {result.get('error', 'Erreur inconnue')}"
-                    ))
+                    console.print(
+                        create_error_panel(
+                            f"Tâche échouée: {result.get('error', 'Erreur inconnue')}"
+                        )
+                    )
 
         except Exception as e:
             console.print(create_error_panel(f"Erreur exécution tâche: {e}"))
@@ -339,7 +339,9 @@ def execute_task(
 def vm_status(
     vm_id: str = typer.Argument(..., help="ID de la VM"),
     watch: bool = typer.Option(False, "--watch", "-w", help="Mode surveillance"),
-    interval: int = typer.Option(5, "--interval", "-i", help="Intervalle de rafraîchissement (secondes)")
+    interval: int = typer.Option(
+        5, "--interval", "-i", help="Intervalle de rafraîchissement (secondes)"
+    ),
 ):
     """Affiche le statut d'une VM."""
 
@@ -361,13 +363,17 @@ def vm_status(
                         status = await cli.adapter.get_vm_status(vm_id)
 
                         # Afficher le statut
-                        console.print(f"[bold blue]VM {vm_id} - {datetime.now().strftime('%H:%M:%S')}[/bold blue]")
-                        console.print(f"Statut: [green]{status['runtime_status'].get('status', 'unknown')}[/green]")
+                        console.print(
+                            f"[bold blue]VM {vm_id} - {datetime.now().strftime('%H:%M:%S')}[/bold blue]"
+                        )
+                        console.print(
+                            f"Statut: [green]{status['runtime_status'].get('status', 'unknown')}[/green]"
+                        )
                         console.print(f"Uptime: {status['uptime']:.1f}s")
                         console.print(f"Créé: {status['created_at']}")
 
                         # Détails runtime
-                        runtime = status.get('runtime_status', {})
+                        runtime = status.get("runtime_status", {})
                         if runtime:
                             console.print("\n[bold]Détails runtime:[/bold]")
                             for key, value in runtime.items():
@@ -386,11 +392,11 @@ def vm_status(
                 # Créer un panneau informatif
                 content = f"""
 VM ID: {vm_id}
-Tâche ID: {status['task_id']}
-Statut: {status['runtime_status'].get('status', 'unknown')}
-Créé: {status['created_at']}
-Uptime: {status['uptime']:.1f}s
-Provider: {status['config'].get('provider', 'unknown')}
+Tâche ID: {status["task_id"]}
+Statut: {status["runtime_status"].get("status", "unknown")}
+Créé: {status["created_at"]}
+Uptime: {status["uptime"]:.1f}s
+Provider: {status["config"].get("provider", "unknown")}
                 """.strip()
 
                 console.print(create_info_panel(content, title=f"Statut VM {vm_id}"))
@@ -409,7 +415,7 @@ Provider: {status['config'].get('provider', 'unknown')}
 @app.command("cleanup")
 def cleanup_vms(
     force: bool = typer.Option(False, "--force", "-f", help="Forcer le nettoyage"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Simulation sans action")
+    dry_run: bool = typer.Option(False, "--dry-run", help="Simulation sans action"),
 ):
     """Nettoie les VMs expirées."""
 
@@ -459,7 +465,9 @@ def cleanup_vms(
                 except Exception as e:
                     console.print(f"❌ Erreur nettoyage VM {vm_id}: {e}")
 
-            console.print(create_success_panel(f"Nettoyage terminé - {len(expired_vms)} VMs supprimées"))
+            console.print(
+                create_success_panel(f"Nettoyage terminé - {len(expired_vms)} VMs supprimées")
+            )
 
         except Exception as e:
             console.print(create_error_panel(f"Erreur nettoyage VMs: {e}"))
@@ -476,7 +484,7 @@ def cleanup_vms(
 def benchmark_vms(
     provider: str = typer.Option("docker", "--provider", "-p", help="Fournisseur VM"),
     iterations: int = typer.Option(3, "--iterations", "-n", help="Nombre d'itérations"),
-    config_file: Path | None = typer.Option(None, "--config", "-c", help="Fichier configuration")
+    config_file: Path | None = typer.Option(None, "--config", "-c", help="Fichier configuration"),
 ):
     """Benchmark des performances VM."""
 
@@ -497,25 +505,21 @@ def benchmark_vms(
                     "memory": "1g",
                     "cpus": 1,
                     "disk_size": "10g",
-                    "image": "ubuntu:22.04"
+                    "image": "ubuntu:22.04",
                 }
 
             # Tâche de test simple
-            test_task = {
-                "url": "https://example.com",
-                "action": "navigate"
-            }
+            test_task = {"url": "https://example.com", "action": "navigate"}
 
             results = []
 
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
-                console=console
+                console=console,
             ) as progress:
-
                 for i in range(iterations):
-                    task = progress.add_task(f"Itération {i+1}/{iterations}...", total=None)
+                    task = progress.add_task(f"Itération {i + 1}/{iterations}...", total=None)
 
                     start_time = time.time()
 
@@ -524,7 +528,7 @@ def benchmark_vms(
                         task_config = {
                             "vm_config": vm_config,
                             "automation_task": test_task,
-                            "cleanup_vm": True
+                            "cleanup_vm": True,
                         }
 
                         result = await cli.adapter.execute_task(task_config)
@@ -532,27 +536,31 @@ def benchmark_vms(
                         end_time = time.time()
                         execution_time = end_time - start_time
 
-                        results.append({
-                            "iteration": i + 1,
-                            "execution_time": execution_time,
-                            "success": result["status"] == "completed",
-                            "error": result.get("error")
-                        })
+                        results.append(
+                            {
+                                "iteration": i + 1,
+                                "execution_time": execution_time,
+                                "success": result["status"] == "completed",
+                                "error": result.get("error"),
+                            }
+                        )
 
-                        progress.update(task, description=f"Itération {i+1} complétée")
+                        progress.update(task, description=f"Itération {i + 1} complétée")
 
                     except Exception as e:
                         end_time = time.time()
                         execution_time = end_time - start_time
 
-                        results.append({
-                            "iteration": i + 1,
-                            "execution_time": execution_time,
-                            "success": False,
-                            "error": str(e)
-                        })
+                        results.append(
+                            {
+                                "iteration": i + 1,
+                                "execution_time": execution_time,
+                                "success": False,
+                                "error": str(e),
+                            }
+                        )
 
-                        progress.update(task, description=f"Itération {i+1} échouée")
+                        progress.update(task, description=f"Itération {i + 1} échouée")
 
             # Analyser les résultats
             successful_runs = [r for r in results if r["success"]]
@@ -563,13 +571,15 @@ def benchmark_vms(
                 min_time = min(r["execution_time"] for r in successful_runs)
                 max_time = max(r["execution_time"] for r in successful_runs)
 
-                console.print(create_success_panel(
-                    f"Benchmark terminé!\n\n"
-                    f"Réussite: {len(successful_runs)}/{iterations}\n"
-                    f"Temps moyen: {avg_time:.2f}s\n"
-                    f"Temps min: {min_time:.2f}s\n"
-                    f"Temps max: {max_time:.2f}s"
-                ))
+                console.print(
+                    create_success_panel(
+                        f"Benchmark terminé!\n\n"
+                        f"Réussite: {len(successful_runs)}/{iterations}\n"
+                        f"Temps moyen: {avg_time:.2f}s\n"
+                        f"Temps min: {min_time:.2f}s\n"
+                        f"Temps max: {max_time:.2f}s"
+                    )
+                )
             else:
                 console.print(create_error_panel("Aucune exécution réussie"))
 
@@ -592,8 +602,12 @@ def benchmark_vms(
 
 @app.command("monitor")
 def monitor_vms(
-    interval: int = typer.Option(10, "--interval", "-i", help="Intervalle de rafraîchissement (secondes)"),
-    metrics: bool = typer.Option(False, "--metrics", "-m", help="Afficher les métriques détaillées")
+    interval: int = typer.Option(
+        10, "--interval", "-i", help="Intervalle de rafraîchissement (secondes)"
+    ),
+    metrics: bool = typer.Option(
+        False, "--metrics", "-m", help="Afficher les métriques détaillées"
+    ),
 ):
     """Surveillance en temps réel des VMs."""
 
@@ -643,10 +657,12 @@ def monitor_vms(
 
                                 table.add_row(
                                     vm_id[:17] + "..." if len(vm_id) > 20 else vm_id,
-                                    vm_info["task_id"][:12] + "..." if len(vm_info["task_id"]) > 15 else vm_info["task_id"],
+                                    vm_info["task_id"][:12] + "..."
+                                    if len(vm_info["task_id"]) > 15
+                                    else vm_info["task_id"],
                                     runtime_status,
                                     uptime_str,
-                                    status["config"].get("provider", "unknown")
+                                    status["config"].get("provider", "unknown"),
                                 )
                             except Exception as e:
                                 logger.warning(f"Erreur statut VM {vm_id}: {e}")

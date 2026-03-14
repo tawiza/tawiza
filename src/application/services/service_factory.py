@@ -9,7 +9,6 @@ Usage:
     >>> await service.initialize_system(config)
 """
 
-
 from src.application.services.interfaces import (
     IDirectoryManagerService,
     IHealthCheckService,
@@ -67,7 +66,7 @@ def get_health_check_service() -> IHealthCheckService:
 
 
 def get_system_initialization_service(
-    state_manager: SystemStateManager | None = None
+    state_manager: SystemStateManager | None = None,
 ) -> ISystemInitializationService:
     """Get system initialization service instance with all dependencies.
 
@@ -90,7 +89,7 @@ def get_system_initialization_service(
     return SystemInitializationService(
         verification_service=verification_service,
         directory_manager=directory_manager,
-        state_manager=state_mgr
+        state_manager=state_mgr,
     )
 
 
@@ -114,9 +113,9 @@ async def quick_verify_system() -> dict[str, bool]:
 
     # Verify essential components
     results = {
-        'python': await service.verify_python_version(),
-        'docker': await service.verify_docker(),
-        'gpu': await service.verify_gpu(),
+        "python": await service.verify_python_version(),
+        "docker": await service.verify_docker(),
+        "gpu": await service.verify_gpu(),
     }
 
     return results

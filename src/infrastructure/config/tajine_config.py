@@ -1,5 +1,6 @@
 # src/infrastructure/config/tajine_config.py
 """Centralized configuration for TAJINE MVP."""
+
 from __future__ import annotations
 
 import os

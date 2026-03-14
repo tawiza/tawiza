@@ -87,9 +87,7 @@ class DataPreparationService:
             logger.warning(f"Error preparing classification example: {e}")
             return None
 
-    def _prepare_ner(
-        self, text: str, results: list[dict[str, Any]]
-    ) -> dict[str, str] | None:
+    def _prepare_ner(self, text: str, results: list[dict[str, Any]]) -> dict[str, str] | None:
         """Prépare un exemple de NER (Named Entity Recognition)."""
         try:
             entities = []
@@ -138,11 +136,11 @@ class DataPreparationService:
         # Créer les exemples de conversation
         examples = []
         for item in training_data:
-            example = f"""USER: {item['instruction']}
+            example = f"""USER: {item["instruction"]}
 
-{item['input']}
+{item["input"]}
 
-ASSISTANT: {item['output']}"""
+ASSISTANT: {item["output"]}"""
             examples.append(example)
 
         # Construire le Modelfile
@@ -164,15 +162,15 @@ Always provide accurate and concise responses based on the training data.
         # Ajouter quelques exemples (few-shot) dans le Modelfile
         # Ollama ne supporte pas le fine-tuning réel, on utilise few-shot learning
         for i, example in enumerate(examples[:10]):  # Limiter à 10 exemples
-            modelfile += f"\n# Example {i+1}\n"
-            modelfile += f'MESSAGE user "{example.split("USER:")[1].split("ASSISTANT:")[0].strip()}"\n'
+            modelfile += f"\n# Example {i + 1}\n"
+            modelfile += (
+                f'MESSAGE user "{example.split("USER:")[1].split("ASSISTANT:")[0].strip()}"\n'
+            )
             modelfile += f'MESSAGE assistant "{example.split("ASSISTANT:")[1].strip()}"\n'
 
         return modelfile
 
-    def validate_training_data(
-        self, training_data: list[dict[str, str]]
-    ) -> dict[str, Any]:
+    def validate_training_data(self, training_data: list[dict[str, str]]) -> dict[str, Any]:
         """
         Valide les données d'entraînement.
 

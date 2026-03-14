@@ -8,6 +8,7 @@ Fournit:
 - Retry decorators
 - Logging intégré
 """
+
 from __future__ import annotations
 
 import functools
@@ -26,16 +27,18 @@ from rich.table import Table
 
 console = Console()
 
-T = TypeVar('T')
-F = TypeVar('F', bound=Callable[..., Any])
+T = TypeVar("T")
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 # ==============================================================================
 # ERROR CODES
 # ==============================================================================
 
+
 class ErrorCode(StrEnum):
     """Codes d'erreur standardisés"""
+
     # General (1000-1099)
     UNKNOWN = "E1000"
     INVALID_INPUT = "E1001"
@@ -87,11 +90,13 @@ class ErrorCode(StrEnum):
 # SEVERITY LEVELS
 # ==============================================================================
 
+
 class ErrorSeverity(StrEnum):
     """Niveaux de sévérité des erreurs"""
-    LOW = "low"          # Avertissement, continue
-    MEDIUM = "medium"    # Erreur, peut continuer
-    HIGH = "high"        # Erreur critique, arrêt recommandé
+
+    LOW = "low"  # Avertissement, continue
+    MEDIUM = "medium"  # Erreur, peut continuer
+    HIGH = "high"  # Erreur critique, arrêt recommandé
     CRITICAL = "critical"  # Erreur fatale, arrêt nécessaire
 
 
@@ -99,9 +104,11 @@ class ErrorSeverity(StrEnum):
 # ERROR INFO
 # ==============================================================================
 
+
 @dataclass
 class ErrorInfo:
     """Informations structurées sur une erreur"""
+
     code: ErrorCode
     message: str
     severity: ErrorSeverity = ErrorSeverity.MEDIUM
@@ -125,6 +132,7 @@ class ErrorInfo:
 # ==============================================================================
 # EXCEPTION HIERARCHY
 # ==============================================================================
+
 
 class TawizaError(Exception):
     """Exception de base pour Tawiza-V2"""
@@ -159,74 +167,85 @@ class TawizaError(Exception):
 # Configuration errors
 class ConfigError(TawizaError):
     """Erreur de configuration"""
-    def __init__(self, message: str, code: ErrorCode = ErrorCode.CONFIG_VALIDATION_FAILED, **kwargs):
+
+    def __init__(
+        self, message: str, code: ErrorCode = ErrorCode.CONFIG_VALIDATION_FAILED, **kwargs
+    ):
         super().__init__(message, code=code, **kwargs)
 
 
 class ConfigNotFoundError(ConfigError):
     """Configuration introuvable"""
+
     def __init__(self, path: str):
         super().__init__(
             f"Configuration non trouvée: {path}",
             code=ErrorCode.CONFIG_NOT_FOUND,
-            suggestions=["Exécutez 'tawiza system init' pour créer la configuration"]
+            suggestions=["Exécutez 'tawiza system init' pour créer la configuration"],
         )
 
 
 # System errors
 class SystemError(TawizaError):
     """Erreur système"""
+
     pass
 
 
 class SystemNotInitializedError(SystemError):
     """Système non initialisé"""
+
     def __init__(self):
         super().__init__(
             "Le système n'est pas initialisé",
             code=ErrorCode.SYSTEM_NOT_INITIALIZED,
             severity=ErrorSeverity.HIGH,
-            suggestions=["Exécutez 'tawiza system init' d'abord"]
+            suggestions=["Exécutez 'tawiza system init' d'abord"],
         )
 
 
 class SystemAlreadyInitializedError(SystemError):
     """Système déjà initialisé"""
+
     def __init__(self):
         super().__init__(
             "Le système est déjà initialisé",
             code=ErrorCode.SYSTEM_ALREADY_INITIALIZED,
-            suggestions=["Utilisez --force pour réinitialiser"]
+            suggestions=["Utilisez --force pour réinitialiser"],
         )
 
 
 # GPU errors
 class GPUError(TawizaError):
     """Erreur GPU"""
+
     pass
 
 
 class GPUNotAvailableError(GPUError):
     """GPU non disponible"""
+
     def __init__(self, reason: str = ""):
         super().__init__(
             f"Aucun GPU détecté{': ' + reason if reason else ''}",
             code=ErrorCode.GPU_NOT_AVAILABLE,
             suggestions=[
                 "Vérifiez que les drivers ROCm ou CUDA sont installés",
-                "Utilisez 'rocm-smi' ou 'nvidia-smi' pour diagnostiquer"
-            ]
+                "Utilisez 'rocm-smi' ou 'nvidia-smi' pour diagnostiquer",
+            ],
         )
 
 
 # Network errors
 class NetworkError(TawizaError):
     """Erreur réseau"""
+
     pass
 
 
 class ServiceUnavailableError(NetworkError):
     """Service non disponible"""
+
     def __init__(self, service: str, url: str):
         super().__init__(
             f"Service '{service}' non disponible à {url}",
@@ -234,68 +253,75 @@ class ServiceUnavailableError(NetworkError):
             details={"service": service, "url": url},
             suggestions=[
                 f"Vérifiez que {service} est démarré",
-                f"Testez la connectivité avec 'curl {url}'"
-            ]
+                f"Testez la connectivité avec 'curl {url}'",
+            ],
         )
 
 
 class ConnectionError(NetworkError):
     """Erreur de connexion"""
+
     def __init__(self, url: str, reason: str = ""):
         super().__init__(
             f"Impossible de se connecter à {url}{': ' + reason if reason else ''}",
             code=ErrorCode.CONNECTION_FAILED,
-            details={"url": url, "reason": reason}
+            details={"url": url, "reason": reason},
         )
 
 
 # Agent errors
 class AgentError(TawizaError):
     """Erreur d'agent"""
+
     pass
 
 
 class AgentNotFoundError(AgentError):
     """Agent non trouvé"""
+
     def __init__(self, agent_name: str):
         super().__init__(
             f"Agent '{agent_name}' non trouvé",
             code=ErrorCode.AGENT_NOT_FOUND,
             details={"agent": agent_name},
-            suggestions=["Listez les agents disponibles avec 'tawiza agents list'"]
+            suggestions=["Listez les agents disponibles avec 'tawiza agents list'"],
         )
 
 
 # File errors
 class FileError(TawizaError):
     """Erreur de fichier"""
+
     pass
 
 
 class PathTraversalError(FileError):
     """Tentative de path traversal"""
+
     def __init__(self, path: str):
         super().__init__(
             "Path traversal détecté - accès non autorisé",
             code=ErrorCode.PATH_TRAVERSAL,
             severity=ErrorSeverity.HIGH,
-            details={"attempted_path": path}
+            details={"attempted_path": path},
         )
 
 
 class InvalidPathError(FileError):
     """Chemin invalide"""
+
     def __init__(self, path: str, reason: str = ""):
         super().__init__(
             f"Chemin invalide: {path}{': ' + reason if reason else ''}",
             code=ErrorCode.INVALID_PATH,
-            details={"path": path, "reason": reason}
+            details={"path": path, "reason": reason},
         )
 
 
 # ==============================================================================
 # ERROR HANDLER
 # ==============================================================================
+
 
 class ErrorHandler:
     """Gestionnaire d'erreurs centralisé"""
@@ -308,7 +334,7 @@ class ErrorHandler:
         self,
         error: Exception | ErrorInfo,
         show_traceback: bool = False,
-        exit_on_critical: bool = True
+        exit_on_critical: bool = True,
     ) -> None:
         """Gérer une erreur"""
         if isinstance(error, ErrorInfo):
@@ -316,11 +342,7 @@ class ErrorHandler:
         elif isinstance(error, TawizaError):
             info = error.info
         else:
-            info = ErrorInfo(
-                code=ErrorCode.UNKNOWN,
-                message=str(error),
-                exception=error
-            )
+            info = ErrorInfo(code=ErrorCode.UNKNOWN, message=str(error), exception=error)
 
         # Log l'erreur
         self._log_error(info)
@@ -345,9 +367,7 @@ class ErrorHandler:
         }.get(info.severity, logging.ERROR)
 
         logger.log(
-            log_level,
-            f"[{info.code.value}] {info.message}",
-            extra={"error_info": info.to_dict()}
+            log_level, f"[{info.code.value}] {info.message}", extra={"error_info": info.to_dict()}
         )
 
     def _display_error(self, info: ErrorInfo, show_traceback: bool) -> None:
@@ -369,9 +389,7 @@ class ErrorHandler:
         }.get(info.severity, "❌")
 
         # Message principal
-        self.console.print(
-            f"\n[{color}]{icon} [{info.code.value}] {info.message}[/{color}]"
-        )
+        self.console.print(f"\n[{color}]{icon} [{info.code.value}] {info.message}[/{color}]")
 
         # Détails si présents
         if info.details:
@@ -404,13 +422,15 @@ class ErrorHandler:
 # DECORATORS
 # ==============================================================================
 
+
 def handle_errors(
     *exception_types: type[Exception],
     default_code: ErrorCode = ErrorCode.UNKNOWN,
     reraise: bool = False,
-    show_traceback: bool = False
+    show_traceback: bool = False,
 ) -> Callable[[F], F]:
     """Décorateur pour gérer automatiquement les erreurs"""
+
     def decorator(func: F) -> F:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -457,6 +477,7 @@ def handle_errors(
                 handler.handle(sys.exc_info()[1], show_traceback=show_traceback)
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper  # type: ignore
         return wrapper  # type: ignore
@@ -468,13 +489,15 @@ def retry_on_error(
     max_retries: int = 3,
     delay: float = 1.0,
     backoff: float = 2.0,
-    exceptions: tuple[type[Exception], ...] = (Exception,)
+    exceptions: tuple[type[Exception], ...] = (Exception,),
 ) -> Callable[[F], F]:
     """Décorateur pour retry automatique avec backoff"""
+
     def decorator(func: F) -> F:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             import time
+
             last_exception = None
 
             for attempt in range(max_retries + 1):
@@ -483,7 +506,7 @@ def retry_on_error(
                 except exceptions as e:
                     last_exception = e
                     if attempt < max_retries:
-                        wait = delay * (backoff ** attempt)
+                        wait = delay * (backoff**attempt)
                         logger.warning(
                             f"Retry {attempt + 1}/{max_retries} for {func.__name__} "
                             f"after {wait:.1f}s: {e}"
@@ -495,6 +518,7 @@ def retry_on_error(
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             import asyncio
+
             last_exception = None
 
             for attempt in range(max_retries + 1):
@@ -503,7 +527,7 @@ def retry_on_error(
                 except exceptions as e:
                     last_exception = e
                     if attempt < max_retries:
-                        wait = delay * (backoff ** attempt)
+                        wait = delay * (backoff**attempt)
                         logger.warning(
                             f"Retry {attempt + 1}/{max_retries} for {func.__name__} "
                             f"after {wait:.1f}s: {e}"
@@ -513,6 +537,7 @@ def retry_on_error(
             raise last_exception  # type: ignore
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper  # type: ignore
         return wrapper  # type: ignore

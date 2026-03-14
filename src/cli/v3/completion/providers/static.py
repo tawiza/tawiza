@@ -1,6 +1,5 @@
 """Static completion providers for known values."""
 
-
 from src.cli.v3.completion.base import CompletionProvider, CompletionResult
 
 # Static values that don't change
@@ -61,7 +60,9 @@ class StaticProvider(CompletionProvider):
     def priority(self) -> int:
         return 100  # High priority
 
-    def get_completions(self, incomplete: str, context: dict | None = None) -> list[CompletionResult]:
+    def get_completions(
+        self, incomplete: str, context: dict | None = None
+    ) -> list[CompletionResult]:
         """Get static completions matching the incomplete string."""
         items = STATIC_COMPLETIONS.get(self._category, [])
         results = []
@@ -76,12 +77,14 @@ class StaticProvider(CompletionProvider):
                 # Score based on match position (prefix match = higher)
                 score = 2.0 if value.lower().startswith(incomplete.lower()) else 1.0
 
-                results.append(CompletionResult(
-                    value=value,
-                    description=description,
-                    score=score,
-                    source="static",
-                ))
+                results.append(
+                    CompletionResult(
+                        value=value,
+                        description=description,
+                        score=score,
+                        source="static",
+                    )
+                )
 
         return sorted(results, key=lambda x: (-x.score, x.value))
 

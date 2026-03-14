@@ -183,9 +183,18 @@ class EntityMatcher:
 
         # Remove common suffixes that don't affect identity
         suffixes = [
-            "SAS", "SARL", "SA", "EURL", "SNC", "SASU",
-            "SOCIETE", "SOCIÉTÉ", "ENTREPRISE",
-            "FRANCE", "EUROPE", "INTERNATIONAL",
+            "SAS",
+            "SARL",
+            "SA",
+            "EURL",
+            "SNC",
+            "SASU",
+            "SOCIETE",
+            "SOCIÉTÉ",
+            "ENTREPRISE",
+            "FRANCE",
+            "EUROPE",
+            "INTERNATIONAL",
         ]
         for suffix in suffixes:
             name = name.replace(f" {suffix}", "")

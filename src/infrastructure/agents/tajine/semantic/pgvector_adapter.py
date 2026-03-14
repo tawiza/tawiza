@@ -3,6 +3,7 @@
 Wraps the existing PGVectorClient to provide a unified interface
 for semantic search in TAJINE.
 """
+
 import os
 from typing import Any
 
@@ -48,7 +49,7 @@ class PGVectorAdapter(VectorStoreProtocol):
         from src.infrastructure.config.settings import settings
         from src.infrastructure.vector_store.pgvector_client import PGVectorClient
 
-        dsn = self.dsn or getattr(settings, 'vectordb_url', None)
+        dsn = self.dsn or getattr(settings, "vectordb_url", None)
         if not dsn:
             dsn = os.getenv("DATABASE_URL", "postgresql://localhost:5433/tawiza")
             logger.warning(f"No vectordb_url in settings, using default: {dsn}")
@@ -128,13 +129,15 @@ class PGVectorAdapter(VectorStoreProtocol):
             # Convert distance (0-2) back to score (1-0)
             score = 1.0 - (r.distance / 2.0)
             if score >= score_threshold:
-                semantic_results.append(SemanticResult(
-                    id=r.document_id,
-                    content=r.content,
-                    score=score,
-                    metadata=r.metadata or {},
-                    source_store="pgvector",
-                ))
+                semantic_results.append(
+                    SemanticResult(
+                        id=r.document_id,
+                        content=r.content,
+                        score=score,
+                        metadata=r.metadata or {},
+                        source_store="pgvector",
+                    )
+                )
 
         return semantic_results
 

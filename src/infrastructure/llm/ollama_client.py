@@ -80,7 +80,7 @@ class OllamaClient:
             "options": {
                 "temperature": temperature,
                 "num_ctx": 4096,
-            }
+            },
         }
 
         if system:
@@ -161,7 +161,7 @@ class OllamaClient:
             "options": {
                 "temperature": temperature,
                 "num_ctx": 4096,
-            }
+            },
         }
 
         # Convert OpenAI-style max_tokens to Ollama's num_predict
@@ -246,7 +246,7 @@ class OllamaClient:
             "stream": stream,
             "options": {
                 "temperature": 0.3,  # Lower for more consistent vision analysis
-            }
+            },
         }
 
         if stream:
@@ -310,11 +310,7 @@ What should I do next?"""
         except json.JSONDecodeError:
             # Fallback if not valid JSON
             logger.warning("Failed to parse JSON from LLM, using fallback")
-            action_plan = {
-                "action": "extract",
-                "reasoning": text_response,
-                "confidence": 0.5
-            }
+            action_plan = {"action": "extract", "reasoning": text_response, "confidence": 0.5}
 
         # If screenshot available, enhance with vision analysis
         if screenshot_path and Path(screenshot_path).exists():
@@ -323,7 +319,7 @@ What should I do next?"""
             vision_prompt = f"""Look at this webpage screenshot.
 The user wants to: {task}
 
-Current plan: {action_plan.get('action')} - {action_plan.get('reasoning')}
+Current plan: {action_plan.get("action")} - {action_plan.get("reasoning")}
 
 Is this the right action? Are there any visual elements we should click instead?
 Respond with: CONFIRM if plan is good, or suggest better action."""
@@ -386,12 +382,7 @@ Return the extracted data as JSON."""
         try:
             return json.loads(response)
         except json.JSONDecodeError:
-            return {
-                "items": [response],
-                "count": 1,
-                "confidence": 0.5,
-                "raw_response": response
-            }
+            return {"items": [response], "count": 1, "confidence": 0.5, "raw_response": response}
 
     async def embed(
         self,
@@ -433,7 +424,9 @@ Return the extracted data as JSON."""
 
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
-                logger.warning(f"Embedding model '{embed_model}' not found, falling back to {self.model}")
+                logger.warning(
+                    f"Embedding model '{embed_model}' not found, falling back to {self.model}"
+                )
                 # Fallback: try with current model (some models support embeddings)
                 try:
                     response = await self.client.post(

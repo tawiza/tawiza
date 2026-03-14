@@ -17,8 +17,8 @@ from typing import Any, ParamSpec, TypeVar
 
 from loguru import logger
 
-P = ParamSpec('P')
-T = TypeVar('T')
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 class RetryConfig:
@@ -75,10 +75,7 @@ class RetryConfig:
             Delay in seconds
         """
         # Calculate exponential delay
-        delay = min(
-            self.base_delay * (self.exponential_base ** attempt),
-            self.max_delay
-        )
+        delay = min(self.base_delay * (self.exponential_base**attempt), self.max_delay)
 
         # Add jitter (±25%)
         if self.jitter:
@@ -153,9 +150,7 @@ def with_retry(config: RetryConfig | None = None):
 
                     # Log success if this was a retry
                     if attempt > 0:
-                        logger.info(
-                            f"✅ {func.__name__} succeeded on attempt {attempt + 1}"
-                        )
+                        logger.info(f"✅ {func.__name__} succeeded on attempt {attempt + 1}")
 
                     return result
 
@@ -185,14 +180,12 @@ def with_retry(config: RetryConfig | None = None):
             return last_result
 
         return wrapper
+
     return decorator
 
 
 async def retry_async[**P, T](
-    func: Callable[P, T],
-    *args: P.args,
-    config: RetryConfig | None = None,
-    **kwargs: P.kwargs
+    func: Callable[P, T], *args: P.args, config: RetryConfig | None = None, **kwargs: P.kwargs
 ) -> T:
     """
     Retry an async function with exponential backoff.

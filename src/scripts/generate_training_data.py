@@ -30,31 +30,102 @@ MODEL = "qwen3.5:27b"
 
 # Department names for readable output
 DEPT_NAMES = {
-    "01": "Ain", "02": "Aisne", "03": "Allier", "04": "Alpes-de-Haute-Provence",
-    "05": "Hautes-Alpes", "06": "Alpes-Maritimes", "07": "Ardeche", "08": "Ardennes",
-    "09": "Ariege", "10": "Aube", "11": "Aude", "12": "Aveyron",
-    "13": "Bouches-du-Rhone", "14": "Calvados", "15": "Cantal", "16": "Charente",
-    "17": "Charente-Maritime", "18": "Cher", "19": "Correze", "2A": "Corse-du-Sud",
-    "2B": "Haute-Corse", "21": "Cote-d'Or", "22": "Cotes-d'Armor", "23": "Creuse",
-    "24": "Dordogne", "25": "Doubs", "26": "Drome", "27": "Eure",
-    "28": "Eure-et-Loir", "29": "Finistere", "30": "Gard", "31": "Haute-Garonne",
-    "32": "Gers", "33": "Gironde", "34": "Herault", "35": "Ille-et-Vilaine",
-    "36": "Indre", "37": "Indre-et-Loire", "38": "Isere", "39": "Jura",
-    "40": "Landes", "41": "Loir-et-Cher", "42": "Loire", "43": "Haute-Loire",
-    "44": "Loire-Atlantique", "45": "Loiret", "46": "Lot", "47": "Lot-et-Garonne",
-    "48": "Lozere", "49": "Maine-et-Loire", "50": "Manche", "51": "Marne",
-    "52": "Haute-Marne", "53": "Mayenne", "54": "Meurthe-et-Moselle", "55": "Meuse",
-    "56": "Morbihan", "57": "Moselle", "58": "Nievre", "59": "Nord",
-    "60": "Oise", "61": "Orne", "62": "Pas-de-Calais", "63": "Puy-de-Dome",
-    "64": "Pyrenees-Atlantiques", "65": "Hautes-Pyrenees", "66": "Pyrenees-Orientales",
-    "67": "Bas-Rhin", "68": "Haut-Rhin", "69": "Rhone", "70": "Haute-Saone",
-    "71": "Saone-et-Loire", "72": "Sarthe", "73": "Savoie", "74": "Haute-Savoie",
-    "75": "Paris", "76": "Seine-Maritime", "77": "Seine-et-Marne", "78": "Yvelines",
-    "79": "Deux-Sevres", "80": "Somme", "81": "Tarn", "82": "Tarn-et-Garonne",
-    "83": "Var", "84": "Vaucluse", "85": "Vendee", "86": "Vienne",
-    "87": "Haute-Vienne", "88": "Vosges", "89": "Yonne", "90": "Territoire de Belfort",
-    "91": "Essonne", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
-    "94": "Val-de-Marne", "95": "Val-d'Oise",
+    "01": "Ain",
+    "02": "Aisne",
+    "03": "Allier",
+    "04": "Alpes-de-Haute-Provence",
+    "05": "Hautes-Alpes",
+    "06": "Alpes-Maritimes",
+    "07": "Ardeche",
+    "08": "Ardennes",
+    "09": "Ariege",
+    "10": "Aube",
+    "11": "Aude",
+    "12": "Aveyron",
+    "13": "Bouches-du-Rhone",
+    "14": "Calvados",
+    "15": "Cantal",
+    "16": "Charente",
+    "17": "Charente-Maritime",
+    "18": "Cher",
+    "19": "Correze",
+    "2A": "Corse-du-Sud",
+    "2B": "Haute-Corse",
+    "21": "Cote-d'Or",
+    "22": "Cotes-d'Armor",
+    "23": "Creuse",
+    "24": "Dordogne",
+    "25": "Doubs",
+    "26": "Drome",
+    "27": "Eure",
+    "28": "Eure-et-Loir",
+    "29": "Finistere",
+    "30": "Gard",
+    "31": "Haute-Garonne",
+    "32": "Gers",
+    "33": "Gironde",
+    "34": "Herault",
+    "35": "Ille-et-Vilaine",
+    "36": "Indre",
+    "37": "Indre-et-Loire",
+    "38": "Isere",
+    "39": "Jura",
+    "40": "Landes",
+    "41": "Loir-et-Cher",
+    "42": "Loire",
+    "43": "Haute-Loire",
+    "44": "Loire-Atlantique",
+    "45": "Loiret",
+    "46": "Lot",
+    "47": "Lot-et-Garonne",
+    "48": "Lozere",
+    "49": "Maine-et-Loire",
+    "50": "Manche",
+    "51": "Marne",
+    "52": "Haute-Marne",
+    "53": "Mayenne",
+    "54": "Meurthe-et-Moselle",
+    "55": "Meuse",
+    "56": "Morbihan",
+    "57": "Moselle",
+    "58": "Nievre",
+    "59": "Nord",
+    "60": "Oise",
+    "61": "Orne",
+    "62": "Pas-de-Calais",
+    "63": "Puy-de-Dome",
+    "64": "Pyrenees-Atlantiques",
+    "65": "Hautes-Pyrenees",
+    "66": "Pyrenees-Orientales",
+    "67": "Bas-Rhin",
+    "68": "Haut-Rhin",
+    "69": "Rhone",
+    "70": "Haute-Saone",
+    "71": "Saone-et-Loire",
+    "72": "Sarthe",
+    "73": "Savoie",
+    "74": "Haute-Savoie",
+    "75": "Paris",
+    "76": "Seine-Maritime",
+    "77": "Seine-et-Marne",
+    "78": "Yvelines",
+    "79": "Deux-Sevres",
+    "80": "Somme",
+    "81": "Tarn",
+    "82": "Tarn-et-Garonne",
+    "83": "Var",
+    "84": "Vaucluse",
+    "85": "Vendee",
+    "86": "Vienne",
+    "87": "Haute-Vienne",
+    "88": "Vosges",
+    "89": "Yonne",
+    "90": "Territoire de Belfort",
+    "91": "Essonne",
+    "92": "Hauts-de-Seine",
+    "93": "Seine-Saint-Denis",
+    "94": "Val-de-Marne",
+    "95": "Val-d'Oise",
 }
 
 # Question templates by category
@@ -92,25 +163,34 @@ TEMPLATES = {
 async def fetch_dept_context(conn: asyncpg.Connection, dept: str) -> dict:
     """Fetch real signal data for a department."""
     # Signal counts by source
-    by_source = await conn.fetch("""
+    by_source = await conn.fetch(
+        """
         SELECT source, count(*) as cnt
         FROM signals WHERE code_dept = $1
         GROUP BY source ORDER BY cnt DESC
-    """, dept)
+    """,
+        dept,
+    )
 
     # Recent signals
-    recent = await conn.fetch("""
+    recent = await conn.fetch(
+        """
         SELECT source, metric_name, metric_value, signal_type, event_date
         FROM signals WHERE code_dept = $1
         ORDER BY collected_at DESC LIMIT 10
-    """, dept)
+    """,
+        dept,
+    )
 
     # Micro-signals
-    micro = await conn.fetch("""
+    micro = await conn.fetch(
+        """
         SELECT signal_type, score, description
         FROM micro_signals WHERE territory_code = $1 AND is_active = true
         ORDER BY score DESC LIMIT 5
-    """, dept)
+    """,
+        dept,
+    )
 
     return {
         "by_source": [(r["source"], r["cnt"]) for r in by_source],
@@ -196,8 +276,12 @@ async def main():
 
     parser = argparse.ArgumentParser(description="Generate training data for TAJINE fine-tuning")
     parser.add_argument("--count", type=int, default=200, help="Number of QA pairs to generate")
-    parser.add_argument("--output", type=str, default="training_data.jsonl", help="Output JSONL file")
-    parser.add_argument("--dry-run", action="store_true", help="Don't call LLM, just generate questions")
+    parser.add_argument(
+        "--output", type=str, default="training_data.jsonl", help="Output JSONL file"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Don't call LLM, just generate questions"
+    )
     args = parser.parse_args()
 
     conn = await asyncpg.connect(DB_DSN)
@@ -232,7 +316,11 @@ async def main():
             dept2 = random.choice([d for d in dept_list if d != dept])
             dept_name2 = DEPT_NAMES.get(dept2, dept2)
             question = template.format(dept=dept, dept_name=dept_name, dept_name2=dept_name2)
-            context = build_context_text(dept, contexts[dept]) + "\n---\n" + build_context_text(dept2, contexts[dept2])
+            context = (
+                build_context_text(dept, contexts[dept])
+                + "\n---\n"
+                + build_context_text(dept2, contexts[dept2])
+            )
         else:
             question = template.format(dept=dept, dept_name=dept_name)
             context = build_context_text(dept, contexts[dept])
@@ -254,13 +342,16 @@ async def main():
 
     async with httpx.AsyncClient() as client:
         for i, qa in enumerate(qa_pairs):
-            logger.info(f"[{i+1}/{len(qa_pairs)}] {qa['question'][:60]}...")
+            logger.info(f"[{i + 1}/{len(qa_pairs)}] {qa['question'][:60]}...")
             answer = await generate_answer(client, qa["question"], qa["context"])
 
             if answer and len(answer) > 30:
                 entry = {
                     "messages": [
-                        {"role": "system", "content": "Tu es TAJINE, le moteur cognitif de Tawiza, plateforme d'intelligence territoriale francaise. Tu analyses les signaux economiques, sociaux et immobiliers des departements francais. Reponds de facon precise et factuelle."},
+                        {
+                            "role": "system",
+                            "content": "Tu es TAJINE, le moteur cognitif de Tawiza, plateforme d'intelligence territoriale francaise. Tu analyses les signaux economiques, sociaux et immobiliers des departements francais. Reponds de facon precise et factuelle.",
+                        },
                         {"role": "user", "content": qa["question"]},
                         {"role": "assistant", "content": answer},
                     ],

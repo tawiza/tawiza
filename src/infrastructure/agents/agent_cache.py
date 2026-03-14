@@ -70,11 +70,7 @@ class CachedAgentResult:
             agent_name=data["agent_name"],
             task_hash=data["task_hash"],
             cached_at=datetime.fromisoformat(data["cached_at"]),
-            expires_at=(
-                datetime.fromisoformat(data["expires_at"])
-                if data["expires_at"]
-                else None
-            ),
+            expires_at=(datetime.fromisoformat(data["expires_at"]) if data["expires_at"] else None),
             execution_time_ms=data["execution_time_ms"],
             metadata=data.get("metadata", {}),
         )
@@ -84,19 +80,14 @@ class CachedAgentResult:
 DEFAULT_AGENT_CACHE_CONFIG = {
     # Data agents - cache for 1 hour (data doesn't change frequently)
     "data": {"ttl": 3600, "cacheable": True},
-
     # Analysis agents - cache for 30 minutes
     "analysis": {"ttl": 1800, "cacheable": True},
-
     # Browser agents - don't cache (dynamic web content)
     "browser": {"ttl": 0, "cacheable": False},
-
     # Chat agents - short cache (conversation context matters)
     "chat": {"ttl": 300, "cacheable": True},
-
     # Search agents - cache for 15 minutes
     "search": {"ttl": 900, "cacheable": True},
-
     # Default - 10 minute cache
     "default": {"ttl": 600, "cacheable": True},
 }
@@ -446,11 +437,7 @@ class AgentResultCache:
     def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total = self._stats["cache_hits"] + self._stats["cache_misses"]
-        hit_rate = (
-            (self._stats["cache_hits"] / total * 100)
-            if total > 0
-            else 0.0
-        )
+        hit_rate = (self._stats["cache_hits"] / total * 100) if total > 0 else 0.0
 
         return {
             **self._stats,

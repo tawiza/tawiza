@@ -21,6 +21,7 @@ from loguru import logger
 
 class FeedbackType(Enum):
     """Types of user feedback."""
+
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
@@ -30,6 +31,7 @@ class FeedbackType(Enum):
 @dataclass
 class Interaction:
     """A single TAJINE interaction."""
+
     id: str
     timestamp: datetime
     query: str  # User's question/request
@@ -81,6 +83,7 @@ class Interaction:
 @dataclass
 class SuccessTrace:
     """A successful interaction trace for SFT training."""
+
     instruction: str
     input_context: str
     output: str
@@ -104,6 +107,7 @@ class SuccessTrace:
 @dataclass
 class PreferencePair:
     """A preference pair for DPO training."""
+
     instruction: str
     input_context: str
     chosen: str  # Preferred response
@@ -129,6 +133,7 @@ class PreferencePair:
 @dataclass
 class TrainingData:
     """Container for collected training data."""
+
     success_traces: list[SuccessTrace] = field(default_factory=list)
     preference_pairs: list[PreferencePair] = field(default_factory=list)
     raw_interactions: list[Interaction] = field(default_factory=list)
@@ -142,9 +147,7 @@ class TrainingData:
     @property
     def reasoning_heavy(self) -> bool:
         """Check if data has significant reasoning content."""
-        reasoning_count = sum(
-            1 for t in self.success_traces if t.reasoning is not None
-        )
+        reasoning_count = sum(1 for t in self.success_traces if t.reasoning is not None)
         return reasoning_count > len(self.success_traces) * 0.5
 
     def get_stats(self) -> dict[str, Any]:
@@ -154,7 +157,9 @@ class TrainingData:
             "raw_interactions": len(self.raw_interactions),
             "has_preferences": self.has_preferences,
             "reasoning_heavy": self.reasoning_heavy,
-            "collection_start": self.collection_start.isoformat() if self.collection_start else None,
+            "collection_start": self.collection_start.isoformat()
+            if self.collection_start
+            else None,
             "collection_end": self.collection_end.isoformat() if self.collection_end else None,
         }
 
@@ -321,7 +326,11 @@ class DataCollector:
         # Add cognitive level context
         cognitive_levels = interaction.context.get("cognitive_levels", {})
         if cognitive_levels:
-            levels_str = ", ".join(f"{k}: {v.get('summary', 'N/A')}" for k, v in cognitive_levels.items() if isinstance(v, dict))
+            levels_str = ", ".join(
+                f"{k}: {v.get('summary', 'N/A')}"
+                for k, v in cognitive_levels.items()
+                if isinstance(v, dict)
+            )
             if levels_str:
                 context_parts.append(f"Niveaux cognitifs: {levels_str}")
 
@@ -385,7 +394,9 @@ class DataCollector:
             "total_interactions": len(self._interactions),
             "ready_for_sft": len(self._success_traces) >= self.min_examples_trigger,
             "ready_for_dpo": len(self._preference_pairs) >= self.min_preferences_trigger,
-            "collection_start": self._collection_start.isoformat() if self._collection_start else None,
+            "collection_start": self._collection_start.isoformat()
+            if self._collection_start
+            else None,
             "last_export": self._last_export.isoformat() if self._last_export else None,
         }
 
@@ -393,7 +404,9 @@ class DataCollector:
         """Count examples already exported."""
         if self._last_export is None:
             return 0
-        return len(list(self._success_traces)) - len(self._success_traces)  # Simplified: return 0 for now
+        return len(list(self._success_traces)) - len(
+            self._success_traces
+        )  # Simplified: return 0 for now
 
     def _count_exported_preferences(self) -> int:
         """Count preferences already exported."""
@@ -498,7 +511,9 @@ class DataCollector:
                 }
                 for p in self._preference_pairs
             ],
-            "collection_start": self._collection_start.isoformat() if self._collection_start else None,
+            "collection_start": self._collection_start.isoformat()
+            if self._collection_start
+            else None,
             "last_export": self._last_export.isoformat() if self._last_export else None,
         }
 
@@ -520,17 +535,11 @@ class DataCollector:
             with open(self.storage_path) as f:
                 data = json.load(f)
 
-            self._interactions = [
-                Interaction.from_dict(i) for i in data.get("interactions", [])
-            ]
+            self._interactions = [Interaction.from_dict(i) for i in data.get("interactions", [])]
 
-            self._success_traces = [
-                SuccessTrace(**t) for t in data.get("success_traces", [])
-            ]
+            self._success_traces = [SuccessTrace(**t) for t in data.get("success_traces", [])]
 
-            self._preference_pairs = [
-                PreferencePair(**p) for p in data.get("preference_pairs", [])
-            ]
+            self._preference_pairs = [PreferencePair(**p) for p in data.get("preference_pairs", [])]
 
             if data.get("collection_start"):
                 self._collection_start = datetime.fromisoformat(data["collection_start"])

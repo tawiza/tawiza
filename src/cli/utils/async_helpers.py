@@ -8,7 +8,8 @@ import functools
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def run_async(func: Callable[..., Any]) -> Callable[..., Any]:
     """
@@ -20,6 +21,7 @@ def run_async(func: Callable[..., Any]) -> Callable[..., Any]:
     Returns:
         Fonction qui exécute la fonction asynchrone
     """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -36,6 +38,7 @@ def run_async(func: Callable[..., Any]) -> Callable[..., Any]:
             return asyncio.run(func(*args, **kwargs))
 
     return wrapper
+
 
 async def run_sync_in_async[T](func: Callable[..., T], *args, **kwargs) -> T:
     """

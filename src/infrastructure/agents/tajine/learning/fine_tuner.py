@@ -35,6 +35,7 @@ from src.infrastructure.agents.tajine.learning.data_collector import (
 
 class TrainingMethod(Enum):
     """Available training methods."""
+
     SFT = "sft"  # Supervised Fine-Tuning
     DPO = "dpo"  # Direct Preference Optimization
     GRPO = "grpo"  # Group Relative Policy Optimization
@@ -44,6 +45,7 @@ class TrainingMethod(Enum):
 @dataclass
 class FineTuneConfig:
     """Configuration for fine-tuning."""
+
     # LoRA parameters
     lora_rank: int = 64
     lora_alpha: int = 128
@@ -88,6 +90,7 @@ class FineTuneConfig:
 @dataclass
 class EvaluationResult:
     """Result of model evaluation."""
+
     model_name: str
     score: float  # Overall score (0.0 - 1.0)
     metrics: dict[str, float]  # Individual metrics
@@ -105,6 +108,7 @@ class EvaluationResult:
 @dataclass
 class FineTuneResult:
     """Result of fine-tuning run."""
+
     status: str  # 'deployed', 'rollback', 'failed'
     new_model_name: str | None = None
     old_model_name: str | None = None
@@ -225,7 +229,9 @@ class TAJINEFineTuner:
 
         # Performance below threshold → Urgent
         if self._performance_history:
-            recent_perf = sum(self._performance_history[-10:]) / len(self._performance_history[-10:])
+            recent_perf = sum(self._performance_history[-10:]) / len(
+                self._performance_history[-10:]
+            )
             if recent_perf < self.PERFORMANCE_THRESHOLD:
                 logger.warning(f"Performance below threshold ({recent_perf:.2f}), triggering GRPO")
                 return TrainingMethod.GRPO
@@ -242,10 +248,12 @@ class TAJINEFineTuner:
 
         # Trust stagnant → GRPO
         if len(self._trust_history) >= self.STAGNANT_DAYS_FOR_GRPO:
-            recent_trust = self._trust_history[-self.STAGNANT_DAYS_FOR_GRPO:]
+            recent_trust = self._trust_history[-self.STAGNANT_DAYS_FOR_GRPO :]
             variance = max(recent_trust) - min(recent_trust)
             if variance < 0.02:  # Less than 2% change
-                logger.info(f"Trust stagnant for {self.STAGNANT_DAYS_FOR_GRPO} days, triggering GRPO")
+                logger.info(
+                    f"Trust stagnant for {self.STAGNANT_DAYS_FOR_GRPO} days, triggering GRPO"
+                )
                 return TrainingMethod.GRPO
 
         return None
@@ -394,6 +402,7 @@ class TAJINEFineTuner:
 
         # Simulate some work
         import asyncio
+
         await asyncio.sleep(0.1)
 
         return FineTuneResult(

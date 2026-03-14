@@ -21,18 +21,20 @@ from loguru import logger
 
 class ErrorCategory(Enum):
     """Categories of errors for analysis."""
-    RENDER = "render"           # Widget/graphical rendering errors
-    BACKEND = "backend"         # Backend service errors
-    API = "api"                 # API call failures
-    WEBSOCKET = "websocket"     # WebSocket connection errors
-    DATA = "data"               # Data processing errors
-    NETWORK = "network"         # Network connectivity errors
-    RESOURCE = "resource"       # Resource loading errors (files, etc.)
+
+    RENDER = "render"  # Widget/graphical rendering errors
+    BACKEND = "backend"  # Backend service errors
+    API = "api"  # API call failures
+    WEBSOCKET = "websocket"  # WebSocket connection errors
+    DATA = "data"  # Data processing errors
+    NETWORK = "network"  # Network connectivity errors
+    RESOURCE = "resource"  # Resource loading errors (files, etc.)
     UNKNOWN = "unknown"
 
 
 class ErrorSeverity(Enum):
     """Severity levels for errors."""
+
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -43,11 +45,12 @@ class ErrorSeverity(Enum):
 @dataclass
 class ErrorEvent:
     """Single error event with full context."""
+
     timestamp: datetime
     category: ErrorCategory
     severity: ErrorSeverity
     message: str
-    component: str              # Which component (widget, service, etc.)
+    component: str  # Which component (widget, service, etc.)
     exception_type: str | None = None
     stack_trace: str | None = None
     context: dict[str, Any] = field(default_factory=dict)
@@ -72,6 +75,7 @@ class ErrorEvent:
 @dataclass
 class ErrorStats:
     """Statistics about errors."""
+
     total_errors: int = 0
     errors_by_category: dict[str, int] = field(default_factory=lambda: defaultdict(int))
     errors_by_severity: dict[str, int] = field(default_factory=lambda: defaultdict(int))
@@ -342,6 +346,7 @@ def track_errors(category: ErrorCategory, component: str):
         def render_complex_widget():
             ...
     """
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
@@ -352,10 +357,12 @@ def track_errors(category: ErrorCategory, component: str):
                     message=str(e),
                     component=component,
                     exception=e,
-                    context={"function": func.__name__}
+                    context={"function": func.__name__},
                 )
                 raise
+
         return wrapper
+
     return decorator
 
 
@@ -368,6 +375,7 @@ def track_errors_async(category: ErrorCategory, component: str):
         async def call_backend():
             ...
     """
+
     def decorator(func):
         async def wrapper(*args, **kwargs):
             try:
@@ -378,8 +386,10 @@ def track_errors_async(category: ErrorCategory, component: str):
                     message=str(e),
                     component=component,
                     exception=e,
-                    context={"function": func.__name__}
+                    context={"function": func.__name__},
                 )
                 raise
+
         return wrapper
+
     return decorator
