@@ -218,7 +218,7 @@ class LogsScreen(Container):
                 [
                     ("All Sources", "all"),
                     ("System", "system"),
-                    ("Proxmox", "proxmox"),
+                    ("System", "system"),
                     ("Debug", "debug"),
                     ("Browser", "browser"),
                     ("Integrated", "integrated"),

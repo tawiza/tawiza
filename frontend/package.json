@@ -6,7 +6,7 @@
   "homepage": "https://tawiza.fr",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hamidedefr/tawiza"
+    "url": "https://github.com/tawiza/tawiza"
   },
   "private": true,
   "engines": {

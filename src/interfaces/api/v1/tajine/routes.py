@@ -516,9 +516,7 @@ async def _fetch_territorial_context(department: str | None = None) -> str:
     """Fetch live data from the signals DB to enrich TAJINE's context."""
     import asyncpg
 
-    db_url = os.getenv(
-        "COLLECTOR_DATABASE_URL", "postgresql://tawiza:tawiza2026@localhost:5433/tawiza"
-    )
+    db_url = os.getenv("COLLECTOR_DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza")
     # asyncpg needs postgres:// not postgresql://
     db_url = db_url.replace("postgresql+asyncpg://", "postgresql://").replace(
         "postgresql://", "postgres://"

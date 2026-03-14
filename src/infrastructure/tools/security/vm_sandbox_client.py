@@ -41,7 +41,7 @@ class SandboxResult:
 
 
 class VMSandboxClient:
-    """Client for VM-400 sandbox service."""
+    """Client for the sandbox VM service."""
 
     def __init__(self, config: SandboxConfig | None = None):
         self.config = config or SandboxConfig()

@@ -20,7 +20,7 @@ curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 
 # Cloner Tawiza
-git clone https://github.com/hamidedefr/tawiza.git
+git clone https://github.com/tawiza/tawiza.git
 cd tawiza
 
 # Configurer

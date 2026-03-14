@@ -18,7 +18,7 @@ Merci de votre interet pour Tawiza ! Ce guide explique comment contribuer, les r
 
 ## Premiere contribution ?
 
-Regardez les issues avec le label [`good first issue`](https://github.com/hamidedefr/tawiza/labels/good%20first%20issue) — elles sont specifiquement preparees pour les nouveaux contributeurs.
+Regardez les issues avec le label [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) — elles sont specifiquement preparees pour les nouveaux contributeurs.
 
 Exemples de contributions bienvenues :
 - Ajouter une nouvelle source de donnees (API gouvernementale, open data)
@@ -290,6 +290,6 @@ Voir le fichier [LICENSE](LICENSE) pour le texte complet.
 
 ## Besoin d'aide ?
 
-- [GitHub Discussions](https://github.com/hamidedefr/tawiza/discussions) — Questions, idees, retours
-- [Issues](https://github.com/hamidedefr/tawiza/issues) — Bugs et feature requests
+- [GitHub Discussions](https://github.com/tawiza/tawiza/discussions) — Questions, idees, retours
+- [Issues](https://github.com/tawiza/tawiza/issues) — Bugs et feature requests
 - [Documentation](docs/) — Guides techniques

@@ -9,7 +9,7 @@ This tool allows agents to execute Python code with multiple security layers:
 
 Security Design:
 - Default: RestrictedPython for quick local execution
-- Production: VM 400 sandbox for maximum isolation (Phase 1 completion)
+- Production: Sandbox VM for maximum isolation (Phase 1 completion)
 
 SECURITY NOTE: This file uses Python's built-in exec() function which is
 necessary for dynamic code execution. Multiple security layers protect against
@@ -371,7 +371,7 @@ class PythonExecuteTool(BaseTool):
         """
         Execute Python code in VM sandbox via VMSandboxClient.
 
-        Sends the code to the sandbox service running on VM-400
+        Sends the code to the sandbox service running on the isolated VM
         for isolated execution in a Docker container.
 
         Args:

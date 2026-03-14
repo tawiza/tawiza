@@ -9,7 +9,7 @@ This tool allows agents to execute Bash commands with multiple security layers:
 
 Security Design:
 - Default: Local execution with strict validation
-- Production: VM 400 sandbox for maximum isolation (Phase 1 completion)
+- Production: Sandbox VM for maximum isolation (Phase 1 completion)
 
 SECURITY NOTE: This tool executes shell commands which can be dangerous.
 Multiple security layers validate and restrict commands. For production use,
@@ -432,7 +432,7 @@ class BashExecuteTool(BaseTool):
         """
         Execute command in VM sandbox via VMSandboxClient.
 
-        Sends the command to the sandbox service running on VM-400
+        Sends the command to the sandbox service running on the isolated VM
         for isolated execution in a Docker container.
 
         Args:

@@ -29,7 +29,7 @@ import asyncpg
 import httpx
 from loguru import logger
 
-DB_URL = "postgresql://tawiza:tawiza2026@localhost:5433/tawiza"
+DB_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = "qwen3.5:27b"
 MAX_ITERATIONS = 6

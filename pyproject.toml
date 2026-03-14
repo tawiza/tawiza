@@ -184,9 +184,9 @@ finetuning = [
 
 [project.urls]
 Homepage = "https://tawiza.fr"
-Repository = "https://github.com/hamidedefr/tawiza"
-Documentation = "https://github.com/hamidedefr/tawiza/tree/main/docs"
-"Bug Tracker" = "https://github.com/hamidedefr/tawiza/issues"
+Repository = "https://github.com/tawiza/tawiza"
+Documentation = "https://github.com/tawiza/tawiza/tree/main/docs"
+"Bug Tracker" = "https://github.com/tawiza/tawiza/issues"
 
 [project.scripts]
 tawiza = "src.cli.v2.entrypoint:main"

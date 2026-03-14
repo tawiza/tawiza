@@ -17,7 +17,7 @@ La méthode la plus simple pour démarrer :
 
 ```bash
 # Cloner le repo
-git clone https://github.com/hamidedefr/tawiza.git
+git clone https://github.com/tawiza/tawiza.git
 cd tawiza
 
 # Copier la configuration

@@ -419,7 +419,7 @@ async def execute_s3_task(request: S3TaskRequest):
 
 @router.get("/s3/screenshot")
 async def s3_screenshot():
-    """Capture screenshot from VM-400 desktop."""
+    """Capture screenshot from sandbox desktop."""
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
@@ -438,7 +438,7 @@ async def s3_screenshot():
 
 @router.post("/s3/click")
 async def s3_click(x: int, y: int):
-    """Click at coordinates on VM-400 desktop."""
+    """Click at coordinates on sandbox desktop."""
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
@@ -455,7 +455,7 @@ async def s3_click(x: int, y: int):
 
 @router.post("/s3/type")
 async def s3_type_text(text: str):
-    """Type text on VM-400 desktop."""
+    """Type text on sandbox desktop."""
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 
@@ -472,7 +472,7 @@ async def s3_type_text(text: str):
 
 @router.post("/s3/launch")
 async def s3_launch_app(command: str):
-    """Launch application on VM-400 desktop."""
+    """Launch application on sandbox desktop."""
     try:
         from src.infrastructure.agents.s3 import DesktopClient
 

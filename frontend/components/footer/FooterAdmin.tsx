@@ -13,7 +13,7 @@ export default function Footer() {
           <li>
             <a
               target="_blank"
-              href="https://github.com/hamidedefr/tawiza"
+              href="https://github.com/tawiza/tawiza"
               className="text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400"
               rel="noreferrer"
             >

@@ -60,7 +60,7 @@ SERVICES = {
         "category": "ml",
     },
     "vm-sandbox": {
-        "name": "VM-400 Sandbox",
+        "name": "Sandbox",
         "description": "Isolated execution environment",
         "url": f"http://{os.getenv('VM_SANDBOX_HOST', 'localhost')}:22",  # SSH check
         "health_endpoint": None,
