@@ -11,7 +11,6 @@ Utilise APScheduler pour orchestrer :
 
 import asyncio
 import sys
-from datetime import datetime
 from pathlib import Path
 
 from loguru import logger

@@ -7,7 +7,7 @@ import asyncio
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 

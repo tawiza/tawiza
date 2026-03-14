@@ -10,10 +10,11 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
+
+from src.infrastructure.persistence.database import get_session
 from src.infrastructure.persistence.models.decision_models import (
     DecisionDB,
     DecisionPriority,
-    DecisionRecommendationDB,
     DecisionRole,
     DecisionStakeholderDB,
     DecisionStatus,
@@ -23,8 +24,6 @@ from src.infrastructure.persistence.models.decision_models import (
     StakeholderType,
     TerritoryScope,
 )
-
-from src.infrastructure.persistence.database import get_session
 
 router = APIRouter(prefix="/api/v1/decisions", tags=["Decisions"])
 

@@ -1,8 +1,5 @@
 """API routes for Active Learning system."""
 
-import os
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from src.application.dtos.active_learning_dtos import (

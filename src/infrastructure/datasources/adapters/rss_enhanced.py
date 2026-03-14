@@ -13,7 +13,7 @@ Features:
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 from urllib.parse import urlparse
 
@@ -37,10 +37,6 @@ from src.infrastructure.datasources.feeds_config import (
     FeedCategory,
     FeedConfig,
     FeedPriority,
-    get_all_feed_urls,
-    get_feeds_by_category,
-    get_feeds_by_priority,
-    get_feeds_by_region,
 )
 
 

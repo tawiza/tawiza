@@ -13,7 +13,6 @@ from src.infrastructure.config.settings import get_settings
 # Lazy imports pour éviter de charger torch/transformers au démarrage
 if TYPE_CHECKING:
     from src.infrastructure.ml.fine_tuning import FineTuningService
-    from src.infrastructure.storage import MinIOStorageAdapter, ModelVersioningService
 
 router = APIRouter()
 

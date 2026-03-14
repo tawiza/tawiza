@@ -545,7 +545,7 @@ async def get_territorial_ranking(request: Request) -> dict[str, Any]:
 @limiter.limit("60/minute")
 async def get_sources_summary(request: Request) -> dict[str, Any]:
     """Get summary of signals count and last collection time per source."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     query = text("""
     SELECT
@@ -1299,7 +1299,7 @@ async def compute_alpha_features(
     try:
         from datetime import datetime, timedelta
 
-        from .quant.qlib.expressions import ALPHA_EXPRESSIONS, get_compatible_expressions
+        from .quant.qlib.expressions import ALPHA_EXPRESSIONS
         from .quant.qlib.handler import DataHandlerConfig, TerritorialDataHandler
 
         # Parse parameters
@@ -1383,8 +1383,6 @@ async def detect_qlib_anomalies(
 ) -> dict[str, Any]:
     """Detect anomalies using QLib-enhanced features."""
     try:
-        import pandas as pd
-
         from .quant.qlib.handler import DataHandlerConfig, TerritorialDataHandler
 
         # Parse departments

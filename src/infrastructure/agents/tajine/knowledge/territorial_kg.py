@@ -19,7 +19,7 @@ import asyncio
 import os
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 import asyncpg

@@ -3,8 +3,6 @@
 import asyncio
 import re
 from datetime import date, timedelta
-from typing import Any
-from urllib.parse import urlparse
 
 from loguru import logger
 

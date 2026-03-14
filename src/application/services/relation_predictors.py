@@ -12,13 +12,11 @@ All predicted relations have:
 
 from __future__ import annotations
 
-import json
 import uuid
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any
 
-import asyncpg
 from loguru import logger
 
 from src.application.services._db_pool import acquire_conn

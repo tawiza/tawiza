@@ -1,7 +1,5 @@
 """SQLAlchemy models for the signals database."""
 
-from datetime import date, datetime
-
 from sqlalchemy import (
     BigInteger,
     Column,

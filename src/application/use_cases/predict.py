@@ -1,6 +1,5 @@
 """Prediction use case."""
 
-import os
 import time
 from uuid import uuid4
 

@@ -1,7 +1,7 @@
 """Browser automation API endpoints using browser-use and stealth browsers."""
 
 import asyncio
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, status

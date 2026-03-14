@@ -17,7 +17,6 @@ from loguru import logger
 
 from src.application.services.correlation_engine import (
     AnomalyResult,
-    CorrelationEngine,
     CorrelationResult,
     get_correlation_engine,
 )

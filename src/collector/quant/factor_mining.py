@@ -7,16 +7,15 @@ import asyncio
 import json
 import logging
 import os
-import statistics
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import httpx
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -562,7 +561,9 @@ Sois créatif mais réaliste avec les données disponibles."""
         GROUP BY code_dept;
         """
 
-        result = await connection.fetch(composite_query, dept_codes)
+        async with self.engine.connect() as conn2:
+            raw2 = await conn2.get_raw_connection()
+            result = await raw2.driver_connection.fetch(composite_query, dept_codes)
 
         if not result:
             return pd.DataFrame()

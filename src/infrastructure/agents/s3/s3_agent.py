@@ -12,7 +12,7 @@ import asyncio
 import json
 import os
 import tempfile
-from enum import Enum, StrEnum
+from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 

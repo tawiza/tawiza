@@ -3,7 +3,7 @@
 import json
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from src.cli.v3.output.base import OutputFormatter, OutputOptions
 

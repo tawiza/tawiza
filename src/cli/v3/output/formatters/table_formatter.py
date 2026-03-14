@@ -2,7 +2,7 @@
 
 from dataclasses import asdict, is_dataclass
 from io import StringIO
-from typing import Any, Optional
+from typing import Any
 
 from rich.console import Console
 from rich.panel import Panel

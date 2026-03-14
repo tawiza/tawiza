@@ -4,8 +4,6 @@ Provides department-level population data for territorial normalization.
 Population data based on INSEE "populations légales" - 2024 estimates.
 """
 
-from typing import Optional
-
 from loguru import logger
 
 # French department populations (2024 estimates)

@@ -7,14 +7,13 @@ Factors inspired by quantitative finance adapted to territorial intelligence.
 import asyncio
 import os
 from collections import defaultdict
-from typing import Any, Dict, Optional
+from typing import Any
 
-import numpy as np
 from loguru import logger
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .population import get_department_population, normalize_per_10k
+from .population import normalize_per_10k
 
 
 class AlphaFactorsCalculator:

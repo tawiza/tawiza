@@ -6,7 +6,7 @@ Uses Playwright for anti-bot bypass (split-routed via SFR residential IP).
 
 import asyncio
 import re
-from datetime import date, datetime
+from datetime import date
 from typing import Any
 
 from loguru import logger

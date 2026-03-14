@@ -8,7 +8,6 @@ Alertes stockées dans la table `watcher_alerts` et exposées via API.
 """
 
 import asyncio
-import json
 import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta

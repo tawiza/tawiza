@@ -1,6 +1,6 @@
 """OpenAI-compatible API schemas for LobeChat integration."""
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field

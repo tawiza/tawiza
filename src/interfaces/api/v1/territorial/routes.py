@@ -112,6 +112,50 @@ def get_signal_detector():
 
 
 @router.get(
+    "/filter-options",
+    summary="Options de filtrage territorial",
+)
+async def get_filter_options():
+    """Retourne les options de filtrage disponibles pour le dashboard territorial."""
+    return {
+        "departments": [],
+        "regions": [
+            "Auvergne-Rhone-Alpes",
+            "Bourgogne-Franche-Comte",
+            "Bretagne",
+            "Centre-Val de Loire",
+            "Corse",
+            "Grand Est",
+            "Hauts-de-France",
+            "Ile-de-France",
+            "Normandie",
+            "Nouvelle-Aquitaine",
+            "Occitanie",
+            "Pays de la Loire",
+            "Provence-Alpes-Cote d'Azur",
+        ],
+        "sources": [
+            "bodacc",
+            "sirene",
+            "insee",
+            "dvf",
+            "boamp",
+            "france_travail",
+            "infogreffe",
+            "presse",
+        ],
+        "signal_types": [
+            "convergence",
+            "anomaly",
+            "trend_change",
+            "risk",
+            "opportunity",
+        ],
+        "sectors": [],
+    }
+
+
+@router.get(
     "/metrics/{territory_code}",
     response_model=TerritoryMetricsResponse,
     summary="Get territory economic metrics",

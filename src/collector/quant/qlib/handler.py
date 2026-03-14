@@ -9,20 +9,18 @@ Adapted from: https://github.com/microsoft/qlib/blob/main/qlib/data/dataset/hand
 License: MIT
 """
 
-import asyncio
 import warnings
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import asyncpg
-import numpy as np
 import pandas as pd
 
 from .dataset import TerritorialDataset
-from .expressions import ALPHA_EXPRESSIONS, get_compatible_expressions, validate_expression_metrics
+from .expressions import ALPHA_EXPRESSIONS, get_compatible_expressions
 from .ops import evaluate_expression
-from .processor import Processor, ProcessorChain
+from .processor import ProcessorChain
 
 
 @dataclass
@@ -98,7 +96,8 @@ class TerritorialDataHandler:
                 self._population_data = await get_population_data()
             except ImportError:
                 warnings.warn(
-                    "Population module not available. Population normalization will be skipped."
+                    "Population module not available. Population normalization will be skipped.",
+                    stacklevel=2,
                 )
                 self._population_data = {}
         return self._population_data
@@ -165,7 +164,7 @@ class TerritorialDataHandler:
             raise ValueError(f"Failed to load data from database: {e}")
 
         if not records:
-            warnings.warn("No data found for specified criteria")
+            warnings.warn("No data found for specified criteria", stacklevel=2)
             return pd.DataFrame()
 
         # Convert to DataFrame
@@ -240,7 +239,7 @@ class TerritorialDataHandler:
             expressions = get_compatible_expressions(available_metrics)
 
         if not expressions:
-            warnings.warn("No compatible expressions found for available data")
+            warnings.warn("No compatible expressions found for available data", stacklevel=2)
             return pd.DataFrame(index=data.index)
 
         # Prepare data for expression evaluation
@@ -268,9 +267,9 @@ class TerritorialDataHandler:
                     result = evaluate_expression(expression, eval_data)
                     alpha_features[expr_name] = result
                 except Exception as e:
-                    warnings.warn(f"Failed to evaluate expression '{expr_name}': {e}")
+                    warnings.warn(f"Failed to evaluate expression '{expr_name}': {e}", stacklevel=2)
             else:
-                warnings.warn(f"Unknown expression: {expr_name}")
+                warnings.warn(f"Unknown expression: {expr_name}", stacklevel=2)
 
         return alpha_features
 
@@ -508,7 +507,7 @@ class TerritorialDataHandler:
         """
         # This would require implementing a full ML pipeline
         # For now, return a placeholder
-        warnings.warn("Feature importance calculation not yet implemented")
+        warnings.warn("Feature importance calculation not yet implemented", stacklevel=2)
         return pd.DataFrame()
 
     async def export_data(

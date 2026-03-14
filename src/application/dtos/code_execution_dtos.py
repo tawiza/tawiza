@@ -1,6 +1,6 @@
 """DTOs for Code Execution."""
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field

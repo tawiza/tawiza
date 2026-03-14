@@ -23,7 +23,6 @@ from collections import defaultdict
 from itertools import combinations
 from typing import Any
 
-import asyncpg
 from loguru import logger
 
 from src.application.services._db_pool import acquire_conn

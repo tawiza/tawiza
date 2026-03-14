@@ -5,7 +5,7 @@ Architecture DDD - Entités, Value Objects et Agrégats
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 

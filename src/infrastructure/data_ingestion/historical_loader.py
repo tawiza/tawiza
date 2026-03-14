@@ -10,7 +10,7 @@ Pipeline complet:
 
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,13 +19,11 @@ from loguru import logger
 
 from src.application.services.correlation_engine import (
     AnomalyResult,
-    CorrelationEngine,
     CorrelationResult,
     get_correlation_engine,
 )
 from src.infrastructure.data_ingestion.dvf_ingester import DVFIngester
 from src.infrastructure.persistence.models.territorial_timeseries import (
-    GranularityType,
     IndicatorType,
 )
 

@@ -2,7 +2,6 @@
 
 import os
 import time
-from typing import Union
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException

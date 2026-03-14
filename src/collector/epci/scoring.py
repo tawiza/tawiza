@@ -4,7 +4,7 @@ EPCI-level scoring — aggregate signals at intercommunality level.
 
 import logging
 from datetime import date, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 from sqlalchemy import text

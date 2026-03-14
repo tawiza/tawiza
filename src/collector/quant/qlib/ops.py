@@ -10,7 +10,7 @@ License: MIT
 """
 
 import warnings
-from typing import Any, Optional, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -267,7 +267,7 @@ def PerCapita(
 
             population = get_population_data()
         except ImportError:
-            warnings.warn("Population data not available. Using raw values.")
+            warnings.warn("Population data not available. Using raw values.", stacklevel=2)
             return series
 
     if isinstance(series.index, pd.MultiIndex):
@@ -459,7 +459,7 @@ def evaluate_expression(expression: str, data: DataFrame) -> Series:
         if var in data.columns:
             context[var] = data[var]
         else:
-            warnings.warn(f"Variable ${var} not found in data columns")
+            warnings.warn(f"Variable ${var} not found in data columns", stacklevel=2)
             context[var] = pd.Series(0, index=data.index)
 
     # Add operator functions to context
@@ -494,5 +494,5 @@ def evaluate_expression(expression: str, data: DataFrame) -> Series:
         result = eval(eval_expr, {"__builtins__": {}, "context": context}, context)
         return result
     except Exception as e:
-        warnings.warn(f"Expression evaluation failed: {e}")
+        warnings.warn(f"Expression evaluation failed: {e}", stacklevel=2)
         return pd.Series(np.nan, index=data.index)

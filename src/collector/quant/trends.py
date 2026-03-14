@@ -9,17 +9,13 @@ Detects trend changes across departments by combining:
 Generates human-readable trend alerts for territorial intelligence.
 """
 
-import asyncio
 from collections import defaultdict
-from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import numpy as np
 from loguru import logger
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .factors import AlphaFactorsCalculator
 from .temporal import compute_lag_correlations, compute_moving_averages, compute_rate_of_change
 
 

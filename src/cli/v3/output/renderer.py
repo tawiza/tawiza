@@ -1,7 +1,7 @@
 """Output renderer with automatic format detection."""
 
 import sys
-from typing import Any, Optional
+from typing import Any
 
 from rich.console import Console
 

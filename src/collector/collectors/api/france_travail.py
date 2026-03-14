@@ -4,7 +4,6 @@ import os
 from datetime import date, timedelta
 from typing import Any
 
-import httpx
 from loguru import logger
 
 from ..base import BaseCollector, CollectedSignal, CollectorConfig

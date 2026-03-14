@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any
@@ -21,17 +21,12 @@ from loguru import logger
 from src.infrastructure.agents.browser.camoufox_agent import (
     CAMOUFOX_AVAILABLE,
     CamoufoxBrowserAgent,
-    CamoufoxResult,
-    FingerprintConfig,
 )
 
 # Import both stealth browsers
 from src.infrastructure.agents.browser.nodriver_agent import (
     NODRIVER_AVAILABLE,
     NodriverBrowserAgent,
-)
-from src.infrastructure.agents.browser.nodriver_agent import (
-    StealthResult as NodriverResult,
 )
 
 

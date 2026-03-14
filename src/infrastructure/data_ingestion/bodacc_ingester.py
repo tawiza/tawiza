@@ -5,10 +5,8 @@ Données: Procédures collectives, privilèges, radiations
 """
 
 import asyncio
-from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Any
+from datetime import datetime
 
 import httpx
 from loguru import logger

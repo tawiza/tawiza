@@ -7,7 +7,7 @@ Manages conversation state, history, and context for the AI assistant.
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 

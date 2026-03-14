@@ -11,12 +11,11 @@ License: MIT
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from scipy.stats import median_abs_deviation
-from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
 class Processor(ABC):
@@ -350,7 +349,7 @@ class PopulationNormalizer(Processor):
         if isinstance(population_data, pd.DataFrame):
             if "code_dept" in population_data.columns and "population" in population_data.columns:
                 self.pop_dict = dict(
-                    zip(population_data["code_dept"], population_data["population"])
+                    zip(population_data["code_dept"], population_data["population"], strict=False)
                 )
             else:
                 # Assume index is territory and first column is population
@@ -421,7 +420,9 @@ class SeasonalDecompProcessor(Processor):
         try:
             from statsmodels.tsa.seasonal import seasonal_decompose
         except ImportError:
-            warnings.warn("statsmodels not available. Skipping seasonal decomposition.")
+            warnings.warn(
+                "statsmodels not available. Skipping seasonal decomposition.", stacklevel=2
+            )
             return result
 
         # Select fields to process

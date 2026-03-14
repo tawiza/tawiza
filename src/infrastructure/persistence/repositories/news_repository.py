@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-from loguru import logger
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession

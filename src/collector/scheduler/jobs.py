@@ -221,7 +221,6 @@ class CollectorScheduler:
         Rotates through departments to cover all over time.
         """
         # Rotate: pick 3 departments per run (covers all 18 in ~6 weeks)
-        import hashlib
 
         week_num = date.today().isocalendar()[1]
         start_idx = (week_num * 3) % len(self._departments)

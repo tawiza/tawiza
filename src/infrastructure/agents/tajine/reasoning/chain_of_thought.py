@@ -7,7 +7,7 @@ analysis process transparent and verifiable.
 import contextlib
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any, Protocol
 
 from loguru import logger

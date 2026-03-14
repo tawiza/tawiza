@@ -10,7 +10,6 @@ The core intelligence: cross-references signals from multiple sources
 - crise sectorielle: fermetures cluster + licenciements + presse négatif
 """
 
-import os
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any

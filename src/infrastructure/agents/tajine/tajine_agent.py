@@ -25,8 +25,6 @@ from src.infrastructure.agents.tajine.delegation import (
 from src.infrastructure.agents.tajine.departments import (
     CITY_TO_DEPT_CAPITALIZED,
     DEPT_CODE_TO_NAME,
-    SECTOR_CONCEPTS,
-    SECTOR_TO_NAF,
     detect_sectors,
     extract_intent_fallback,
     extract_territory,

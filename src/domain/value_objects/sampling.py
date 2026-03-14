@@ -1,7 +1,7 @@
 """Value objects for active learning sampling strategies."""
 
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 from .base import ValueObject

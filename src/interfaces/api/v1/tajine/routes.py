@@ -1577,7 +1577,6 @@ async def get_sectors(dept: str = Query(..., description="Department code")):
     """
     from src.infrastructure.datasources.services.department_stats import (
         BASELINE_ENTERPRISES,
-        DEPARTMENT_NAMES,
     )
 
     # INSEE 2023 sector distribution for France (source: insee.fr/statistiques)
@@ -3435,7 +3434,6 @@ async def score_enterprise_risk(
     """
     try:
         from src.infrastructure.agents.tajine.risk import (
-            ExplanationStyle,
             RiskExplainer,
         )
         from src.infrastructure.agents.tajine.risk.explainer import ExplanationStyle as ES

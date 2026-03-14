@@ -238,7 +238,7 @@ class TerritorialHistoryStore:
     def get_trends(
         self,
         territory_code: str,
-        periods: list[int] = [7, 30, 90],
+        periods: list[int] | None = None,
     ) -> dict[str, dict[str, float]]:
         """
         Calcule les tendances sur différentes périodes.
@@ -250,6 +250,8 @@ class TerritorialHistoryStore:
                 ...
             }
         """
+        if periods is None:
+            periods = [7, 30, 90]
         latest = self.get_latest(territory_code)
         if not latest:
             return {}

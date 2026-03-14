@@ -122,7 +122,7 @@ class NewsSyncService:
 
     async def _auto_enrich(self, limit: int = 20) -> dict:
         """Auto-summarize + sentiment analysis for recent articles without AI summary."""
-        from sqlalchemy import or_, select, update
+        from sqlalchemy import select, update
 
         from src.application.services.llm_summarizer import get_summarizer
         from src.infrastructure.datasources.models import News

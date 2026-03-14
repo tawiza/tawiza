@@ -5,7 +5,7 @@ Provides type-safe dataclasses for dashboard entities.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 
 class AlertSource(StrEnum):

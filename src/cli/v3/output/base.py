@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any, Optional
+from typing import Any
 
 
 class OutputFormat(StrEnum):

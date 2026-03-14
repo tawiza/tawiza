@@ -4,7 +4,6 @@ Wraps OpenManus browser capabilities as Camel FunctionTools.
 """
 
 import asyncio
-from typing import Any, Optional
 
 from camel.toolkits import FunctionTool
 from loguru import logger

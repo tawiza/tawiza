@@ -9,8 +9,6 @@ Each expression is a string that can be evaluated by the ops module.
 Variables prefixed with $ refer to metric columns in the data.
 """
 
-from typing import Dict, List, Tuple
-
 # Core alpha expressions for territorial intelligence
 ALPHA_EXPRESSIONS: dict[str, str] = {
     # Business Health Indicators

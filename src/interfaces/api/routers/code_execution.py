@@ -1,7 +1,5 @@
 """API Router for Code Execution."""
 
-import os
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 
@@ -19,7 +17,6 @@ from src.infrastructure.code_interpreter.execution_router import (
     ExecutionRouter,
 )
 from src.infrastructure.config.settings import get_settings
-from src.interfaces.api.websocket.models import TerminalOutputMessage
 
 router = APIRouter(
     prefix="/api/v1/code-execution",

@@ -10,18 +10,15 @@ Ce que l'humain ne voit pas:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from enum import Enum, StrEnum
+from datetime import datetime
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
 from loguru import logger
 from scipy import stats
-from scipy.signal import correlate
-from scipy.special import digamma
 
 from src.infrastructure.persistence.models.territorial_timeseries import (
-    GranularityType,
     IndicatorType,
 )
 

@@ -10,14 +10,13 @@ Compare un territoire à:
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
 from loguru import logger
 
 from .attractiveness_scorer import (
-    AXIS_WEIGHTS,
     AttractiveAxis,
     AttractivenessScore,
     AttractivenessScorer,

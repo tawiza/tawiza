@@ -17,7 +17,7 @@ from collections import defaultdict
 from collections.abc import AsyncIterator
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 

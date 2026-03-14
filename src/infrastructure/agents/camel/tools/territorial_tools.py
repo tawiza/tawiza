@@ -13,7 +13,6 @@ coroutine is created in one thread but executed in another.
 import asyncio
 from collections.abc import Callable, Coroutine
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Optional
 
 from camel.toolkits import FunctionTool
 from loguru import logger

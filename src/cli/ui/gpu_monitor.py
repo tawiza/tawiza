@@ -5,7 +5,7 @@ import os
 import re
 import subprocess
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 
 class GPULocation(StrEnum):

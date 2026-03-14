@@ -1,6 +1,6 @@
 """Feedback entity for collecting user feedback on model predictions."""
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 

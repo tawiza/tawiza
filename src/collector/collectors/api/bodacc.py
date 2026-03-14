@@ -202,13 +202,10 @@ class BodaccCollector(BaseCollector):
                 return metric, sig_type, conf
 
         # Family-based defaults
-        if family == "collective":
-            return "procedure_collective", "negatif", 0.8
-        elif family == "vente":
-            return "vente_fonds_commerce", "neutre", 0.7
-        elif family == "creation":
-            return "immatriculation_rcs", "positif", 0.8
-        elif family == "radiation":
-            return "radiation_rcs", "negatif", 0.85
-        else:
-            return f"bodacc_{family}", "neutre", 0.5
+        family_defaults = {
+            "collective": ("procedure_collective", "negatif", 0.8),
+            "vente": ("vente_fonds_commerce", "neutre", 0.7),
+            "creation": ("immatriculation_rcs", "positif", 0.8),
+            "radiation": ("radiation_rcs", "negatif", 0.85),
+        }
+        return family_defaults.get(family, (f"bodacc_{family}", "neutre", 0.5))

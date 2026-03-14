@@ -868,6 +868,16 @@ async def sync_news_feeds(
     return result
 
 
+@router.get("/feeds/db/articles")
+async def get_articles_alias(
+    feed_category: str | None = Query(default=None),
+    limit: int = Query(default=50, le=200),
+    offset: int = Query(default=0, ge=0),
+):
+    """Alias for /feeds/db/latest -- returns persisted news articles."""
+    return await get_persisted_news(feed_category, limit=limit)
+
+
 @router.get("/feeds/db/latest")
 async def get_persisted_news(
     feed_category: str | None = Query(default=None),
@@ -983,7 +993,6 @@ async def summarize_articles(
     """
     from src.application.services.llm_summarizer import get_summarizer
     from src.infrastructure.persistence.database import get_session
-    from src.infrastructure.persistence.repositories.news_repository import NewsRepository
 
     summarizer = get_summarizer()
 

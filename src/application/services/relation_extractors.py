@@ -12,13 +12,10 @@ enabling clean UPSERT semantics.
 from __future__ import annotations
 
 import json
-import os
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
 from typing import Any
 
-import asyncpg
 import httpx
 from loguru import logger
 

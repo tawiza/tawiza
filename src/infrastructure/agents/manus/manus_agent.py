@@ -11,7 +11,7 @@ inspired by the OpenManus project. It supports:
 import asyncio
 import json
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Optional
 
 from loguru import logger

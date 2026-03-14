@@ -15,7 +15,7 @@ Features:
 
 import asyncio
 import base64
-from enum import Enum, StrEnum
+from enum import StrEnum
 from pathlib import Path
 
 import httpx

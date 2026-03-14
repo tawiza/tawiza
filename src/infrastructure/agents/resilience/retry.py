@@ -17,7 +17,7 @@ import random
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from functools import wraps
 from typing import Any, TypeVar
 

@@ -16,7 +16,7 @@ import json
 import operator
 from collections.abc import Callable
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4

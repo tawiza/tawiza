@@ -5,7 +5,6 @@ view their signal history, and run LLM-powered risk assessments.
 """
 
 import os
-from datetime import datetime, timezone
 from typing import Any
 
 import asyncpg

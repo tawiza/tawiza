@@ -400,8 +400,6 @@ class LogsScreen(Container):
             return
 
         try:
-            from pathlib import Path
-
             from src.cli.constants import PROJECT_ROOT
 
             export_path = PROJECT_ROOT / "logs" / "tui_export.log"

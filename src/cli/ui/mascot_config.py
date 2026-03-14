@@ -1,6 +1,6 @@
 """Configuration système pour la mascotte Tawiza."""
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from pathlib import Path
 
 import yaml

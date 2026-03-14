@@ -1,7 +1,7 @@
 """SourceArm model for Multi-Armed Bandit source selection."""
 
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 
 class SourceType(StrEnum):

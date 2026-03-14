@@ -2,7 +2,6 @@
 
 import asyncio
 from datetime import date, timedelta
-from typing import Any
 
 from loguru import logger
 from pytrends.request import TrendReq

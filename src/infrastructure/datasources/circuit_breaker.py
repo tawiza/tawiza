@@ -8,8 +8,8 @@ and stale-while-revalidate caching.
 import asyncio
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
-from enum import Enum, StrEnum
+from dataclasses import dataclass
+from enum import StrEnum
 from typing import Any, TypeVar
 
 from loguru import logger

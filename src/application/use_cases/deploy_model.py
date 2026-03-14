@@ -1,7 +1,5 @@
 """Deploy model use case."""
 
-import os
-
 from loguru import logger
 
 from src.application.dtos.ml_dtos import DeployModelRequest, DeployModelResponse

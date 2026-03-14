@@ -6,9 +6,7 @@ Uses z-score normalization and equal weighting initially.
 
 import os
 from statistics import mean, stdev
-from typing import Dict, List, Optional, Tuple
 
-import numpy as np
 from loguru import logger
 
 from .factors import compute_normalized_factors

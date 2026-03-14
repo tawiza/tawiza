@@ -7,14 +7,12 @@ and management of training data files.
 import asyncio
 import json
 import os
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import asyncpg
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
-from loguru import logger
-from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1/training", tags=["Training Data"])
 
@@ -112,7 +110,8 @@ async def get_dataset_preview(name: str, offset: int = 0, limit: int = 10):
             except json.JSONDecodeError:
                 pass
 
-    total = sum(1 for _ in open(fpath))
+    with open(fpath) as f:
+        total = sum(1 for _ in f)
     return {"name": name, "total": total, "offset": offset, "samples": samples}
 
 

@@ -17,7 +17,6 @@ Performance improvements:
 
 import hashlib
 import json
-import os
 from collections.abc import AsyncIterator
 from typing import Any
 

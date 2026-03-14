@@ -734,3 +734,119 @@ async def get_clusters():
             "nb_outliers": len(clusters.get(-1, {}).get("departments", [])),
             "clusters": list(clusters.values()),
         }
+
+
+@router.get("/department/{dept}/signals/recent", summary="Signaux recents par departement")
+async def get_department_recent_signals(
+    dept: str,
+    limit: int = Query(15, ge=1, le=100),
+):
+    """Retourne les signaux les plus recents pour un departement."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT id, source, source_url, event_date, code_dept, code_commune,
+                   metric_name, metric_value, signal_type, confidence,
+                   extracted_text
+            FROM signals
+            WHERE code_dept = $1
+            ORDER BY event_date DESC NULLS LAST, id DESC
+            LIMIT $2
+            """,
+            dept,
+            limit,
+        )
+
+        return {
+            "department": dept,
+            "count": len(rows),
+            "signals": [
+                {
+                    "id": r["id"],
+                    "source": r["source"],
+                    "source_url": r["source_url"],
+                    "date": str(r["event_date"]) if r["event_date"] else None,
+                    "commune": r["code_commune"],
+                    "metric": r["metric_name"],
+                    "value": float(r["metric_value"]) if r["metric_value"] else None,
+                    "type": r["signal_type"],
+                    "confidence": float(r["confidence"]) if r["confidence"] else None,
+                    "excerpt": (r["extracted_text"] or "")[:300] or None,
+                }
+                for r in rows
+            ],
+        }
+
+
+@router.get("/department/{dept}/timeline", summary="Timeline des signaux par departement")
+async def get_department_timeline(
+    dept: str,
+    days: int = Query(180, ge=7, le=730),
+):
+    """Retourne la timeline aggregee des signaux pour un departement."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT date_trunc('week', event_date)::date as week,
+                   source,
+                   COUNT(*) as count
+            FROM signals
+            WHERE code_dept = $1
+              AND event_date >= CURRENT_DATE - $2::int * INTERVAL '1 day'
+              AND event_date IS NOT NULL
+            GROUP BY week, source
+            ORDER BY week
+            """,
+            dept,
+            days,
+        )
+
+        timeline: dict = {}
+        for r in rows:
+            w = str(r["week"])
+            if w not in timeline:
+                timeline[w] = {"date": w, "total": 0, "by_source": {}}
+            timeline[w]["total"] += r["count"]
+            timeline[w]["by_source"][r["source"]] = r["count"]
+
+        return {
+            "department": dept,
+            "days": days,
+            "timeline": list(timeline.values()),
+        }
+
+
+@router.get("/alerts", summary="Alertes signaux actives")
+async def get_signal_alerts():
+    """Retourne les alertes actives basees sur les micro-signaux a haut score."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            SELECT id, territory_code, signal_type, score, confidence,
+                   impact, description, sources, dimensions, detected_at
+            FROM micro_signals
+            WHERE is_active = TRUE AND score >= 0.7
+            ORDER BY score DESC
+            LIMIT 50
+        """)
+
+        return {
+            "count": len(rows),
+            "alerts": [
+                {
+                    "id": r["id"],
+                    "department": r["territory_code"],
+                    "type": r["signal_type"],
+                    "score": round(r["score"], 3),
+                    "confidence": round(r["confidence"], 3),
+                    "impact": round(r["impact"], 3),
+                    "description": r["description"],
+                    "sources": r["sources"],
+                    "dimensions": r["dimensions"],
+                    "detected_at": r["detected_at"].isoformat() if r["detected_at"] else None,
+                }
+                for r in rows
+            ],
+        }

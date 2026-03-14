@@ -1,6 +1,5 @@
 """Train model use case."""
 
-import os
 from uuid import uuid4
 
 from loguru import logger

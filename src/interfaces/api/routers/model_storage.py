@@ -1,6 +1,6 @@
 """API endpoints for model storage and versioning."""
 
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field

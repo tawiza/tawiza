@@ -1,7 +1,7 @@
 """Smart Execution Router for Code Interpreter."""
 
 from collections.abc import Callable
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 from loguru import logger

@@ -13,7 +13,6 @@ import random
 from collections import defaultdict
 from typing import Any
 
-import asyncpg
 import networkx as nx
 from loguru import logger
 

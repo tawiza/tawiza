@@ -13,9 +13,9 @@ Attractiveness Scorer - Calcul du score d'attractivité territoriale.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 from loguru import logger

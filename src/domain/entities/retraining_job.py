@@ -1,7 +1,7 @@
 """Retraining job entity for managing automated model retraining."""
 
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 

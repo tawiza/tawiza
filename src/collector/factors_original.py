@@ -8,8 +8,7 @@ Inspired by quantitative finance alpha factors adapted to territorial intelligen
 import asyncio
 import sqlite3
 from dataclasses import dataclass
-from datetime import date, datetime
-from typing import Any, Dict, List, Optional
+from datetime import datetime
 
 import pandas as pd
 from loguru import logger

@@ -10,7 +10,7 @@ License: MIT
 """
 
 import warnings
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -52,16 +52,18 @@ class TerritorialDataset:
         """Validate the dataset structure."""
         # Check if features have MultiIndex
         if not isinstance(self.features.index, pd.MultiIndex):
-            warnings.warn("Features DataFrame should have MultiIndex (date, territory)")
+            warnings.warn(
+                "Features DataFrame should have MultiIndex (date, territory)", stacklevel=2
+            )
 
         # Check if labels match features structure
         if self.labels is not None:
             if not self.features.index.equals(self.labels.index):
-                warnings.warn("Labels index does not match features index")
+                warnings.warn("Labels index does not match features index", stacklevel=2)
 
         # Check for empty dataset
         if len(self.features) == 0:
-            warnings.warn("Empty dataset provided")
+            warnings.warn("Empty dataset provided", stacklevel=2)
 
     def _extract_territories(self) -> list[str]:
         """Extract unique territories from the index."""
@@ -139,7 +141,7 @@ class TerritorialDataset:
             territory_data = self.features.loc[self.features.index == territory_code]
 
         if len(territory_data) == 0:
-            warnings.warn(f"No data found for territory: {territory_code}")
+            warnings.warn(f"No data found for territory: {territory_code}", stacklevel=2)
 
         return territory_data
 
@@ -161,7 +163,7 @@ class TerritorialDataset:
             features_subset = self.features.loc[mask]
             labels_subset = self.labels.loc[mask] if self.labels is not None else None
         else:
-            warnings.warn("Date filtering not available for non-MultiIndex data")
+            warnings.warn("Date filtering not available for non-MultiIndex data", stacklevel=2)
             features_subset = self.features
             labels_subset = self.labels
 
@@ -178,7 +180,7 @@ class TerritorialDataset:
             TerritorialDataset with latest data
         """
         if not self.dates:
-            warnings.warn("No date information available")
+            warnings.warn("No date information available", stacklevel=2)
             return self
 
         latest_dates = sorted(self.dates)[-n_periods:]
@@ -385,7 +387,7 @@ class TerritorialDataset:
         available_features = [f for f in feature_names if f in self.features.columns]
         if len(available_features) != len(feature_names):
             missing = set(feature_names) - set(available_features)
-            warnings.warn(f"Missing features: {missing}")
+            warnings.warn(f"Missing features: {missing}", stacklevel=2)
 
         new_features = self.features[available_features]
         return TerritorialDataset(new_features, self.labels, self.metadata)

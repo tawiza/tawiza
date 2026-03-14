@@ -1,14 +1,14 @@
 """Common Crawl adapter - Query CDX index and extract WARC content."""
 
 import hashlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
 import httpx
 from loguru import logger
 
-from src.infrastructure.datasources.base import AdapterConfig, BaseAdapter, SyncStatus
+from src.infrastructure.datasources.base import AdapterConfig, BaseAdapter
 
 # CDX API base URL
 CDX_API = "https://index.commoncrawl.org"

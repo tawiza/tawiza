@@ -5,9 +5,7 @@ Exposes the unified collector (collect_all_v2.py) as a controllable service.
 
 import asyncio
 import os
-import subprocess
-import time
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 

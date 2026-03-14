@@ -393,7 +393,6 @@ class MetricsScreen(Container):
     def action_export_csv(self) -> None:
         """Export metrics to CSV."""
         import csv
-        from pathlib import Path
 
         try:
             from src.cli.constants import PROJECT_ROOT

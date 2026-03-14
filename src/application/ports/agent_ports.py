@@ -6,7 +6,7 @@ and service orchestration in the Tawiza platform.
 
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 

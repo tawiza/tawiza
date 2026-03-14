@@ -23,7 +23,6 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any
 
 import httpx
 from loguru import logger

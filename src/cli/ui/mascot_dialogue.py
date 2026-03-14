@@ -2,7 +2,7 @@
 """Système de dialogues contextuels pour la mascotte."""
 
 import random
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 
 class DialogueContext(StrEnum):

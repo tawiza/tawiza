@@ -7,7 +7,6 @@ Source: https://files.data.gouv.fr/geo-dvf/latest/csv/
 import asyncio
 import csv
 import gzip
-import io
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import datetime

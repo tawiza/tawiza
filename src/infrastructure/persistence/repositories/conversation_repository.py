@@ -149,8 +149,7 @@ class ConversationRepository:
         Returns:
             Tuple of (matching conversations, total count)
         """
-        from sqlalchemy import literal_column, or_
-        from sqlalchemy.sql import text
+        from sqlalchemy import or_
 
         # Prepare search query for PostgreSQL (replace spaces with &)
         " & ".join(query.strip().split())

@@ -6,7 +6,7 @@ Filters alerts by relevance using an LLM to score business value.
 import asyncio
 import json
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 from loguru import logger
 

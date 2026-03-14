@@ -1,7 +1,5 @@
 """NLP processing for French text - entity extraction with spaCy."""
 
-from typing import Any
-
 from loguru import logger
 
 

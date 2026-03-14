@@ -5,14 +5,12 @@ Extends the basic microsignals endpoint in signals.py with management features.
 
 import asyncio
 import os
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import asyncpg
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
-from loguru import logger
-from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1/microsignals", tags=["Micro-Signals"])
 

@@ -1,7 +1,7 @@
 """Drift report entity for tracking model performance degradation."""
 
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 

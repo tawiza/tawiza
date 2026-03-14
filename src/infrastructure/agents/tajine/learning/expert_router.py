@@ -13,7 +13,7 @@ Each expert specializes in a French territorial domain:
 """
 
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any, Protocol
 
 from loguru import logger

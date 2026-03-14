@@ -4,17 +4,15 @@ Moving averages, rate of change, and cross-source lag correlations.
 Inspired by quantitative finance techniques adapted to territorial intelligence.
 """
 
-import asyncio
 from collections import defaultdict
-from datetime import date, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from loguru import logger
 from scipy.stats import pearsonr
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
 class TemporalAnalyzer:
@@ -32,7 +30,7 @@ class TemporalAnalyzer:
 
 
 async def compute_moving_averages(
-    db_url: str, dept: str, metric_name: str, windows: list[int] = [3, 6, 12]
+    db_url: str, dept: str, metric_name: str, windows: list[int] | None = None
 ) -> dict[str, Any]:
     """Compute moving averages over N months for a metric in a department.
 
@@ -50,6 +48,8 @@ async def compute_moving_averages(
             'current_trend': 'bullish'/'bearish'/'neutral'
         }
     """
+    if windows is None:
+        windows = [3, 6, 12]
     logger.info(f"Computing moving averages for {dept} - {metric_name}")
 
     engine = create_async_engine(db_url, echo=False)
@@ -155,7 +155,7 @@ async def compute_moving_averages(
 
 
 async def compute_rate_of_change(
-    db_url: str, dept: str, periods: list[int] = [3, 6]
+    db_url: str, dept: str, periods: list[int] | None = None
 ) -> dict[str, dict[str, float | None]]:
     """Compute rate of change over N months for all metrics in a department.
 
@@ -168,6 +168,8 @@ async def compute_rate_of_change(
         Dict: {metric_name: {period: roc_value, 'alert': bool}}
         ROC = (current - N_months_ago) / N_months_ago
     """
+    if periods is None:
+        periods = [3, 6]
     logger.info(f"Computing rate of change for department {dept}")
 
     engine = create_async_engine(db_url, echo=False)

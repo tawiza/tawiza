@@ -11,7 +11,7 @@ from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infrastructure.persistence.models import TerritorialSnapshot, TerritorialTrend
+from src.infrastructure.persistence.models import TerritorialSnapshot
 
 
 class TerritorialHistoryService:

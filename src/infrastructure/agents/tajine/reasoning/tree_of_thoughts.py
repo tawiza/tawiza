@@ -7,7 +7,7 @@ where multiple approaches need to be evaluated.
 import asyncio
 import contextlib
 from dataclasses import dataclass, field
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any, Protocol
 
 from loguru import logger

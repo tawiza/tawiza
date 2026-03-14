@@ -5,7 +5,6 @@ Batch-updates signals that have code_commune but no code_epci.
 """
 
 import logging
-from typing import Optional
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine

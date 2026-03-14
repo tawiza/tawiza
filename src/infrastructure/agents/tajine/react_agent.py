@@ -20,14 +20,10 @@ Tools available:
   - knowledge_graph: Query the territorial knowledge graph
 """
 
-import asyncio
 import json
 import os
 import re
-import sys
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
-from typing import Any
 
 import asyncpg
 import httpx

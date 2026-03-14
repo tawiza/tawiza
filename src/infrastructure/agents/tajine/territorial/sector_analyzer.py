@@ -7,15 +7,11 @@ Fournit des statistiques par secteur NAF pour un territoire.
 from __future__ import annotations
 
 import json
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from loguru import logger
-
 from src.infrastructure.agents.tajine.territorial.naf_classifier import (
-    NAFSection,
     get_naf_classifier,
 )
 
