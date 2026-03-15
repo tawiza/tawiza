@@ -455,7 +455,7 @@ async def analyze_query(request: TAJINEAnalyzeRequest):
 
                 except Exception as e:
                     logger.error(f"Analysis streaming error: {e}")
-                    yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                    yield f"data: {json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'})}\n\n"
 
             return StreamingResponse(
                 event_stream(),
@@ -690,7 +690,7 @@ async def _react_stream_response(request: TAJINEAnalyzeRequest):
 
         except Exception as e:
             logger.error(f"ReAct streaming error: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'})}\n\n"
 
     return StreamingResponse(
         react_event_stream(),
@@ -822,7 +822,7 @@ Sois concis: pas de tableaux longs, prefere des listes courtes avec les 5 meille
 
         except Exception as e:
             logger.error(f"Fast streaming error: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'})}\n\n"
 
     return StreamingResponse(
         fast_event_stream(),
@@ -1239,7 +1239,7 @@ async def health_check():
         }
 
     except Exception as e:
-        return {"status": "degraded", "error": str(e)}
+        return {"status": "degraded", "error": "Erreur interne du serveur"}
 
 
 # ============================================================================

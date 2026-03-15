@@ -6,9 +6,11 @@ from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
+from loguru import logger
 from pydantic import BaseModel, Field
 
 from src.infrastructure.config.settings import get_settings
+from src.infrastructure.security.validators import safe_path
 
 # Lazy imports pour éviter de charger torch/transformers au démarrage
 if TYPE_CHECKING:
@@ -232,22 +234,24 @@ async def export_model(model_name: str, export_path: str | None = None) -> dict[
 @router.get("/models/{model_name}/export")
 async def download_exported_model(model_name: str):
     """Exporte et telecharge un modele fine-tune (GET - retourne fichier)."""
-    export_path = f"/tmp/{model_name}_modelfile.txt"
+    try:
+        file_path = safe_path("/tmp", f"{model_name}_modelfile.txt")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid model name")
 
     result = await get_fine_tuning_service().export_model(
-        model_name=model_name, export_path=Path(export_path)
+        model_name=model_name, export_path=file_path
     )
 
     if result["status"] == "failed":
         raise HTTPException(status_code=500, detail=result["error"])
 
-    file_path = Path(export_path)
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Export file not generated")
 
     return FileResponse(
         path=str(file_path),
-        filename=f"{model_name}_modelfile.txt",
+        filename=file_path.name,
         media_type="text/plain",
     )
 
@@ -457,9 +461,10 @@ async def health_check() -> dict[str, Any]:
                 }
 
     except Exception as e:
+        logger.error(f"Error in fine-tuning health check: {e}")
         return {
             "status": "unhealthy",
             "ollama_url": get_fine_tuning_service().ollama_url,
             "ollama_connected": False,
-            "error": str(e),
+            "error": "Erreur interne du serveur",
         }

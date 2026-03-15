@@ -12,6 +12,8 @@ from fastapi.responses import FileResponse
 from loguru import logger
 from pydantic import BaseModel, Field
 
+from src.infrastructure.security.validators import safe_path
+
 router = APIRouter(
     prefix="/ecocartographe",
     tags=["EcoCartographe"],
@@ -636,7 +638,10 @@ async def telecharger_fichier_sortie(filename: str):
     Télécharge un fichier de sortie par son nom.
     """
     output_dir = Path("workspace/outputs")
-    fichier_path = output_dir / filename
+    try:
+        fichier_path = safe_path(output_dir, filename)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Nom de fichier invalide")
 
     if not fichier_path.exists() or not fichier_path.is_file():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
@@ -651,7 +656,7 @@ async def telecharger_fichier_sortie(filename: str):
 
     media_type = media_types.get(fichier_path.suffix, "application/octet-stream")
 
-    return FileResponse(fichier_path, media_type=media_type, filename=filename)
+    return FileResponse(str(fichier_path), media_type=media_type, filename=fichier_path.name)
 
 
 @router.get("/health")

@@ -354,6 +354,35 @@ def validate_url(
     return validator.validate_ssrf_protection()
 
 
+def safe_path(base_dir: str | Path, user_path: str) -> Path:
+    """Resolve user path safely within base_dir.
+
+    Prevents path traversal attacks by ensuring the resolved path
+    stays within the allowed base directory.
+
+    Args:
+        base_dir: The allowed base directory.
+        user_path: The user-supplied path component.
+
+    Returns:
+        Resolved absolute Path within base_dir.
+
+    Raises:
+        ValueError: If the path escapes the base directory.
+
+    Example:
+        >>> safe_path("/tmp", "screenshot.png")
+        PosixPath('/tmp/screenshot.png')
+        >>> safe_path("/tmp", "../../etc/passwd")
+        ValueError: Path traversal detected: ../../etc/passwd
+    """
+    base = Path(base_dir).resolve()
+    target = (base / user_path).resolve()
+    if not str(target).startswith(str(base) + "/") and target != base:
+        raise ValueError(f"Path traversal detected: {user_path}")
+    return target
+
+
 def sanitize_command_argument(arg: str, arg_type: str = "string") -> str:
     """Sanitize command-line arguments for subprocess execution.
 

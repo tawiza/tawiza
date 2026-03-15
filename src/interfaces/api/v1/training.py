@@ -14,6 +14,8 @@ from typing import Any
 import asyncpg
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 
+from src.infrastructure.security.validators import safe_path
+
 router = APIRouter(prefix="/api/v1/training", tags=["Training Data"])
 
 DB_DSN = os.getenv(
@@ -94,7 +96,10 @@ async def list_datasets():
 @router.get("/datasets/{name}")
 async def get_dataset_preview(name: str, offset: int = 0, limit: int = 10):
     """Preview a training dataset (paginated)."""
-    fpath = DATA_DIR / name
+    try:
+        fpath = safe_path(DATA_DIR, name)
+    except ValueError:
+        raise HTTPException(400, "Invalid dataset name")
     if not fpath.exists() or not fpath.suffix == ".jsonl":
         raise HTTPException(404, f"Dataset {name} not found")
 

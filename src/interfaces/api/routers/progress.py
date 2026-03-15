@@ -109,7 +109,7 @@ async def stream_task_progress(
             raise
         except Exception as e:
             logger.error(f"Error streaming progress for {task_id}: {e}")
-            yield f'event: error\ndata: {{"error": "{str(e)}"}}\n\n'
+            yield 'event: error\ndata: {"error": "Erreur interne du serveur"}\n\n'
 
     return StreamingResponse(
         event_generator(),
