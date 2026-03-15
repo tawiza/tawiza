@@ -12,10 +12,10 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructure.persistence.models.feedback_model import FeedbackDB
 
 from src.domain.entities.feedback import Feedback, FeedbackStatus, FeedbackType
 from src.infrastructure.persistence.database import get_db_session
+from src.infrastructure.persistence.models.feedback_model import FeedbackDB
 
 router = APIRouter()
 
