@@ -48,7 +48,7 @@ class TestPydanticModels:
     def test_chat_request_defaults(self):
         """ChatRequest should have sensible defaults."""
         request = ChatRequest(messages=[Message(role="user", content="Hi")])
-        assert request.model == "qwen3:14b"
+        assert request.model == "qwen3.5:27b"
         assert request.temperature == 0.7
         assert request.stream is False
 
@@ -67,7 +67,7 @@ class TestPydanticModels:
     def test_completion_request_defaults(self):
         """CompletionRequest should have sensible defaults."""
         request = CompletionRequest(prompt="Hello")
-        assert request.model == "qwen3:14b"
+        assert request.model == "qwen3.5:27b"
         assert request.temperature == 0.7
         assert request.max_tokens == 512
 
@@ -75,12 +75,12 @@ class TestPydanticModels:
         """ChatResponse should have required fields."""
         response = ChatResponse(
             id="test-123",
-            model="qwen3:14b",
+            model="qwen3.5:27b",
             message="Hello!",
             usage={"prompt_tokens": 10, "completion_tokens": 5},
         )
         assert response.id == "test-123"
-        assert response.model == "qwen3:14b"
+        assert response.model == "qwen3.5:27b"
         assert response.message == "Hello!"
         assert response.usage["prompt_tokens"] == 10
 
@@ -88,7 +88,7 @@ class TestPydanticModels:
         """CompletionResponse should have required fields."""
         response = CompletionResponse(
             id="test-456",
-            model="qwen3:14b",
+            model="qwen3.5:27b",
             text="Generated text here",
             usage={},
         )
@@ -98,13 +98,13 @@ class TestPydanticModels:
     def test_model_info(self):
         """ModelInfo should contain model details."""
         info = ModelInfo(
-            name="qwen3:14b",
+            name="qwen3.5:27b",
             size="8.5GB",
             parameter_count="14B",
             quantization="Q4_K_M",
             family="qwen",
         )
-        assert info.name == "qwen3:14b"
+        assert info.name == "qwen3.5:27b"
         assert info.size == "8.5GB"
         assert info.parameter_count == "14B"
 
@@ -172,7 +172,7 @@ class TestOllamaEndpointsIntegration:
         service = MagicMock()
         service.predict = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Test response",
                 "usage": {"prompt_tokens": 10, "completion_tokens": 20},
             }
@@ -182,7 +182,7 @@ class TestOllamaEndpointsIntegration:
         service.ollama.list_models = AsyncMock(
             return_value=[
                 {
-                    "name": "qwen3:14b",
+                    "name": "qwen3.5:27b",
                     "size": 8500000000,
                     "details": {
                         "parameter_size": "14B",
@@ -214,7 +214,7 @@ class TestOllamaEndpointsIntegration:
             "/ollama/chat",
             json={
                 "messages": [{"role": "user", "content": "Hello"}],
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "temperature": 0.7,
             },
         )
@@ -222,7 +222,7 @@ class TestOllamaEndpointsIntegration:
         assert response.status_code == 200
         data = response.json()
         assert "id" in data
-        assert data["model"] == "qwen3:14b"
+        assert data["model"] == "qwen3.5:27b"
         assert data["message"] == "Test response"
         assert data["usage"]["prompt_tokens"] == 10
 
@@ -252,7 +252,7 @@ class TestOllamaEndpointsIntegration:
             "/ollama/completions",
             json={
                 "prompt": "Once upon a time",
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "temperature": 0.8,
                 "max_tokens": 256,
             },
@@ -261,7 +261,7 @@ class TestOllamaEndpointsIntegration:
         assert response.status_code == 200
         data = response.json()
         assert data["text"] == "Test response"
-        assert data["model"] == "qwen3:14b"
+        assert data["model"] == "qwen3.5:27b"
 
     def test_list_models_success(self, test_client, mock_ollama_service):
         """GET /ollama/models should return model list."""
@@ -271,7 +271,7 @@ class TestOllamaEndpointsIntegration:
         data = response.json()
         assert data["total"] == 1
         assert len(data["models"]) == 1
-        assert data["models"][0]["name"] == "qwen3:14b"
+        assert data["models"][0]["name"] == "qwen3.5:27b"
         assert data["models"][0]["parameter_count"] == "14B"
 
     def test_health_check_healthy(self, test_client, mock_ollama_service):
@@ -315,7 +315,7 @@ class TestNLPEndpoints:
         # Standard predict
         service.predict = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Test response",
                 "usage": {},
             }
@@ -324,7 +324,7 @@ class TestNLPEndpoints:
         # Template-based predict
         service.predict_with_template = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Template response",
                 "usage": {},
                 "template_used": "test_template",
@@ -335,56 +335,56 @@ class TestNLPEndpoints:
         # NLP methods
         service.classify_text = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "positive",
                 "usage": {},
             }
         )
         service.extract_entities = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": '{"entities": [{"text": "Paris", "type": "LOCATION"}]}',
                 "usage": {},
             }
         )
         service.summarize_text = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Summary of the text",
                 "usage": {},
             }
         )
         service.analyze_sentiment = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": '{"sentiment": "positive", "confidence": 0.9}',
                 "usage": {},
             }
         )
         service.answer_question = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "The answer is 42",
                 "usage": {},
             }
         )
         service.translate_text = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Bonjour",
                 "usage": {},
             }
         )
         service.review_code = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Code looks good, no issues found",
                 "usage": {},
             }
         )
         service.analyze_error = AsyncMock(
             return_value={
-                "model": "qwen3:14b",
+                "model": "qwen3.5:27b",
                 "text": "Root cause: Missing null check",
                 "usage": {},
             }
