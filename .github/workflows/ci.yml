@@ -7,9 +7,45 @@ on:
     branches: [main]
 
 jobs:
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan secrets
+        run: |
+          LEAKS=$(grep -rn -E '(api[_-]?key|token|secret|password)\s*[:=]\s*["'"'"'][A-Za-z0-9+/=_-]{20,}' \
+            --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --include="*.yml" \
+            --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir=".venv" \
+            --exclude=".env.example" --exclude="pyproject.toml" . || true)
+          if [ -n "$LEAKS" ]; then
+            echo "::error::Secrets potentiels detectes"
+            echo "$LEAKS"
+            exit 1
+          fi
+          echo "Aucun secret detecte"
+
+      - name: Check no private references
+        run: |
+          PRIV=$(grep -rn 'MPtoO-V2\|hamidedefr/MPtoO\|mptoo-v2\|moltbot-secure' \
+            --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.md" \
+            --exclude-dir=".git" --exclude-dir="node_modules" . || true)
+          if [ -n "$PRIV" ]; then
+            echo "::warning::References au repo prive detectees"
+            echo "$PRIV"
+          fi
+
+      - name: Check mandatory files
+        run: |
+          for f in README.md LICENSE SECURITY.md CONTRIBUTING.md; do
+            [ -f "$f" ] || { echo "::error::$f manquant"; exit 1; }
+          done
+
   test:
     name: Tests
     runs-on: ubuntu-latest
+    needs: security
 
     services:
       postgres:
@@ -57,15 +93,13 @@ jobs:
         env:
           DATABASE_URL: postgresql+asyncpg://tawiza:test_password@localhost:5432/tawiza_test
           REDIS_URL: redis://localhost:6379/0
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: .
         run: |
-          # Run with --continue-on-collection-errors to handle optional deps
           pytest tests/unit -v --cov=src --cov-report=xml --no-header -q \
             --continue-on-collection-errors 2>&1 | tee pytest-output.txt
-          # Extract the summary line and fail only on actual test failures
           SUMMARY=$(tail -1 pytest-output.txt)
           if echo "$SUMMARY" | grep -qP '\d+ failed'; then
-            echo "::error::$SUMMARY"
+            echo "::error::Tests failed"
             exit 1
           fi
 
