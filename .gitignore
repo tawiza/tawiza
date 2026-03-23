@@ -81,3 +81,4 @@ credentials/
 # Frontend exceptions (override data/ rule)
 !frontend/lib/
 !frontend/data/
+AUDIT.md

@@ -54,7 +54,7 @@ export default function EPCIScoresWidget() {
             🏘️ Scores EPCI (Intercommunalités)
           </h3>
           <p className="text-sm text-white/50 mt-1">
-            {epcis.length} EPCI scorés — granularité intercommunale
+            {epcis.length} EPCI scorés  -  granularité intercommunale
           </p>
         </div>
         <div>

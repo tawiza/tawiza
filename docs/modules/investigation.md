@@ -182,4 +182,4 @@ Pas de variables d'environnement spécifiques. Le module utilise :
 - L'extraction INPI n'est pas encore implémentée (dirigeants)
 - Le modèle XGBoost nécessite un dataset d'entraînement labellisé (non disponible)
 - La couverture des signaux web (avis, actualités) est limitée
-- Pas de mise à jour incrémentale — chaque investigation repart de zéro
+- Pas de mise à jour incrémentale  -  chaque investigation repart de zéro

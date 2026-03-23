@@ -250,7 +250,7 @@ export function DecisionBoard({ decisions, stakeholders, isLoading, onMutate, de
                             {sh.role_in_decision}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">{sh.stakeholder_role} — {sh.stakeholder_org}</p>
+                        <p className="text-xs text-muted-foreground">{sh.stakeholder_role}  -  {sh.stakeholder_org}</p>
                         {sh.recommendation && (
                           <p className="text-xs mt-1 text-foreground/80 italic">
                             &laquo; {sh.recommendation} &raquo;

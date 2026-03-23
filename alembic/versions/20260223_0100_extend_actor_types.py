@@ -25,7 +25,7 @@ def upgrade() -> None:
     so we commit the current transaction first and re-open it after.
     The IF NOT EXISTS clause makes this migration idempotent.
     """
-    # Must run outside a transaction — PostgreSQL restriction on ADD VALUE.
+    # Must run outside a transaction  -  PostgreSQL restriction on ADD VALUE.
     op.execute("COMMIT")
     op.execute("ALTER TYPE actor_type ADD VALUE IF NOT EXISTS 'association'")
     op.execute("ALTER TYPE actor_type ADD VALUE IF NOT EXISTS 'formation'")

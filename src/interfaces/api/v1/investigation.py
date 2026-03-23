@@ -1,4 +1,4 @@
-"""Investigation API — entity search, signal drill-down, risk analysis.
+"""Investigation API  -  entity search, signal drill-down, risk analysis.
 
 Provides endpoints for the Investigation page to search entities,
 view their signal history, and run LLM-powered risk assessments.
@@ -80,7 +80,7 @@ async def search_investigation(
             )
             results = [dict(r) for r in rows]
 
-        # 2. SIREN/SIRET search (9+ digits) — extract SIREN from SIRET if needed
+        # 2. SIREN/SIRET search (9+ digits)  -  extract SIREN from SIRET if needed
         elif q.isdigit() and len(q) >= 9:
             # If SIRET (14 digits), extract SIREN (first 9)
             siren = q[:9] if len(q) >= 14 else q
@@ -185,7 +185,7 @@ async def search_investigation(
                                     "department": r.get("siege", {}).get("departement", ""),
                                     "date": r.get("date_creation", ""),
                                     "type": "external",
-                                    "text": f"{r.get('nom_complet', '')} — {r.get('siege', {}).get('libelle_commune', '')} — NAF: {r.get('activite_principale', '')} — {r.get('nature_juridique', '')}",
+                                    "text": f"{r.get('nom_complet', '')}  -  {r.get('siege', {}).get('libelle_commune', '')}  -  NAF: {r.get('activite_principale', '')}  -  {r.get('nature_juridique', '')}",
                                     "collected_at": None,
                                 }
                             )
@@ -398,7 +398,7 @@ async def analyze_entity(identifier: str = Query(...), context: str = Query(""))
         # Build context for LLM
         signal_lines = []
         for r in rows:
-            line = f"[{r['source']}] {r['event_date']} — {r['metric_name']}"
+            line = f"[{r['source']}] {r['event_date']}  -  {r['metric_name']}"
             if r["metric_value"]:
                 line += f" = {r['metric_value']}"
             if r["signal_type"]:

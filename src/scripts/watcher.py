@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Watcher Service — Surveillance continue des indicateurs territoriaux.
+"""Watcher Service  -  Surveillance continue des indicateurs territoriaux.
 
 Toutes les N minutes, compare les dernières valeurs aux moyennes historiques
 et détecte les changements significatifs (seuils configurables).
@@ -300,13 +300,13 @@ async def run_once():
 async def run_daemon():
     """Continuous watch loop."""
     logger.info(
-        f"Watcher demarrage — intervalle {WATCH_INTERVAL_MINUTES} min, seuil z={Z_THRESHOLD}"
+        f"Watcher demarrage  -  intervalle {WATCH_INTERVAL_MINUTES} min, seuil z={Z_THRESHOLD}"
     )
 
     while True:
         try:
             logger.info(f"\n{'=' * 50}")
-            logger.info(f"Cycle de surveillance — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+            logger.info(f"Cycle de surveillance  -  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
             logger.info(f"{'=' * 50}")
 
             await run_once()
@@ -321,7 +321,7 @@ async def run_daemon():
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Watcher — Surveillance territoriale continue")
+    parser = argparse.ArgumentParser(description="Watcher  -  Surveillance territoriale continue")
     parser.add_argument("--once", action="store_true", help="Run once and exit")
     parser.add_argument(
         "--interval", type=int, default=WATCH_INTERVAL_MINUTES, help="Interval in minutes"

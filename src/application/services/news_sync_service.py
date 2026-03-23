@@ -210,7 +210,7 @@ class NewsSyncService:
             )
 
             message = (
-                f"{severity_emoji} *SPIKE NEWS — {spike.stream}*\n"
+                f"{severity_emoji} *SPIKE NEWS  -  {spike.stream}*\n"
                 f"Volume: {spike.current_value:.0f} articles\n"
                 f"Moyenne: {spike.mean:.1f} | Z-score: {spike.z_score:.1f}\n"
                 f"Sévérité: {spike.severity.value.upper()}"
@@ -247,7 +247,7 @@ class NewsSyncService:
                 )
 
             message = (
-                f"🎯 *FOCAL POINT — {fp['entity']}*\n"
+                f"🎯 *FOCAL POINT  -  {fp['entity']}*\n"
                 f"Score: {fp['score']} | {fp['source_count']} sources | {fp['mention_count']} mentions\n"
                 f"Sources: {', '.join(fp.get('sources', [])[:4])}"
                 f"{actor_tag}"

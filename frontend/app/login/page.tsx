@@ -133,7 +133,7 @@ export default function LoginPage() {
           <div className="mt-6 pt-6 border-t border-border/50">
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="h-3 w-3" />
-              <span>Connexion securisee — Tawiza v2.17</span>
+              <span>Connexion securisee  -  Tawiza v2.17</span>
             </div>
           </div>
         </CardContent>

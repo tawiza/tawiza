@@ -41,10 +41,10 @@ L'`ExtendedKnowledgeGraph` hérite d'un KG in-memory (pour les lectures rapides)
 
 | Relation | De | Vers | Propriétés |
 |----------|-----|------|------------|
-| `HAS_ESTABLISHMENT` | Company | Establishment | — |
-| `LOCATED_IN` | Establishment | Territory | — |
+| `HAS_ESTABLISHMENT` | Company | Establishment |  -  |
+| `LOCATED_IN` | Establishment | Territory |  -  |
 | `DIRECTED_BY` | Company | Director | role, since |
-| `IN_SECTOR` | Company | Sector | — |
+| `IN_SECTOR` | Company | Sector |  -  |
 | `SUPPLIES` | Company | Company | contract_type, volume |
 | `COMPETES_WITH` | Company | Company | market, overlap_score |
 | `PARTNERS_WITH` | Company | Company | partnership_type |
@@ -58,7 +58,7 @@ Implémentés via Neo4j Graph Data Science (GDS) :
 | Algorithme | Description | Usage |
 |-----------|-------------|-------|
 | **PageRank** | Importance relative des entreprises dans le réseau | Identifier les entreprises centrales d'un territoire |
-| **Betweenness** | Intermédiarité — noeuds "ponts" entre communautés | Détecter les entreprises connectrices |
+| **Betweenness** | Intermédiarité  -  noeuds "ponts" entre communautés | Détecter les entreprises connectrices |
 
 ```python
 # Exemple : Top 20 entreprises par PageRank en Haute-Garonne
@@ -132,7 +132,7 @@ src/infrastructure/agents/tajine/
 |----------|-------------|--------|
 | `NEO4J_URI` | URI de connexion Neo4j | `bolt://localhost:7687` |
 | `NEO4J_USER` | Utilisateur Neo4j | `neo4j` |
-| `NEO4J_PASSWORD` | Mot de passe Neo4j | — |
+| `NEO4J_PASSWORD` | Mot de passe Neo4j |  -  |
 | `NEO4J_DATABASE` | Nom de la base | `neo4j` |
 
 Neo4j est **optionnel**. Sans Neo4j, le KG fonctionne uniquement en mémoire (pas de persistence ni d'algorithmes GDS).

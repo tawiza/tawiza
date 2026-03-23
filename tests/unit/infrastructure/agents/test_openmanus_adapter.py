@@ -22,7 +22,7 @@ try:
 except ImportError:
     pytest.skip("Playwright not installed", allow_module_level=True)
 
-# Skip entire module in CI — these tests need real browser binaries
+# Skip entire module in CI  -  these tests need real browser binaries
 pytestmark = pytest.mark.skipif(
     not Path.home().joinpath(".cache/ms-playwright/chromium-1148").exists()
     and not Path.home().joinpath(".cache/ms-playwright/chromium_headless_shell-1208").exists(),

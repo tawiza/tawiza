@@ -127,14 +127,14 @@ class RssEnhancedAdapter(BaseAdapter):
 
         Args:
             query: Search parameters
-                - keywords: str — Filter by title/summary content
-                - categories: list[str] — Filter by FeedCategory values
-                - region: str — Filter by department/region code
-                - priority: int — Max priority level (1=critical only, 4=all)
-                - feeds: list[str] — Specific feed names
-                - limit: int — Max results (default 50)
-                - since: datetime — Only entries after this date
-                - deduplicate: bool — Apply Jaccard dedup (default True)
+                - keywords: str  -  Filter by title/summary content
+                - categories: list[str]  -  Filter by FeedCategory values
+                - region: str  -  Filter by department/region code
+                - priority: int  -  Max priority level (1=critical only, 4=all)
+                - feeds: list[str]  -  Specific feed names
+                - limit: int  -  Max results (default 50)
+                - since: datetime  -  Only entries after this date
+                - deduplicate: bool  -  Apply Jaccard dedup (default True)
 
         Returns:
             Deduplicated, sorted list of feed entries

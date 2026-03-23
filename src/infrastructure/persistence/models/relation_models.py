@@ -17,7 +17,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.infrastructure.persistence.database import Base
 
 # ---------------------------------------------------------------------------
-# Enums – values must match the PostgreSQL enum types created by migration.
+# Enums - values must match the PostgreSQL enum types created by migration.
 # ---------------------------------------------------------------------------
 
 

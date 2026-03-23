@@ -175,9 +175,9 @@ class ResilientDataHunter:
         """Execute a resilient hunt with Plan-Execute-Reflect loop.
 
         Each iteration:
-        1. **Plan** — select targets (strategies, sources, gaps)
-        2. **Execute** — fetch data with retry / fallback / cache
-        3. **Reflect** — evaluate quality & diversity; re-plan if needed
+        1. **Plan**  -  select targets (strategies, sources, gaps)
+        2. **Execute**  -  fetch data with retry / fallback / cache
+        3. **Reflect**  -  evaluate quality & diversity; re-plan if needed
 
         The loop runs up to ``MAX_REFLECT_ITERATIONS`` times (default 3).
         It exits early when data quality and source diversity thresholds are met.

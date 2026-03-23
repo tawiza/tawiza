@@ -1,4 +1,4 @@
-"""Department Health Index — adapted from World Monitor's Country Instability Index.
+"""Department Health Index  -  adapted from World Monitor's Country Instability Index.
 
 Scores French departments on a 0-100 scale using multiple data signals:
 
@@ -194,7 +194,7 @@ class DepartmentScorer:
                 or 0
             )
 
-            # BODACC events (7d) — from relation sources
+            # BODACC events (7d)  -  from relation sources
             bodacc_count = 0
             try:
                 bodacc_count = (

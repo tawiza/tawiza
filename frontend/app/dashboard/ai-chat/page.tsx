@@ -498,7 +498,7 @@ export default function AiChatPage() {
             <HiMapPin className="h-3.5 w-3.5 text-primary" />
             <span className="text-xs font-medium text-primary">Dept. {selectedDepartment}</span>
             <span className="text-[10px] text-muted-foreground hidden sm:inline">
-              — Contexte actif
+               -  Contexte actif
             </span>
             <button
               onClick={() => setSelectedDepartment(null)}
@@ -525,7 +525,7 @@ export default function AiChatPage() {
                 <h2 className="text-xl font-semibold text-foreground mb-1">TAJINE</h2>
                 <p className="text-sm text-muted-foreground/70">
                   {selectedDepartment
-                    ? `Intelligence territoriale — ${selectedDepartment}`
+                    ? `Intelligence territoriale  -  ${selectedDepartment}`
                     : "Agent d'intelligence territoriale"}
                 </p>
               </div>

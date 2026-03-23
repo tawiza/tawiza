@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collecteur unifié Tawiza V2 — Toutes sources vers table `signals`.
+"""Collecteur unifié Tawiza V2  -  Toutes sources vers table `signals`.
 
 Sources :
   1. BODACC (liquidations, créations, modifications)
@@ -72,7 +72,7 @@ class CollectStats:
 
 
 # ═══════════════════════════════════════════════════════════════
-# BODACC — Annonces légales (créations, liquidations, modifications)
+# BODACC  -  Annonces légales (créations, liquidations, modifications)
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -154,7 +154,7 @@ async def collect_bodacc(
 
 
 # ═══════════════════════════════════════════════════════════════
-# FRANCE TRAVAIL — Offres d'emploi
+# FRANCE TRAVAIL  -  Offres d'emploi
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -280,7 +280,7 @@ async def collect_france_travail(
 
 
 # ═══════════════════════════════════════════════════════════════
-# SIRENE — Créations d'entreprises (data.gouv.fr StockEtablissement)
+# SIRENE  -  Créations d'entreprises (data.gouv.fr StockEtablissement)
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -370,7 +370,7 @@ async def collect_sirene(
 
 
 # ═══════════════════════════════════════════════════════════════
-# INSEE — Chômage + Population
+# INSEE  -  Chômage + Population
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -379,7 +379,7 @@ async def get_insee_token(client: httpx.AsyncClient) -> str | None:
     client_key = os.getenv("INSEE_CLIENT_ID")
     client_secret = os.getenv("INSEE_CLIENT_SECRET")
     if not client_key or not client_secret:
-        logger.warning("⚠️ Pas de credentials INSEE — utilisation geo.api uniquement")
+        logger.warning("⚠️ Pas de credentials INSEE  -  utilisation geo.api uniquement")
         return None
 
     try:
@@ -529,7 +529,7 @@ async def collect_insee(
 
 
 # ═══════════════════════════════════════════════════════════════
-# OFGL — Finances des collectivités
+# OFGL  -  Finances des collectivités
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -619,7 +619,7 @@ async def collect_ofgl(
 
 
 # ═══════════════════════════════════════════════════════════════
-# DVF — Transactions immobilières (data.gouv.fr)
+# DVF  -  Transactions immobilières (data.gouv.fr)
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -767,7 +767,7 @@ async def collect_dvf(
 
 
 # ═══════════════════════════════════════════════════════════════
-# BANQUE DE FRANCE — Défaillances d'entreprises
+# BANQUE DE FRANCE  -  Défaillances d'entreprises
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -776,7 +776,7 @@ async def collect_banque_france(client: httpx.AsyncClient) -> tuple[list[Signal]
     stats = CollectStats(source="banque_france")
     signals = []
 
-    # Webstat BdF — SDMX REST API
+    # Webstat BdF  -  SDMX REST API
     # Défaillances d'entreprises : série ESANE
     urls_to_try = [
         "https://webstat.banque-france.fr/api/v1/data/FM/M.FR.EUR.FR2.BB.DEFAILLANCES_CUMUL12M.E",
@@ -847,7 +847,7 @@ async def collect_banque_france(client: httpx.AsyncClient) -> tuple[list[Signal]
 
 
 # ═══════════════════════════════════════════════════════════════
-# PRESSE LOCALE — Flux RSS
+# PRESSE LOCALE  -  Flux RSS
 # ═══════════════════════════════════════════════════════════════
 
 RSS_FEEDS = {
@@ -974,7 +974,7 @@ async def collect_presse(client: httpx.AsyncClient) -> tuple[list[Signal], Colle
                             "keywords": matching_kw,
                             "sentiment": sentiment,
                         },
-                        extracted_text=f"{title} — {desc[:300]}",
+                        extracted_text=f"{title}  -  {desc[:300]}",
                     )
                 )
                 stats.collected += 1
@@ -991,7 +991,7 @@ async def collect_presse(client: httpx.AsyncClient) -> tuple[list[Signal], Colle
 
 
 # ═══════════════════════════════════════════════════════════════
-# URSSAF — Auto-entrepreneurs par département
+# URSSAF  -  Auto-entrepreneurs par département
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -1141,7 +1141,7 @@ async def collect_urssaf(
 
 
 # ═══════════════════════════════════════════════════════════════
-# GOOGLE TRENDS — Tendances de recherche
+# GOOGLE TRENDS  -  Tendances de recherche
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -1318,7 +1318,7 @@ async def store_signals(signals: list[Signal]) -> int:
 
 
 # ═══════════════════════════════════════════════════════════════
-# SITADEL — Permis de construire (SDES DiDo API)
+# SITADEL  -  Permis de construire (SDES DiDo API)
 # ═══════════════════════════════════════════════════════════════
 
 DIDO_BASE = "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1"
@@ -1394,7 +1394,7 @@ async def collect_sitadel(
 
 
 # ═══════════════════════════════════════════════════════════════
-# GDELT — Événements mondiaux géolocalisés en France
+# GDELT  -  Événements mondiaux géolocalisés en France
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -1479,7 +1479,7 @@ async def collect_gdelt(
 
 
 # ═══════════════════════════════════════════════════════════════
-# DGFiP — Fiscalité locale & Comptes départementaux
+# DGFiP  -  Fiscalité locale & Comptes départementaux
 # ═══════════════════════════════════════════════════════════════
 
 

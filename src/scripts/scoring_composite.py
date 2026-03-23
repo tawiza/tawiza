@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scoring composite territorial — 6 alpha factors normalisés par population.
+"""Scoring composite territorial  -  6 alpha factors normalisés par population.
 
 Dimensions :
   α1 : Santé des entreprises (créations vs liquidations, BODACC + SIRENE)

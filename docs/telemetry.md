@@ -1,4 +1,4 @@
-# Télémétrie — Tawiza
+# Télémétrie  -  Tawiza
 
 ## Philosophie
 
@@ -41,7 +41,7 @@ C'est tout. Quand la télémétrie est désactivée :
 
 ## Infrastructure
 
-- **Service** : [PostHog](https://posthog.com/) (hébergé en EU — `eu.i.posthog.com`)
+- **Service** : [PostHog](https://posthog.com/) (hébergé en EU  -  `eu.i.posthog.com`)
 - **Clé API** : Write-only (ne permet pas de lire les données)
 - **Rétention** : 90 jours
 - **RGPD** : Données anonymes, aucune donnée personnelle, serveurs EU
@@ -63,4 +63,4 @@ En tant que projet open source, nous n'avons pas de métriques d'usage naturelle
 - Prioriser les efforts de développement
 - Mesurer l'adoption de nouvelles versions
 
-Si vous êtes à l'aise avec ça, laissez-la activée — ça nous aide à améliorer Tawiza pour tout le monde.
+Si vous êtes à l'aise avec ça, laissez-la activée  -  ça nous aide à améliorer Tawiza pour tout le monde.

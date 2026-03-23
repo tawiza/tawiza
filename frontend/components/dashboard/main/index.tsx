@@ -518,7 +518,7 @@ export default function Main() {
                   >
                     {deptScores.map(d => (
                       <option key={d.code_dept} value={d.code_dept}>
-                        {d.code_dept} — {deptName(d.code_dept)}
+                        {d.code_dept}  -  {deptName(d.code_dept)}
                       </option>
                     ))}
                   </select>
@@ -604,7 +604,7 @@ export default function Main() {
                 <Target className="h-4 w-4 text-primary" />
                 Clusters economiques
               </GlassCardTitle>
-              <GlassCardDescription>DBSCAN — profils similaires</GlassCardDescription>
+              <GlassCardDescription>DBSCAN  -  profils similaires</GlassCardDescription>
             </GlassCardHeader>
             <GlassCardContent>
               <div className="h-[280px] overflow-y-auto space-y-2 pr-1">

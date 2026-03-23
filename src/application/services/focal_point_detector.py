@@ -1,4 +1,4 @@
-"""Focal Point Detection — cross-reference news with territorial actors.
+"""Focal Point Detection  -  cross-reference news with territorial actors.
 
 Inspired by World Monitor's Focal Point Detection pattern.
 Detects convergence when multiple sources report on the same entity.

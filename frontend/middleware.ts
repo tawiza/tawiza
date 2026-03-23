@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard/main', request.url));
   }
 
-  // Protect /dashboard/* routes — redirect to login if no session
+  // Protect /dashboard/* routes  -  redirect to login if no session
   if (pathname.startsWith('/dashboard')) {
     // Server-side: check for refresh_token cookie or tawiza-auth cookie
     // Client-side: AuthContext checks localStorage (more reliable)

@@ -54,7 +54,7 @@ class FeedConfig:
 
 FEEDS: list[FeedConfig] = [
     # =========================================================================
-    # ECO_NATIONAL — Presse économique nationale
+    # ECO_NATIONAL  -  Presse économique nationale
     # =========================================================================
     FeedConfig(
         "Les Échos",
@@ -141,7 +141,7 @@ FEEDS: list[FeedConfig] = [
         tags=["entreprises", "régional"],
     ),
     # =========================================================================
-    # ECO_REGIONAL — Presse régionale (priorité PACA / dept 13)
+    # ECO_REGIONAL  -  Presse régionale (priorité PACA / dept 13)
     # =========================================================================
     FeedConfig(
         "La Provence",
@@ -255,7 +255,7 @@ FEEDS: list[FeedConfig] = [
         tags=["paris", "idf"],
     ),
     # =========================================================================
-    # STARTUPS — Écosystème startup/innovation
+    # STARTUPS  -  Écosystème startup/innovation
     # =========================================================================
     FeedConfig(
         "Maddyness",
@@ -295,7 +295,7 @@ FEEDS: list[FeedConfig] = [
         tags=["incubateur", "paris"],
     ),
     # =========================================================================
-    # INDUSTRY — Industrie & manufacturing
+    # INDUSTRY  -  Industrie & manufacturing
     # =========================================================================
     FeedConfig(
         "Usine Digitale",
@@ -322,7 +322,7 @@ FEEDS: list[FeedConfig] = [
         tags=["ingénierie"],
     ),
     # =========================================================================
-    # INSTITUTIONS — Gouvernement, INSEE, Banque de France
+    # INSTITUTIONS  -  Gouvernement, INSEE, Banque de France
     # =========================================================================
     FeedConfig(
         "Ministère Économie",
@@ -379,7 +379,7 @@ FEEDS: list[FeedConfig] = [
         tags=["législation", "politique"],
     ),
     # =========================================================================
-    # THINK_TANKS — Recherche économique
+    # THINK_TANKS  -  Recherche économique
     # =========================================================================
     FeedConfig(
         "OFCE",
@@ -422,7 +422,7 @@ FEEDS: list[FeedConfig] = [
         tags=["recherche_eco"],
     ),
     # =========================================================================
-    # INTERNATIONAL — Sources World Monitor style
+    # INTERNATIONAL  -  Sources World Monitor style
     # =========================================================================
     FeedConfig(
         "France 24 FR",
@@ -485,7 +485,7 @@ FEEDS: list[FeedConfig] = [
         tags=["monde"],
     ),
     # =========================================================================
-    # TECH — Tech/AI/Digital
+    # TECH  -  Tech/AI/Digital
     # =========================================================================
     FeedConfig(
         "Le Monde Informatique",
@@ -525,7 +525,7 @@ FEEDS: list[FeedConfig] = [
         tags=["ia", "recherche"],
     ),
     # =========================================================================
-    # SECURITY — Cybersécurité
+    # SECURITY  -  Cybersécurité
     # =========================================================================
     FeedConfig(
         "CERT-FR (ANSSI)",
@@ -551,7 +551,7 @@ FEEDS: list[FeedConfig] = [
         tags=["cyber", "france"],
     ),
     # =========================================================================
-    # ENVIRONMENT — Environnement & énergie
+    # ENVIRONMENT  -  Environnement & énergie
     # =========================================================================
     FeedConfig(
         "Actu-Environnement",

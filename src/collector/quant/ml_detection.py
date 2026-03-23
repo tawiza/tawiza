@@ -461,7 +461,7 @@ class MLDetection:
             isolation_results = await self.isolation_forest_detection(contamination=0.1)
             results["isolation_forest"] = isolation_results
 
-            # Étape 2: Clustering — min_cluster_size=2 pour mieux grouper
+            # Étape 2: Clustering  -  min_cluster_size=2 pour mieux grouper
             clustering_results = await self.cluster_departments(
                 use_hdbscan=True, min_cluster_size=2
             )

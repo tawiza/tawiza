@@ -137,7 +137,7 @@ class LeBonCoinCollector(BaseCollector):
             # Check if we got blocked
             content = await page.content()
             if "temporairement restreint" in content or "captcha" in content.lower():
-                logger.warning(f"[leboncoin] Blocked on '{keyword}' — DataDome TLS fingerprint")
+                logger.warning(f"[leboncoin] Blocked on '{keyword}'  -  DataDome TLS fingerprint")
                 await page.close()
                 return []
 

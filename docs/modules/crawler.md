@@ -144,4 +144,4 @@ Limites de rate par domaine (configurées dans le code) :
 - Le Playwright Worker consomme beaucoup de mémoire sur les crawls longs
 - Pas de détection automatique de CAPTCHAs (échec silencieux)
 - Le scheduler MAB perd son apprentissage au redémarrage (pas de persistence)
-- Le parsing HTML est générique — pas de parsers spécialisés par site
+- Le parsing HTML est générique  -  pas de parsers spécialisés par site

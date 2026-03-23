@@ -90,7 +90,7 @@ STOP_WORDS = frozenset(
 # Minimum word length for meaningful comparison
 MIN_WORD_LENGTH = 4
 
-# Similarity threshold (0.0-1.0) — >0.6 = duplicate
+# Similarity threshold (0.0-1.0)  -  >0.6 = duplicate
 SIMILARITY_THRESHOLD = 0.6
 
 
@@ -145,7 +145,7 @@ def deduplicate_headlines(
 ) -> list[dict[str, Any]]:
     """Deduplicate a list of items by headline similarity.
 
-    Preserves order — first occurrence is kept.
+    Preserves order  -  first occurrence is kept.
 
     Args:
         items: List of dicts containing headlines

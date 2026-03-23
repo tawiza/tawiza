@@ -1,6 +1,6 @@
 /**
  * Shared constants and types for territorial/department features.
- * Single source of truth — do NOT duplicate these in individual components.
+ * Single source of truth  -  do NOT duplicate these in individual components.
  */
 
 import {

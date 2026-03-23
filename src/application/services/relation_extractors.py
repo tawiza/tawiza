@@ -3343,7 +3343,7 @@ class ADEMEExtractor(BaseExtractor):
                     siren = siret[:9]
                     ent_ext = f"SIREN:{siren}"
 
-                    # Create/update beneficiary actor (minimal — may already exist)
+                    # Create/update beneficiary actor (minimal  -  may already exist)
                     if ent_ext not in actors:
                         actors[ent_ext] = {
                             "id": str(_actor_id("enterprise", ent_ext)),

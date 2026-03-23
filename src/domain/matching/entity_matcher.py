@@ -108,10 +108,10 @@ class EntityMatcher:
             confidence = siret_score * self.siret_weight
         elif name_score > 0:
             if siret_mismatch:
-                # Different SIRETs penalize heavily — name alone is not reliable
+                # Different SIRETs penalize heavily  -  name alone is not reliable
                 confidence = name_score * self.name_weight
             else:
-                # No SIRET info at all — rely on name match directly
+                # No SIRET info at all  -  rely on name match directly
                 confidence = name_score
         else:
             confidence = 0

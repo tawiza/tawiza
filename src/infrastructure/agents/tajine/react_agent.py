@@ -1,4 +1,4 @@
-"""TAJINE ReAct Agent — Reason + Act loop for autonomous territorial analysis.
+"""TAJINE ReAct Agent  -  Reason + Act loop for autonomous territorial analysis.
 
 The agent receives a question, then iterates:
   1. THINK: reason about what information is needed
@@ -157,7 +157,7 @@ async def tool_department_profile(args: dict) -> str:
 
         total = sum(r["cnt"] for r in counts)
         lines = [
-            f"Dept {dept} — {total} signaux totaux, {ms_count} micro-signaux actifs",
+            f"Dept {dept}  -  {total} signaux totaux, {ms_count} micro-signaux actifs",
             "  Sources: " + ", ".join(f"{r['source']}={r['cnt']}" for r in counts),
         ]
 
@@ -198,7 +198,7 @@ async def tool_microsignals(args: dict) -> str:
             return "Aucun micro-signal actif" + (f" pour {dept}" if dept else "")
 
         lines = [
-            f"{r['territory_code']}: {r['signal_type']} (score={r['score']:.2f}) — {(r['description'] or '')[:100]}"
+            f"{r['territory_code']}: {r['signal_type']} (score={r['score']:.2f})  -  {(r['description'] or '')[:100]}"
             for r in rows
         ]
         return f"{len(rows)} micro-signaux:\n" + "\n".join(lines)
@@ -604,7 +604,7 @@ async def run_react_agent(
             messages.append({"role": "assistant", "content": llm_output})
             messages.append({"role": "user", "content": f"OBSERVATION:\n{tool_result}"})
         else:
-            # No valid action and no answer — force conclusion
+            # No valid action and no answer  -  force conclusion
             if parsed["action"] and parsed["action"] not in TOOLS:
                 messages.append({"role": "assistant", "content": llm_output})
                 messages.append(
@@ -625,7 +625,7 @@ async def run_react_agent(
 
         steps.append(step)
 
-    # Max iterations reached — force answer from what we have
+    # Max iterations reached  -  force answer from what we have
     logger.warning(f"[REACT] Max iterations ({max_iterations}) reached, forcing answer")
     messages.append(
         {

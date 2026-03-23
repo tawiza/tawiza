@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tawiza"
 version = "2.0.3"
-description = "Tawiza — Plateforme open source d'intelligence territoriale propulsée par l'IA"
+description = "Intelligence territoriale open source - donnees publiques francaises, analyse de territoires"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Tawiza Team"}
 ]
-keywords = ["tawiza", "intelligence-territoriale", "france", "open-data", "ollama", "agents-ia"]
+keywords = ["tawiza", "intelligence-territoriale", "france", "open-data", "ollama"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.10",

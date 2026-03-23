@@ -127,10 +127,10 @@ class CircuitBreaker:
             self._state = BreakerState.OPEN
             self._cooldown_until = time.monotonic() + self.config.cooldown_seconds
             logger.warning(
-                f"[CircuitBreaker:{self.config.name}] OPEN — "
+                f"[CircuitBreaker:{self.config.name}] OPEN  -  "
                 f"{self._failure_count} failures, "
                 f"cooldown {self.config.cooldown_seconds}s"
-                f"{f' — {error}' if error else ''}"
+                f"{f'  -  {error}' if error else ''}"
             )
 
     def _get_cached(self) -> Any | None:
@@ -191,7 +191,7 @@ class CircuitBreaker:
                 self._total_cache_hits += 1
                 return stale
 
-        # 4. No cache at all — must fetch (blocking)
+        # 4. No cache at all  -  must fetch (blocking)
         try:
             result = await asyncio.wait_for(
                 fn() if asyncio.iscoroutinefunction(fn) else asyncio.to_thread(fn),

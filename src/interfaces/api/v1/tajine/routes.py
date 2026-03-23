@@ -665,7 +665,7 @@ async def _fetch_rag_context_for_complete(query: str, department: str | None = N
 
 
 async def _react_stream_response(request: TAJINEAnalyzeRequest):
-    """Agentic ReAct streaming mode — autonomous tool-using agent."""
+    """Agentic ReAct streaming mode  -  autonomous tool-using agent."""
     import json
 
     from src.infrastructure.agents.tajine.react_agent import stream_react_agent
@@ -2503,7 +2503,7 @@ async def get_analytics_stats():
                 }
             )
     else:
-        # No fake data — empty when no real analyses
+        # No fake data  -  empty when no real analyses
         top_departments = []
 
     # Build recent analyses from real tasks
@@ -2565,7 +2565,7 @@ async def get_analytics_stats():
             }
         )
 
-    # No fake data — return zeros when no real analyses exist
+    # No fake data  -  return zeros when no real analyses exist
     if total == 0:
         cognitive_distribution = [
             {"level": "Discovery", "count": 0},

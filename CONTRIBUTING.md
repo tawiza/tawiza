@@ -18,7 +18,7 @@ Merci de votre intérêt pour Tawiza ! Ce guide explique comment contribuer, les
 
 ## Première contribution ?
 
-Regardez les issues avec le label [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) — elles sont spécifiquement préparées pour les nouveaux contributeurs.
+Regardez les issues avec le label [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue)  -  elles sont spécifiquement préparées pour les nouveaux contributeurs.
 
 Exemples de contributions bienvenues :
 - Ajouter une nouvelle source de données (API gouvernementale, open data)
@@ -103,12 +103,12 @@ git checkout -b fix/correction-du-bug
 ```
 
 Conventions de nommage :
-- `feat/` — nouvelle fonctionnalité
-- `fix/` — correction de bug
-- `docs/` — documentation
-- `refactor/` — refactoring sans changement fonctionnel
-- `test/` — ajout ou modification de tests
-- `chore/` — maintenance, dépendances, CI
+- `feat/`  -  nouvelle fonctionnalité
+- `fix/`  -  correction de bug
+- `docs/`  -  documentation
+- `refactor/`  -  refactoring sans changement fonctionnel
+- `test/`  -  ajout ou modification de tests
+- `chore/`  -  maintenance, dépendances, CI
 
 ### 2. Coder
 
@@ -280,6 +280,6 @@ Voir le fichier [LICENSE](LICENSE) pour le texte complet.
 
 ## Besoin d'aide ?
 
-- [GitHub Discussions](https://github.com/tawiza/tawiza/discussions) — Questions, idées, retours
-- [Issues](https://github.com/tawiza/tawiza/issues) — Bugs et feature requests
-- [Documentation](docs/) — Guides techniques
+- [GitHub Discussions](https://github.com/tawiza/tawiza/discussions)  -  Questions, idées, retours
+- [Issues](https://github.com/tawiza/tawiza/issues)  -  Bugs et feature requests
+- [Documentation](docs/)  -  Guides techniques

@@ -109,7 +109,7 @@ class TableFormatter(OutputFormatter):
     def _format_value(value: Any) -> str:
         """Format a single value for display."""
         if value is None:
-            return "[dim]—[/dim]"
+            return "[dim] - [/dim]"
         if isinstance(value, bool):
             return "[green]Yes[/green]" if value else "[red]No[/red]"
         if isinstance(value, float):

@@ -305,8 +305,8 @@ class EnrichmentService:
 
                         # Simple pattern for names with titles
                         name_patterns = [
-                            r"([\w\s]+)\s*[-–]\s*(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)",
-                            r"(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)\s*[-–:]\s*([\w\s]+)",
+                            r"([\w\s]+)\s*[--]\s*(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)",
+                            r"(CEO|CTO|Directeur|Fondateur|Manager|Président|DG)\s*[--:]\s*([\w\s]+)",
                         ]
 
                         for pattern in name_patterns:

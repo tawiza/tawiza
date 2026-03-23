@@ -482,11 +482,11 @@ export default function FranceMap() {
         </div>
         <div className="space-y-0.5">
           {[
-            { color: 'var(--success)', label: '≥ 70 — sain' },
-            { color: 'var(--success)', label: '55-70 — correct' },
-            { color: 'var(--warning)', label: '45-55 — attention' },
-            { color: 'var(--chart-5)', label: '35-45 — vigilance' },
-            { color: 'var(--error)', label: '< 35 — critique' },
+            { color: 'var(--success)', label: '≥ 70  -  sain' },
+            { color: 'var(--success)', label: '55-70  -  correct' },
+            { color: 'var(--warning)', label: '45-55  -  attention' },
+            { color: 'var(--chart-5)', label: '35-45  -  vigilance' },
+            { color: 'var(--error)', label: '< 35  -  critique' },
           ].map(({ color, label }) => (
             <div key={color} className="flex items-center gap-1.5">
               <div className="w-3 h-2 rounded-sm" style={{ backgroundColor: color }} />

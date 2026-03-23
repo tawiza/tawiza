@@ -123,6 +123,6 @@ Les seuils sont définis dans le code (`signal_detector.py`) et seront configura
 
 - Les seuils de détection sont codés en dur (pas encore configurables dynamiquement)
 - La couverture des sources est inégale selon les territoires
-- Pas encore de ML avancé (Isolation Forest, etc.) — détection par seuils statistiques
+- Pas encore de ML avancé (Isolation Forest, etc.)  -  détection par seuils statistiques
 - La fréquence de détection est manuelle (pas de cron automatique en production)
 - Les signaux prédictifs (`predictive_signals.py`) sont au stade expérimental

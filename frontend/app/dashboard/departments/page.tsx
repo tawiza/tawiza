@@ -245,7 +245,7 @@ export default function DepartmentsPage() {
   }
 
   return (
-    <DashboardLayout title="Départements" description="101 territoires français — Scores composites multi-facteurs">
+    <DashboardLayout title="Départements" description="101 territoires français  -  Scores composites multi-facteurs">
       <div className="space-y-4">
         {/* Summary cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -379,7 +379,7 @@ export default function DepartmentsPage() {
                         </span>
                       </td>
                       <td className="p-3 text-xs text-muted-foreground hidden lg:table-cell">
-                        {DEPT_REGIONS[d.code_dept] || '—'}
+                        {DEPT_REGIONS[d.code_dept] || ' - '}
                       </td>
                       <td className="p-3 text-center">
                         <div className="inline-flex items-center gap-2">
@@ -408,7 +408,7 @@ export default function DepartmentsPage() {
                         );
                       })}
                       <td className="p-3 text-center text-xs text-muted-foreground">
-                        {d.population ? `${(d.population / 1000).toFixed(0)}k` : '—'}
+                        {d.population ? `${(d.population / 1000).toFixed(0)}k` : ' - '}
                       </td>
                       <td className="p-3 text-center">
                         {nbMicro > 0 ? (
@@ -417,7 +417,7 @@ export default function DepartmentsPage() {
                             {nbMicro}
                           </span>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground/30">—</span>
+                          <span className="text-[10px] text-muted-foreground/30"> - </span>
                         )}
                       </td>
                       <td className="p-3">
