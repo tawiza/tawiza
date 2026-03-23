@@ -64,7 +64,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.5.2",
     "eventsource-parser": "^1.1.2",
-    "framer-motion": "^11.18.2",
+    "framer-motion": "^12.38.0",
     "graphology": "^0.26.0",
     "graphology-communities-louvain": "^2.0.2",
     "graphology-layout": "^0.6.1",
