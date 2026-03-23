@@ -17,7 +17,7 @@
 
 ### Intelligence territoriale open source
 
-**Tawiza** (tawiza) - mot amazigh signifiant *entraide collective*.
+**Tawiza** (ⵜⴰⵡⵉⵣⴰ) - mot amazigh signifiant *entraide collective*.
 
 [![Status: Beta](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](#etat-du-projet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://opensource.org/licenses/MIT)
@@ -26,67 +26,67 @@
 
 </div>
 
-> Ce projet est developpe par un dev solo en parallele d'un stage.
+> Ce projet est développé par un dev solo en parallèle d'un stage.
 > Certaines features marchent, d'autres sont en construction.
-> Le README decrit l'etat reel, pas la vision finale.
+> Le README décrit l'état réel, pas la vision finale.
 
 ---
 
 ## En bref
 
-Tawiza collecte des donnees depuis les APIs gouvernementales francaises et les organise pour analyser les territoires. Le backend interroge une vingtaine de sources (SIRENE, BODACC, DVF, INSEE, France Travail...), et un agent IA (TAJINE) peut synthetiser les resultats.
+Tawiza collecte des données depuis les APIs gouvernementales françaises et les organise pour analyser les territoires. Le backend interroge une vingtaine de sources (SIRENE, BODACC, DVF, INSEE, France Travail...), et un agent IA (TAJINE) peut synthétiser les résultats.
 
 **Stack** : Python/FastAPI + Next.js + PostgreSQL + Redis. LLM via Ollama (local) ou cloud (Groq, OpenRouter).
 
 ---
 
-## Etat du projet
+## État du projet
 
-| Module | Etat | Note |
+| Module | État | Note |
 |--------|:----:|------|
 | Dashboard web (7 pages) | En cours | Interface fonctionnelle, pas tout stable |
 | API REST | En cours | Endpoints TAJINE, conversations, export, sources |
-| Sources de donnees (~19 adaptateurs) | En cours | SIRENE, BODACC, DVF, INSEE, France Travail, etc. Code present, pas tout teste |
-| Agent TAJINE (cycle PPDSL) | En cours | 5 niveaux definis, resultats dependant du LLM |
-| Data Hunter (collecte) | En cours | Strategies bandit et discovery a tester |
+| Sources de données (~19 adaptateurs) | En cours | SIRENE, BODACC, DVF, INSEE, France Travail, etc. Code présent, pas tout testé |
+| Agent TAJINE (cycle PPDSL) | En cours | 5 niveaux définis, résultats dépendant du LLM |
+| Data Hunter (collecte) | En cours | Stratégies bandit et discovery à tester |
 | Crawler adaptatif | En cours | Scheduling MAB, workers HTTPX + Playwright |
-| CLI / TUI | En cours | Pas fonctionnel a 100% |
-| Knowledge Graph (Neo4j) | Present | Necessite Neo4j en infra |
-| Fine-tuning (LoRA/DPO) | Present | Necessite GPU et MLflow |
-| Veille (Watcher) | Present | Pollers BOAMP, BODACC, GDELT |
+| CLI / TUI | En cours | Pas fonctionnel à 100% |
+| Knowledge Graph (Neo4j) | Présent | Nécessite Neo4j en infra |
+| Fine-tuning (LoRA/DPO) | Présent | Nécessite GPU et MLflow |
+| Veille (Watcher) | Présent | Pollers BOAMP, BODACC, GDELT |
 
-**Legende** : *En cours* = code present, stabilisation en cours. *Present* = code reel, necessite configuration/infra specifique.
+**Légende** : *En cours* = code présent, stabilisation en cours. *Présent* = code réel, nécessite configuration/infra spécifique.
 
 ---
 
-## Sources de donnees
+## Sources de données
 
-19 adaptateurs codes. Les sources sans auth sont utilisables directement, les autres necessitent des cles API gratuites.
+19 adaptateurs codés. Les sources sans auth sont utilisables directement, les autres nécessitent des clés API gratuites.
 
 <details>
 <summary>Liste des sources</summary>
 
 | Source | Description | Auth |
 |--------|------------|:----:|
-| SIRENE | Entreprises francaises (11M+) | Non |
-| BODACC | Annonces legales | Non |
-| BOAMP | Marches publics | Non |
-| INSEE Local | Statistiques regionales | Oui (gratuit) |
+| SIRENE | Entreprises françaises (11M+) | Non |
+| BODACC | Annonces légales | Non |
+| BOAMP | Marchés publics | Non |
+| INSEE Local | Statistiques régionales | Oui (gratuit) |
 | France Travail | Offres d'emploi | Oui (OAuth2) |
-| DVF | Transactions immobilieres | Non |
-| BAN | Geocodage adresses | Non |
+| DVF | Transactions immobilières | Non |
+| BAN | Géocodage adresses | Non |
 | RNA | Associations | Non |
 | Subventions | Aides territoriales | Non |
 | OFGL | Finances locales | Non |
-| MELODI | Donnees douanieres | Oui |
-| GDELT | Evenements mondiaux | Non |
-| DBNomics | Donnees macroeconomiques | Non |
-| Google News | Actualites | Non |
+| MELODI | Données douanières | Oui |
+| GDELT | Événements mondiaux | Non |
+| DBNomics | Données macroéconomiques | Non |
+| Google News | Actualités | Non |
 | CommonCrawl | Archive web | Non |
 | PyTrends | Tendances Google | Non |
-| RSS Enhanced | News temps reel | Non |
+| RSS Enhanced | News temps réel | Non |
 | Wikipedia | Pageviews | Non |
-| Geo API | Communes, departements | Non |
+| Geo API | Communes, départements | Non |
 
 </details>
 
@@ -96,21 +96,21 @@ Tawiza collecte des donnees depuis les APIs gouvernementales francaises et les o
 
 L'agent TAJINE suit le cycle PPDSL (Perceive-Plan-Delegate-Synthesize-Learn) avec 5 niveaux :
 
-| Niveau | Capacite |
+| Niveau | Capacité |
 |--------|----------|
 | Discovery | Extraction factuelle |
 | Causal | Analyse causale (DAG) |
 | Scenario | Simulation Monte Carlo |
 | Strategy | Recommandations |
-| Theoretical | Principes generaux |
+| Theoretical | Principes généraux |
 
-> L'agent est en cours de simplification. Les resultats dependent du modele LLM et ne sont pas garantis.
+> L'agent est en cours de simplification. Les résultats dépendent du modèle LLM et ne sont pas garantis.
 
 ---
 
 ## Quick Start
 
-### Prerequis
+### Prérequis
 
 - Python 3.12+
 - Node.js 20+
@@ -163,7 +163,7 @@ GROQ_API_KEY=gsk_...          # gratuit, rate-limited
 OPENROUTER_API_KEY=sk-or-...  # payant
 ```
 
-**Claude API via OpenRouter** - pour les meilleurs resultats d'analyse.
+**Claude API via OpenRouter** - pour les meilleurs résultats d'analyse.
 
 Fallback chain : Ollama -> Groq -> OpenRouter.
 
@@ -175,10 +175,10 @@ Fallback chain : Ollama -> Groq -> OpenRouter.
 
 ```
 src/
-+-- domain/          # Entites, value objects, events
-+-- application/     # Services, use cases, DTOs
-+-- infrastructure/  # Adapters (DB, APIs, LLM, agents, crawlers)
-+-- interfaces/      # API REST, WebSocket, middleware
+├── domain/          # Entités, value objects, events
+├── application/     # Services, use cases, DTOs
+├── infrastructure/  # Adapters (DB, APIs, LLM, agents, crawlers)
+└── interfaces/      # API REST, WebSocket, middleware
 ```
 
 Architecture hexagonale (ports & adapters).
@@ -200,15 +200,15 @@ Architecture hexagonale (ports & adapters).
 
 ---
 
-## Telemetrie
+## Télémétrie
 
-Tawiza collecte des donnees de telemetrie anonymes via PostHog (EU) pour ameliorer la plateforme. Opt-out :
+Tawiza collecte des données de télémétrie anonymes via PostHog (EU) pour améliorer la plateforme. Opt-out :
 
 ```bash
 TELEMETRY_ENABLED=false  # dans .env
 ```
 
-Aucune IP, email, contenu de chat ou donnee d'entreprise n'est collectee. Code source : [`src/core/telemetry.py`](src/core/telemetry.py).
+Aucune IP, email, contenu de chat ou donnée d'entreprise n'est collectée. Code source : [`src/core/telemetry.py`](src/core/telemetry.py).
 
 ---
 
@@ -216,12 +216,12 @@ Aucune IP, email, contenu de chat ou donnee d'entreprise n'est collectee. Code s
 
 | Document | Description |
 |----------|-------------|
-| [Getting Started](docs/getting-started.md) | Installation detaillee |
+| [Getting Started](docs/getting-started.md) | Installation détaillée |
 | [Architecture](docs/architecture.md) | Structure du projet |
 | [Configuration](docs/configuration.md) | Variables d'environnement |
 | [Data Sources](docs/data-sources.md) | Catalogue des sources |
 | [API Reference](docs/api-reference.md) | Endpoints REST |
-| [Self-Hosting](docs/self-hosting.md) | Guide de deploiement |
+| [Self-Hosting](docs/self-hosting.md) | Guide de déploiement |
 | [Contributing](CONTRIBUTING.md) | Guide de contribution |
 
 ---
@@ -236,11 +236,11 @@ pytest tests/ -v
 ruff check src/
 ```
 
-Voir le [guide de contribution](CONTRIBUTING.md). Les issues [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) sont un bon point de depart.
+Voir le [guide de contribution](CONTRIBUTING.md). Les issues [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) sont un bon point de départ.
 
 ---
 
-## License
+## Licence
 
 [MIT](LICENSE)
 
@@ -248,6 +248,6 @@ Voir le [guide de contribution](CONTRIBUTING.md). Les issues [`good first issue`
 
 <div align="center">
 
-*Fait avec du cafe et des donnees ouvertes.*
+*Fait avec du café et des données ouvertes.*
 
 </div>
