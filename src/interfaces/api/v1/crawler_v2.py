@@ -1,4 +1,4 @@
-"""Crawler management API — configuration, status, manual triggers.
+"""Crawler management API  -  configuration, status, manual triggers.
 
 Exposes the unified collector (collect_all_v2.py) as a controllable service.
 """

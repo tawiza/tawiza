@@ -438,7 +438,7 @@ export default function DepartmentDetailPage() {
               <Radio className="h-5 w-5 text-primary" />
               Métriques Collectées ({Object.keys(radarData?.metrics || {}).length} indicateurs)
             </GlassCardTitle>
-            <GlassCardDescription>Données brutes par source — valeurs moyennes et occurrences</GlassCardDescription>
+            <GlassCardDescription>Données brutes par source  -  valeurs moyennes et occurrences</GlassCardDescription>
           </GlassCardHeader>
           <GlassCardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

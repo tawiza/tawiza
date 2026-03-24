@@ -139,7 +139,7 @@ class TerritorialReportGenerator:
         top_5 = sorted_by_vitality[:5]
         top_5_content = "\n".join(
             [
-                f"**{i + 1}. {m.territory_name}** — Vitalité: **{m.vitality_index:.1f}** | "
+                f"**{i + 1}. {m.territory_name}**  -  Vitalité: **{m.vitality_index:.1f}** | "
                 f"Créations: +{m.creations} | Fermetures: {m.closures}"
                 for i, m in enumerate(top_5)
             ]
@@ -149,7 +149,7 @@ class TerritorialReportGenerator:
         bottom_5 = sorted_by_vitality[-5:][::-1]
         bottom_5_content = "\n".join(
             [
-                f"**{i + 1}. {m.territory_name}** — Vitalité: **{m.vitality_index:.1f}** | "
+                f"**{i + 1}. {m.territory_name}**  -  Vitalité: **{m.vitality_index:.1f}** | "
                 f"Solde: {m.creations - m.closures:+d}"
                 for i, m in enumerate(bottom_5)
             ]

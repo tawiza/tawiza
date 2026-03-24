@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scheduler Tawiza V2 — Planification automatique des collectes et détections.
+"""Scheduler Tawiza V2  -  Planification automatique des collectes et détections.
 
 Utilise APScheduler pour orchestrer :
 - Collecte BODACC + France Travail : toutes les 6h
@@ -108,7 +108,7 @@ def setup_scheduler():
     )
 
     scheduler.start()
-    logger.info("✅ Scheduler démarré — 4 jobs planifiés")
+    logger.info("✅ Scheduler démarré  -  4 jobs planifiés")
 
     for job in scheduler.get_jobs():
         logger.info(f"  📅 {job.name}: next run {job.next_run_time}")

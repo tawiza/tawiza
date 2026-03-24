@@ -174,7 +174,7 @@ export function RelationGraph({ stakeholders, relations, isLoading }: Props) {
         setTooltip({
           x: event.clientX - rect.left,
           y: event.clientY - rect.top,
-          content: `${d.name}\n${d.role} — ${d.org}\nInfluence: ${'★'.repeat(d.influence)}`,
+          content: `${d.name}\n${d.role}  -  ${d.org}\nInfluence: ${'★'.repeat(d.influence)}`,
         });
       })
       .on('mouseleave', function () {

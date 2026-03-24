@@ -5,6 +5,22 @@ All notable changes to Tawiza will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-03-23
+
+### Changed
+
+- README reecrit avec l'etat reel du projet (chiffres corriges, sections mortes supprimees)
+- Nettoyage typographique : em dashes, smart quotes, vocabulaire marketing
+- 13 PRs Dependabot fermees (bumps majeurs a traiter manuellement)
+- Ajout ROADMAP.md pour les features futures
+- Description pyproject.toml simplifiee
+
+### Removed
+
+- Sections README mortes : browser automation, CAMEL workforce, investigation bayesienne, fine-tuning details
+- Emojis et badges excessifs dans le README
+- Vocabulaire marketing ("propulsee par l'IA", "cognitif", "proactive")
+
 ## [0.1.0-beta] - 2026-03-09
 
 ### Added

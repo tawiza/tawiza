@@ -1,4 +1,4 @@
-# Politique de Sécurité — Tawiza
+# Politique de Sécurité  -  Tawiza
 
 ## Signaler une vulnérabilité
 
@@ -71,7 +71,7 @@ ruff check src/
 
 | Version | Support sécurité |
 |---------|-----------------|
-| 0.x (beta) | Oui — correctifs de sécurité actifs |
+| 0.x (beta) | Oui  -  correctifs de sécurité actifs |
 
 ## Dépendances
 

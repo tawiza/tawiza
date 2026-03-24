@@ -22,7 +22,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="fr" suppressHydrationWarning className={`${jakarta.variable} ${inter.variable}`}>
       <head>
-        <title>Tawiza — Intelligence Territoriale</title>
+        <title>Tawiza  -  Intelligence Territoriale</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="TAJINE - Agent d'analyse territoriale française" />
         <meta name="keywords" content="TAJINE, intelligence territoriale, France, départements, analyse économique" />

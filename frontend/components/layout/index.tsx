@@ -61,7 +61,7 @@ const DashboardLayout: React.FC<Props> = (props: Props) => {
           )}
         </div>
 
-        {/* Mobile bottom navigation removed — sidebar handles mobile nav */}
+        {/* Mobile bottom navigation removed  -  sidebar handles mobile nav */}
       </div>
     </OpenContext.Provider>
   );

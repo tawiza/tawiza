@@ -159,7 +159,7 @@ export default function GapsPanel({ gaps, isLoading }: GapsPanelProps) {
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-2 w-2 rounded-full bg-emerald-500" />
                     <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">
-                      L1 — Structurelles ({structuralItems.reduce((s, h) => s + h.count, 0)})
+                      L1  -  Structurelles ({structuralItems.reduce((s, h) => s + h.count, 0)})
                     </span>
                   </div>
                   <div className="space-y-1">
@@ -176,7 +176,7 @@ export default function GapsPanel({ gaps, isLoading }: GapsPanelProps) {
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-2 w-2 rounded-full bg-amber-500" />
                     <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">
-                      L2 — Inferees ({inferredItems.reduce((s, h) => s + h.count, 0)})
+                      L2  -  Inferees ({inferredItems.reduce((s, h) => s + h.count, 0)})
                     </span>
                   </div>
                   <div className="space-y-1">
@@ -247,7 +247,7 @@ function HonestyRow({ item }: { item: AlgorithmicHonestyItem }) {
           </div>
           <div className="flex items-center gap-3 mt-1">
             <span className="text-[10px] text-muted-foreground/40">
-              Confiance: {Math.round(item.min_confidence * 100)}% — {Math.round(item.max_confidence * 100)}%
+              Confiance: {Math.round(item.min_confidence * 100)}%  -  {Math.round(item.max_confidence * 100)}%
             </span>
             <span className={cn(
               'text-[9px] px-1.5 py-0.5 rounded border font-medium',

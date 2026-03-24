@@ -1010,7 +1010,7 @@ export default function SettingsPage() {
 
         {/* Version info */}
         <div className="text-center text-xs text-muted-foreground pt-4">
-          Tawiza v2.0 — Intelligence Territoriale
+          Tawiza v2.0  -  Intelligence Territoriale
         </div>
       </div>
     </DashboardLayout>

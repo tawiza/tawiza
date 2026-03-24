@@ -6,7 +6,7 @@ import React, { useEffect, useRef, memo } from 'react';
  * Aurora Mesh Background
  * 
  * Modern ambient background: soft color blobs that drift and morph slowly,
- * creating a living mesh gradient effect. No particles, no grids — just
+ * creating a living mesh gradient effect. No particles, no grids  -  just
  * smooth organic color fields with subtle film grain overlay.
  * Adapts to light/dark theme. Minimal GPU usage.
  */
@@ -43,7 +43,7 @@ const AlgorithmicBackground = memo(function AlgorithmicBackground() {
 
     const isDark = () => document.documentElement.classList.contains('dark');
 
-    // Blob definitions — each is a soft radial gradient that drifts
+    // Blob definitions  -  each is a soft radial gradient that drifts
     const blobs = [
       { cx: 0.2, cy: 0.3, rx: 0.35, ry: 0.35, speed: 0.0004, phase: 0, hue: 217 },
       { cx: 0.8, cy: 0.2, rx: 0.3, ry: 0.4, speed: 0.0003, phase: 2, hue: 226 },
@@ -55,7 +55,7 @@ const AlgorithmicBackground = memo(function AlgorithmicBackground() {
     let time = 0;
     let lastFrame = 0;
 
-    // Grain overlay — generated once
+    // Grain overlay  -  generated once
     let grainData: ImageData | null = null;
     const generateGrain = () => {
       const gCanvas = document.createElement('canvas');

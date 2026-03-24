@@ -135,8 +135,8 @@ Pas de variables d'environnement spécifiques au CLI. Le CLI utilise la configur
 
 ## Limitations connues
 
-- Le TUI v3 nécessite un terminal moderne (256 couleurs, Unicode) — pas compatible avec tous les terminaux
+- Le TUI v3 nécessite un terminal moderne (256 couleurs, Unicode)  -  pas compatible avec tous les terminaux
 - La carte de France (`france_map.py`) est une approximation ASCII, pas une vraie carte interactive
 - Le WebSocket client dans le TUI peut se déconnecter sans reconnexion automatique
 - Les graphiques Plotext sont limités en résolution dans le terminal
-- Le CLI v2 et le TUI v3 partagent peu de code — duplication significative
+- Le CLI v2 et le TUI v3 partagent peu de code  -  duplication significative

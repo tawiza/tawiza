@@ -181,7 +181,7 @@ export function ImpactMatrix({ decisions, stakeholders, isLoading }: Props) {
                       if (!link) {
                         return (
                           <td key={s.id} className="p-3 text-center">
-                            <span className="text-muted-foreground/20">—</span>
+                            <span className="text-muted-foreground/20"> - </span>
                           </td>
                         );
                       }
@@ -191,7 +191,7 @@ export function ImpactMatrix({ decisions, stakeholders, isLoading }: Props) {
                             className={`inline-flex items-center justify-center w-7 h-7 rounded border text-xs font-bold ${
                               ROLE_COLORS[link.role_in_decision] || 'bg-muted/20 text-muted-foreground border-border'
                             }`}
-                            title={`${link.stakeholder_name}: ${link.role_in_decision}${link.recommendation ? ' — ' + link.recommendation : ''}`}
+                            title={`${link.stakeholder_name}: ${link.role_in_decision}${link.recommendation ? '  -  ' + link.recommendation : ''}`}
                           >
                             {ROLE_LABEL[link.role_in_decision] || '?'}
                           </span>

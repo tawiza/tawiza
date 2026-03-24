@@ -150,7 +150,7 @@ export default function VitalityBreakdown({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            📊 Décomposition Vitalité — {territoryName}
+            📊 Décomposition Vitalité  -  {territoryName}
           </DialogTitle>
           <DialogDescription>
             Comprendre d&apos;où vient le score de {currentVitality.toFixed(1)}/100

@@ -1,5 +1,5 @@
 """
-Sitadel collector — permis de construire (logements + locaux).
+Sitadel collector  -  permis de construire (logements + locaux).
 
 Source: SDES DiDo API (data.statistiques.developpement-durable.gouv.fr)
 Data: Monthly departmental series, housing permits + non-residential permits.
@@ -180,7 +180,7 @@ class SitadelCollector(BaseCollector):
                 if self._departments and dept not in self._departments:
                     continue
 
-                # Find destination column — varies by CSV structure
+                # Find destination column  -  varies by CSV structure
                 dest = row.get("DESTINATION_LIBELLE", row.get("DEST_LIBELLE", "")).strip('"')
 
                 # Surfaces autorisées

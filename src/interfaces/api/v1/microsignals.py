@@ -1,4 +1,4 @@
-"""Micro-signals management API — detection, history, validation, stats.
+"""Micro-signals management API  -  detection, history, validation, stats.
 
 Extends the basic microsignals endpoint in signals.py with management features.
 """

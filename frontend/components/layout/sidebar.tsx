@@ -16,12 +16,7 @@ import {
   ChevronRight,
   Globe,
   Search,
-  GraduationCap,
-  Bell,
   LogOut,
-  Newspaper,
-  Shield,
-  Users,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -39,27 +34,17 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: 'Intelligence',
+    label: 'Analyse',
     items: [
-      { name: 'Analyse Territoriale', path: '/dashboard/tajine', icon: Map },
-      { name: 'Signaux', path: '/dashboard/signals', icon: Bell },
-      { name: 'News', path: '/dashboard/news-intelligence', icon: Newspaper },
-      { name: 'Investigation', path: '/dashboard/investigation', icon: Shield },
-      { name: 'Decisions', path: '/dashboard/decisions', icon: Users },
-    ],
-  },
-  {
-    label: 'Exploration',
-    items: [
+      { name: 'Territoires', path: '/dashboard/tajine', icon: Map },
       { name: 'Analytics', path: '/dashboard/analytics', icon: BarChart3 },
-      { name: 'Web Intel', path: '/dashboard/web-intel', icon: Globe },
       { name: 'Departements', path: '/dashboard/departments', icon: MapPin },
+      { name: 'Sources', path: '/dashboard/data-sources', icon: Globe },
     ],
   },
   {
     label: 'Admin',
     items: [
-      { name: 'Fine-Tuning', path: '/dashboard/fine-tuning', icon: GraduationCap },
       { name: 'Configuration', path: '/dashboard/settings', icon: Settings },
     ],
   },

@@ -136,7 +136,7 @@ SECRET_KEY=votre-cle-secrete-unique
 
 ## Prochaines étapes
 
-- [Architecture](architecture.md) — Comprendre la structure du projet
-- [Sources de données](data-sources.md) — APIs disponibles
-- [Configuration](configuration.md) — Toutes les options
-- [API Reference](api-reference.md) — Endpoints disponibles
+- [Architecture](architecture.md)  -  Comprendre la structure du projet
+- [Sources de données](data-sources.md)  -  APIs disponibles
+- [Configuration](configuration.md)  -  Toutes les options
+- [API Reference](api-reference.md)  -  Endpoints disponibles

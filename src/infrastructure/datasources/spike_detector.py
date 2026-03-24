@@ -31,10 +31,10 @@ class SpikeSeverity(StrEnum):
     """Spike severity levels based on z-score thresholds."""
 
     NONE = "none"
-    LOW = "low"  # z >= 1.5 — unusual
-    MEDIUM = "medium"  # z >= 2.0 — notable
-    HIGH = "high"  # z >= 3.0 — significant spike
-    CRITICAL = "critical"  # z >= 4.0 — extreme anomaly
+    LOW = "low"  # z >= 1.5  -  unusual
+    MEDIUM = "medium"  # z >= 2.0  -  notable
+    HIGH = "high"  # z >= 3.0  -  significant spike
+    CRITICAL = "critical"  # z >= 4.0  -  extreme anomaly
 
 
 # Z-score thresholds (from World Monitor's trending-keywords.ts)
@@ -48,7 +48,7 @@ Z_THRESHOLDS = {
 
 @dataclass
 class WelfordState:
-    """Welford's online algorithm state — only 3 scalars needed.
+    """Welford's online algorithm state  -  only 3 scalars needed.
 
     Maintains running statistics for a single stream.
     """

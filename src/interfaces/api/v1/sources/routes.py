@@ -1081,7 +1081,7 @@ async def detect_focal_points(
     min_sources: int = Query(default=2, ge=1, le=10),
     limit: int = Query(default=20, ge=1, le=50),
 ):
-    """Detect focal points — entities converging across multiple news sources.
+    """Detect focal points  -  entities converging across multiple news sources.
 
     A focal point is an actor (enterprise, institution, person) that appears
     in multiple independent news articles within the time window.
@@ -1306,7 +1306,7 @@ async def get_enriched_articles(
 async def get_sentiment_trends(
     days: int = Query(default=7, ge=1, le=30, description="Number of days to look back"),
 ):
-    """Sentiment trend over time — count per day per sentiment."""
+    """Sentiment trend over time  -  count per day per sentiment."""
     from src.application.services._db_pool import acquire_conn
 
     async with acquire_conn() as conn:
@@ -1353,7 +1353,7 @@ async def get_sentiment_heatmap(
     days: int = Query(default=30, ge=1, le=90, description="Number of days to look back"),
     min_articles: int = Query(default=2, ge=1, description="Min articles per feed to include"),
 ):
-    """Heatmap of sentiment by feed — rows=feeds, cols=sentiments."""
+    """Heatmap of sentiment by feed  -  rows=feeds, cols=sentiments."""
     from src.application.services._db_pool import acquire_conn
 
     async with acquire_conn() as conn:

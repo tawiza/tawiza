@@ -1,5 +1,5 @@
 /**
- * Tawiza anonymous telemetry — opt-out via NEXT_PUBLIC_TELEMETRY_ENABLED=false
+ * Tawiza anonymous telemetry  -  opt-out via NEXT_PUBLIC_TELEMETRY_ENABLED=false
  */
 
 import posthog from 'posthog-js';
@@ -9,7 +9,7 @@ const TELEMETRY_ENABLED =
   process.env.NEXT_PUBLIC_TELEMETRY_ENABLED !== 'false' &&
   process.env.NEXT_PUBLIC_TELEMETRY_ENABLED !== '0';
 
-// PostHog project key — points to the Tawiza team's analytics dashboard.
+// PostHog project key  -  points to the Tawiza team's analytics dashboard.
 // This is a write-only key (cannot read data). Users can opt out entirely
 // by setting NEXT_PUBLIC_TELEMETRY_ENABLED=false.
 const POSTHOG_KEY = 'phc_PIhsounBxTTOTt7xYTitoorK6pXfmXHGaKZfLQsSvIo';

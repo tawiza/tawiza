@@ -1,5 +1,5 @@
 """
-EPCI Reference Data — commune→EPCI mapping from geo.api.gouv.fr
+EPCI Reference Data  -  commune→EPCI mapping from geo.api.gouv.fr
 
 Downloads and caches the full mapping of 34,871 French communes to their
 1,255 EPCIs (Établissements Publics de Coopération Intercommunale).

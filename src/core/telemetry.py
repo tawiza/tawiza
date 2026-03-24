@@ -1,4 +1,4 @@
-"""Tawiza anonymous telemetry — opt-out via TELEMETRY_ENABLED=false."""
+"""Tawiza anonymous telemetry  -  opt-out via TELEMETRY_ENABLED=false."""
 
 import hashlib
 import os
@@ -11,7 +11,7 @@ from loguru import logger
 
 TELEMETRY_ENABLED = os.getenv("TELEMETRY_ENABLED", "true").lower() in ("true", "1", "yes")
 
-# PostHog project key — points to the Tawiza team's analytics dashboard.
+# PostHog project key  -  points to the Tawiza team's analytics dashboard.
 # This is a write-only key (cannot read data). Users can opt out entirely
 # by setting TELEMETRY_ENABLED=false.
 POSTHOG_API_KEY = "phc_PIhsounBxTTOTt7xYTitoorK6pXfmXHGaKZfLQsSvIo"

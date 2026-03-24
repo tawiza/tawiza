@@ -264,7 +264,7 @@ export default function RelationGraphEnhanced({
       };
     }
 
-    // Clone data — simulation runs on ALL data (filters apply during draw)
+    // Clone data  -  simulation runs on ALL data (filters apply during draw)
     const nodes: SimNode[] = data.nodes.map((n) => ({ ...n }));
     const links: SimLink[] = data.links.map((l) => ({ ...l }));
 
@@ -638,7 +638,7 @@ export default function RelationGraphEnhanced({
   if (!data || data.nodes.length === 0) {
     return (
       <div className={`glass-card p-4 flex items-center justify-center ${fullscreen ? 'h-screen' : 'h-[600px]'} text-white/40 text-sm`}>
-        Aucune relation trouvee — lancez une decouverte
+        Aucune relation trouvee  -  lancez une decouverte
       </div>
     );
   }
@@ -651,7 +651,7 @@ export default function RelationGraphEnhanced({
     >
       <canvas ref={canvasRef} className="w-full h-full" />
 
-      {/* Node type legend (bottom-left) — only show in 'type' colorMode */}
+      {/* Node type legend (bottom-left)  -  only show in 'type' colorMode */}
       {colorMode === 'type' && (
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-2 text-[10px] text-white/60">
           <span className="flex items-center gap-1">

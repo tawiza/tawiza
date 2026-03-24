@@ -953,7 +953,7 @@ class FormationLinkInferrer(BaseInferrer):
 class SupplyChainInferrer(BaseInferrer):
     """Detect enterprises sharing the same public buyer via BOAMP data.
 
-    Algorithm (V2 — real co-attribution, no CPV heuristics):
+    Algorithm (V2  -  real co-attribution, no CPV heuristics):
     1. Query existing ``awarded_contract`` relations (L1, from BoampExtractor)
     2. Group suppliers (target actors) by their buyer (source actor)
     3. For buyers with 2+ suppliers, create ``co_supplier`` relations
@@ -1087,12 +1087,12 @@ class SupplyChainInferrer(BaseInferrer):
 class DirectorLinkInferrer(BaseInferrer):
     """Detect enterprises sharing a director via SIRENE dirigeants data.
 
-    Algorithm (V2 — real data, no BODACC parsing):
+    Algorithm (V2  -  real data, no BODACC parsing):
     1. Query enterprise actors that have ``metadata->'dirigeants'``
        (populated by SireneDirigeantsEnricher)
     2. For each dirigeant, build a matching key from
        (nom_normalized, prenoms_normalized, annee_naissance)
-       — three-field matching virtually eliminates homonyms
+        -  three-field matching virtually eliminates homonyms
     3. Map each key to the enterprise(s) where it appears
     4. For keys appearing in 2+ enterprises (cap at 10):
        create ``shared_director`` relations between each pair
@@ -1720,7 +1720,7 @@ class PoleMembershipInferrer(BaseInferrer):
             )
             return {"actors": [], "relations": []}
 
-        # Match enterprises to poles via NAF section — cap per pole
+        # Match enterprises to poles via NAF section  -  cap per pole
         _MAX_PER_POLE = 15
 
         # Build candidates per pole, scored by confidence
@@ -2178,7 +2178,7 @@ class IncubatorMatchInferrer(BaseInferrer):
             )
             return {"actors": [], "relations": []}
 
-        # Match young enterprises to incubators — cap per incubator
+        # Match young enterprises to incubators  -  cap per incubator
         _MAX_PER_INCUBATOR = 8
 
         # Build candidates per incubator, scored by thematic relevance

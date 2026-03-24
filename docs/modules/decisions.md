@@ -110,7 +110,7 @@ src/infrastructure/persistence/models/
 
 ## Configuration
 
-Pas de configuration spécifique — le module utilise la base PostgreSQL principale (`DATABASE_URL`).
+Pas de configuration spécifique  -  le module utilise la base PostgreSQL principale (`DATABASE_URL`).
 
 ## État actuel
 

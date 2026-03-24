@@ -1,5 +1,5 @@
 """
-EPCI Enrichment — add code_epci to existing signals in DB.
+EPCI Enrichment  -  add code_epci to existing signals in DB.
 
 Batch-updates signals that have code_commune but no code_epci.
 """

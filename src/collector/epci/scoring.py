@@ -1,5 +1,5 @@
 """
-EPCI-level scoring — aggregate signals at intercommunality level.
+EPCI-level scoring  -  aggregate signals at intercommunality level.
 """
 
 import logging

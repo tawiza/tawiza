@@ -2,7 +2,7 @@
 
 Uses two sources:
 1. recherche-entreprises.api.gouv.fr (FREE, no auth, limited filtering)
-2. api.insee.fr SIRENE 3.11 (OAuth2, full filtering) — needs active subscription
+2. api.insee.fr SIRENE 3.11 (OAuth2, full filtering)  -  needs active subscription
 
 Token endpoint migrated (2024):
   OLD: https://api.insee.fr/token

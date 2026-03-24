@@ -33,17 +33,17 @@ Tawiza suit une architecture hexagonale (ports & adapters) avec séparation clai
 ### Domain (`src/domain/`)
 
 Entités métier pures sans dépendances externes :
-- `Company` — Entreprise (SIREN, NAF, forme juridique)
-- `Territory` — Territoire (département, région, EPCI)
-- `Signal` — Signal économique (BODACC, marché public)
-- `Analysis` — Résultat d'analyse territoriale
+- `Company`  -  Entreprise (SIREN, NAF, forme juridique)
+- `Territory`  -  Territoire (département, région, EPCI)
+- `Signal`  -  Signal économique (BODACC, marché public)
+- `Analysis`  -  Résultat d'analyse territoriale
 
 ### Application (`src/application/`)
 
 Use cases et logique métier :
-- `TerritorialAnalysisService` — Orchestration des analyses
-- `CompanySearchService` — Recherche et enrichissement entreprises
-- `SignalDetectionService` — Détection d'anomalies et tendances
+- `TerritorialAnalysisService`  -  Orchestration des analyses
+- `CompanySearchService`  -  Recherche et enrichissement entreprises
+- `SignalDetectionService`  -  Détection d'anomalies et tendances
 
 ### Infrastructure (`src/infrastructure/`)
 
@@ -64,11 +64,11 @@ Perceive → Plan → Delegate → Synthesize → Learn
 ```
 
 5 niveaux cognitifs :
-1. **Discovery** — Extraction factuelle (qui, quoi, où)
-2. **Causal** — Analyse causale (pourquoi, comment)
-3. **Scenario** — Simulation what-if (et si...?)
-4. **Strategy** — Recommandations optimales
-5. **Theoretical** — Principes généraux et théories
+1. **Discovery**  -  Extraction factuelle (qui, quoi, où)
+2. **Causal**  -  Analyse causale (pourquoi, comment)
+3. **Scenario**  -  Simulation what-if (et si...?)
+4. **Strategy**  -  Recommandations optimales
+5. **Theoretical**  -  Principes généraux et théories
 
 #### Sources de données (`datasources/adapters/`)
 

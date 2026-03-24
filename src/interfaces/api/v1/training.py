@@ -1,4 +1,4 @@
-"""Training data API — generate, list, and manage training datasets for fine-tuning.
+"""Training data API  -  generate, list, and manage training datasets for fine-tuning.
 
 Provides endpoints for synthetic dataset generation from real signals
 and management of training data files.

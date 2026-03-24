@@ -21,7 +21,7 @@ export default function CoverageBar({ coverage, isLoading }: CoverageBarProps) {
   if (!coverage || coverage.total_relations === 0) {
     return (
       <div className="rounded-xl border border-border/50 bg-card/50 p-4 text-muted-foreground text-sm text-center">
-        Aucune relation detectee — lancez une decouverte pour commencer
+        Aucune relation detectee  -  lancez une decouverte pour commencer
       </div>
     );
   }

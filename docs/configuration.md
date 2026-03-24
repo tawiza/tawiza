@@ -51,10 +51,10 @@ Tawiza se configure entièrement via des variables d'environnement. Copiez `.env
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `INSEE_CLIENT_ID` | — | Identifiant API INSEE |
-| `INSEE_CLIENT_SECRET` | — | Secret API INSEE |
-| `FRANCE_TRAVAIL_CLIENT_ID` | — | Identifiant API France Travail |
-| `FRANCE_TRAVAIL_CLIENT_SECRET` | — | Secret API France Travail |
+| `INSEE_CLIENT_ID` |  -  | Identifiant API INSEE |
+| `INSEE_CLIENT_SECRET` |  -  | Secret API INSEE |
+| `FRANCE_TRAVAIL_CLIENT_ID` |  -  | Identifiant API France Travail |
+| `FRANCE_TRAVAIL_CLIENT_SECRET` |  -  | Secret API France Travail |
 
 ### Sécurité
 
@@ -69,10 +69,10 @@ Tawiza se configure entièrement via des variables d'environnement. Copiez `.env
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LABEL_STUDIO_URL` | — | URL de Label Studio (fine-tuning) |
-| `LABEL_STUDIO_API_KEY` | — | Clé API Label Studio |
-| `SENTRY_DSN` | — | DSN Sentry/GlitchTip (error tracking) |
-| `LANGFUSE_SECRET_KEY` | — | Clé Langfuse (LLM observability) |
+| `LABEL_STUDIO_URL` |  -  | URL de Label Studio (fine-tuning) |
+| `LABEL_STUDIO_API_KEY` |  -  | Clé API Label Studio |
+| `SENTRY_DSN` |  -  | DSN Sentry/GlitchTip (error tracking) |
+| `LANGFUSE_SECRET_KEY` |  -  | Clé Langfuse (LLM observability) |
 
 ## Frontend
 

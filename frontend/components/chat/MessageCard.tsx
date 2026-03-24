@@ -166,7 +166,7 @@ export function MessageCard({
                   timelineExpanded && 'rotate-180'
                 )} />
                 <span>Agent TAJINE</span>
-                <span className="text-muted-foreground/30">—</span>
+                <span className="text-muted-foreground/30"> - </span>
                 <AgentSummaryBadge
                   phases={agentPhases}
                   duration={agentDuration}

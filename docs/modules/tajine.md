@@ -2,7 +2,7 @@
 
 Agent cognitif central de Tawiza. TAJINE orchestre l'ensemble du raisonnement et de la collecte de données pour l'intelligence territoriale.
 
-## Architecture — Cycle PPDSL
+## Architecture  -  Cycle PPDSL
 
 Le cycle **Perceive-Plan-Delegate-Synthesize-Learn** est le coeur du fonctionnement de TAJINE :
 
@@ -18,7 +18,7 @@ Le cycle **Perceive-Plan-Delegate-Synthesize-Learn** est le coeur du fonctionnem
 
 1. **Perceive** : Classifie l'intent utilisateur, extrait le territoire (département/région), le secteur d'activité et l'horizon temporel.
 2. **Plan** : Le `StrategicPlanner` décompose la requête en sous-tâches ordonnées par priorité, avec mapping intent-to-tool (rule-based ou LLM-powered via Ollama).
-3. **Delegate** : Distribue les sous-tâches aux agents spécialisés — `DataHunter` pour les APIs, `BrowserAgent` pour le web, `ManusAgent` pour les tâches complexes.
+3. **Delegate** : Distribue les sous-tâches aux agents spécialisés  -  `DataHunter` pour les APIs, `BrowserAgent` pour le web, `ManusAgent` pour les tâches complexes.
 4. **Synthesize** : Fusionne les résultats via le `CognitiveEngine`, génère des insights structurés et des visualisations.
 5. **Learn** : Collecte les données d'exécution pour le fine-tuning via `DataCollector`, stocke dans la mémoire épisodique.
 
@@ -41,19 +41,19 @@ Trois modes de fonctionnement :
 
 ## Modules internes
 
-### `tajine_agent.py` — Agent principal
+### `tajine_agent.py`  -  Agent principal
 Point d'entrée du cycle PPDSL. Orchestre les composants.
 
-### `planning.py` — StrategicPlanner
+### `planning.py`  -  StrategicPlanner
 Décomposition de tâches. Mapping intent-to-tool + décomposition LLM via prompt structuré.
 
-### `react_agent.py` — ReAct Agent
+### `react_agent.py`  -  ReAct Agent
 Boucle Reason+Act autonome : THINK → ACT (appel outil) → OBSERVE → ANSWER. Jusqu'à 6 itérations. Utilise qwen3.5:27b.
 
-### `llm_router.py` — HybridLLMRouter
+### `llm_router.py`  -  HybridLLMRouter
 Routage entre modèles locaux (Ollama/Qwen) et modèles puissants (CoALM). Deux modes utilisateur : **Fast** (local) et **Complet** (powerful).
 
-### `cognitive/` — Moteur cognitif
+### `cognitive/`  -  Moteur cognitif
 - `engine.py` : Orchestrateur des 5 niveaux
 - `levels/` : Implémentation de chaque niveau (discovery, causal, scenario, strategy, theoretical)
 - `synthesizer.py` : `UnifiedSynthesizer` pour fusionner les 5 niveaux
@@ -61,15 +61,15 @@ Routage entre modèles locaux (Ollama/Qwen) et modèles puissants (CoALM). Deux 
 - `causal/dag_manager.py` : Graphes de causalité (DAG)
 - `reflection.py` : Réflexion et auto-évaluation
 
-### `memory/` — Mémoire épisodique
+### `memory/`  -  Mémoire épisodique
 - `episodic_store.py` : Stockage des interactions passées
 - `retriever.py` : Récupération contextuelle pour enrichir les réponses
 
-### `reasoning/` — Raisonnement avancé
+### `reasoning/`  -  Raisonnement avancé
 - `chain_of_thought.py` : Chaîne de pensée structurée
 - `tree_of_thoughts.py` : Exploration arborescente de raisonnements
 
-### `safla/` — Intégration SAFLA
+### `safla/`  -  Intégration SAFLA
 Bridge avec le framework SAFLA pour la mémoire adaptative et la métacognition.
 
 ## Fichiers clés

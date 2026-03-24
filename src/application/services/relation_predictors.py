@@ -293,7 +293,7 @@ class InstitutionalLinkPredictor(BasePredictor):
         async with acquire_conn() as conn:
             # Only predict institutional links for enterprises that have
             # at least one concrete signal (BOAMP contract, BODACC event,
-            # subvention, or other L1 relation) — not for every enterprise.
+            # subvention, or other L1 relation)  -  not for every enterprise.
             enterprises = await conn.fetch(
                 """
                 SELECT DISTINCT a.external_id, a.name, a.metadata
