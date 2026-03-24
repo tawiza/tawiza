@@ -1,0 +1,579 @@
+/* Tawiza TUI v6 - Custom Widget Styles */
+/* Uses Textual's built-in themes for colors */
+
+/* ============================================================================
+   TUI v6 - MAIN LAYOUT (ContentSwitcher based)
+   ============================================================================ */
+
+#main-layout {
+    width: 100%;
+    height: 1fr;
+}
+
+#content-switcher {
+    width: 1fr;
+    height: 100%;
+}
+
+.screen-content {
+    width: 100%;
+    height: 100%;
+    padding: 1;
+    background: $background;
+}
+
+/* ============================================================================
+   TUI v6 - GLOBAL SIDEBAR
+   ============================================================================ */
+
+GlobalSidebar {
+    dock: left;
+    width: 14;
+    height: 100%;
+    background: $surface-darken-1;
+    border-right: solid $primary;
+    padding: 1 0;
+}
+
+GlobalSidebar.collapsed {
+    width: 4;
+}
+
+GlobalSidebar SidebarItem {
+    width: 100%;
+    height: 3;
+    padding: 0 1;
+    content-align: left middle;
+    background: transparent;
+    color: $text-muted;
+}
+
+GlobalSidebar SidebarItem:hover {
+    background: $surface;
+    color: $text;
+}
+
+GlobalSidebar SidebarItem.active {
+    background: $primary;
+    color: $text;
+    text-style: bold;
+}
+
+GlobalSidebar .nav-section {
+    margin-top: 1;
+    padding-top: 1;
+    border-top: solid $surface-lighten-2;
+}
+
+/* ============================================================================
+   TUI v6 - BREADCRUMB
+   ============================================================================ */
+
+Breadcrumb {
+    dock: top;
+    height: 1;
+    background: $surface;
+    padding: 0 2;
+    border-bottom: solid $primary;
+    color: $text-muted;
+}
+
+Breadcrumb .crumb {
+    color: $text;
+}
+
+Breadcrumb .separator {
+    color: $text-muted;
+    margin: 0 1;
+}
+
+Breadcrumb .current {
+    color: $primary;
+    text-style: bold;
+}
+
+/* ============================================================================
+   TUI v6 - CHAT MODAL (kept in widget, but base styles here)
+   ============================================================================ */
+
+ChatModal {
+    align: center middle;
+}
+
+ChatModal > Container {
+    width: 70%;
+    height: 80%;
+    background: $surface;
+    border: thick $primary;
+}
+
+/* ============================================================================
+   LEGACY v5 HEADER (kept for compatibility)
+   ============================================================================ */
+
+HeaderTabs {
+    dock: top;
+    height: 3;
+    background: $surface;
+    border-bottom: solid $primary;
+    display: none;  /* Hidden in v6 */
+}
+
+TabButton {
+    width: auto;
+    height: 3;
+    padding: 0 3;
+    content-align: center middle;
+    background: transparent;
+    color: $text-muted;
+}
+
+TabButton:hover {
+    background: $surface-lighten-1;
+    color: $text;
+}
+
+TabButton.active {
+    background: $primary;
+    color: $text;
+    text-style: bold;
+}
+
+#title {
+    dock: right;
+    width: auto;
+    padding: 0 3;
+    content-align: center middle;
+    text-style: bold;
+    color: $secondary;
+}
+
+/* ============================================================================
+   STATUS BAR
+   ============================================================================ */
+
+StatusBar {
+    dock: bottom;
+    height: 1;
+    background: $surface;
+    padding: 0 2;
+    border-top: solid $primary;
+    color: $text-muted;
+}
+
+/* ============================================================================
+   PANELS & CONTAINERS
+   ============================================================================ */
+
+.panel {
+    border: solid $primary;
+    background: $surface;
+    padding: 1;
+    margin: 0 1 1 0;
+}
+
+.panel-title {
+    dock: top;
+    height: 1;
+    background: $surface;
+    padding: 0 1;
+    text-style: bold;
+    color: $secondary;
+    border-bottom: solid $primary;
+}
+
+.panel-elevated {
+    border: solid $accent;
+    background: $surface;
+    padding: 1;
+}
+
+/* ============================================================================
+   METRIC GAUGES
+   ============================================================================ */
+
+MetricGauge {
+    height: 5;
+    border: solid $primary;
+    background: $surface;
+    padding: 0 1;
+}
+
+MetricGauge .label {
+    text-style: bold;
+    color: $text;
+}
+
+MetricGauge .value-low {
+    color: $success;
+    text-style: bold;
+}
+
+MetricGauge .value-medium {
+    color: $warning;
+    text-style: bold;
+}
+
+MetricGauge .value-high {
+    color: $error;
+    text-style: bold;
+}
+
+.progress-bar {
+    height: 1;
+    background: $surface-darken-1;
+}
+
+.progress-bar-fill {
+    background: $primary;
+}
+
+/* ============================================================================
+   SERVICE STATUS
+   ============================================================================ */
+
+ServiceStatusWidget {
+    height: auto;
+    padding: 0 1;
+}
+
+.service-online {
+    color: $success;
+}
+
+.service-offline {
+    color: $error;
+}
+
+.service-unknown {
+    color: $warning;
+}
+
+/* ============================================================================
+   TASK LIST
+   ============================================================================ */
+
+TaskList {
+    height: 100%;
+    border: round $primary;
+    background: $surface;
+}
+
+TaskList .task-running {
+    border-left: thick $secondary;
+    background: $surface-lighten-1;
+}
+
+TaskList .task-completed {
+    border-left: thick $success;
+}
+
+TaskList .task-failed {
+    border-left: thick $error;
+}
+
+TaskList .task-pending {
+    border-left: thick $surface-lighten-2;
+}
+
+TaskList .task-paused {
+    border-left: thick $warning;
+}
+
+/* ============================================================================
+   CHAT & MESSAGES
+   ============================================================================ */
+
+ChatHistory {
+    height: 1fr;
+    border: solid $primary;
+    background: $surface;
+    padding: 1;
+}
+
+MessageBubble {
+    width: 100%;
+    padding: 1;
+    margin: 0 0 1 0;
+}
+
+MessageBubble.user {
+    background: $primary;
+    color: $text;
+    text-align: right;
+    margin-left: 15;
+}
+
+MessageBubble.assistant {
+    background: $surface-lighten-1;
+    border-left: wide $secondary;
+    margin-right: 15;
+    color: $text;
+}
+
+StreamingMessage {
+    width: 100%;
+    padding: 1;
+    margin: 0 0 1 0;
+    background: $surface-lighten-1;
+    border-left: wide $primary;
+    margin-right: 15;
+    color: $text;
+}
+
+/* ============================================================================
+   LOGS
+   ============================================================================ */
+
+LogViewer {
+    height: 1fr;
+    border: solid $primary;
+    background: $surface;
+    padding: 0 1;
+}
+
+.log-debug {
+    color: $text-muted;
+}
+
+.log-info {
+    color: $accent;
+}
+
+.log-warning {
+    color: $warning;
+}
+
+.log-error {
+    color: $error;
+}
+
+.log-critical {
+    color: $error;
+    text-style: bold reverse;
+}
+
+/* ============================================================================
+   CONFIGURATION
+   ============================================================================ */
+
+.config-section {
+    width: 100%;
+    height: auto;
+    border: solid $primary;
+    margin: 1 0;
+    padding: 1;
+    background: $surface;
+}
+
+.section-title {
+    text-style: bold;
+    color: $secondary;
+    margin-bottom: 1;
+}
+
+.section-description {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+SettingRow {
+    width: 100%;
+    height: auto;
+    min-height: 3;
+    padding: 1 0;
+    margin: 0 1;
+    border-bottom: solid $surface-lighten-2;
+    align: left middle;
+}
+
+SettingRow:last-child {
+    border-bottom: none;
+}
+
+SettingRow .setting-label {
+    width: 20;
+    height: auto;
+    color: $text;
+    text-style: bold;
+}
+
+SettingRow .setting-description {
+    width: 1fr;
+    color: $text-muted;
+    height: auto;
+    padding: 0 2;
+}
+
+SettingRow .setting-control {
+    width: 35;
+    height: auto;
+}
+
+/* ============================================================================
+   TIMELINE & THINKING
+   ============================================================================ */
+
+ThinkingLog {
+    height: 100%;
+    border: round $secondary;
+    background: $surface;
+    padding: 1;
+}
+
+ThinkingLog .thinking {
+    color: $secondary;
+}
+
+ThinkingLog .tool-call {
+    color: $primary;
+}
+
+ThinkingLog .result {
+    color: $success;
+}
+
+ActionTimeline {
+    width: 30;
+    border: round $primary;
+    background: $surface;
+    padding: 1;
+}
+
+ActionTimeline .step-current {
+    color: $secondary;
+    text-style: bold;
+}
+
+ActionTimeline .step-completed {
+    color: $success;
+}
+
+ActionTimeline .step-pending {
+    color: $text-muted;
+}
+
+/* ============================================================================
+   BROWSER PREVIEW
+   ============================================================================ */
+
+BrowserPreview {
+    height: 100%;
+    border: round $primary;
+    background: $surface;
+    content-align: center middle;
+}
+
+BrowserPreview .captcha-warning {
+    background: $warning;
+    color: $surface;
+    padding: 1;
+    text-style: bold;
+}
+
+.browser-status-active {
+    color: $success;
+}
+
+.browser-status-inactive {
+    color: $text-muted;
+}
+
+/* ============================================================================
+   CHARTS
+   ============================================================================ */
+
+.chart-container {
+    border: round $primary;
+    background: $surface;
+    padding: 1;
+}
+
+.sparkline {
+    height: 3;
+    background: $surface-darken-1;
+}
+
+.sparkline-value {
+    color: $primary;
+}
+
+#metrics-gpu-chart {
+    height: 12;
+}
+
+#metrics-cpu-chart {
+    height: 8;
+}
+
+#metrics-performance {
+    height: 8;
+}
+
+/* ============================================================================
+   COMMAND INPUT & ACTIVITY
+   ============================================================================ */
+
+CommandInput {
+    dock: bottom;
+    height: 5;
+    border: round $secondary;
+    background: $surface;
+    padding: 1;
+}
+
+#activity-log {
+    height: 100%;
+    border: round $primary;
+    background: $surface;
+    padding: 1;
+}
+
+#activity-log .log-time {
+    color: $text-muted;
+}
+
+/* ============================================================================
+   LAYOUT UTILITIES
+   ============================================================================ */
+
+.horizontal-split { layout: horizontal; }
+.vertical-split { layout: vertical; }
+
+.col-20 { width: 20%; }
+.col-25 { width: 25%; }
+.col-30 { width: 30%; }
+.col-33 { width: 33%; }
+.col-40 { width: 40%; }
+.col-50 { width: 50%; }
+.col-60 { width: 60%; }
+.col-66 { width: 66%; }
+.col-70 { width: 70%; }
+.col-75 { width: 75%; }
+.col-80 { width: 80%; }
+.col-100 { width: 100%; }
+
+.m-0 { margin: 0; }
+.m-1 { margin: 1; }
+.m-2 { margin: 2; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: 1; }
+.p-2 { padding: 2; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.text-bold { text-style: bold; }
+.text-dim { color: $text-muted; }
+
+.text-primary { color: $primary; }
+.text-accent { color: $accent; }
+.text-success { color: $success; }
+.text-warning { color: $warning; }
+.text-error { color: $error; }
+
+.border-primary { border: solid $primary; }
+.border-accent { border: solid $accent; }
+.border-none { border: none; }

@@ -1,0 +1,883 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tawiza Dashboard Theme - Monochrome Zinc + Blue Accent
+   Minimalist, ultra-clean design system
+   Inspired by Raycast, Linear, shadcn/ui
+*/
+
+:root {
+  --radius: 8px;
+
+  /* Light Mode - Warm premium palette */
+  --background: 40 20% 97%;
+  --foreground: 225 15% 12%;
+
+  --muted: 40 15% 93%;
+  --muted-foreground: 225 10% 46%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 225 15% 12%;
+
+  /* Card shadow replaces border for depth */
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03);
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 225 15% 12%;
+
+  --border: 40 10% 90%;
+  --input: 40 10% 90%;
+
+  /* Primary: Indigo-violet */
+  --primary: 245 58% 58%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary */
+  --secondary: 40 15% 93%;
+  --secondary-foreground: 225 15% 12%;
+
+  /* Accent: Amber warm */
+  --accent: 35 90% 55%;
+  --accent-foreground: 225 15% 12%;
+
+  /* Destructive */
+  --destructive: 0 65% 48%;
+  --destructive-foreground: 0 0% 100%;
+
+  --ring: 245 58% 58%;
+
+  /* Semantic colors - softened */
+  --success: hsl(152 60% 42%);
+  --warning: hsl(35 85% 52%);
+  --error: hsl(0 65% 48%);
+  --info: hsl(210 75% 52%);
+
+  /* Chart colors */
+  --chart-1: hsl(245 58% 58%);
+  --chart-2: hsl(152 60% 42%);
+  --chart-3: hsl(35 85% 52%);
+  --chart-4: hsl(280 55% 58%);
+  --chart-5: hsl(0 65% 48%);
+
+  /* Extended border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Dot grid */
+  --dot-color: rgba(0, 0, 0, 0.05);
+  --dot-size: 1px;
+  --dot-gap: 24px;
+}
+
+:root.dark, .dark {
+  /* Dark Mode - Warm depth palette */
+  --background: 225 15% 6%;
+  --foreground: 220 15% 93%;
+
+  --muted: 225 12% 12%;
+  --muted-foreground: 220 10% 55%;
+
+  --card: 225 14% 9%;
+  --card-foreground: 220 15% 93%;
+
+  /* Card shadow for depth */
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  --popover: 225 14% 9%;
+  --popover-foreground: 220 15% 93%;
+
+  --border: 225 12% 16%;
+  --input: 225 12% 16%;
+
+  /* Primary: Indigo-violet */
+  --primary: 245 58% 64%;
+  --primary-foreground: 225 15% 6%;
+
+  /* Secondary */
+  --secondary: 225 12% 12%;
+  --secondary-foreground: 220 15% 93%;
+
+  /* Accent: Amber warm */
+  --accent: 35 80% 55%;
+  --accent-foreground: 225 15% 6%;
+
+  /* Destructive */
+  --destructive: 0 60% 55%;
+  --destructive-foreground: 220 15% 93%;
+
+  --ring: 245 58% 64%;
+
+  /* Semantic colors - softened for dark */
+  --success: hsl(152 55% 50%);
+  --warning: hsl(35 80% 55%);
+  --error: hsl(0 60% 55%);
+  --info: hsl(210 70% 58%);
+
+  /* Chart colors */
+  --chart-1: hsl(245 58% 64%);
+  --chart-2: hsl(152 55% 50%);
+  --chart-3: hsl(35 80% 55%);
+  --chart-4: hsl(280 55% 65%);
+  --chart-5: hsl(0 60% 55%);
+
+  /* Dot grid */
+  --dot-color: rgba(161, 161, 170, 0.06);
+  --dot-size: 1px;
+  --dot-gap: 24px;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: unset !important;
+  background: hsl(var(--background));
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  font-weight: inherit;
+  line-height: inherit;
+  color: hsl(var(--foreground));
+  margin: 0;
+  padding: 0;
+}
+
+option {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+}
+
+p {
+  letter-spacing: 0px;
+}
+
+img {
+  pointer-events: none;
+}
+
+/* Selection colors */
+::selection {
+  color: hsl(0 0% 100%);
+  background: hsl(245 58% 58%);
+}
+
+::-moz-selection {
+  color: hsl(0 0% 100%);
+  background: hsl(245 58% 58%);
+}
+
+.dark ::selection {
+  color: hsl(0 0% 100%);
+  background: hsl(245 58% 64%);
+}
+
+.dark ::-moz-selection {
+  color: hsl(0 0% 100%);
+  background: hsl(245 58% 64%);
+}
+
+input.defaultCheckbox {
+  color: white;
+}
+
+input.defaultCheckbox::before {
+  content: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.66662 10.115L12.7946 3.98633L13.7379 4.92899L6.66662 12.0003L2.42395 7.75766L3.36662 6.81499L6.66662 10.115Z' fill='white'/%3E%3C/svg%3E%0A");
+  fill: currentColor;
+  opacity: 0;
+  height: 16px;
+  width: 16px;
+  top: 0;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0px);
+}
+
+input.defaultCheckbox::before path {
+  fill: currentColor;
+}
+
+input:checked.defaultCheckbox::before {
+  opacity: 1;
+}
+
+@layer base {
+  :root {
+    /* Sidebar - Light mode */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 225 15% 12%;
+    --sidebar-primary: 245 58% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 15% 93%;
+    --sidebar-accent-foreground: 225 15% 12%;
+    --sidebar-border: 40 10% 90%;
+    --sidebar-ring: 245 58% 58%;
+  }
+
+  .dark {
+    /* Sidebar - Dark mode (seamless with bg) */
+    --sidebar-background: 225 15% 6%;
+    --sidebar-foreground: 220 15% 93%;
+    --sidebar-primary: 245 58% 64%;
+    --sidebar-primary-foreground: 225 15% 6%;
+    --sidebar-accent: 225 12% 12%;
+    --sidebar-accent-foreground: 220 15% 93%;
+    --sidebar-border: 225 12% 16%;
+    --sidebar-ring: 245 58% 64%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-jakarta), var(--font-inter), 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Typography hierarchy */
+  .text-page-title {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  .text-section-label {
+    @apply text-[11px] font-semibold uppercase tracking-widest text-muted-foreground;
+  }
+  .text-card-title {
+    @apply text-[15px] font-medium;
+  }
+  .text-data-value {
+    @apply text-[28px] font-semibold font-mono tracking-tight;
+  }
+  .text-data-value-sm {
+    @apply text-lg font-semibold font-mono tracking-tight;
+  }
+  .text-caption {
+    @apply text-[11px] font-medium text-muted-foreground;
+  }
+
+  /* Tabular figures for data alignment */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Component classes */
+@layer components {
+  /* Solid surface card - shadow-based depth */
+  .glass {
+    background: hsl(var(--card));
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+  }
+
+  .glass-card {
+    @apply glass;
+    padding: 1rem;
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+  }
+
+  .glass-card:hover {
+    box-shadow: var(--card-shadow), 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .dark .glass-card:hover {
+    box-shadow: var(--card-shadow), 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Status indicators - left border accent */
+  .glow-cyan {
+    border-left: 3px solid hsl(var(--primary));
+  }
+
+  .glow-green {
+    border-left: 3px solid var(--success);
+  }
+
+  .glow-red {
+    border-left: 3px solid var(--error);
+  }
+
+  .glow-yellow {
+    border-left: 3px solid var(--warning);
+  }
+
+  .glow-subtle {
+    /* no-op - clean look */
+  }
+
+  /* Hover variants - subtle border highlight */
+  .hover\:glow-cyan:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    transition: border-color var(--transition-fast);
+  }
+
+  .hover\:glow-green:hover {
+    border-color: var(--success);
+    transition: border-color var(--transition-fast);
+  }
+
+  .hover\:glow-red:hover {
+    border-color: var(--error);
+    transition: border-color var(--transition-fast);
+  }
+
+  .hover\:glow-yellow:hover {
+    border-color: var(--warning);
+    transition: border-color var(--transition-fast);
+  }
+
+  /* Active state */
+  .active-glow {
+    border-left: 3px solid hsl(var(--primary));
+  }
+
+  /* Transition utilities */
+  .transition-fast {
+    transition: all var(--transition-fast);
+  }
+
+  .transition-normal {
+    transition: all var(--transition-normal);
+  }
+
+  .transition-slow {
+    transition: all var(--transition-slow);
+  }
+
+  /* Dot grid background pattern */
+  .dot-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent var(--dot-size));
+    background-size: var(--dot-gap) var(--dot-gap);
+  }
+
+  /* Aurora Borealis Background */
+  .aurora-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 65vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, transparent 100%);
+  }
+
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    will-change: transform;
+  }
+
+  /* Dark mode aurora - warm indigo/amber */
+  .aurora-cyan {
+    width: 600px;
+    height: 400px;
+    top: -10%;
+    left: 5%;
+    background: radial-gradient(circle, rgba(120, 80, 220, 0.12) 0%, transparent 70%);
+    animation: aurora-drift-1 20s ease-in-out infinite alternate;
+  }
+
+  .aurora-blue {
+    width: 800px;
+    height: 500px;
+    top: -15%;
+    left: 30%;
+    background: radial-gradient(circle, rgba(100, 80, 200, 0.15) 0%, transparent 70%);
+    animation: aurora-drift-2 25s ease-in-out infinite alternate;
+  }
+
+  .aurora-violet {
+    width: 600px;
+    height: 400px;
+    top: -5%;
+    right: 5%;
+    background: radial-gradient(circle, rgba(200, 150, 60, 0.08) 0%, transparent 70%);
+    animation: aurora-drift-3 18s ease-in-out infinite alternate;
+  }
+
+  /* Light mode - reduced opacity */
+  :root:not(.dark) .aurora-cyan {
+    background: radial-gradient(circle, rgba(120, 80, 220, 0.06) 0%, transparent 70%);
+  }
+
+  :root:not(.dark) .aurora-blue {
+    background: radial-gradient(circle, rgba(100, 80, 200, 0.08) 0%, transparent 70%);
+  }
+
+  :root:not(.dark) .aurora-violet {
+    background: radial-gradient(circle, rgba(200, 150, 60, 0.04) 0%, transparent 70%);
+  }
+
+  /* Texture variants (kept for backwards compat) */
+  .texture-isometric,
+  .texture-grid,
+  .texture-dots {
+    position: relative;
+  }
+
+  .texture-dots::before,
+  .texture-isometric::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent var(--dot-size));
+    background-size: var(--dot-gap) var(--dot-gap);
+    z-index: 1;
+  }
+
+  .texture-grid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image:
+      linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 1;
+  }
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Steam animation for TAJINE logo */
+@keyframes steam-rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+}
+
+.animate-steam {
+  animation: steam-rise 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Cursor blink for streaming */
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Thinking shimmer - progressive wave */
+@keyframes thinking-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* Thinking dots bounce */
+@keyframes thinking-dot {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Border glow for streaming input */
+@keyframes border-glow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Magic orb - breathing pulse */
+@keyframes orb-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* Concentric ring expansion */
+@keyframes ring-expand {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Orbital rotations at different speeds */
+@keyframes orbit-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes orbit-medium {
+  from { transform: rotate(120deg); }
+  to { transform: rotate(480deg); }
+}
+@keyframes orbit-fast {
+  from { transform: rotate(240deg); }
+  to { transform: rotate(600deg); }
+}
+
+/* Pulse ring for welcome screen */
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+/* Aurora Borealis drift animations */
+@keyframes aurora-drift-1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(80px, 40px) scale(1.1);
+  }
+  66% {
+    transform: translate(-40px, 60px) scale(0.95);
+  }
+  100% {
+    transform: translate(50px, 25px) scale(1.05);
+  }
+}
+
+@keyframes aurora-drift-2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-60px, 50px) scale(1.08);
+  }
+  66% {
+    transform: translate(50px, 30px) scale(1.12);
+  }
+  100% {
+    transform: translate(-30px, 60px) scale(0.95);
+  }
+}
+
+@keyframes aurora-drift-3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-50px, 55px) scale(1.1);
+  }
+  66% {
+    transform: translate(60px, 35px) scale(0.92);
+  }
+  100% {
+    transform: translate(-35px, 45px) scale(1.06);
+  }
+}
+
+/* Animation utility classes */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .animate-fade-in-scale {
+    animation: fadeInScale 0.2s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInFromLeft 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInFromRight 0.3s ease-out forwards;
+  }
+
+  .animate-pulse-dot {
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+
+  .animate-cursor-blink {
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  .animate-thinking-dot {
+    animation: thinking-dot 1.4s ease-in-out infinite;
+  }
+
+  .animate-border-glow {
+    animation: border-glow 2s ease-in-out infinite;
+  }
+
+  .thinking-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.15) 40%,
+      hsl(var(--primary) / 0.25) 50%,
+      hsl(var(--primary) / 0.15) 60%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: thinking-shimmer 1.8s ease-in-out infinite;
+  }
+
+  .animate-orb-breathe {
+    animation: orb-breathe 2s ease-in-out infinite;
+  }
+
+  .animate-ring-expand {
+    animation: ring-expand 2.1s ease-out infinite;
+  }
+
+  .animate-orbit-slow {
+    animation: orbit-slow 4s linear infinite;
+  }
+
+  .animate-orbit-medium {
+    animation: orbit-medium 3s linear infinite;
+  }
+
+  .animate-orbit-fast {
+    animation: orbit-fast 2s linear infinite;
+  }
+
+  .animate-pulse-ring {
+    animation: pulse-ring 3s ease-in-out infinite;
+  }
+
+  /* Staggered animation delays */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+  .stagger-6 { animation-delay: 300ms; }
+  .stagger-7 { animation-delay: 350ms; }
+  .stagger-8 { animation-delay: 400ms; }
+  .stagger-9 { animation-delay: 450ms; }
+  .stagger-10 { animation-delay: 500ms; }
+  .stagger-11 { animation-delay: 550ms; }
+  .stagger-12 { animation-delay: 600ms; }
+  .stagger-13 { animation-delay: 650ms; }
+  .stagger-14 { animation-delay: 700ms; }
+  .stagger-15 { animation-delay: 750ms; }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area insets for iOS */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* Custom easing */
+  .ease-out-quart {
+    transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* Page transitions */
+  .page-enter {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  }
+
+  /* Hover lift for interactive cards */
+  .hover-lift {
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px) scale(1.005);
+  }
+
+  /* Button press feedback */
+  .press-scale:active {
+    transform: scale(0.97);
+    transition: transform 80ms ease;
+  }
+
+  /* Smooth number transitions */
+  .transition-number {
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* Row stripe for tables */
+  .row-stripe > *:nth-child(odd) {
+    background: hsl(var(--muted) / 0.3);
+  }
+
+  /* Animate children on mount with stagger */
+  .animate-children > * {
+    opacity: 0;
+    transform: translateY(4px);
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  .animate-children > *:nth-child(1) { animation-delay: 0ms; }
+  .animate-children > *:nth-child(2) { animation-delay: 50ms; }
+  .animate-children > *:nth-child(3) { animation-delay: 100ms; }
+  .animate-children > *:nth-child(4) { animation-delay: 150ms; }
+  .animate-children > *:nth-child(5) { animation-delay: 200ms; }
+  .animate-children > *:nth-child(6) { animation-delay: 250ms; }
+  .animate-children > *:nth-child(7) { animation-delay: 300ms; }
+  .animate-children > *:nth-child(8) { animation-delay: 350ms; }
+}

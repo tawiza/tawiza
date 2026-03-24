@@ -1,0 +1,321 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tawiza"
+version = "2.0.3"
+description = "Tawiza — Plateforme open source d'intelligence territoriale propulsée par l'IA"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Tawiza Team"}
+]
+keywords = ["tawiza", "intelligence-territoriale", "france", "open-data", "ollama", "agents-ia"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core dependencies
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
+    # API & Web
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "httpx>=0.27.0",
+    "cachetools>=5.3.0",
+    # Database
+    "sqlalchemy[asyncio]>=2.0.0",
+    "alembic>=1.13.0",
+    "asyncpg>=0.29.0",
+    "aiosqlite>=0.19.0",
+    # Data Processing
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    # Monitoring & Telemetry
+    "prometheus-client>=0.19.0",
+    "langfuse>=2.0.0",
+    "sentry-sdk[fastapi]>=2.0.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "python-logging-loki>=0.3.1",
+    # CLI
+    "typer>=0.9.0",
+    "rich>=13.7.0",
+    "plotext>=5.2.8",
+    "inquirer>=3.1.0",
+    "tenacity>=8.2.0",
+    "psutil>=5.9.0",
+    "loguru>=0.7.0",
+    "yaspin>=3.0.0",
+    # Additional for ML
+    "mlflow>=2.10.0",
+    # Object Storage (MinIO S3-compatible)
+    "minio>=7.2.0",
+    # Annotation
+    "label-studio-sdk>=0.0.30",
+    # TUI Advanced
+    "textual>=0.50.0",
+    "textual-dev>=1.3.0",
+    "textual-image>=0.8.0",
+    # TUI v6 - Geo Visualization
+    "geopandas>=1.0.0",
+    "matplotlib>=3.8.0",
+    # Export & Reporting
+    "jinja2>=3.1.0",
+    "tabulate>=0.9.0",
+    "markdown>=3.5.0",
+    # WebSocket
+    "websockets>=12.0",
+    # Crawler
+    "beautifulsoup4>=4.12.0",
+    "feedparser>=6.0.0",
+    # Security
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.0",
+    "python-multipart>=0.0.6",
+    "keyring>=25.6.0",
+    # LLM Providers
+    "ollama>=0.6.0",
+    "anthropic>=0.37.0",
+    "openai>=1.109.0",
+    "litserve>=0.2.0",
+    # Code Execution
+    "e2b>=2.6.0",
+    "e2b-code-interpreter>=2.3.0",
+    # Knowledge Graph
+    "neo4j>=5.0.0",
+    # Playwright for basic browser automation (without browser-use)
+    "playwright>=1.56.0",
+    "textual-plotext>=1.0.1",
+    "browser-use>=0.9.5",
+    "langchain-ollama>=0.3.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+]
+
+tajine-core = [
+    # Crawling
+    "crawl4ai>=0.3",
+    # LLM Programming
+    "dspy-ai>=2.4",
+    # Bandit
+    "mabwiser>=2.7",
+    # Validation
+    "pandera>=0.18",
+    # Knowledge Graph (already have neo4j)
+    "neo4j-graphrag>=0.1",
+    # Causal Inference
+    "dowhy>=0.11",
+    "econml>=0.15",
+    # Bayesian
+    "pymc>=5.10",
+    "arviz>=0.17",
+    # ML/Topics
+    "bertopic>=0.16",
+    # Visualization
+    "plotly>=5.18",
+    "folium>=0.15",
+    "great-tables>=0.3",
+    # Reports
+    "weasyprint>=60",
+    # Fine-tuning
+    "shap>=0.44",
+    # Document Parsing (DataHunter v2)
+    "docling>=2.0",
+    "pdfplumber>=0.11",
+    # Stealth Browser (DataHunter v2)
+    "nodriver>=0.38",           # Chrome-based CDP stealth
+    "camoufox[geoip]>=0.4",     # Firefox-based C++ fingerprint stealth
+    # Discovery Engine (DataHunter v2)
+    "scrapegraphai>=1.0",
+]
+
+# Browser automation with browser-use (requires psutil>=7)
+# Cannot be installed alongside camel-ai
+browser = [
+    "browser-use>=0.9.5",
+]
+
+# Multi-agent framework with camel-ai (requires psutil<6)
+# Cannot be installed alongside browser-use
+agents = [
+    "camel-ai>=0.2.0",
+]
+
+# Fine-tuning dependencies (heavy GPU requirements)
+# Install with: pip install "tawiza[finetuning]"
+finetuning = [
+    # Hugging Face ecosystem
+    "transformers>=4.40.0",
+    "datasets>=2.19.0",
+    "accelerate>=0.27.0",
+    # LoRA/QLoRA adapters
+    "peft>=0.10.0",
+    # DPO/GRPO training
+    "trl>=0.8.0",
+    # 4-bit quantization (NVIDIA only)
+    "bitsandbytes>=0.43.0; platform_system == 'Linux'",
+    # Fast LoRA (optional, requires specific CUDA)
+    # "unsloth>=2024.4",  # Uncomment if CUDA 12.1+ available
+]
+
+# Oumi fine-tuning SDK (DISABLED - conflicts with browser-use on aiohttp version)
+# To use oumi, create a separate venv: uv venv --python 3.12 oumi-venv && uv pip install oumi
+# oumi = [
+#     "oumi>=0.1.0",
+# ]
+
+[project.urls]
+Homepage = "https://tawiza.fr"
+Repository = "https://github.com/hamidedefr/tawiza"
+Documentation = "https://github.com/hamidedefr/tawiza/tree/main/docs"
+"Bug Tracker" = "https://github.com/hamidedefr/tawiza/issues"
+
+[project.scripts]
+tawiza = "src.cli.v2.entrypoint:main"
+tawiza-legacy = "src.cli.entrypoint:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-dir]
+"" = "."
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",    # line too long (handled by formatter)
+    "E701",    # multiple-statements-on-one-line (sometimes cleaner)
+    "E721",    # type-comparison (isinstance preferred but == is fine for exact types)
+    "E722",    # bare-except (legacy code, will fix incrementally)
+    "F401",    # unused-import (often intentional: re-exports, optional deps, type hints)
+    "ARG001",  # unused function argument (common in handlers/interfaces)
+    "ARG002",  # unused method argument (common in interface/handler patterns)
+    "ARG004",  # unused static method argument
+    "B007",    # unused-loop-control-variable (underscore convention not always followed)
+    "B008",    # function call in default argument (common pattern with FastAPI Depends)
+    "B023",    # function-uses-loop-variable (false positives with async)
+    "B024",    # abstract-base-class-without-abstract-method (intentional)
+    "B027",    # empty-method-without-abstract-decorator (placeholder methods)
+    "B904",    # raise-without-from-inside-except (too pedantic)
+    "E402",    # module import not at top (sometimes intentional for side effects)
+    "E741",    # ambiguous variable name (l, O, I - context makes it clear)
+    "SIM102",  # nested if - sometimes clearer than combined conditions
+    "SIM105",  # suppressible-exception (try/except/pass is readable)
+    "SIM108",  # if-else-block-instead-of-if-exp (readability preference)
+    "SIM117",  # multiple-with-statements (nested is clearer for some)
+    "UP035",   # deprecated-import (typing.Dict etc, will migrate incrementally)
+    "F841",    # local-variable-is-assigned-but-never-used (cleanup later)
+    "B028",    # no-explicit-stacklevel (warnings.warn)
+    "B905",    # zip-without-explicit-strict
+    "B006",    # mutable-argument-default
+    "F821",    # undefined-name (false positives with lazy imports)
+    "F403",    # wildcard-imports (used intentionally in some modules)
+    "SIM116",  # if-else-block-instead-of-dict-lookup
+    "SIM115",  # open-file-with-context-handler
+    "F823",    # undefined-name-in-all
+    "UP007",   # non-pep604-annotation (X | Y syntax, needs Python 3.10+)
+    "ARG005",  # unused-lambda-argument
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--tb=short",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/conftest.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+fail_under = 15
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+exclude = [
+    "tests/",
+    "docs/",
+    "scripts/",
+]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "docs", "scripts"]
+skips = ["B101"]  # assert_used

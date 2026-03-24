@@ -1,0 +1,70 @@
+version: 2
+
+updates:
+  # Python dependencies (pip)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 10
+    groups:
+      ml-dependencies:
+        patterns:
+          - "transformers"
+          - "peft"
+          - "trl"
+          - "mlflow"
+          - "datasets"
+          - "accelerate"
+      monitoring:
+        patterns:
+          - "prometheus-*"
+          - "opentelemetry-*"
+          - "sentry-*"
+          - "langfuse"
+
+  # Node.js dependencies (npm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "javascript"
+    open-pull-requests-limit: 10
+    groups:
+      next-ecosystem:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@next/*"
+      ui-components:
+        patterns:
+          - "@radix-ui/*"
+          - "tailwindcss"
+          - "class-variance-authority"
+          - "lucide-react"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"

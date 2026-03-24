@@ -1,0 +1,813 @@
+/* Tawiza TUI v5 Theme - Solarized Light */
+
+/* ============================================================================
+   SOLARIZED COLOR PALETTE - LIGHT MODE
+   ============================================================================ */
+
+/* Base colors - inverted for light */
+$base03: #fdf6e3;
+$base02: #eee8d5;
+$base01: #93a1a1;
+$base00: #839496;
+$base0: #657b83;
+$base1: #586e75;
+$base2: #073642;
+$base3: #002b36;
+
+/* Accent colors - same */
+$yellow: #b58900;
+$orange: #cb4b16;
+$red: #dc322f;
+$magenta: #d33682;
+$violet: #6c71c4;
+$blue: #268bd2;
+$cyan: #2aa198;
+$green: #859900;
+
+/* Theme Variables */
+$primary: #268bd2;
+$primary-light: #4ca2e0;
+$primary-dark: #1a6ba8;
+
+$secondary: #2aa198;
+$accent: #2aa198;
+$accent-light: #45c4ba;
+
+$success: #859900;
+$success-dark: #6b7d00;
+$warning: #b58900;
+$warning-dark: #967000;
+$error: #dc322f;
+$error-dark: #b82a29;
+$info: #6c71c4;
+
+$surface: #fdf6e3;
+$surface-light: #eee8d5;
+$surface-lighter: #ddd6c3;
+$surface-dark: #e8e1cf;
+
+$text: #657b83;
+$text-muted: #93a1a1;
+$text-dim: #93a1a1;
+
+$border: #eee8d5;
+$border-focus: #268bd2;
+
+$button-foreground: #657b83;
+$button-color-foreground: #002b36;
+/* ============================================================================
+   HEADER & NAVIGATION
+   ============================================================================ */
+
+HeaderTabs {
+    dock: top;
+    height: 3;
+    background: $surface-dark;
+    border-bottom: solid $border;
+}
+
+TabButton {
+    width: auto;
+    height: 3;
+    padding: 0 3;
+    content-align: center middle;
+    background: transparent;
+    color: $text-dim;
+    text-style: none;
+}
+
+TabButton:hover {
+    background: $surface-light;
+    color: $text;
+}
+
+TabButton.active {
+    background: $primary;
+    color: $base3;
+    text-style: bold;
+}
+
+#title {
+    dock: right;
+    width: auto;
+    padding: 0 3;
+    content-align: center middle;
+    text-style: bold;
+    color: $cyan;
+}
+
+/* ============================================================================
+   STATUS BAR & FOOTER
+   ============================================================================ */
+
+StatusBar {
+    dock: bottom;
+    height: 1;
+    background: $surface-dark;
+    padding: 0 2;
+    border-top: solid $border;
+    color: $text-muted;
+}
+
+Footer {
+    background: $surface-dark;
+    border-top: solid $surface-lighter;
+}
+
+Footer > .footer--key {
+    background: $primary;
+    color: $base3;
+    text-style: bold;
+    padding: 0 1;
+}
+
+Footer > .footer--description {
+    color: $text-muted;
+    padding: 0 1;
+}
+
+/* ============================================================================
+   PANELS & CONTAINERS
+   ============================================================================ */
+
+.panel {
+    border: solid $border;
+    background: $surface-light;
+    padding: 1;
+    margin: 0 1 1 0;
+}
+
+.panel-title {
+    dock: top;
+    height: 1;
+    background: $surface;
+    padding: 0 1;
+    text-style: bold;
+    color: $cyan;
+    border-bottom: solid $border;
+}
+
+.panel-elevated {
+    border: solid $primary;
+    background: $surface-light;
+    padding: 1;
+}
+
+/* ============================================================================
+   FORMS & INPUTS
+   ============================================================================ */
+
+Input {
+    background: $surface;
+    border: solid $border;
+    padding: 0 1;
+    color: $text;
+}
+
+Input:focus {
+    border: solid $primary;
+    background: $surface;
+}
+
+Input.-valid {
+    border: solid $success;
+}
+
+Input.-invalid {
+    border: solid $error;
+}
+
+Select {
+    background: $surface;
+    border: solid $border;
+}
+
+Select:focus {
+    border: solid $primary;
+}
+
+SelectCurrent {
+    background: $surface;
+    color: $text;
+}
+
+SelectOverlay {
+    background: $surface-light;
+    border: solid $border;
+}
+
+Switch {
+    background: $surface-lighter;
+}
+
+Switch.-on {
+    background: $primary;
+}
+
+Button {
+    background: $surface-light;
+    color: $text;
+    border: solid $border;
+    padding: 0 3;
+    height: 3;
+    min-width: 12;
+}
+
+Button:hover {
+    background: $surface-lighter;
+    border: solid $primary;
+    color: $text;
+}
+
+Button:focus {
+    border: solid $primary;
+}
+
+Button.-primary {
+    background: $primary;
+    color: $base3;
+    border: solid $primary-dark;
+}
+
+Button.-primary:hover {
+    background: $primary-light;
+}
+
+Button.-success {
+    background: $success;
+    color: $base3;
+    border: solid $success-dark;
+}
+
+Button.-warning {
+    background: $warning;
+    color: $surface-dark;
+    border: solid $warning-dark;
+}
+
+Button.-error {
+    background: $error;
+    color: $base3;
+    border: solid $error-dark;
+}
+
+Button.-secondary {
+    background: transparent;
+    color: $text-muted;
+    border: solid $border;
+}
+
+Button.-secondary:hover {
+    background: $surface-light;
+    color: $text;
+    border: solid $primary;
+}
+
+/* ============================================================================
+   DATA TABLES
+   ============================================================================ */
+
+DataTable {
+    background: $surface;
+    border: solid $border;
+}
+
+DataTable > .datatable--header {
+    background: $surface-light;
+    color: $cyan;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: $primary;
+    color: $base3;
+}
+
+DataTable > .datatable--hover {
+    background: $surface-light;
+}
+
+DataTable:focus > .datatable--cursor {
+    background: $primary-light;
+}
+
+/* ============================================================================
+   METRIC GAUGES
+   ============================================================================ */
+
+MetricGauge {
+    height: 5;
+    border: solid $border;
+    background: $surface-light;
+    padding: 0 1;
+}
+
+MetricGauge .label {
+    text-style: bold;
+    color: $text;
+}
+
+MetricGauge .value-low {
+    color: $success;
+    text-style: bold;
+}
+
+MetricGauge .value-medium {
+    color: $warning;
+    text-style: bold;
+}
+
+MetricGauge .value-high {
+    color: $error;
+    text-style: bold;
+}
+
+.progress-bar {
+    height: 1;
+    background: $surface;
+}
+
+.progress-bar-fill {
+    background: $primary;
+}
+
+.progress-bar-fill.success {
+    background: $success;
+}
+
+.progress-bar-fill.warning {
+    background: $warning;
+}
+
+.progress-bar-fill.error {
+    background: $error;
+}
+
+/* ============================================================================
+   SERVICE STATUS
+   ============================================================================ */
+
+ServiceStatusWidget {
+    height: auto;
+    padding: 0 1;
+}
+
+.service-online {
+    color: $success;
+}
+
+.service-offline {
+    color: $error;
+}
+
+.service-unknown {
+    color: $warning;
+}
+
+/* ============================================================================
+   TASK LIST
+   ============================================================================ */
+
+TaskList {
+    height: 100%;
+    border: round $surface-lighter;
+    background: $surface;
+}
+
+TaskList .task-running {
+    border-left: thick $cyan;
+    background: $surface-light;
+}
+
+TaskList .task-completed {
+    border-left: thick $success;
+}
+
+TaskList .task-failed {
+    border-left: thick $error;
+}
+
+TaskList .task-pending {
+    border-left: thick $text-dim;
+}
+
+TaskList .task-paused {
+    border-left: thick $warning;
+}
+
+/* ============================================================================
+   CHAT & MESSAGES
+   ============================================================================ */
+
+ChatHistory {
+    height: 1fr;
+    border: solid $border;
+    background: $surface;
+    padding: 1;
+}
+
+MessageBubble {
+    width: 100%;
+    padding: 1;
+    margin: 0 0 1 0;
+}
+
+MessageBubble.user {
+    background: $primary;
+    color: $base3;
+    text-align: right;
+    margin-left: 15;
+    border: none;
+}
+
+MessageBubble.assistant {
+    background: $surface-light;
+    border-left: wide $cyan;
+    margin-right: 15;
+    color: $text;
+}
+
+StreamingMessage {
+    width: 100%;
+    padding: 1;
+    margin: 0 0 1 0;
+    background: $surface-light;
+    border-left: wide $primary;
+    margin-right: 15;
+    color: $text;
+}
+
+/* ============================================================================
+   LOGS
+   ============================================================================ */
+
+LogViewer {
+    height: 1fr;
+    border: solid $border;
+    background: $surface;
+    padding: 0 1;
+}
+
+.log-line {
+    height: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.log-debug {
+    color: $text-dim;
+}
+
+.log-info {
+    color: $info;
+}
+
+.log-warning {
+    color: $warning;
+}
+
+.log-error {
+    color: $error;
+}
+
+.log-critical {
+    color: $error;
+    text-style: bold;
+    background: $error-dark;
+}
+
+/* ============================================================================
+   FILE BROWSER
+   ============================================================================ */
+
+DirectoryTree {
+    background: $surface;
+    border: round $surface-lighter;
+}
+
+DirectoryTree > .directory-tree--folder {
+    color: $cyan;
+}
+
+DirectoryTree > .directory-tree--file {
+    color: $text;
+}
+
+DirectoryTree > .directory-tree--extension {
+    color: $text-muted;
+}
+
+DirectoryTree > .directory-tree--cursor {
+    background: $primary;
+    color: $base3;
+}
+
+FilePreview {
+    width: 100%;
+    height: 100%;
+    padding: 1;
+    background: $surface;
+    border: solid $border;
+}
+
+/* ============================================================================
+   CONFIGURATION
+   ============================================================================ */
+
+.config-section {
+    width: 100%;
+    height: auto;
+    border: solid $border;
+    margin: 1 0;
+    padding: 1;
+    background: $surface-light;
+}
+
+.section-title {
+    text-style: bold;
+    color: $cyan;
+    margin-bottom: 1;
+}
+
+.section-description {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+SettingRow {
+    width: 100%;
+    height: auto;
+    min-height: 3;
+    padding: 1 0;
+    margin: 0 1;
+    border-bottom: solid $border;
+    align: left middle;
+}
+
+SettingRow:last-child {
+    border-bottom: none;
+}
+
+SettingRow .setting-label {
+    width: 20;
+    height: auto;
+    color: $text;
+    text-style: bold;
+}
+
+SettingRow .setting-description {
+    width: 1fr;
+    color: $text-muted;
+    height: auto;
+    padding: 0 2;
+}
+
+SettingRow .setting-control {
+    width: 35;
+    height: auto;
+}
+
+/* ============================================================================
+   HISTORY & TIMELINE
+   ============================================================================ */
+
+SessionDetail {
+    height: auto;
+    padding: 1;
+    border: round $surface-lighter;
+    background: $surface;
+    margin: 1;
+}
+
+ThinkingLog {
+    height: 100%;
+    border: round $secondary;
+    background: $surface;
+    padding: 1;
+}
+
+ThinkingLog .thinking {
+    color: $cyan;
+}
+
+ThinkingLog .tool-call {
+    color: $primary;
+}
+
+ThinkingLog .result {
+    color: $success;
+}
+
+ActionTimeline {
+    width: 30;
+    border: round $surface-lighter;
+    background: $surface;
+    padding: 1;
+}
+
+ActionTimeline .step-current {
+    color: $cyan;
+    text-style: bold;
+}
+
+ActionTimeline .step-completed {
+    color: $success;
+}
+
+ActionTimeline .step-pending {
+    color: $text-muted;
+}
+
+/* ============================================================================
+   BROWSER PREVIEW
+   ============================================================================ */
+
+BrowserPreview {
+    height: 100%;
+    border: round $surface-lighter;
+    background: $surface;
+    content-align: center middle;
+}
+
+BrowserPreview .captcha-warning {
+    background: $warning;
+    color: $surface;
+    padding: 1;
+    text-style: bold;
+}
+
+.browser-status-active {
+    color: $success;
+}
+
+.browser-status-inactive {
+    color: $text-muted;
+}
+
+/* ============================================================================
+   CHARTS & NOTIFICATIONS
+   ============================================================================ */
+
+.chart-container {
+    border: round $surface-lighter;
+    background: $surface;
+    padding: 1;
+}
+
+.sparkline {
+    height: 3;
+    background: $surface-dark;
+    padding: 0;
+}
+
+.sparkline-value {
+    color: $primary;
+}
+
+#metrics-gpu-chart {
+    height: 12;
+}
+
+#metrics-cpu-chart {
+    height: 8;
+}
+
+#metrics-performance {
+    height: 8;
+}
+
+Toast {
+    background: $surface-light;
+    border: round $primary;
+    padding: 1;
+}
+
+Toast.-information {
+    border: round $info;
+}
+
+Toast.-warning {
+    border: round $warning;
+}
+
+Toast.-error {
+    border: round $error;
+}
+
+/* ============================================================================
+   COMMAND INPUT & ACTIVITY LOG
+   ============================================================================ */
+
+CommandInput {
+    dock: bottom;
+    height: 5;
+    border: round $cyan;
+    background: $surface-light;
+    padding: 1;
+}
+
+CommandInput Input {
+    background: $surface;
+    border: tall $surface-lighter;
+}
+
+CommandInput Input:focus {
+    border: tall $cyan;
+}
+
+#activity-log {
+    height: 100%;
+    border: round $surface-lighter;
+    background: $surface;
+    padding: 1;
+}
+
+#activity-log .log-entry {
+    height: 1;
+}
+
+#activity-log .log-time {
+    color: $text-muted;
+}
+
+/* ============================================================================
+   LAYOUT UTILITIES
+   ============================================================================ */
+
+.horizontal-split {
+    layout: horizontal;
+}
+
+.vertical-split {
+    layout: vertical;
+}
+
+.col-20 { width: 20%; }
+.col-25 { width: 25%; }
+.col-30 { width: 30%; }
+.col-33 { width: 33%; }
+.col-40 { width: 40%; }
+.col-50 { width: 50%; }
+.col-60 { width: 60%; }
+.col-66 { width: 66%; }
+.col-70 { width: 70%; }
+.col-75 { width: 75%; }
+.col-80 { width: 80%; }
+.col-100 { width: 100%; }
+
+.m-0 { margin: 0; }
+.m-1 { margin: 1; }
+.m-2 { margin: 2; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: 1; }
+.p-2 { padding: 2; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.text-bold { text-style: bold; }
+.text-italic { text-style: italic; }
+.text-dim { color: $text-muted; }
+
+.text-primary { color: $primary; }
+.text-accent { color: $cyan; }
+.text-success { color: $success; }
+.text-warning { color: $warning; }
+.text-error { color: $error; }
+.text-info { color: $info; }
+
+.bg-primary { background: $primary; }
+.bg-surface { background: $surface; }
+.bg-surface-light { background: $surface-light; }
+
+.border-primary { border: solid $primary; }
+.border-accent { border: solid $cyan; }
+.border-success { border: solid $success; }
+.border-none { border: none; }
+
+.blink {
+    text-style: blink;
+}
+
+.loading {
+    color: $cyan;
+}
+
+.pulse {
+    text-style: bold;
+}
+
+Rule {
+    color: $surface-lighter;
+    margin: 1 0;
+}
+
+Rule.-horizontal {
+    height: 1;
+}
+
+Rule.-vertical {
+    width: 1;
+}

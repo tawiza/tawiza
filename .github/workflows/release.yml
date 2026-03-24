@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: |
+            {
+              "categories": [
+                {"title": "## Features", "labels": ["feature", "enhancement"]},
+                {"title": "## Bug Fixes", "labels": ["bug", "fix"]},
+                {"title": "## Documentation", "labels": ["documentation", "docs"]},
+                {"title": "## Maintenance", "labels": ["chore", "dependencies"]}
+              ]
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Tawiza ${{ github.ref_name }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Installation
+
+            ```bash
+            git clone https://github.com/${{ github.repository }}.git
+            cd tawiza
+            git checkout ${{ github.ref_name }}
+
+            # Start infrastructure
+            docker compose up -d
+
+            # Install & run
+            python -m venv .venv && source .venv/bin/activate
+            pip install -e .
+            alembic upgrade head
+            uvicorn src.interfaces.api.main:app --host 0.0.0.0 --port 8000
+            ```
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  artifacts:
+    name: Build Artifacts
+    runs-on: ubuntu-latest
+    needs: release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build package
+        run: |
+          pip install --upgrade pip build
+          python -m build
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

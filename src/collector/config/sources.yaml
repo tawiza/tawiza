@@ -1,0 +1,53 @@
+# Collector sources configuration
+# Each source defines: type, schedule, and specific settings
+
+sources:
+  sirene:
+    type: api
+    enabled: true
+    schedule: "0 6 * * *"  # Daily at 6 AM
+    rate_limit: 7  # req/s
+    description: "Créations/radiations entreprises (INSEE SIRENE)"
+
+  france_travail:
+    type: api
+    enabled: true
+    schedule: "0 7 * * *"  # Daily at 7 AM
+    rate_limit: 10  # req/s
+    description: "Offres d'emploi (France Travail API)"
+
+  bodacc:
+    type: api
+    enabled: true
+    schedule: "0 8 * * *"  # Daily at 8 AM
+    rate_limit: 5
+    description: "Annonces légales (BODACC)"
+
+  dvf:
+    type: api
+    enabled: true
+    schedule: "0 9 * * 1"  # Weekly on Monday
+    rate_limit: 2
+    description: "Transactions immobilières (DVF)"
+
+  presse_locale:
+    type: crawler
+    enabled: true
+    schedule: "0 */4 * * *"  # Every 4 hours
+    rate_limit: 2
+    description: "Presse régionale (RSS + Trafilatura)"
+
+# Departments to monitor (empty = all)
+departments:
+  - "75"   # Paris
+  - "13"   # Bouches-du-Rhône
+  - "69"   # Rhône
+  - "31"   # Haute-Garonne
+  - "33"   # Gironde
+  - "59"   # Nord
+
+# Detection settings
+detection:
+  zscore_threshold: 2.5
+  min_cross_sources: 2
+  lookback_weeks: 12

@@ -1,0 +1,127 @@
+/* Energy Orb Animations */
+
+.energy-orb {
+  --orb-color: #88C0D0;
+  --orb-color-alt: #81A1C1;
+  --orb-glow: rgba(136, 192, 208, 0.4);
+  --success-color: #A3BE8C;
+}
+
+/* Core orb pulse */
+.energy-orb__core {
+  transition: all 0.3s ease-out;
+}
+
+.energy-orb--streaming .energy-orb__core {
+  animation: orb-pulse 1.5s ease-in-out infinite;
+}
+
+.energy-orb--complete .energy-orb__core {
+  animation: complete-flash 0.6s ease-out forwards;
+}
+
+/* Rotating ring */
+.energy-orb__ring {
+  animation: orb-rotate 3s linear infinite;
+}
+
+.energy-orb--streaming .energy-orb__ring {
+  animation: orb-rotate 1s linear infinite;
+}
+
+/* Glow effect */
+.energy-orb__glow {
+  background: radial-gradient(circle, var(--orb-glow) 0%, transparent 70%);
+  transition: opacity 0.3s ease-out;
+}
+
+.energy-orb--streaming .energy-orb__glow {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* Particles container */
+.energy-orb__particles {
+  animation: orb-rotate 4s linear infinite reverse;
+}
+
+.energy-orb--streaming .energy-orb__particles {
+  animation: orb-rotate 2s linear infinite reverse;
+}
+
+/* Individual particle */
+.energy-orb__particle {
+  left: 50%;
+  top: 50%;
+  transform-origin: center;
+  animation: particle-orbit 2s ease-in-out infinite;
+  opacity: 0.8;
+  box-shadow: 0 0 4px var(--orb-color);
+}
+
+.energy-orb--streaming .energy-orb__particle {
+  animation-duration: 1s;
+}
+
+/* Keyframes */
+@keyframes orb-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px var(--orb-glow);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 24px var(--orb-glow);
+  }
+}
+
+@keyframes orb-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes particle-orbit {
+  0% {
+    transform: rotate(var(--particle-offset, 0deg)) translateX(12px) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: rotate(calc(var(--particle-offset, 0deg) + 180deg)) translateX(12px) scale(0.6);
+    opacity: 0.5;
+  }
+  100% {
+    transform: rotate(calc(var(--particle-offset, 0deg) + 360deg)) translateX(12px) scale(1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes complete-flash {
+  0% {
+    background: linear-gradient(to bottom right, #88C0D0, #5E81AC);
+    transform: scale(1);
+  }
+  40% {
+    background: linear-gradient(to bottom right, #A3BE8C, #8FBCBB);
+    transform: scale(1.3);
+    box-shadow: 0 0 20px rgba(163, 190, 140, 0.6);
+  }
+  100% {
+    background: linear-gradient(to bottom right, #88C0D0, #5E81AC);
+    transform: scale(1);
+    box-shadow: 0 0 8px var(--orb-glow);
+  }
+}
