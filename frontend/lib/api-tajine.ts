@@ -143,7 +143,7 @@ export function useDepartmentStats() {
     const collectorDept = collectorData?.departments?.find(
       (c) => c.code === tajineDept.code
     );
-    
+
     return {
       ...tajineDept,
       // Add collector fields with fallbacks

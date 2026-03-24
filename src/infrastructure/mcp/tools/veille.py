@@ -158,7 +158,7 @@ def register_veille_tools(mcp: FastMCP) -> None:
         period: Literal["today", "week", "month"] = "today",
         ctx: Context = None,
     ) -> str:
-        """Genere un digest des alertes recentes avec analyse LLM.
+        """Génère un digest des alertes récentes avec analyse LLM.
 
         Synthetise les alertes de la periode et produit un rapport
         avec tendances et recommandations.
@@ -273,7 +273,7 @@ Aucune nouvelle alerte detectee sur cette periode.
 
         digest = f"""# Digest de Veille - {period_label}
 
-*Genere le {now.strftime("%d/%m/%Y a %H:%M")}*
+*Généré le {now.strftime("%d/%m/%Y à %H:%M")}*
 
 ## Resume Executif
 
@@ -333,7 +333,7 @@ Aucune nouvelle alerte detectee sur cette periode.
 *Mots-cles surveilles: {", ".join(keywords[:10])}*
 """
 
-        notify("Digest genere", 100)
+        notify("Digest généré", 100)
 
         return json.dumps(
             {
@@ -492,13 +492,13 @@ Aucune nouvelle alerte detectee sur cette periode.
         alert_id: int,
         ctx: Context = None,
     ) -> str:
-        """Recupere le detail complet d'une alerte avec analyse LLM.
+        """Récupère le détail complet d'une alerte avec analyse LLM.
 
-        Analyse l'alerte en profondeur et genere des recommandations
-        d'actions specifiques.
+        Analyse l'alerte en profondeur et génère des recommandations
+        d'actions spécifiques.
 
         Args:
-            alert_id: ID de l'alerte a analyser
+            alert_id: ID de l'alerte à analyser
 
         Returns:
             Detail complet avec analyse et recommandations

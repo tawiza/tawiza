@@ -205,8 +205,8 @@ function TAJINEPageContent() {
       {/* Unified Synthesis Display - Shows only when data is available */}
       {latestAnalysis?.unifiedSynthesis && (
         <div className="opacity-0 animate-fade-in stagger-0">
-          <UnifiedSynthesisDisplay 
-            data={latestAnalysis.unifiedSynthesis} 
+          <UnifiedSynthesisDisplay
+            data={latestAnalysis.unifiedSynthesis}
           />
         </div>
       )}

@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 /**
  * Middleware: auth gate.
- * 
+ *
  * Protects /dashboard/* routes. Redirects to /login if no session.
  * Auth tokens stored in localStorage (client-side) + refresh_token cookie.
  */

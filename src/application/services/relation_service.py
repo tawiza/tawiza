@@ -99,16 +99,16 @@ CAPABILITY_MATRIX: list[dict[str, Any]] = [
         "method": "Correspondance noms normalises dans signaux BODACC (shared_director)",
     },
     {
-        "capability": "Chaine fournisseurs",
+        "capability": "Chaîne fournisseurs",
         "level": 3,
-        "missing": "Inference CPV seulement, pas de donnees fournisseurs reelles",
-        "source": "Infereur L2 (SupplyChainInferrer)",
-        "method": "Compatibilite codes CPV marches publics (BOAMP)",
+        "missing": "Inférence CPV seulement, pas de données fournisseurs réelles",
+        "source": "Inféreur L2 (SupplyChainInferrer)",
+        "method": "Compatibilité codes CPV marchés publics (BOAMP)",
     },
     {
-        "capability": "Impact defaillance",
+        "capability": "Impact défaillance",
         "level": 3,
-        "missing": "Modele simplifie, pas de donnees fournisseurs",
+        "missing": "Modèle simplifié, pas de données fournisseurs",
         "source": "Predicteur L3",
         "method": "cascade_risk + territorial_impact",
     },
@@ -157,8 +157,8 @@ CAPABILITY_MATRIX: list[dict[str, Any]] = [
     {
         "capability": "Liens financiers banque-entreprise",
         "level": 3,
-        "missing": "Taille != relation bancaire, pas de donnees reelles",
-        "source": "Infereur L2",
+        "missing": "Taille != relation bancaire, pas de données réelles",
+        "source": "Inféreur L2",
         "method": "likely_finances (taille entreprise >= 15)",
     },
     {
@@ -728,11 +728,11 @@ class RelationService:
                     {
                         "gap_type": "partial_coverage",
                         "description": (
-                            f"{supply_chain_count} relations fournisseur inferees par CPV, "
-                            "mais pas de donnees fournisseurs reelles."
+                            f"{supply_chain_count} relations fournisseur inférées par CPV, "
+                            "mais pas de données fournisseurs réelles."
                         ),
                         "affected_actors": total_enterprises,
-                        "potential_source": "Douanes, factures electroniques, declarations TVA",
+                        "potential_source": "Douanes, factures électroniques, déclarations TVA",
                         "priority": "medium",
                     }
                 )
@@ -797,12 +797,12 @@ class RelationService:
                     {
                         "gap_type": "model_limitation",
                         "description": (
-                            f"{l3_count} predictions L3 presentes, mais le modele "
-                            "de cascade reste simplifie (pas de donnees fournisseurs reelles, "
+                            f"{l3_count} prédictions L3 présentes, mais le modèle "
+                            "de cascade reste simplifié (pas de données fournisseurs réelles, "
                             "estimation par tranches d'effectifs)"
                         ),
                         "affected_actors": total_enterprises or 0,
-                        "potential_source": "Donnees fournisseurs, factures, chaines d'approvisionnement",
+                        "potential_source": "Données fournisseurs, factures, chaînes d'approvisionnement",
                         "priority": "low",
                     }
                 )
@@ -861,7 +861,7 @@ class RelationService:
                         "gap_type": "low_coverage",
                         "description": (
                             f"{no_employment}/{total_enterprises} entreprises "
-                            "sans donnees d'effectifs (tranche_effectif absente ou nulle)"
+                            "sans données d'effectifs (tranche_effectif absente ou nulle)"
                         ),
                         "affected_actors": no_employment,
                         "potential_source": "SIRENE V3 API, INSEE DADS",
@@ -1284,7 +1284,7 @@ class RelationService:
             },
             "cascade_risk": {
                 "method": "Propagation fragility × concentration sectorielle",
-                "limitation": "Pas de donnees fournisseurs, modele simplifie",
+                "limitation": "Pas de données fournisseurs, modèle simplifié",
                 "data_source": "Predicteur L3 (CascadePredictor)",
             },
             "likely_institution": {
@@ -1309,14 +1309,14 @@ class RelationService:
                 "data_source": "Code postal acteurs + geo.api.gouv.fr",
             },
             "administered_by": {
-                "method": "Lien hierarchique commune → conseil departemental",
-                "limitation": "Donnees statiques, pas de verification",
-                "data_source": "Donnees statiques administratives",
+                "method": "Lien hiérarchique commune → conseil départemental",
+                "limitation": "Données statiques, pas de vérification",
+                "data_source": "Données statiques administratives",
             },
             "belongs_to_region": {
-                "method": "Lien hierarchique departement → region",
-                "limitation": "Donnees statiques, pas de verification",
-                "data_source": "Donnees statiques administratives",
+                "method": "Lien hiérarchique département → région",
+                "limitation": "Données statiques, pas de vérification",
+                "data_source": "Données statiques administratives",
             },
             # -- L1: EPCIExtractor subtypes --
             "administers_territory": {
@@ -1331,8 +1331,8 @@ class RelationService:
             },
             # -- L1: PolesExtractor subtypes --
             "pole_in_territory": {
-                "method": "Donnees hardcodees poles de competitivite Phase V",
-                "limitation": "Donnees 2023, certains poles ont fusionne ou disparu",
+                "method": "Données hardcodées pôles de compétitivité Phase V",
+                "limitation": "Données 2023, certains pôles ont fusionné ou disparu",
                 "data_source": "competitivite.gouv.fr + Wikipedia",
             },
             "pole_covers_sector": {

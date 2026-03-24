@@ -299,7 +299,7 @@ export const lineChartDataMain = [
  {
   name: 'Revenue',
   data: [50, 40, 70, 30, 80, 60, 90, 140, 70, 90, 70, 140],
- }, 
+ },
 ];
 
 export const lineChartOptionsMain = {
@@ -312,7 +312,7 @@ export const lineChartOptionsMain = {
    top: 13,
    left: 0,
    blur: 10,
-   opacity: 0.1, 
+   opacity: 0.1,
   },
  },
  colors: ['var(--chart)' ],

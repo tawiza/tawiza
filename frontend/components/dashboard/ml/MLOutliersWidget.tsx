@@ -71,14 +71,14 @@ export function MLOutliersWidget() {
               <span className="text-2xl font-bold">{isolationForestOutliers.length}</span>
               <span className="text-xs text-muted-foreground">outliers détectés</span>
             </div>
-            
+
             {isolationForestOutliers.map((outlier, index) => (
               <div
                 key={outlier.code_dept}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
               >
                 <HiOutlineArrowTrendingDown className="h-5 w-5 flex-shrink-0 text-[var(--error)]" />
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
@@ -88,7 +88,7 @@ export function MLOutliersWidget() {
                       {outlier.code_dept}
                     </span>
                   </div>
-                  
+
                   {/* Anomaly score bar */}
                   <div className="mt-2">
                     <div className="flex items-center justify-between text-xs mb-1">
@@ -106,7 +106,7 @@ export function MLOutliersWidget() {
                       />
                     </div>
                   </div>
-                  
+
                   {outlier.confidence && (
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted/80 text-muted-foreground">
@@ -117,7 +117,7 @@ export function MLOutliersWidget() {
                 </div>
               </div>
             ))}
-            
+
             {data?.last_analysis && (
               <div className="mt-3 pt-2 border-t border-muted/30">
                 <p className="text-xs text-muted-foreground">

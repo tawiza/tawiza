@@ -65,11 +65,11 @@ import { ReasoningStep } from '@/components/ui/reasoning-display';
 type TAJINELevel = 'reactive' | 'analytical' | 'strategic' | 'prospective' | 'theoretical';
 
 const LEVELS: { id: TAJINELevel; name: string; description: string; color: string }[] = [
-  { id: 'reactive', name: 'Reactif', description: 'Reponses rapides', color: 'var(--info)' },
+  { id: 'reactive', name: 'Réactif', description: 'Réponses rapides', color: 'var(--info)' },
   { id: 'analytical', name: 'Analytique', description: 'Analyse statistique', color: 'var(--chart-2)' },
-  { id: 'strategic', name: 'Strategique', description: 'Recommandations', color: 'var(--chart-4)' },
-  { id: 'prospective', name: 'Prospectif', description: 'Predictions', color: 'var(--success)' },
-  { id: 'theoretical', name: 'Theorique', description: 'Cadres conceptuels', color: 'var(--chart-3)' },
+  { id: 'strategic', name: 'Stratégique', description: 'Recommandations', color: 'var(--chart-4)' },
+  { id: 'prospective', name: 'Prospectif', description: 'Prédictions', color: 'var(--success)' },
+  { id: 'theoretical', name: 'Théorique', description: 'Cadres conceptuels', color: 'var(--chart-3)' },
 ];
 
 // Copy message to clipboard helper with fallback for non-HTTPS contexts

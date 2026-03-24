@@ -361,10 +361,10 @@ export function getRiskLevelIcon(level: RiskLevel | RiskScoreLevel): string {
  */
 export function getSignalCategoryLabel(category: Signal['category']): string {
   const labels: Record<Signal['category'], string> = {
-    BODACC: 'Annonces legales',
-    SIRENE: 'Donnees INSEE',
-    BOAMP: 'Marches publics',
-    DERIVED: 'Calcule',
+    BODACC: 'Annonces légales',
+    SIRENE: 'Données INSEE',
+    BOAMP: 'Marchés publics',
+    DERIVED: 'Calculé',
   };
   return labels[category] || category;
 }

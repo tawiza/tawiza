@@ -67,7 +67,7 @@ export function SystemHealthBar({ showOllamaSelector = true, compact = false }: 
           style={{ backgroundColor: overallColor }}
         />
         <span className="text-xs font-medium text-gray-300">
-          {overall === 'healthy' ? 'Systeme OK' : overall === 'degraded' ? 'Degrade' : 'Probleme'}
+          {overall === 'healthy' ? 'Système OK' : overall === 'degraded' ? 'Dégradé' : 'Problème'}
         </span>
       </div>
 

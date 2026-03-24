@@ -210,7 +210,7 @@ async def check_financial_health(siren: str) -> dict:
     return result
 
 
-MESSAGE_PROMPT = """Tu es un expert en prospection B2B. Genere un message de prospection personnalise pour cette entreprise.
+MESSAGE_PROMPT = """Tu es un expert en prospection B2B. Génère un message de prospection personnalisé pour cette entreprise.
 
 **Entreprise cible:**
 - Nom: {nom}
@@ -248,12 +248,12 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         offre: str = "solutions d'intelligence territoriale",
         ctx: Context = None,
     ) -> str:
-        """Genere une liste de leads scores et enrichis pour prospection.
+        """Génère une liste de leads scorés et enrichis pour prospection.
 
         Pipeline complet:
         1. Recherche entreprises correspondantes
-        2. Scoring multicritere (effectif, secteur, localisation, web)
-        3. Enrichissement contacts (website, email, telephone)
+        2. Scoring multicritère (effectif, secteur, localisation, web)
+        3. Enrichissement contacts (website, email, téléphone)
         4. Generation de messages personnalises (optionnel)
 
         Args:
@@ -525,7 +525,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         """Exporte les leads au format CRM.
 
         Args:
-            leads_json: JSON des leads (resultat de tawiza_prospect)
+            leads_json: JSON des leads (résultat de tawiza_prospect)
             format: Format d'export
                 - csv: Format CSV standard
                 - json: Format JSON structure
@@ -645,16 +645,16 @@ def register_prospection_tools(mcp: FastMCP) -> None:
         ton: Literal["formel", "decontracte", "expert"] = "expert",
         ctx: Context = None,
     ) -> str:
-        """Genere un message de prospection personnalise.
+        """Génère un message de prospection personnalisé.
 
         Args:
             entreprise: Nom de l'entreprise cible
-            secteur: Secteur d'activite
+            secteur: Secteur d'activité
             offre: Votre offre/proposition de valeur
-            ton: Ton du message (formel, decontracte, expert)
+            ton: Ton du message (formel, décontracté, expert)
 
         Returns:
-            Message de prospection personnalise
+            Message de prospection personnalisé
         """
         try:
             from src.infrastructure.llm import OllamaClient
@@ -667,7 +667,7 @@ def register_prospection_tools(mcp: FastMCP) -> None:
                 "expert": "professionnel mais accessible, montrant expertise",
             }
 
-            prompt = f"""Genere un message de prospection B2B.
+            prompt = f"""Génère un message de prospection B2B.
 
 Entreprise cible: {entreprise}
 Secteur: {secteur}
@@ -686,7 +686,7 @@ Message:"""
             response = await client.generate(prompt=prompt, max_tokens=300)
 
             if ctx:
-                ctx.info(f"[Message] Genere pour {entreprise}")
+                ctx.info(f"[Message] Généré pour {entreprise}")
 
             return json.dumps(
                 {

@@ -30,7 +30,7 @@ function TrendSparkline({ value, maxValue }: { value: number; maxValue: number }
   const width = Math.max(10, (value / maxValue) * 80);
   const intensity = value / maxValue;
   const color = intensity > 0.7 ? 'bg-red-500' : intensity > 0.4 ? 'bg-yellow-500' : 'bg-blue-500';
-  
+
   return (
     <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
       <div
@@ -148,8 +148,8 @@ export function GoogleTrendsWidget() {
           </GlassCardDescription>
         </div>
         <div className="flex gap-1">
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant={showDetails ? "default" : "ghost"}
             onClick={() => setShowDetails(!showDetails)}
           >
@@ -167,8 +167,8 @@ export function GoogleTrendsWidget() {
             <div className="h-32 mb-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                  <XAxis 
-                    dataKey="keyword" 
+                  <XAxis
+                    dataKey="keyword"
                     tick={{ fontSize: 10 }}
                     interval={0}
                     angle={-45}
@@ -238,7 +238,7 @@ export function GoogleTrendsWidget() {
             </div>
           </>
         )}
-        
+
         {/* Footer */}
         <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between text-xs text-muted-foreground">

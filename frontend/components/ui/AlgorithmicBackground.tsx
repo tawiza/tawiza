@@ -4,7 +4,7 @@ import React, { useEffect, useRef, memo } from 'react';
 
 /**
  * Aurora Mesh Background
- * 
+ *
  * Modern ambient background: soft color blobs that drift and morph slowly,
  * creating a living mesh gradient effect. No particles, no grids  -  just
  * smooth organic color fields with subtle film grain overlay.

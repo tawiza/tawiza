@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Tawiza-V2 Unified Agents CLI
-Systeme d'agents IA avec optimisation GPU, cache intelligent et task queue
-Version consolidee fusionnant agents_advanced et agents_optimized
+Système d'agents IA avec optimisation GPU, cache intelligent et task queue
+Version consolidée fusionnant agents_advanced et agents_optimized
 """
 
 import asyncio
@@ -34,7 +34,7 @@ console = Console()
 # Application CLI unifiee
 app = typer.Typer(
     name="agents",
-    help="Systeme d'agents IA unifie avec optimisation GPU et cache intelligent",
+    help="Système d'agents IA unifié avec optimisation GPU et cache intelligent",
     add_completion=False,
     rich_markup_mode="rich",
 )
@@ -66,7 +66,7 @@ def show_agents_header(agent_type: str = None):
 
 
 async def ensure_initialized():
-    """S'assurer que le systeme est initialise"""
+    """S'assurer que le système est initialisé"""
     global _integration
 
     if _integration is not None:
@@ -80,7 +80,7 @@ async def ensure_initialized():
         )
 
         console.print(
-            f"[bold {SUNSET_THEME['info_color']}]Initialisation automatique du systeme...[/]"
+            f"[bold {SUNSET_THEME['info_color']}]Initialisation automatique du système...[/]"
         )
 
         config = OptimizedSystemConfig(
@@ -88,7 +88,7 @@ async def ensure_initialized():
         )
 
         _integration = await create_optimized_agent_integration(config)
-        console.print(f"[bold {SUNSET_THEME['success_color']}]Systeme initialise![/]\n")
+        console.print(f"[bold {SUNSET_THEME['success_color']}]Système initialisé ![/]\n")
 
         return _integration
 
@@ -113,14 +113,14 @@ def init_agents(
     cache_size: int = typer.Option(1000, "--cache-size", help="Taille maximale du cache"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Mode verbeux"),
 ):
-    """Initialiser le systeme d'agents IA unifie"""
+    """Initialiser le système d'agents IA unifié"""
     global _integration
 
     show_agents_header()
 
     console.print(
         Panel.fit(
-            "[bold]Systeme d'Agents IA Unifie[/bold]\n"
+            "[bold]Système d'Agents IA Unifié[/bold]\n"
             "Task queue, cache intelligent, optimisation GPU",
             border_style=SUNSET_THEME["info_color"],
         )
@@ -147,17 +147,17 @@ def init_agents(
                 TextColumn("[progress.description]{task.description}"),
                 console=console,
             ) as progress:
-                task = progress.add_task("Initialisation du systeme...", total=None)
+                task = progress.add_task("Initialisation du système...", total=None)
                 _integration = await create_optimized_agent_integration(config)
                 progress.update(task, completed=True)
 
             console.print(
-                f"\n[bold {SUNSET_THEME['success_color']}]Systeme initialise avec succes![/]\n"
+                f"\n[bold {SUNSET_THEME['success_color']}]Système initialisé avec succès ![/]\n"
             )
 
             # Afficher la configuration
             table = Table(title="Configuration", box=box.ROUNDED)
-            table.add_column("Parametre", style="cyan")
+            table.add_column("Paramètre", style="cyan")
             table.add_column("Valeur", style="green")
 
             table.add_row("Workers", str(workers))
@@ -181,13 +181,13 @@ def init_agents(
 
 @app.command("status")
 def show_status():
-    """Afficher le statut complet du systeme d'agents"""
+    """Afficher le statut complet du système d'agents"""
     show_agents_header()
 
     async def status():
         integration = await ensure_initialized()
         if integration is None:
-            console.print(f"[bold {SUNSET_THEME['error_color']}]Systeme non disponible[/]")
+            console.print(f"[bold {SUNSET_THEME['error_color']}]Système non disponible[/]")
             console.print("Utilisez: tawiza agents init")
             return
 
@@ -205,11 +205,11 @@ def show_status():
             await integration.show_system_stats()
         else:
             # Fallback: afficher les infos basiques
-            table = Table(title="Statut du Systeme", box=box.ROUNDED)
+            table = Table(title="Statut du Système", box=box.ROUNDED)
             table.add_column("Composant", style="cyan")
             table.add_column("Statut", style="green")
 
-            table.add_row("Systeme", " Operationnel")
+            table.add_row("Système", " Opérationnel")
             table.add_row(
                 "GPU", " Actif" if hasattr(integration, "gpu_optimizer") else " Non disponible"
             )
@@ -224,7 +224,7 @@ def show_status():
 
 @app.command("shutdown")
 def shutdown_system():
-    """Arreter proprement le systeme d'agents"""
+    """Arrêter proprement le système d'agents"""
     global _integration
 
     if _integration:
@@ -234,11 +234,11 @@ def shutdown_system():
             if hasattr(_integration, "shutdown"):
                 await _integration.shutdown()
             _integration = None
-            console.print("[green]Systeme arrete proprement[/]")
+            console.print("[green]Système arrêté proprement[/]")
 
         run_async(stop())
     else:
-        console.print("[yellow]Systeme non initialise[/]")
+        console.print("[yellow]Système non initialisé[/]")
 
 
 # =============================================================================
@@ -251,7 +251,7 @@ def cache_commands(
     action: str = typer.Argument("stats", help="Action: stats, clear, enable, disable"),
     agent_type: str | None = typer.Option(None, "--agent", help="Type d'agent (pour clear)"),
 ):
-    """Gerer le cache du systeme"""
+    """Gérer le cache du système"""
 
     async def manage_cache():
         integration = await ensure_initialized()
@@ -264,16 +264,16 @@ def cache_commands(
                 stats = await integration.cache_manager.get_stats()
 
                 table = Table(title="Statistiques du Cache", box=box.ROUNDED)
-                table.add_column("Metrique", style="cyan")
+                table.add_column("Métrique", style="cyan")
                 table.add_column("Valeur", style="green")
 
-                table.add_row("Entrees", str(stats.get("size", 0)))
+                table.add_row("Entrées", str(stats.get("size", 0)))
                 table.add_row("Max size", str(stats.get("max_size", 0)))
-                table.add_row("Memoire", f"{stats.get('memory_usage_mb', 0):.2f} MB")
+                table.add_row("Mémoire", f"{stats.get('memory_usage_mb', 0):.2f} MB")
                 table.add_row("Hits", str(stats.get("hits", 0)))
                 table.add_row("Misses", str(stats.get("misses", 0)))
                 table.add_row("Taux de hit", f"{stats.get('hit_rate', 0):.1f}%")
-                table.add_row("Statut", " Actif" if stats.get("is_enabled") else " Desactive")
+                table.add_row("Statut", " Actif" if stats.get("is_enabled") else " Désactivé")
 
                 console.print(table)
             except Exception as e:
@@ -552,7 +552,7 @@ def automate_browser(
 
                     progress.update(task, completed=True)
 
-                    inline_success(f"Automation completee! Resultat: {output}")
+                    inline_success(f"Automation complétée ! Résultat : {output}")
                     on_long_task_end("Automation navigateur", success=True)
 
                 finally:
@@ -579,14 +579,14 @@ def benchmark_system(
     workers: int = typer.Option(4, "--workers", "-w", help="Nombre de workers"),
     duration: int = typer.Option(60, "--duration", "-d", help="Duree en secondes"),
 ):
-    """Benchmarker les performances du systeme"""
+    """Benchmarker les performances du système"""
     show_agents_header("ml")
 
     console.print(f"{agent_mascot_inline('ml', 'starting')}")
     console.print(
         Panel.fit(
-            f"[bold]Benchmark du Systeme[/bold]\n"
-            f"Taches: {num_tasks} | Workers: {workers} | Duree: {duration}s",
+            f"[bold]Benchmark du Système[/bold]\n"
+            f"Tâches: {num_tasks} | Workers: {workers} | Durée: {duration}s",
             border_style="cyan",
         )
     )
@@ -620,7 +620,7 @@ def benchmark_system(
             stats = await integration.task_queue_system.get_system_stats()
 
             table = Table(title="Resultats du Benchmark", box=box.ROUNDED)
-            table.add_column("Metrique", style="cyan")
+            table.add_column("Métrique", style="cyan")
             table.add_column("Valeur", style="green")
 
             throughput = stats["total_tasks_completed"] / elapsed

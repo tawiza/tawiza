@@ -147,26 +147,26 @@ produire une analyse de marche complete.
 ## Les 4 Agents
 
 ### 1. DataAgent
-Expert en collecte de donnees d'entreprises francaises.
+Expert en collecte de données d'entreprises françaises.
 - Interroge l'API Sirene (INSEE)
 - Filtre par secteur, territoire, effectif
-- Nettoie et structure les donnees
+- Nettoie et structure les données
 
 ### 2. GeoAgent
 Expert en cartographie territoriale.
-- Geocode les adresses (BAN)
-- Genere des cartes Folium interactives
+- Géocode les adresses (BAN)
+- Génère des cartes Folium interactives
 - Identifie les zones de concentration
 
 ### 3. WebAgent (optionnel)
 Expert en veille web et enrichissement.
 - Visite les sites web des entreprises
 - Extrait descriptions, services, actualites
-- Enrichit les donnees Sirene
+- Enrichit les données Sirene
 
 ### 4. AnalystAgent
-Stratege qui transforme les donnees en insights.
-- Synthetise toutes les donnees
+Stratège qui transforme les données en insights.
+- Synthétise toutes les données
 - Produit un rapport structuré
 - Formule des recommandations actionnables
 
@@ -185,7 +185,7 @@ tawiza_workforce_analyze(
 ## Fichiers generes
 - `rapport.md` - Rapport strategique Markdown
 - `carte.html` - Carte Folium interactive
-- `entreprises.csv` - Donnees brutes
+- `entreprises.csv` - Données brutes
 - `metadata.json` - Stats de l'analyse
 """
 
@@ -233,7 +233,7 @@ def get_veille_resource() -> str:
     return """# Veille Automatisee Tawiza
 
 ## Vue d'ensemble
-Systeme de monitoring continu des marches territoriaux francais
+Système de monitoring continu des marchés territoriaux français
 avec filtrage intelligent LLM.
 
 ## Sources Surveillees

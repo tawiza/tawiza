@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { 
+import {
   HiOutlineBell,
   HiOutlineExclamationTriangle,
   HiOutlineInformationCircle,
@@ -53,10 +53,10 @@ export default function AlertsWidget({ limit = 5, className = '', territory }: A
 
   const fetchAlerts = useCallback(async () => {
     try {
-      const response = await getAlerts({ 
-        status: 'new', 
-        territory, 
-        limit 
+      const response = await getAlerts({
+        status: 'new',
+        territory,
+        limit
       });
       if (response?.alerts) {
         setAlerts(response.alerts);

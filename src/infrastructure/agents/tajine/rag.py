@@ -129,7 +129,7 @@ def format_rag_context(results: list[dict[str, Any]], max_chars: int = 3000) -> 
     if not results:
         return ""
 
-    lines = ["SIGNAUX PERTINENTS (cite les IDs [SIG-xxx] dans ta reponse):"]
+    lines = ["SIGNAUX PERTINENTS (cite les IDs [SIG-xxx] dans ta réponse):"]
     total = len(lines[0])
 
     for r in results:

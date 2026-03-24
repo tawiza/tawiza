@@ -6,17 +6,17 @@ from src.cli.commands.annotate import app as annotate_app
 from src.cli.commands.data import app as data_core_app
 
 app = typer.Typer(
-    name="data", help="Gestion des Donnees - Import, Annotation, Export", rich_markup_mode="rich"
+    name="data", help="Gestion des Données - Import, Annotation, Export", rich_markup_mode="rich"
 )
 
 # Ajouter les sous-commandes
 app.add_typer(data_core_app, name="manage", help="Gestion des datasets")
-app.add_typer(annotate_app, name="annotate", help="Annotation de donnees")
+app.add_typer(annotate_app, name="annotate", help="Annotation de données")
 
 
 @app.command("status")
 def data_status():
-    """Afficher le statut des services de donnees"""
+    """Afficher le statut des services de données"""
     from rich.console import Console
     from rich.table import Table
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { 
+import {
   HiOutlineServerStack,
   HiOutlineArrowPath,
   HiOutlinePlay,
@@ -105,9 +105,9 @@ export default function CrawlerStatus({ className = '' }: CrawlerStatusProps) {
           {/* Actions */}
           <div className="flex gap-2">
             {stats?.is_running ? (
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1"
                 onClick={handleStop}
               >
@@ -115,9 +115,9 @@ export default function CrawlerStatus({ className = '' }: CrawlerStatusProps) {
                 Arreter
               </Button>
             ) : (
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1"
                 onClick={handleStart}
               >
@@ -125,9 +125,9 @@ export default function CrawlerStatus({ className = '' }: CrawlerStatusProps) {
                 Demarrer
               </Button>
             )}
-            <Button 
-              variant="default" 
-              size="sm" 
+            <Button
+              variant="default"
+              size="sm"
               className="flex-1"
               onClick={handleCrawl}
               disabled={isCrawling || !stats?.is_running}

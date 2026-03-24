@@ -72,10 +72,10 @@ export default function FactorRadarChart() {
       try {
         const data = await fetchDepartmentScores();
         setScores(data);
-        
+
         // Default to the top-scoring department
         if (data.length > 0) {
-          const topDept = data.reduce((prev, current) => 
+          const topDept = data.reduce((prev, current) =>
             (prev.composite_score > current.composite_score) ? prev : current
           );
           setSelectedDept(topDept.code_dept);
@@ -134,7 +134,7 @@ export default function FactorRadarChart() {
 
   // Find the selected department
   const selectedDepartment = scores.find(dept => dept.code_dept === selectedDept);
-  
+
   // Prepare radar chart data
   const radarData: RadarData[] = selectedDepartment
     ? Object.entries(selectedDepartment.factors).map(([key, value]) => ({
@@ -178,11 +178,11 @@ export default function FactorRadarChart() {
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData}>
-              <PolarGrid 
+              <PolarGrid
                 className="opacity-30"
                 stroke="currentColor"
               />
-              <PolarAngleAxis 
+              <PolarAngleAxis
                 dataKey="factor"
                 className="text-xs fill-muted-foreground"
                 tick={{ fontSize: 12 }}

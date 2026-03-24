@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * IntelligenceHub - Real-time Data Flow Visualization
- * 
+ *
  * A futuristic HUD-style component showing data flowing between sources
  * and the TAJINE AI core. Impressive visual for the dashboard.
  */
@@ -147,8 +147,8 @@ const IntelligenceHub = memo(function IntelligenceHub({
         ctx.beginPath();
         ctx.moveTo(center, center);
         ctx.lineTo(x, y);
-        ctx.strokeStyle = source.active 
-          ? `rgba(255, 107, 74, 0.3)` 
+        ctx.strokeStyle = source.active
+          ? `rgba(255, 107, 74, 0.3)`
           : `rgba(100, 100, 100, 0.1)`;
         ctx.lineWidth = source.active ? 2 : 1;
         ctx.stroke();
@@ -245,7 +245,7 @@ const IntelligenceHub = memo(function IntelligenceHub({
 
       const randomSource = activeSources[Math.floor(Math.random() * activeSources.length)];
       const newPulse = createPulse(randomSource);
-      
+
       setPulses((prev) => [...prev, newPulse]);
       setTotalProcessed((prev) => prev + 1);
       setSources((prev) =>
@@ -266,7 +266,7 @@ const IntelligenceHub = memo(function IntelligenceHub({
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
       <canvas ref={canvasRef} className="absolute inset-0" />
-      
+
       {/* Source Labels */}
       {showLabels && (
         <div className="absolute inset-0 pointer-events-none">

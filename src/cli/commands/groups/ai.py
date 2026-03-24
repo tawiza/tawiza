@@ -12,8 +12,8 @@ app = typer.Typer(
 
 # Ajouter les sous-commandes
 app.add_typer(chat_app, name="chat", help="Chat avec l'assistant IA")
-app.add_typer(agents_app, name="agents", help="Systeme d'agents IA")
-app.add_typer(models_app, name="models", help="Gestion des modeles ML")
+app.add_typer(agents_app, name="agents", help="Système d'agents IA")
+app.add_typer(models_app, name="models", help="Gestion des modèles ML")
 
 
 @app.command("status")

@@ -27,7 +27,7 @@ function getScoreEmoji(score: number): string {
 function ConfidenceBar({ confidence }: { confidence: number }) {
   const width = Math.round(confidence * 100);
   const color = confidence >= 0.7 ? 'bg-green-500' : confidence >= 0.5 ? 'bg-yellow-500' : 'bg-red-500';
-  
+
   return (
     <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
       <div
@@ -149,7 +149,7 @@ export function TerritorialRankingWidget() {
             <div className="w-12 text-center">Score</div>
             <div className="w-12 text-center">Conf</div>
           </div>
-          
+
           {/* Rankings */}
           {ranking.map((dept, index) => (
             <div
@@ -178,7 +178,7 @@ export function TerritorialRankingWidget() {
             </div>
           ))}
         </div>
-        
+
         {/* Legend */}
         <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">

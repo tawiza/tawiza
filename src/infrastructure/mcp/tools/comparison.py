@@ -69,14 +69,14 @@ class ComparisonResult:
         }
 
 
-COMPARATOR_PROMPT = """Tu es un analyste expert en intelligence territoriale. Compare ces {n} marches territoriaux et determine lequel est le plus attractif.
+COMPARATOR_PROMPT = """Tu es un analyste expert en intelligence territoriale. Compare ces {n} marchés territoriaux et détermine lequel est le plus attractif.
 
-**Requete de base**: {query}
+**Requête de base**: {query}
 
-**Donnees par territoire**:
+**Données par territoire**:
 {territories_data}
 
-**Analyse et reponds en JSON**:
+**Analyse et réponds en JSON**:
 {{
     "winner": "<territoire le plus attractif>",
     "winner_reason": "<justification en 2 phrases>",
@@ -118,20 +118,20 @@ def register_comparison_tools(mcp: FastMCP) -> None:
     ) -> str:
         """Compare un marche sur plusieurs territoires en parallele.
 
-        Lance des analyses simultanees sur N territoires et produit
+        Lance des analyses simultanées sur N territoires et produit
         un rapport comparatif avec recommandations.
 
         Args:
-            query: Requete de base sans territoire (ex: "startup IA", "conseil IT")
-            territories: Liste des territoires a comparer (ex: ["Lille", "Lyon", "Nantes"])
+            query: Requête de base sans territoire (ex: "startup IA", "conseil IT")
+            territories: Liste des territoires à comparer (ex: ["Lille", "Lyon", "Nantes"])
             limit_per_territory: Nombre max d'entreprises par territoire
 
         Returns:
             JSON avec:
             - comparison_md: Rapport comparatif Markdown
-            - analyses: Donnees par territoire
-            - winner: Territoire recommande
-            - charts_data: Donnees pour graphiques
+            - analyses: Données par territoire
+            - winner: Territoire recommandé
+            - charts_data: Données pour graphiques
         """
         from src.application.orchestration.data_orchestrator import DataOrchestrator
         from src.infrastructure.agents.camel.tools.territorial_tools import sirene_search
@@ -345,22 +345,22 @@ def register_comparison_tools(mcp: FastMCP) -> None:
             # Fallback: pick winner by enterprise count
             winner = max(valid_analyses, key=lambda x: x.enterprises_count).territory
             recommendations = [
-                f"Explorer {winner} en priorite (plus grand marche)",
-                "Approfondir l'analyse des secteurs cles",
+                f"Explorer {winner} en priorité (plus grand marché)",
+                "Approfondir l'analyse des secteurs clés",
                 "Valider avec des contacts terrain",
             ]
-            analysis_summary = f"Comparaison basee sur les donnees quantitatives. {winner} presente le marche le plus dense."
+            analysis_summary = f"Comparaison basée sur les données quantitatives. {winner} présente le marché le plus dense."
             comparison_data = {}
 
         # Generate comparison markdown
-        notify("Generation du rapport comparatif...", 85)
+        notify("Génération du rapport comparatif...", 85)
 
         comparison_md = f"""# Comparaison Multi-Territoires
 
-## Requete: {query}
+## Requête: {query}
 
 *Analyse comparative de {len(territories)} territoires*
-*Generee le {datetime.now().strftime("%d/%m/%Y a %H:%M")}*
+*Générée le {datetime.now().strftime("%d/%m/%Y à %H:%M")}*
 
 ## Resume Executif
 
@@ -528,7 +528,7 @@ def register_comparison_tools(mcp: FastMCP) -> None:
 - Secteurs emergents: identifier les gaps dans les secteurs a faible densite
 
 ---
-*Benchmark genere par Tawiza*
+*Benchmark généré par Tawiza*
 """
 
         notify(f"Benchmark termine: {total} entreprises", 100)

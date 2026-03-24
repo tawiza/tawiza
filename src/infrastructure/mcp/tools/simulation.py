@@ -303,14 +303,14 @@ def register_simulation_tools(mcp: FastMCP) -> None:
 **Duree**: {event.duration}
 **Territoire**: {territory}
 **Secteur principal**: {sector}
-**Secteurs affectes**: {", ".join(event.affected_sectors)}
+**Secteurs affectés**: {", ".join(event.affected_sectors)}
 
-Utilise l'outil sirene_search pour analyser le contexte territorial (entreprises presentes).
-Puis genere une analyse complete avec:
+Utilise l'outil sirene_search pour analyser le contexte territorial (entreprises présentes).
+Puis génère une analyse complète avec:
 - Impacts court terme et moyen terme
 - Winners et losers
-- Predictions par dimension (emploi, investissement, attractivite, concurrence)
-- Recommandations strategiques
+- Prédictions par dimension (emploi, investissement, attractivité, concurrence)
+- Recommandations stratégiques
 - Score de confiance"""
 
                 notify("[SimulationAgent] Execution simulation...", 30)

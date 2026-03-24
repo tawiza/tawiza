@@ -396,12 +396,12 @@ async def get_department_ranking(
         ]
 
 
-@router.get("/search", summary="Recherche semantique dans les signaux")
+@router.get("/search", summary="Recherche sémantique dans les signaux")
 async def semantic_search(
-    q: str = Query(..., description="Requete de recherche"),
+    q: str = Query(..., description="Requête de recherche"),
     limit: int = Query(20, ge=1, le=100),
 ):
-    """Recherche semantique via pgvector + nomic-embed-text."""
+    """Recherche sémantique via pgvector + nomic-embed-text."""
     import httpx
 
     OLLAMA_URL = os.getenv("OLLAMA_HOST", "http://localhost:11434")

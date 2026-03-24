@@ -90,12 +90,12 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
 
 ## Recommandations
 
-1. **Priorite haute**: Contacter les grandes entreprises (>250 salaries)
-2. **Priorite moyenne**: Analyser les ETI pour opportunites
+1. **Priorité haute**: Contacter les grandes entreprises (>250 salariés)
+2. **Priorité moyenne**: Analyser les ETI pour opportunités
 3. **Veille**: Surveiller les startups innovantes
 
 ---
-*Rapport genere par Tawiza Workforce - {datetime.now().strftime("%d/%m/%Y %H:%M")}*
+*Rapport généré par Tawiza Workforce - {datetime.now().strftime("%d/%m/%Y %H:%M")}*
 """
     return rapport_md
 
@@ -113,33 +113,33 @@ def register_workforce_tools(mcp: FastMCP) -> None:
         use_agents: bool = True,
         ctx: Context = None,
     ) -> str:
-        """Analyse de marche territoriale complete via CAMEL Workforce.
+        """Analyse de marché territoriale complète via CAMEL Workforce.
 
-        Lance une equipe de 4 agents IA specialises qui collaborent:
-        1. DataAgent: Collecte donnees Sirene (entreprises francaises)
-        2. GeoAgent: Geocodage et cartographie Folium interactive
+        Lance une équipe de 4 agents IA spécialisés qui collaborent:
+        1. DataAgent: Collecte données Sirene (entreprises françaises)
+        2. GeoAgent: Géocodage et cartographie Folium interactive
         3. WebAgent: Enrichissement web depuis sites entreprises (optionnel)
-        4. AnalystAgent: Rapport strategique avec recommandations
+        4. AnalystAgent: Rapport stratégique avec recommandations
 
-        Les agents communiquent entre eux pour produire une analyse coherente.
-        Notifications temps reel envoyees a chaque etape.
+        Les agents communiquent entre eux pour produire une analyse cohérente.
+        Notifications temps réel envoyées à chaque étape.
 
         Args:
-            query: Requete d'analyse (ex: "marche conseil IT Lille", "startup IA Lyon")
-            output_dir: Repertoire de sortie pour les fichiers generes
-            with_map: Generer une carte interactive Folium (defaut: True)
-            with_web: Enrichir via scraping web (defaut: False, plus lent mais plus riche)
-            limit: Nombre max d'entreprises a analyser (defaut: 50)
-            use_agents: Utiliser les vrais agents CAMEL (defaut: True). Si False, mode simplifie.
+            query: Requête d'analyse (ex: "marché conseil IT Lille", "startup IA Lyon")
+            output_dir: Répertoire de sortie pour les fichiers générés
+            with_map: Générer une carte interactive Folium (défaut: True)
+            with_web: Enrichir via scraping web (défaut: False, plus lent mais plus riche)
+            limit: Nombre max d'entreprises à analyser (défaut: 50)
+            use_agents: Utiliser les vrais agents CAMEL (défaut: True). Si False, mode simplifié.
 
         Returns:
             JSON avec:
             - success: Boolean
             - rapport_md: Rapport complet en Markdown
             - carte_html: Chemin vers carte Folium (si with_map)
-            - data_csv: Chemin vers donnees brutes CSV
-            - metadata: Statistiques de l'analyse (duree, counts, agents)
-            - output_dir: Repertoire contenant tous les fichiers
+            - data_csv: Chemin vers données brutes CSV
+            - metadata: Statistiques de l'analyse (durée, counts, agents)
+            - output_dir: Répertoire contenant tous les fichiers
         """
         from src.infrastructure.agents.camel.tools.territorial_tools import (
             geo_locate,
@@ -196,19 +196,19 @@ def register_workforce_tools(mcp: FastMCP) -> None:
                 }
 
                 # ===== DataAgent =====
-                notify("[DataAgent] Agent IA collecte donnees...", 20)
+                notify("[DataAgent] Agent IA collecte données...", 20)
                 data_prompt = f"""Recherche les entreprises pour: "{query}"
 
 Utilise l'outil sirene_search avec:
 - query: "{query}"
 - limite: {limit}
 
-Analyse les resultats et structure-les."""
+Analyse les résultats et structure-les."""
 
                 try:
                     data_response = workforce.data_agent.step(data_prompt)
                     collected_data["agent_responses"]["data_agent"] = str(data_response.msg.content)
-                    notify("[DataAgent] Reponse agent recue", 35)
+                    notify("[DataAgent] Réponse agent reçue", 35)
 
                     # Extract enterprises from tool calls if any
                     if data_response.info and "tool_calls" in data_response.info:
@@ -298,28 +298,28 @@ Analyse les resultats et structure-les."""
                 notify("[AnalystAgent] Agent IA analyse...", 60)
 
                 enterprises = collected_data["entreprises"]
-                analyst_prompt = f"""Analyse les donnees collectees et genere un rapport strategique.
+                analyst_prompt = f"""Analyse les données collectées et génère un rapport stratégique.
 
-Donnees:
-- Requete: {query}
-- Entreprises trouvees: {len(enterprises)}
+Données:
+- Requête: {query}
+- Entreprises trouvées: {len(enterprises)}
 - Territoire: {query}
 
 Top entreprises:
 {json.dumps(enterprises[:10], ensure_ascii=False, indent=2) if enterprises else "Aucune"}
 
-Genere un rapport d'intelligence territoriale complet avec:
+Génère un rapport d'intelligence territoriale complet avec:
 1. Executive Summary
-2. Chiffres cles
+2. Chiffres clés
 3. Analyse par effectif et commune
 4. Top 10 acteurs
-5. Recommandations strategiques"""
+5. Recommandations stratégiques"""
 
                 try:
                     analyst_response = workforce.analyst_agent.step(analyst_prompt)
                     rapport_md = str(analyst_response.msg.content)
                     collected_data["agent_responses"]["analyst_agent"] = rapport_md
-                    notify("[AnalystAgent] Rapport genere par agent IA", 80)
+                    notify("[AnalystAgent] Rapport généré par agent IA", 80)
                 except Exception as e:
                     logger.warning(f"AnalystAgent failed: {e}, generating manual report")
                     rapport_md = _generate_manual_report(query, enterprises, collected_data)
@@ -407,7 +407,7 @@ Genere un rapport d'intelligence territoriale complet avec:
         # =====================================================================
         # PHASE 1: DataAgent - Collecte Sirene
         # =====================================================================
-        notify("[DataAgent] Collecte donnees Sirene...", 10)
+        notify("[DataAgent] Collecte données Sirene...", 10)
 
         try:
             sirene_result = sirene_search(query=query, limite=limit)
@@ -416,7 +416,7 @@ Genere un rapport d'intelligence territoriale complet avec:
                 enterprises = sirene_result["enterprises"]
                 collected_data["entreprises"] = enterprises
                 collected_data["stats"]["sirene_count"] = len(enterprises)
-                notify(f"[DataAgent] {len(enterprises)} entreprises collectees", 25)
+                notify(f"[DataAgent] {len(enterprises)} entreprises collectées", 25)
             else:
                 # Fallback: try with default orchestrator search
                 notify("[DataAgent] Sirene direct vide, recherche via orchestrateur...", 15)
@@ -432,7 +432,7 @@ Genere un rapport d'intelligence territoriale complet avec:
 
                 collected_data["entreprises"] = all_results
                 collected_data["stats"]["sirene_count"] = len(all_results)
-                notify(f"[DataAgent] {len(all_results)} entreprises collectees (multi-sources)", 25)
+                notify(f"[DataAgent] {len(all_results)} entreprises collectées (multi-sources)", 25)
 
         except Exception as e:
             logger.error(f"DataAgent error: {e}")
@@ -512,7 +512,7 @@ Genere un rapport d'intelligence territoriale complet avec:
                     notify(f"[GeoAgent] Erreur carte: {str(e)[:30]}...", 55)
 
         else:
-            notify("[GeoAgent] Cartographie desactivee ou pas de donnees", 55)
+            notify("[GeoAgent] Cartographie désactivée ou pas de données", 55)
 
         # =====================================================================
         # PHASE 3: WebAgent - Enrichissement Web (optionnel)
@@ -543,9 +543,9 @@ Genere un rapport d'intelligence territoriale complet avec:
             notify(f"[WebAgent] {enriched_count} entreprises enrichies", 75)
 
         elif with_web:
-            notify("[WebAgent] Pas de donnees a enrichir", 75)
+            notify("[WebAgent] Pas de données à enrichir", 75)
         else:
-            notify("[WebAgent] Enrichissement web desactive", 75)
+            notify("[WebAgent] Enrichissement web désactivé", 75)
 
         # =====================================================================
         # PHASE 4: AnalystAgent - Rapport Strategique
@@ -631,15 +631,15 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
         rapport_md += f"""
 ## Recommandations
 
-1. **[PRIORITE HAUTE]** : Contacter les {min(5, len([e for e in enterprises if effectif_distribution[">250"] > 0]))} grandes entreprises (>250 salaries) pour partenariats strategiques
-2. **[PRIORITE MOYENNE]** : Analyser les {effectif_distribution["50-250"]} ETI pour opportunites de croissance
+1. **[PRIORITE HAUTE]** : Contacter les {min(5, len([e for e in enterprises if effectif_distribution[">250"] > 0]))} grandes entreprises (>250 salariés) pour partenariats stratégiques
+2. **[PRIORITÉ MOYENNE]** : Analyser les {effectif_distribution["50-250"]} ETI pour opportunités de croissance
 3. **[OPTIONNEL]** : Veille sur les {effectif_distribution["<10"]} TPE/startups innovantes
 
 ---
-*Rapport genere le {datetime.now().strftime("%d/%m/%Y a %H:%M")} par Tawiza Workforce*
+*Rapport généré le {datetime.now().strftime("%d/%m/%Y à %H:%M")} par Tawiza Workforce*
 """
 
-        notify("[AnalystAgent] Rapport genere", 90)
+        notify("[AnalystAgent] Rapport généré", 90)
 
         # Save files
         # 1. Rapport Markdown
@@ -729,12 +729,12 @@ Analyse du marche **"{query}"** avec **{total_count}** entreprises identifiees.
 
     @mcp.tool()
     async def tawiza_workforce_status(ctx: Context = None) -> str:
-        """Verifie le statut du systeme Workforce CAMEL AI.
+        """Vérifie le statut du système Workforce CAMEL AI.
 
-        Teste la disponibilite:
-        - Ollama et modele LLM
+        Teste la disponibilité:
+        - Ollama et modèle LLM
         - Outils territoriaux (Sirene, Geo)
-        - Agents specialises
+        - Agents spécialisés
 
         Returns:
             JSON avec statut de chaque composant

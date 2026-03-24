@@ -9,19 +9,19 @@ import {
   GlassCardTitle,
 } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
-import { 
-  HiOutlineCpuChip, 
-  HiOutlinePlay, 
+import {
+  HiOutlineCpuChip,
+  HiOutlinePlay,
   HiOutlineCheckCircle,
   HiOutlineExclamationTriangle,
   HiOutlineCircleStack
 } from 'react-icons/hi2';
-import { 
-  getMLAnomalies, 
-  getMLClusters, 
+import {
+  getMLAnomalies,
+  getMLClusters,
   runMLDetection,
-  type MLAnomaliesResponse, 
-  type MLClustersResponse 
+  type MLAnomaliesResponse,
+  type MLClustersResponse
 } from '@/lib/api';
 
 /**
@@ -41,15 +41,15 @@ export function MLSummaryCard() {
         getMLAnomalies(),
         getMLClusters(),
       ]);
-      
+
       setAnomaliesData(anomalies);
       setClustersData(clusters);
-      
+
       // Set last run from the most recent analysis
       if (anomalies?.last_analysis || clusters?.computed_at) {
         const anomaliesDate = anomalies?.last_analysis ? new Date(anomalies.last_analysis) : null;
         const clustersDate = clusters?.computed_at ? new Date(clusters.computed_at) : null;
-        
+
         let mostRecent = null;
         if (anomaliesDate && clustersDate) {
           mostRecent = anomaliesDate > clustersDate ? anomaliesDate : clustersDate;
@@ -58,7 +58,7 @@ export function MLSummaryCard() {
         } else if (clustersDate) {
           mostRecent = clustersDate;
         }
-        
+
         setLastRun(mostRecent ? mostRecent.toISOString() : null);
       }
     } catch (error) {
@@ -128,7 +128,7 @@ export function MLSummaryCard() {
                 </div>
                 <div className="text-xs text-muted-foreground">Outliers détectés</div>
               </div>
-              
+
               <div className="text-center p-3 rounded-lg bg-muted/20">
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <HiOutlineCircleStack className="h-4 w-4 text-[var(--success)]" />
@@ -215,7 +215,7 @@ export function MLSummaryCard() {
                 <HiOutlinePlay className={`h-4 w-4 mr-2 ${running ? 'animate-spin' : ''}`} />
                 {running ? 'Détection en cours...' : 'Relancer détection'}
               </Button>
-              
+
               {!hasData && (
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Aucune analyse disponible. Lancez une première détection.

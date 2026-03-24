@@ -334,7 +334,7 @@ async def analyze_query(request: TAJINEAnalyzeRequest):
 
                 try:
                     # === PHASE 1: PERCEIVE ===
-                    yield f"data: {json.dumps({'type': 'phase', 'phase': 'perceive', 'message': 'Analyse de la requete...'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'phase', 'phase': 'perceive', 'message': 'Analyse de la requête...'})}\n\n"
                     await asyncio.sleep(0.1)
 
                     # === PHASE 2: PLAN (includes RAG retrieval) ===
@@ -630,7 +630,7 @@ async def _fetch_territorial_context(department: str | None = None) -> str:
             await conn.close()
     except Exception as e:
         logger.warning(f"Failed to fetch territorial context: {e}")
-        context_parts.append("(Donnees en temps reel indisponibles)")
+        context_parts.append("(Données en temps réel indisponibles)")
 
     # Enrich with Knowledge Graph context (only for specific department queries)
     if department:
@@ -723,11 +723,11 @@ async def _fast_stream_response(request: TAJINEAnalyzeRequest, agent):
         try:
             # Build prompt based on cognitive level
             level_prompts = {
-                "reactive": "Reponds de maniere concise et factuelle.",
-                "analytical": "Analyse les donnees et identifie les tendances.",
-                "strategic": "Propose des recommandations strategiques.",
-                "prospective": "Genere des scenarios et predictions.",
-                "theoretical": "Valide avec des theories economiques.",
+                "reactive": "Réponds de manière concise et factuelle.",
+                "analytical": "Analyse les données et identifie les tendances.",
+                "strategic": "Propose des recommandations stratégiques.",
+                "prospective": "Génère des scénarios et prédictions.",
+                "theoretical": "Valide avec des théories économiques.",
             }
             level_instruction = level_prompts.get(
                 request.cognitive_level, level_prompts["analytical"]
@@ -755,11 +755,11 @@ async def _fast_stream_response(request: TAJINEAnalyzeRequest, agent):
                 rag_instruction = f"""
 {rag_context}
 
-IMPORTANT: Cite les signaux pertinents avec leur ID [SIG-xxx] dans ta reponse."""
+IMPORTANT: Cite les signaux pertinents avec leur ID [SIG-xxx] dans ta réponse."""
 
-            system_prompt = f"""TAJINE - Expert intelligence territoriale francaise.
+            system_prompt = f"""TAJINE - Expert intelligence territoriale française.
 Sources: SIRENE, BODACC, France Travail, DVF, INSEE, OFGL, URSSAF, presse locale.
-Les "radiations" = cessations d'activite (donnees legales BODACC).
+Les "radiations" = cessations d'activité (données légales BODACC).
 
 {territorial_data}
 {rag_instruction}
@@ -2743,7 +2743,7 @@ async def submit_feedback(request: FeedbackRequest) -> dict[str, Any]:
         logger.warning("DataCollector not available, feedback not recorded")
         return {
             "success": False,
-            "message": "Systeme de feedback temporairement indisponible",
+            "message": "Système de feedback temporairement indisponible",
             "action": "none",
         }
     except Exception as e:

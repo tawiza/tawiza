@@ -339,7 +339,7 @@ def _render_to_html(
             <span>Mode d'analyse: {mode}</span>
         </div>
         <div class="footer-row">
-            <span>Genere par Tawiza - Intelligence Territoriale</span>
+            <span>Généré par Tawiza - Intelligence Territoriale</span>
             <span>{date}</span>
         </div>
     </div>
@@ -462,7 +462,7 @@ async def export_markdown(request: ExportRequest) -> dict[str, Any]:
 ---
 
 *Sources: {", ".join(sources)} | Confiance: {confidence}% | Mode: {mode}*
-*Genere par Tawiza - Intelligence Territoriale*
+*Généré par Tawiza - Intelligence Territoriale*
 """
 
     return {

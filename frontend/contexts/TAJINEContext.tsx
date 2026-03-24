@@ -246,7 +246,7 @@ export function TAJINEProvider({ children }: { children: ReactNode }) {
       // Capture synthesis data when complete
       if (currentTask.phase === 'synthesize' && currentTask.status === 'complete' && currentTask.data) {
         const synthesisData = currentTask.data;
-        
+
         // Update latestAnalysis with synthesis data
         setLatestAnalysis(prev => {
           if (!prev) return {
@@ -258,7 +258,7 @@ export function TAJINEProvider({ children }: { children: ReactNode }) {
             unifiedSynthesis: synthesisData.unified_synthesis as any,
             analysis: synthesisData.analysis
           };
-          
+
           return {
             ...prev,
             confidence: typeof synthesisData.confidence === 'number' ? synthesisData.confidence : prev.confidence,

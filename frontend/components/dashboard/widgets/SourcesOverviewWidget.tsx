@@ -175,7 +175,7 @@ export function SourcesOverviewWidget() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          
+
           {/* Sources List */}
           <div className="space-y-2">
             {data.sources.slice(0, 6).map((source) => (
@@ -194,7 +194,7 @@ export function SourcesOverviewWidget() {
                 </div>
               </div>
             ))}
-            
+
             {data.sources.length > 6 && (
               <div className="text-xs text-muted-foreground text-center pt-1">
                 +{data.sources.length - 6} autres sources
@@ -202,7 +202,7 @@ export function SourcesOverviewWidget() {
             )}
           </div>
         </div>
-        
+
         {/* Status Legend */}
         <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between text-xs text-muted-foreground">

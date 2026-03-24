@@ -1437,11 +1437,11 @@ class TAJINEAgent(BaseAgent, EventEmitter):
         import httpx
 
         level_prompts = {
-            "reactive": "Donne une reponse rapide et directe.",
-            "analytical": "Analyse les donnees et statistiques pertinentes.",
-            "strategic": "Propose des recommandations strategiques.",
-            "prospective": "Fais des predictions basees sur les tendances.",
-            "theoretical": "Applique les cadres theoriques economiques.",
+            "reactive": "Donne une réponse rapide et directe.",
+            "analytical": "Analyse les données et statistiques pertinentes.",
+            "strategic": "Propose des recommandations stratégiques.",
+            "prospective": "Fais des prédictions basées sur les tendances.",
+            "theoretical": "Applique les cadres théoriques économiques.",
         }
 
         level_instruction = level_prompts.get(cognitive_level, level_prompts["analytical"])

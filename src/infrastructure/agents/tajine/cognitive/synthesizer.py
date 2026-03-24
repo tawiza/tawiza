@@ -1,10 +1,10 @@
 """
-UnifiedSynthesizer - Fusionne les 5 niveaux cognitifs en reponse structuree.
+UnifiedSynthesizer - Fusionne les 5 niveaux cognitifs en réponse structurée.
 
-Ce module prend les outputs de tous les niveaux cognitifs et genere:
-1. Une synthese executive (resume)
-2. Des sections detaillees par niveau
-3. Des recommandations prioritisees
+Ce module prend les outputs de tous les niveaux cognitifs et génère:
+1. Une synthèse executive (résumé)
+2. Des sections détaillées par niveau
+3. Des recommandations priorisées
 4. Un score de confiance global
 """
 
@@ -41,7 +41,7 @@ class SynthesizedSection:
 
 @dataclass
 class UnifiedSynthesis:
-    """Resultat de la synthese unifiee des 5 niveaux."""
+    """Résultat de la synthèse unifiée des 5 niveaux."""
 
     executive_summary: str
     sections: list[SynthesizedSection]
@@ -161,11 +161,11 @@ LEVEL_TITLES = {
 
 class UnifiedSynthesizer:
     """
-    Synthetiseur unifie pour les 5 niveaux cognitifs.
+    Synthétiseur unifié pour les 5 niveaux cognitifs.
 
     Modes de fonctionnement:
-    1. Rule-based: Extraction et agregation des donnees sans LLM
-    2. LLM-powered: Utilise le LLM pour generer une synthese naturelle
+    1. Rule-based: Extraction et agrégation des données sans LLM
+    2. LLM-powered: Utilise le LLM pour générer une synthèse naturelle
     """
 
     def __init__(self, llm_provider: Optional["LLMProvider"] = None):
@@ -201,27 +201,27 @@ class UnifiedSynthesizer:
     async def _synthesize_with_llm(
         self, cognitive_outputs: dict[str, dict[str, Any]], context: dict[str, Any]
     ) -> UnifiedSynthesis:
-        """Synthese utilisant le LLM pour une reponse naturelle."""
-        # Preparer le contexte pour le LLM
+        """Synthèse utilisant le LLM pour une réponse naturelle."""
+        # Préparer le contexte pour le LLM
         levels_summary = []
         for level_name in ["discovery", "causal", "scenario", "strategy", "theoretical"]:
             output = cognitive_outputs.get(level_name, {})
             summary = self._extract_level_summary(level_name, output)
             levels_summary.append(f"**{LEVEL_TITLES.get(level_name, level_name)}:**\n{summary}")
 
-        prompt = f"""Synthetise les analyses suivantes en une reponse structuree et coherente.
+        prompt = f"""Synthétise les analyses suivantes en une réponse structurée et cohérente.
 
 Contexte:
-- Territoire: {context.get("territory", "Non specifie")}
-- Secteur: {context.get("sector", "Non specifie")}
+- Territoire: {context.get("territory", "Non spécifié")}
+- Secteur: {context.get("sector", "Non spécifié")}
 - Question originale: {context.get("query", "Analyse territoriale")}
 
 Analyses par niveau:
 {chr(10).join(levels_summary)}
 
-Genere un objet JSON strict avec la structure suivante:
+Génère un objet JSON strict avec la structure suivante:
 {{
-    "executive_summary": "Resume global (3-4 phrases)",
+    "executive_summary": "Résumé global (3-4 phrases)",
     "sections": [
         {{
             "level": "discovery|causal|scenario|strategy|theoretical",

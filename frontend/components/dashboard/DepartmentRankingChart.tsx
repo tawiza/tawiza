@@ -180,7 +180,7 @@ export default function DepartmentRankingChart() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        
+
         {/* Legend */}
         <div className="flex flex-wrap justify-center gap-4 mt-4 pt-4 border-t border-muted/30">
           <div className="flex items-center gap-2">

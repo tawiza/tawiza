@@ -8,7 +8,7 @@ export type Json =
 
 export interface Database {
   public: {
-    Tables: { 
+    Tables: {
       paddle_subscriptions: {
         Row: {
           passthrough: string | null

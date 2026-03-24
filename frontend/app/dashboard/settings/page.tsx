@@ -662,7 +662,7 @@ export default function SettingsPage() {
 
           {/* Data */}
           <SettingSection
-            title="Donnees"
+            title="Données"
             description="Gestion du cache et des exports"
             icon={HiOutlineCircleStack}
           >

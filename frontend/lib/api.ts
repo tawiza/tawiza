@@ -484,7 +484,7 @@ export async function getAlerts(params?: {
   if (params?.alert_type) searchParams.set('alert_type', params.alert_type);
   if (params?.territory) searchParams.set('territory', params.territory);
   if (params?.limit) searchParams.set('limit', params.limit.toString());
-  
+
   const query = searchParams.toString();
   return fetchAPI<AlertsResponse>(`/alerts/${query ? '?' + query : ''}`);
 }
