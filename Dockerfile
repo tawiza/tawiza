@@ -2,7 +2,7 @@
 # Usage: docker build -t tawiza . && docker run -p 8000:8000 tawiza
 
 # Stage 1: Build dependencies
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
@@ -16,7 +16,7 @@ COPY pyproject.toml ./
 RUN pip install --no-cache-dir --prefix=/install .
 
 # Stage 2: Production image
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \

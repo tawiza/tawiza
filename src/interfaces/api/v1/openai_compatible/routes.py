@@ -85,7 +85,7 @@ async def chat_completions(
                     logger.error(f"Streaming error: {e}", exc_info=True)
                     error_chunk = {
                         "error": {
-                            "message": str(e),
+                            "message": "Erreur interne du serveur",
                             "type": "internal_error",
                             "code": "streaming_error",
                         }
@@ -301,7 +301,7 @@ async def health_check():
             content={
                 "status": "unhealthy",
                 "timestamp": int(time.time()),
-                "error": str(e),
+                "error": "Erreur interne du serveur",
             },
         )
 

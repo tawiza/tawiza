@@ -57,7 +57,7 @@ class GPUMonitor:
         return None
 
     def check_vm_gpu(self) -> GPUStatus | None:
-        """Vérifie le GPU dans VM 400 via SSH."""
+        """Vérifie le GPU sur le serveur distant via SSH."""
         try:
             result = subprocess.run(
                 [

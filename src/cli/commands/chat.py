@@ -244,7 +244,7 @@ async def _chat_loop(
 
         gpu_status = get_gpu_status()
         if gpu_status.available:
-            location = "Host" if gpu_status.location.value == "host" else "VM 400"
+            location = "Host" if gpu_status.location.value == "host" else "GPU Server"
             console.print(
                 f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire[/dim]"
             )

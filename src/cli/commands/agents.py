@@ -196,7 +196,7 @@ def show_status():
 
         gpu_status = get_gpu_status()
         if gpu_status.available:
-            location = "Host" if gpu_status.location.value == "host" else "VM 400"
+            location = "Host" if gpu_status.location.value == "host" else "GPU Server"
             console.print(
                 f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire | {gpu_status.temperature}°C[/dim]\n"
             )
@@ -407,7 +407,7 @@ def analyze_data(
 
     gpu_status = get_gpu_status()
     if gpu_status.available:
-        location = "Host" if gpu_status.location.value == "host" else "VM 400"
+        location = "Host" if gpu_status.location.value == "host" else "GPU Server"
         console.print(f"[dim]🎮 GPU: {location} | {gpu_status.memory_percent:.0f}% mémoire[/dim]\n")
 
     async def analyze():

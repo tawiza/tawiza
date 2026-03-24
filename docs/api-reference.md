@@ -1,18 +1,18 @@
 # API Reference
 
-L'API Tawiza est documentee automatiquement via OpenAPI. Une fois le backend lance, accedez a :
+L'API Tawiza est documentée automatiquement via OpenAPI. Une fois le backend lancé, accédez à :
 - **Swagger UI** : http://localhost:8000/docs
 - **ReDoc** : http://localhost:8000/redoc
 
 ## Endpoints principaux
 
-### Sante
+### Santé
 
 ```
 GET /health
 ```
 
-Verifie que l'API est operationnelle.
+Vérifie que l'API est opérationnelle.
 
 ### Agent TAJINE
 
@@ -20,7 +20,7 @@ Verifie que l'API est operationnelle.
 POST /api/v1/tajine/analyze
 ```
 
-Lance une analyse complete via l'agent TAJINE.
+Lance une analyse complète via l'agent TAJINE.
 
 **Body :**
 ```json
@@ -53,7 +53,7 @@ Lance une analyse complete via l'agent TAJINE.
 POST /api/v1/tajine/execute
 ```
 
-Execute une tache en arriere-plan (async).
+Exécute une tâche en arrière-plan (async).
 
 ---
 
@@ -61,7 +61,7 @@ Execute une tache en arriere-plan (async).
 GET /api/v1/tajine/tasks/{task_id}
 ```
 
-Recupere le statut et les resultats d'une tache.
+Récupère le statut et les résultats d'une tâche.
 
 ---
 
@@ -69,7 +69,7 @@ Recupere le statut et les resultats d'une tache.
 GET /api/v1/tajine/tasks/{task_id}/stream
 ```
 
-Stream les resultats en temps reel (Server-Sent Events).
+Stream les résultats en temps réel (Server-Sent Events).
 
 ### Analyse territoriale
 
@@ -77,7 +77,7 @@ Stream les resultats en temps reel (Server-Sent Events).
 POST /api/v1/tajine/territorial/analyze
 ```
 
-Analyse un territoire sur 6 axes : infrastructure, capital humain, innovation, export, investissement, durabilite.
+Analyse un territoire sur 6 axes : infrastructure, capital humain, innovation, export, investissement, durabilité.
 
 ---
 
@@ -105,7 +105,7 @@ Simulation What-If avec Monte Carlo.
 GET /api/v1/tajine/analytics/timeseries?period=6m&territory=31
 ```
 
-Historique BODACC par periode.
+Historique BODACC par période.
 
 ---
 
@@ -121,7 +121,7 @@ Flux de relations inter-entreprises (format Sankey).
 GET /api/v1/tajine/stats
 ```
 
-Statistiques agregees depuis SIRENE/BODACC.
+Statistiques agrégées depuis SIRENE/BODACC.
 
 ### WebSocket
 
@@ -129,7 +129,7 @@ Statistiques agregees depuis SIRENE/BODACC.
 WS /ws
 ```
 
-Connexion temps reel pour le chat et les notifications.
+Connexion temps réel pour le chat et les notifications.
 
 **Messages entrants :**
 ```json
@@ -168,11 +168,11 @@ curl http://localhost:8000/api/v1/tajine/stats \
 
 ## Rate Limiting
 
-- **Par IP** : 100 requetes/minute (configurable)
-- **Burst** : 20 requetes instantanees
-- **Global** : 1000 requetes/minute
+- **Par IP** : 100 requêtes/minute (configurable)
+- **Burst** : 20 requêtes instantanées
+- **Global** : 1000 requêtes/minute
 
-Headers de response :
+Headers de réponse :
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -183,11 +183,11 @@ X-RateLimit-Reset: 1709913600
 
 | Code | Description |
 |------|-------------|
-| 400 | Requete invalide |
-| 401 | Non authentifie |
-| 403 | Acces refuse |
-| 404 | Ressource non trouvee |
-| 429 | Rate limit depasse |
+| 400 | Requête invalide |
+| 401 | Non authentifié |
+| 403 | Accès refusé |
+| 404 | Ressource non trouvée |
+| 429 | Rate limit dépassé |
 | 500 | Erreur interne |
 
 Les erreurs retournent :

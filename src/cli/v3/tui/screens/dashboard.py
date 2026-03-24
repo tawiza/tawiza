@@ -278,7 +278,7 @@ class DashboardScreen(Container):
 
         services = {}
 
-        # Check Ollama (VM 300)
+        # Check Ollama (GPU server)
         try:
             async with httpx.AsyncClient(timeout=2.0) as client:
                 response = await client.get(

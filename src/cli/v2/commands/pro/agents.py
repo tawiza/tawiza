@@ -126,7 +126,7 @@ def register(app: typer.Typer) -> None:
 
                 from src.infrastructure.agents.manus import create_manus_agent
 
-                # Get Ollama host from environment (defaults to VM 400 with GPU)
+                # Get Ollama host from environment (defaults to GPU server)
                 ollama_host = os.getenv(
                     "OLLAMA_URL", os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
                 )

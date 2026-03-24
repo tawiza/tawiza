@@ -90,8 +90,8 @@ class S3Agent(BaseAgent):
             tool_registry: Tool registry for additional tools
             vision_model: Vision model for UI element detection
             default_mode: Default execution mode
-            vm_host: VM-400 host for desktop automation
-            vm_vnc_port: VNC port on VM-400
+            vm_host: sandbox VM host for desktop automation
+            vm_vnc_port: VNC port on sandbox VM
             max_iterations: Maximum action iterations
             config: Additional agent configuration
         """
@@ -350,7 +350,7 @@ When deciding mode, respond with JSON:
         value: str | None = None,
         coordinates: tuple | None = None,
     ) -> dict[str, Any]:
-        """Execute a desktop action on VM-400.
+        """Execute a desktop action on sandbox VM.
 
         Args:
             action_type: Type of action to perform
@@ -531,7 +531,7 @@ When deciding mode, respond with JSON:
                 "desktop automation",
                 "vision-based UI detection",
                 "hybrid mode switching",
-                "VM-400 sandbox execution",
+                "sandbox VM sandbox execution",
             ],
             "modes": [m.value for m in S3Mode],
             "vision_model": self.vision_model,
@@ -542,9 +542,9 @@ When deciding mode, respond with JSON:
 
 
 class DesktopClient:
-    """Desktop automation client for VM-400 via SSH.
+    """Desktop automation client for sandbox VM via SSH.
 
-    This client connects to VM-400 (running XFCE + VNC) and performs:
+    This client connects to sandbox VM (running XFCE + VNC) and performs:
     - Screenshot capture via scrot
     - Mouse input via xdotool
     - Keyboard input via xdotool
@@ -563,7 +563,7 @@ class DesktopClient:
         Initialize desktop client.
 
         Args:
-            host: VM-400 IP address
+            host: sandbox VM IP address
             port: VNC port (for reference, actual control via SSH)
             ssh_user: SSH user for VM connection
             display: X display number
@@ -580,7 +580,7 @@ class DesktopClient:
         self._screenshot_counter = 0
 
     async def _ssh_command(self, command: str, timeout: int = 30) -> tuple[str, str, int]:
-        """Execute SSH command on VM-400.
+        """Execute SSH command on sandbox VM.
 
         Args:
             command: Command to execute
@@ -609,7 +609,7 @@ class DesktopClient:
             return ("", "Timeout", -1)
 
     async def connect(self) -> bool:
-        """Verify connection to VM-400."""
+        """Verify connection to sandbox VM."""
         stdout, stderr, code = await self._ssh_command("echo 'connected'")
         self._connected = code == 0 and "connected" in stdout
         if self._connected:
@@ -878,14 +878,14 @@ async def create_s3_agent(
 ) -> S3Agent:
     """Factory function to create a configured S3Agent.
 
-    By default uses VM-400 Ollama (with GPU) for both reasoning and vision.
+    By default uses sandbox VM Ollama (with GPU) for both reasoning and vision.
 
     Args:
-        model: LLM model for reasoning (available on VM-400: qwen3-coder:30b)
+        model: LLM model for reasoning (available on sandbox VM: qwen3-coder:30b)
         vision_model: Vision model for UI detection (available: llava:13b)
-        ollama_host: Ollama server URL (default: VM-400 with GPU)
-        vm_host: VM-400 host for desktop automation
-        vm_vnc_port: VNC port on VM-400
+        ollama_host: Ollama server URL (default: sandbox VM with GPU)
+        vm_host: sandbox VM host for desktop automation
+        vm_vnc_port: VNC port on sandbox VM
         max_iterations: Maximum action iterations
 
     Returns:
@@ -894,7 +894,7 @@ async def create_s3_agent(
     from src.infrastructure.llm.ollama_client import OllamaClient
     from src.infrastructure.tools import create_unified_registry
 
-    # Create LLM client (connects to VM-400 with GPU)
+    # Create LLM client (connects to sandbox VM with GPU)
     llm_client = OllamaClient(
         base_url=ollama_host,
         model=model,

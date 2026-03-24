@@ -2,6 +2,7 @@
 
 import asyncio
 import contextlib
+import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -39,8 +40,8 @@ class LogReader:
     # Log file sources
     LOG_SOURCES = {
         "tawiza": Path(__file__).resolve().parents[4] / "logs" / "advanced_debug.log",
-        "alerts": Path("/var/log/proxmox-alerts/alerts-2025-12.log"),
-        "storage": Path("/var/log/proxmox-alerts/storage-alert.log"),
+        "alerts": Path(os.getenv("ALERTS_LOG_DIR", "/var/log/alerts")) / "alerts.log",
+        "storage": Path(os.getenv("ALERTS_LOG_DIR", "/var/log/alerts")) / "storage-alert.log",
         "syslog": Path("/var/log/syslog"),
     }
 
@@ -53,8 +54,8 @@ class LogReader:
             r"([^\|]+) \| "
             r"(.+?) \|"
         ),
-        # Proxmox alerts: [Tue Dec  9 09:00:01 AM CET 2025] ALERT: message
-        "proxmox": re.compile(r"\[([^\]]+)\] (ALERT|WARNING|ERROR|INFO): (.+)"),
+        # System alerts: [Tue Dec  9 09:00:01 AM CET 2025] ALERT: message
+        "system_alerts": re.compile(r"\[([^\]]+)\] (ALERT|WARNING|ERROR|INFO): (.+)"),
         # Simple format: [LEVEL] message
         "simple": re.compile(r"\[(ALERT|WARNING|ERROR|INFO|DEBUG)\] (.+)"),
         # Syslog format: Dec 11 18:00:01 hostname process[pid]: message
@@ -119,8 +120,8 @@ class LogReader:
                 raw_line=line,
             )
 
-        # Try Proxmox format
-        match = self.PATTERNS["proxmox"].match(line)
+        # Try system alerts format
+        match = self.PATTERNS["system_alerts"].match(line)
         if match:
             timestamp_str, level, message = match.groups()
             try:
@@ -132,7 +133,7 @@ class LogReader:
             return LogEntry(
                 timestamp=timestamp,
                 level=self._parse_level(level),
-                source="proxmox",
+                source="system",
                 message=message.strip(),
                 raw_line=line,
             )

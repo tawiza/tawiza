@@ -1,79 +1,78 @@
-# Politique de Securite — Tawiza
+# Politique de Sécurité — Tawiza
 
-## Signaler une vulnerabilite
+## Signaler une vulnérabilité
 
-Si vous decouvrez une vulnerabilite de securite dans Tawiza, **merci de ne PAS ouvrir une issue publique**.
+Si vous découvrez une vulnérabilité de sécurité dans Tawiza, **merci de ne PAS ouvrir une issue publique**.
 
 ### Processus de signalement
 
-1. **Email** : Envoyez un rapport detaille a **security@tawiza.fr** (ou via le profil GitHub du mainteneur)
-2. **Delai** : Nous accusons reception sous 48h
-3. **Correction** : Nous visons un correctif sous 7 jours pour les vulnerabilites critiques
+1. **Email** : Envoyez un rapport détaillé à **security@tawiza.fr** (ou via le profil GitHub du mainteneur)
+2. **Délai** : Nous accusons réception sous 48h
+3. **Correction** : Nous visons un correctif sous 7 jours pour les vulnérabilités critiques
 4. **Disclosure** : Nous coordonnons la divulgation publique avec vous
-5. **Credit** : Les reporters sont credites dans le CHANGELOG (sauf demande contraire)
+5. **Crédit** : Les reporters sont crédités dans le CHANGELOG (sauf demande contraire)
 
-### Informations a inclure
+### Informations à inclure
 
-- Description de la vulnerabilite
-- Etapes pour reproduire
-- Impact potentiel (confidentialite, integrite, disponibilite)
-- Version de Tawiza concernee
+- Description de la vulnérabilité
+- Étapes pour reproduire
+- Impact potentiel (confidentialité, intégrité, disponibilité)
+- Version de Tawiza concernée
 - Suggestion de correction (si applicable)
 
-### Severite
+### Sévérité
 
-| Niveau | Exemples | Delai de correction |
+| Niveau | Exemples | Délai de correction |
 |--------|----------|---------------------|
-| **Critique** | Execution de code a distance, contournement auth | 48h |
-| **Haute** | Injection SQL, SSRF, escalade de privileges | 7 jours |
-| **Moyenne** | XSS stocke, CSRF, fuite d'information | 14 jours |
-| **Basse** | XSS reflechi, headers manquants | Prochaine release |
+| **Critique** | Exécution de code à distance, contournement auth | 48h |
+| **Haute** | Injection SQL, SSRF, escalade de privilèges | 7 jours |
+| **Moyenne** | XSS stocké, CSRF, fuite d'information | 14 jours |
+| **Basse** | XSS réfléchi, headers manquants | Prochaine release |
 
-## Bonnes pratiques de securite
+## Bonnes pratiques de sécurité
 
 ### Pour les contributeurs
 
 - **Jamais** de secrets dans le code (API keys, mots de passe, tokens)
 - Utiliser les variables d'environnement via `.env` (gitignore)
-- Valider et assainir toutes les entrees utilisateur
-- Utiliser des requetes parametrees (pas de concatenation SQL)
-- Executer `ruff` et `bandit` avant chaque PR
+- Valider et assainir toutes les entrées utilisateur
+- Utiliser des requêtes paramétrées (pas de concaténation SQL)
+- Exécuter `ruff` et `bandit` avant chaque PR
 - Les hooks pre-commit incluent `gitleaks` (scanning de secrets) et `detect-private-key`
 
 ### Pour les utilisateurs
 
-- Changer **tous** les mots de passe par defaut avant deploiement (`SECRET_KEY`, DB password)
+- Changer **tous** les mots de passe par défaut avant déploiement (`SECRET_KEY`, DB password)
 - Utiliser HTTPS en production (avec un reverse proxy comme Caddy ou nginx)
-- Limiter l'acces reseau aux ports necessaires
-- Mettre a jour regulierement (Dependabot envoie des PRs de securite automatiquement)
-- Configurer `TELEMETRY_ENABLED=false` si vous ne souhaitez pas de telemetrie anonyme
+- Limiter l'accès réseau aux ports nécessaires
+- Mettre à jour régulièrement (Dependabot envoie des PRs de sécurité automatiquement)
+- Configurer `TELEMETRY_ENABLED=false` si vous ne souhaitez pas de télémétrie anonyme
 
-### Outils de securite integres
+### Outils de sécurité intégrés
 
 ```bash
-# Scanner le code Python pour les vulnerabilites
+# Scanner le code Python pour les vulnérabilités
 bandit -r src/ -ll
 
-# Detecter les secrets accidentels (via pre-commit)
+# Détecter les secrets accidentels (via pre-commit)
 gitleaks detect --source .
 
-# Linter securite + qualite
+# Linter sécurité + qualité
 ruff check src/
 ```
 
 ### Protection de la branche main
 
-- Reviews obligatoires sur toutes les PRs
 - CI (tests + lint) doit passer avant merge
 - Scanning de secrets automatique (gitleaks en pre-commit)
-- Dependabot pour les mises a jour de securite (pip, npm, Docker, GitHub Actions)
+- Dependabot pour les mises à jour de sécurité (pip, npm, Docker, GitHub Actions)
 
-## Versions supportees
+## Versions supportées
 
-| Version | Support securite |
+| Version | Support sécurité |
 |---------|-----------------|
-| 0.x (beta) | Oui — correctifs de securite actifs |
+| 0.x (beta) | Oui — correctifs de sécurité actifs |
 
-## Dependances
+## Dépendances
 
-Nous utilisons [Dependabot](https://docs.github.com/en/code-security/dependabot) pour les mises a jour automatiques de securite des dependances Python (pip), JavaScript (npm), Docker, et GitHub Actions. Les PRs de securite sont traitees en priorite.
+Nous utilisons [Dependabot](https://docs.github.com/en/code-security/dependabot) pour les mises à jour automatiques de sécurité des dépendances Python (pip), JavaScript (npm), Docker, et GitHub Actions. Les PRs de sécurité sont traitées en priorité.

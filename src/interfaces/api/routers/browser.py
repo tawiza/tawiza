@@ -480,7 +480,7 @@ async def stream_browser_task_progress(
             logger.error(f"Error streaming browser task progress for {task_id}: {e}")
             import json
 
-            error_data = json.dumps({"error": str(e)})
+            error_data = json.dumps({"error": "Erreur interne du serveur"})
             yield f"event: error\ndata: {error_data}\n\n"
 
     return StreamingResponse(

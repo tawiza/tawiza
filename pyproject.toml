@@ -7,7 +7,7 @@ name = "tawiza"
 version = "2.0.3"
 description = "Tawiza — Plateforme open source d'intelligence territoriale propulsée par l'IA"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Tawiza Team"}
@@ -184,9 +184,9 @@ finetuning = [
 
 [project.urls]
 Homepage = "https://tawiza.fr"
-Repository = "https://github.com/hamidedefr/tawiza"
-Documentation = "https://github.com/hamidedefr/tawiza/tree/main/docs"
-"Bug Tracker" = "https://github.com/hamidedefr/tawiza/issues"
+Repository = "https://github.com/tawiza/tawiza"
+Documentation = "https://github.com/tawiza/tawiza/tree/main/docs"
+"Bug Tracker" = "https://github.com/tawiza/tawiza/issues"
 
 [project.scripts]
 tawiza = "src.cli.v2.entrypoint:main"
@@ -201,7 +201,7 @@ exclude = ["tests*"]
 "" = "."
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py312"
 line-length = 100
 
 [tool.ruff.lint]
@@ -250,6 +250,9 @@ ignore = [
     "UP007",   # non-pep604-annotation (X | Y syntax, needs Python 3.10+)
     "ARG005",  # unused-lambda-argument
 ]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -13,7 +13,7 @@ Key Features:
 - Mode decision (browser vs desktop) using LLM
 - Playwright for web automation
 - xdotool + Vision models for desktop automation
-- SSH/VNC connection to VM-400 sandbox for isolated execution
+- SSH/VNC connection to sandbox VM for isolated execution
 
 Vision System:
 - VisionClient: UI-TARS/SeeClick inspired element detection

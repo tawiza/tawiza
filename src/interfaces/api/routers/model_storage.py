@@ -3,6 +3,7 @@
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
+from loguru import logger
 from pydantic import BaseModel, Field
 
 from src.application.ports.storage_ports import (
@@ -120,9 +121,10 @@ async def health_check() -> dict[str, Any]:
             "total_versions": stats.get("total_versions", 0),
         }
     except Exception as e:
+        logger.error(f"Error in model storage health check: {e}")
         return {
             "status": "degraded",
-            "error": str(e),
+            "error": "Erreur interne du serveur",
         }
 
 

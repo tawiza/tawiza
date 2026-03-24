@@ -18,11 +18,13 @@ from loguru import logger
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv(project_root / ".env")
 
-DB_URL = "postgresql://tawiza:tawiza2026@localhost:5433/tawiza"
+DB_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost:5433/tawiza")
 
 # ─── Configuration ────────────────────────────────────────────
 

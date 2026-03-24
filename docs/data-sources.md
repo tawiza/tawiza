@@ -1,44 +1,44 @@
-# Catalogue des Sources de Donnees
+# Catalogue des Sources de Données
 
-Tawiza integre 15+ sources de donnees publiques francaises et internationales.
+Tawiza intègre 15+ sources de données publiques françaises et internationales.
 
-## Sources gouvernementales francaises
+## Sources gouvernementales françaises
 
 | Source | Description | API | Auth | Limites |
 |--------|-------------|-----|------|---------|
-| **SIRENE** | Repertoire des entreprises francaises | api.gouv.fr/entreprises | Non | 200 req/min |
-| **BODACC** | Annonces legales (creations, modifications, radiations) | OpenDataSoft | Non | Illimite |
-| **BOAMP** | Marches publics | OpenDataSoft | Non | Illimite |
-| **INSEE Local** | Statistiques regionales et departementales | api.insee.fr | Oui (gratuit) | 30 req/min |
+| **SIRENE** | Répertoire des entreprises françaises | api.gouv.fr/entreprises | Non | 200 req/min |
+| **BODACC** | Annonces légales (créations, modifications, radiations) | OpenDataSoft | Non | Illimité |
+| **BOAMP** | Marchés publics | OpenDataSoft | Non | Illimité |
+| **INSEE Local** | Statistiques régionales et départementales | api.insee.fr | Oui (gratuit) | 30 req/min |
 | **France Travail** | Offres d'emploi par territoire | api.francetravail.io | Oui (OAuth2) | 1000 req/j |
-| **DVF** | Transactions immobilieres (Demandes de Valeurs Foncieres) | data.gouv.fr | Non | Illimite |
-| **BAN** | Base Adresse Nationale (geocodage) | api-adresse.data.gouv.fr | Non | Raisonnable |
-| **RNA** | Repertoire National des Associations | api.gouv.fr | Non | 200 req/min |
+| **DVF** | Transactions immobilières (Demandes de Valeurs Foncières) | data.gouv.fr | Non | Illimité |
+| **BAN** | Base Adresse Nationale (géocodage) | api-adresse.data.gouv.fr | Non | Raisonnable |
+| **RNA** | Répertoire National des Associations | api.gouv.fr | Non | 200 req/min |
 | **Subventions** | Aides et subventions territoriales | aides-territoires.beta.gouv.fr | Non | Raisonnable |
 
 ## Sources internationales
 
 | Source | Description | API | Auth | Limites |
 |--------|-------------|-----|------|---------|
-| **GDELT** | Evenements mondiaux en temps reel | gdeltproject.org | Non | Raisonnable |
+| **GDELT** | Événements mondiaux en temps réel | gdeltproject.org | Non | Raisonnable |
 | **CommonCrawl** | Archive du web | commoncrawl.org | Non | Gros volumes |
-| **DBNomics** | Donnees economiques mondiales | db.nomics.world | Non | Illimite |
+| **DBNomics** | Données économiques mondiales | db.nomics.world | Non | Illimité |
 | **PyTrends** | Tendances Google | Via scraping | Non | Rate limited |
 | **Wikipedia** | Pageviews et contenu | wikimedia.org | Non | Raisonnable |
 
 ## Sources enrichies
 
-| Source | Description | Methode |
+| Source | Description | Méthode |
 |--------|-------------|---------|
 | **RSS Enhanced** | Flux RSS avec extraction intelligente | Parsers custom |
 | **Web Intelligence** | Crawling adaptatif de sources configurables | Crawl4AI |
 
-## Configuration des APIs authentifiees
+## Configuration des APIs authentifiées
 
 ### INSEE
 
-1. Creer un compte sur [api.insee.fr](https://api.insee.fr)
-2. Generer des identifiants d'application
+1. Créer un compte sur [api.insee.fr](https://api.insee.fr)
+2. Générer des identifiants d'application
 3. Configurer dans `.env` :
 
 ```bash
@@ -49,7 +49,7 @@ INSEE_CLIENT_SECRET=votre_client_secret
 ### France Travail
 
 1. S'inscrire sur [francetravail.io](https://francetravail.io/data/api)
-2. Creer une application (OAuth2)
+2. Créer une application (OAuth2)
 3. Configurer dans `.env` :
 
 ```bash
@@ -57,9 +57,9 @@ FRANCE_TRAVAIL_CLIENT_ID=votre_client_id
 FRANCE_TRAVAIL_CLIENT_SECRET=votre_client_secret
 ```
 
-## Ajouter une source de donnees
+## Ajouter une source de données
 
-Tawiza utilise un systeme d'adaptateurs extensible :
+Tawiza utilise un système d'adaptateurs extensible :
 
 ```python
 # src/infrastructure/datasources/adapters/ma_source.py
@@ -71,13 +71,13 @@ class MaSourceAdapter(DataSourceAdapter):
     description = "Description de la source"
 
     async def fetch(self, query: str, **kwargs) -> dict:
-        """Recuperer les donnees depuis la source."""
-        # Votre implementation ici
+        """Récupérer les données depuis la source."""
+        # Votre implémentation ici
         pass
 
     async def health_check(self) -> bool:
-        """Verifier que la source est accessible."""
+        """Vérifier que la source est accessible."""
         pass
 ```
 
-Voir [CONTRIBUTING.md](../CONTRIBUTING.md) pour le guide complet d'integration.
+Voir [CONTRIBUTING.md](../CONTRIBUTING.md) pour le guide complet d'intégration.

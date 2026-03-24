@@ -691,7 +691,7 @@ async def get_department_scores(
         }
     except Exception as e:
         logger.error(f"Error computing department scores: {e}")
-        return {"status": "error", "message": str(e), "rankings": []}
+        return {"status": "error", "message": "Erreur interne du serveur", "rankings": []}
 
 
 @router.get("/departments/{dept}/factors")
@@ -735,7 +735,7 @@ async def get_department_factors(
         }
     except Exception as e:
         logger.error(f"Error getting factors for department {dept}: {e}")
-        return {"status": "error", "message": str(e), "department": dept}
+        return {"status": "error", "message": "Erreur interne du serveur", "department": dept}
 
 
 @router.get("/departments/{dept}/trends")
@@ -800,7 +800,7 @@ async def get_department_trends(
 
     except Exception as e:
         logger.error(f"Error getting trends for department {dept}: {e}")
-        return {"status": "error", "message": str(e), "department": dept}
+        return {"status": "error", "message": "Erreur interne du serveur", "department": dept}
 
 
 @router.get("/trends/alerts")
@@ -864,7 +864,7 @@ async def get_trends_alerts(
 
     except Exception as e:
         logger.error(f"Error getting trend alerts: {e}")
-        return {"status": "error", "message": str(e), "alerts": []}
+        return {"status": "error", "message": "Erreur interne du serveur", "alerts": []}
 
 
 @router.get("/correlations")
@@ -917,7 +917,7 @@ async def get_lag_correlations(
 
     except Exception as e:
         logger.error(f"Error computing lag correlations: {e}")
-        return {"status": "error", "message": str(e), "correlations": {}}
+        return {"status": "error", "message": "Erreur interne du serveur", "correlations": {}}
 
 
 # ============================================================================
@@ -1011,7 +1011,7 @@ async def get_ml_anomalies(
 
     except Exception as e:
         logger.error(f"Error getting ML anomalies: {e}")
-        return {"status": "error", "message": str(e), "anomalies": []}
+        return {"status": "error", "message": "Erreur interne du serveur", "anomalies": []}
 
 
 @router.get("/ml/clusters")
@@ -1100,7 +1100,7 @@ async def get_ml_clusters(
 
     except Exception as e:
         logger.error(f"Error getting ML clusters: {e}")
-        return {"status": "error", "message": str(e), "clusters": {}}
+        return {"status": "error", "message": "Erreur interne du serveur", "clusters": {}}
 
 
 @router.get("/ml/factors")
@@ -1186,7 +1186,7 @@ async def get_discovered_factors(
 
     except Exception as e:
         logger.error(f"Error getting discovered factors: {e}")
-        return {"status": "error", "message": str(e), "factors": []}
+        return {"status": "error", "message": "Erreur interne du serveur", "factors": []}
 
 
 @router.post("/ml/run-detection")
@@ -1239,7 +1239,7 @@ async def trigger_ml_detection(
 
     except Exception as e:
         logger.error(f"Error triggering ML detection: {e}")
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": "Erreur interne du serveur"}
 
 
 # QLib DataHandler endpoints
@@ -1283,7 +1283,7 @@ async def get_alpha_expressions(request: Request) -> dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Error retrieving alpha expressions: {e}")
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": "Erreur interne du serveur"}
 
 
 @router.get("/qlib/features")
@@ -1370,7 +1370,7 @@ async def compute_alpha_features(
 
     except Exception as e:
         logger.error(f"Error computing alpha features: {e}")
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": "Erreur interne du serveur"}
 
 
 @router.get("/qlib/anomalies")
@@ -1431,7 +1431,7 @@ async def detect_qlib_anomalies(
 
     except Exception as e:
         logger.error(f"Error in QLib anomaly detection: {e}")
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": "Erreur interne du serveur"}
 
 
 @router.get("/timeline")

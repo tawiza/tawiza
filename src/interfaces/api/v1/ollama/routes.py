@@ -124,7 +124,7 @@ async def get_running_model() -> dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Failed to get running model: {e}")
-        return {"running": False, "model": None, "error": str(e)}
+        return {"running": False, "model": None, "error": "Erreur interne du serveur"}
 
 
 @router.get("/models/default")
@@ -274,5 +274,5 @@ async def get_ollama_status() -> dict[str, Any]:
         return {
             "status": "disconnected",
             "url": OLLAMA_URL,
-            "error": str(e),
+            "error": "Erreur interne du serveur",
         }

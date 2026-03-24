@@ -480,15 +480,15 @@ Skip decorative elements and static text."""
 # Factory function
 def create_vision_client(
     ollama_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    model: str = "llava:13b",  # Lighter vision model available on VM-400
+    model: str = "llava:13b",  # Lighter vision model available on sandbox VM
 ) -> VisionClient:
     """Create a VisionClient instance.
 
-    By default connects to VM-400 Ollama (with GPU) for faster inference.
+    By default connects to sandbox VM Ollama (with GPU) for faster inference.
 
     Args:
         ollama_url: Ollama API URL (default: localhost)
-        model: Vision model (default: llava:13b, available on VM-400)
+        model: Vision model (default: llava:13b, available on sandbox VM)
 
     Returns:
         Configured VisionClient
@@ -506,8 +506,8 @@ async def test_vision_client():
     print(f"Vision client healthy: {healthy}")
 
     if healthy:
-        # Test with VM-400 screenshot if available
-        test_screenshot = "/tmp/vm400_desktop.png"
+        # Test with sandbox VM screenshot if available
+        test_screenshot = "/tmp/sandbox_desktop.png"
         if Path(test_screenshot).exists():
             print("\nEnumerating elements...")
             analysis = await client.enumerate_elements(test_screenshot)

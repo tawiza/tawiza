@@ -17,6 +17,7 @@ from loguru import logger
 from pydantic import BaseModel, Field
 
 from src.infrastructure.agents.openmanus.vm_sandbox_adapter import VMSandboxAdapter
+from src.infrastructure.security.validators import safe_path
 
 
 # Modèles Pydantic
@@ -288,14 +289,19 @@ class VMSandboxAPI:
         async def download_screenshot(vm_id: str, screenshot_id: str):
             """Télécharge un screenshot."""
             try:
-                # Construire le chemin du screenshot
-                screenshot_path = f"/tmp/{vm_id}_{screenshot_id}.png"
+                # Construire le chemin du screenshot avec validation anti-traversal
+                try:
+                    screenshot_path = safe_path("/tmp", f"{vm_id}_{screenshot_id}.png")
+                except ValueError:
+                    raise HTTPException(status_code=400, detail="Paramètres invalides")
 
-                if not Path(screenshot_path).exists():
+                if not screenshot_path.exists():
                     raise HTTPException(status_code=404, detail="Screenshot non trouvé")
 
                 return FileResponse(
-                    screenshot_path, media_type="image/png", filename=f"{vm_id}_{screenshot_id}.png"
+                    str(screenshot_path),
+                    media_type="image/png",
+                    filename=f"{vm_id}_{screenshot_id}.png",
                 )
 
             except Exception as e:
