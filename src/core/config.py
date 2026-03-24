@@ -11,8 +11,8 @@ class DatabaseSettings(BaseSettings):
     """Database configuration"""
 
     url: PostgresDsn = Field(
-        default="postgresql+asyncpg://tawiza:password@localhost:5432/tawiza",
-        description="Database connection URL",
+        default="postgresql+asyncpg://tawiza:changeme@localhost:5432/tawiza",
+        description="Database connection URL (override via DATABASE_URL env var)",
     )
     pool_size: int = Field(default=10, description="Connection pool size")
     max_overflow: int = Field(default=20, description="Max connections overflow")
