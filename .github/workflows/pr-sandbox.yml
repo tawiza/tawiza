@@ -1,0 +1,223 @@
+name: PR Sandbox Scan
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  sandbox-scan:
+    name: Analyse securite PR
+    runs-on: ubuntu-latest
+    env:
+      PR_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      # ── Trojan Source ──
+      - name: Trojan Source
+        id: trojan
+        run: |
+          TROJAN=$(grep -rPn '[\x{200B}\x{200C}\x{200D}\x{2060}\x{FEFF}\x{202A}-\x{202E}\x{2066}-\x{2069}]' \
+            --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" \
+            --include="*.json" --include="*.yml" --include="*.yaml" --include="*.toml" \
+            --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir=".venv" \
+            . 2>/dev/null || true)
+          if [ -n "$TROJAN" ]; then
+            echo "status=FAIL" >> "$GITHUB_OUTPUT"
+            echo "details<<DELIM" >> "$GITHUB_OUTPUT"
+            echo "$TROJAN" | head -20 >> "$GITHUB_OUTPUT"
+            echo "DELIM" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=OK" >> "$GITHUB_OUTPUT"
+            echo "details=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Gitleaks ──
+      - name: Gitleaks
+        id: gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.22.1/gitleaks_8.22.1_linux_x64.tar.gz" \
+            | tar xz -C /usr/local/bin gitleaks
+          if gitleaks detect --source . --no-git -q 2>/dev/null; then
+            echo "status=OK" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=FAIL" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Fichiers sensibles ──
+      - name: Fichiers sensibles
+        id: sensitive
+        run: |
+          SENSITIVE=$(find . -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" \
+            \( -name "*.env" -not -name ".env.example" -not -name ".env.local.example" \) \
+            -o -name "*.secret" -o -name "*.key" -o -name "*.pem" -o -name "id_rsa*" \
+            -o -name "*.p12" -o -name "*.pfx" -o -name "*.keystore" 2>/dev/null || true)
+          if [ -n "$SENSITIVE" ]; then
+            echo "status=FAIL" >> "$GITHUB_OUTPUT"
+            echo "details<<DELIM" >> "$GITHUB_OUTPUT"
+            echo "$SENSITIVE" >> "$GITHUB_OUTPUT"
+            echo "DELIM" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=OK" >> "$GITHUB_OUTPUT"
+            echo "details=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── References privees ──
+      - name: References privees
+        id: private_refs
+        run: |
+          PRIV=$(grep -rn 'MPtoO-V2\|hamidedefr/MPtoO\|mptoo-v2\|moltbot-secure' \
+            --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.md" \
+            --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir=".venv" . 2>/dev/null || true)
+          if [ -n "$PRIV" ]; then
+            echo "status=FAIL" >> "$GITHUB_OUTPUT"
+            echo "details<<DELIM" >> "$GITHUB_OUTPUT"
+            echo "$PRIV" | head -10 >> "$GITHUB_OUTPUT"
+            echo "DELIM" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=OK" >> "$GITHUB_OUTPUT"
+            echo "details=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Ruff ──
+      - name: Ruff
+        id: ruff
+        run: |
+          pip install -q ruff
+          RUFF_OUT=$(ruff check src/ 2>/dev/null || true)
+          echo "details<<DELIM" >> "$GITHUB_OUTPUT"
+          echo "$RUFF_OUT" | tail -5 >> "$GITHUB_OUTPUT"
+          echo "DELIM" >> "$GITHUB_OUTPUT"
+          if echo "$RUFF_OUT" | grep -q "Found 0"; then
+            echo "status=OK" >> "$GITHUB_OUTPUT"
+          elif [ -z "$RUFF_OUT" ]; then
+            echo "status=OK" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=WARN" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Bandit ──
+      - name: Bandit
+        id: bandit
+        run: |
+          pip install -q "bandit[toml]"
+          bandit -r src/ -c pyproject.toml -ll -f json -o /tmp/bandit.json 2>/dev/null || true
+          python3 << 'SCRIPT'
+          import json, os
+          data = json.load(open("/tmp/bandit.json"))
+          results = data.get("results", [])
+          high = [r for r in results if r["issue_severity"] == "HIGH"]
+          med = [r for r in results if r["issue_severity"] == "MEDIUM"]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"high={len(high)}\n")
+              f.write(f"medium={len(med)}\n")
+              if high:
+                  f.write("status=FAIL\n")
+                  f.write("details<<DELIM\n")
+                  for r in high[:10]:
+                      fn = r["filename"].split("/")[-1]
+                      f.write(f"- `{fn}:{r['line_number']}` — {r['issue_text']}\n")
+                  f.write("DELIM\n")
+              else:
+                  f.write("status=OK\n")
+                  f.write("details=\n")
+          SCRIPT
+
+      # ── Diff analysis ──
+      - name: Diff analysis
+        id: diff
+        run: |
+          CHANGED=$(git diff --name-only origin/main..."$PR_SHA" 2>/dev/null || true)
+          NEW_DEPS=""
+          if echo "$CHANGED" | grep -q "pyproject.toml"; then
+            NEW_DEPS="$NEW_DEPS python"
+          fi
+          if echo "$CHANGED" | grep -q "package.json"; then
+            NEW_DEPS="$NEW_DEPS npm"
+          fi
+          echo "changed_count=$(echo "$CHANGED" | wc -l)" >> "$GITHUB_OUTPUT"
+          echo "new_deps=$NEW_DEPS" >> "$GITHUB_OUTPUT"
+
+      # ── Poster le rapport en commentaire ──
+      - name: Post rapport
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          TROJAN_STATUS: ${{ steps.trojan.outputs.status }}
+          TROJAN_DETAILS: ${{ steps.trojan.outputs.details }}
+          GITLEAKS_STATUS: ${{ steps.gitleaks.outputs.status }}
+          SENSITIVE_STATUS: ${{ steps.sensitive.outputs.status }}
+          SENSITIVE_DETAILS: ${{ steps.sensitive.outputs.details }}
+          PRIVATE_STATUS: ${{ steps.private_refs.outputs.status }}
+          PRIVATE_DETAILS: ${{ steps.private_refs.outputs.details }}
+          RUFF_STATUS: ${{ steps.ruff.outputs.status }}
+          BANDIT_STATUS: ${{ steps.bandit.outputs.status }}
+          BANDIT_HIGH: ${{ steps.bandit.outputs.high }}
+          BANDIT_MEDIUM: ${{ steps.bandit.outputs.medium }}
+          BANDIT_DETAILS: ${{ steps.bandit.outputs.details }}
+          DIFF_COUNT: ${{ steps.diff.outputs.changed_count }}
+          DIFF_NEW_DEPS: ${{ steps.diff.outputs.new_deps }}
+        with:
+          script: |
+            const icon = (s) => s === 'OK' ? ':white_check_mark:' : s === 'WARN' ? ':warning:' : ':x:';
+
+            const banditHigh = process.env.BANDIT_HIGH;
+            const banditMedium = process.env.BANDIT_MEDIUM;
+            const diffCount = process.env.DIFF_COUNT;
+            const newDeps = process.env.DIFF_NEW_DEPS;
+
+            let body = `## :shield: Rapport Sandbox Securite\n\n`;
+            body += `| Check | Statut |\n|---|---|\n`;
+            body += `| Trojan Source (Unicode) | ${icon(process.env.TROJAN_STATUS)} |\n`;
+            body += `| Gitleaks (secrets) | ${icon(process.env.GITLEAKS_STATUS)} |\n`;
+            body += `| Fichiers sensibles | ${icon(process.env.SENSITIVE_STATUS)} |\n`;
+            body += `| References privees | ${icon(process.env.PRIVATE_STATUS)} |\n`;
+            body += `| Ruff (lint) | ${icon(process.env.RUFF_STATUS)} |\n`;
+            body += `| Bandit (HIGH: ${banditHigh}, MED: ${banditMedium}) | ${icon(process.env.BANDIT_STATUS)} |\n`;
+            body += `\n**Fichiers modifies** : ${diffCount}\n`;
+
+            if (newDeps.trim()) {
+              body += `\n:package: **Dependances modifiees** : ${newDeps} — verifier manuellement\n`;
+            }
+
+            const trojanDetails = process.env.TROJAN_DETAILS;
+            const sensitiveDetails = process.env.SENSITIVE_DETAILS;
+            const privateDetails = process.env.PRIVATE_DETAILS;
+            const banditDetails = process.env.BANDIT_DETAILS;
+
+            if (trojanDetails) body += `\n<details><summary>Trojan Source</summary>\n\n\`\`\`\n${trojanDetails}\n\`\`\`\n</details>\n`;
+            if (sensitiveDetails) body += `\n<details><summary>Fichiers sensibles</summary>\n\n\`\`\`\n${sensitiveDetails}\n\`\`\`\n</details>\n`;
+            if (privateDetails) body += `\n<details><summary>References privees</summary>\n\n\`\`\`\n${privateDetails}\n\`\`\`\n</details>\n`;
+            if (banditDetails) body += `\n<details><summary>Bandit HIGH</summary>\n\n${banditDetails}\n</details>\n`;
+
+            body += `\n---\n*Scan automatique par tawiza-sandbox*`;
+
+            // Supprimer le commentaire precedent s'il existe
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const prev = comments.data.find(c => c.body.includes('Rapport Sandbox Securite'));
+            if (prev) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: prev.id,
+              });
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
