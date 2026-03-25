@@ -1,0 +1,125 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    # Scan hebdomadaire le dimanche a 6h UTC
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ── CodeQL : analyse semantique du code ──
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python', 'javascript-typescript']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ── Gitleaks : detection de secrets ──
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Bandit : securite Python ──
+  bandit:
+    name: Bandit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install bandit
+        run: pip install bandit[toml]
+
+      - name: Run bandit
+        run: bandit -r src/ -c pyproject.toml -f json -o bandit-report.json || true
+
+      - name: Bandit summary
+        run: |
+          python3 << 'SCRIPT'
+          import json
+          data = json.load(open('bandit-report.json'))
+          results = data.get('results', [])
+          high = [r for r in results if r['issue_severity'] == 'HIGH']
+          if high:
+              print('::error::Bandit: %d vulnerabilites HIGH detectees' % len(high))
+              for r in high:
+                  f = r['filename'].split('/')[-1]
+                  print('  %s:%d - %s' % (f, r['line_number'], r['issue_text']))
+              exit(1)
+          print('Bandit: aucune vulnerabilite HIGH')
+          SCRIPT
+
+  # ── Trojan Source : caracteres Unicode invisibles ──
+  trojan-source:
+    name: Trojan Source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan caracteres Unicode invisibles
+        run: |
+          # Detecte les caracteres de controle bidirectionnels (CVE-2021-42574)
+          # et les zero-width characters utilises pour l'injection
+          FOUND=$(grep -rPn '[\x{200B}\x{200C}\x{200D}\x{2060}\x{FEFF}\x{202A}-\x{202E}\x{2066}-\x{2069}]' \
+            --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" \
+            --include="*.json" --include="*.yml" --include="*.yaml" --include="*.toml" \
+            --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir=".venv" \
+            . 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::Caracteres Unicode invisibles detectes (Trojan Source potentiel)"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "Aucun caractere Unicode suspect detecte"
+
+  # ── Dependency Review : bloque les deps vulnerables sur les PRs ──
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          deny-licenses: AGPL-3.0, GPL-3.0
+          comment-summary-in-pr: always
