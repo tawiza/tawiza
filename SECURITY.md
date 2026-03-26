@@ -6,7 +6,7 @@ Si vous découvrez une vulnérabilité de sécurité dans Tawiza, **merci de ne 
 
 ### Processus de signalement
 
-1. **Email** : Envoyez un rapport détaillé à **security@tawiza.fr** (ou via le profil GitHub du mainteneur)
+1. **Email** : Envoyez un rapport détaillé à **tawiza.v0@gmail.com**
 2. **Délai** : Nous accusons réception sous 48h
 3. **Correction** : Nous visons un correctif sous 7 jours pour les vulnérabilités critiques
 4. **Disclosure** : Nous coordonnons la divulgation publique avec vous
