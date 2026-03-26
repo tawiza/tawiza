@@ -6,6 +6,7 @@ la surveillance, et l'exécution de tâches automatisées.
 
 import asyncio
 import contextlib
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -289,7 +290,8 @@ class VMSandboxAPI:
         async def download_screenshot(vm_id: str, screenshot_id: str):
             """Télécharge un screenshot."""
             try:
-                # Construire le chemin du screenshot avec validation anti-traversal
+                vm_id = os.path.basename(vm_id)
+                screenshot_id = os.path.basename(screenshot_id)
                 try:
                     screenshot_path = safe_path("/tmp", f"{vm_id}_{screenshot_id}.png")
                 except ValueError:

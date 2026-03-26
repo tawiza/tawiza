@@ -96,6 +96,7 @@ async def list_datasets():
 @router.get("/datasets/{name}")
 async def get_dataset_preview(name: str, offset: int = 0, limit: int = 10):
     """Preview a training dataset (paginated)."""
+    name = os.path.basename(name)
     try:
         fpath = safe_path(DATA_DIR, name)
     except ValueError:

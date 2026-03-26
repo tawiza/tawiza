@@ -1,5 +1,6 @@
 """Fine-tuning API endpoints."""
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -136,9 +137,11 @@ async def start_fine_tuning(request: FineTuningRequest) -> FineTuningResponse:
         return FineTuningResponse(**job_info)
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Fine-tuning validation error: {e}")
+        raise HTTPException(status_code=400, detail="Invalid fine-tuning parameters")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fine-tuning failed: {str(e)}")
+        logger.error(f"Fine-tuning failed: {e}")
+        raise HTTPException(status_code=500, detail="Fine-tuning failed")
 
 
 @router.get("/jobs/{job_id}", response_model=JobStatusResponse)
@@ -234,6 +237,7 @@ async def export_model(model_name: str, export_path: str | None = None) -> dict[
 @router.get("/models/{model_name}/export")
 async def download_exported_model(model_name: str):
     """Exporte et telecharge un modele fine-tune (GET - retourne fichier)."""
+    model_name = os.path.basename(model_name)
     try:
         file_path = safe_path("/tmp", f"{model_name}_modelfile.txt")
     except ValueError:
@@ -334,11 +338,13 @@ async def fine_tune_from_label_studio(
     except HTTPException:
         raise
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Fine-tuning validation error: {e}")
+        raise HTTPException(status_code=400, detail="Invalid fine-tuning parameters")
     except Exception as e:
+        logger.error(f"Fine-tuning from Label Studio failed: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Fine-tuning from Label Studio failed: {str(e)}",
+            detail="Fine-tuning from Label Studio failed",
         )
 
 
@@ -390,7 +396,8 @@ async def get_job_logs(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve logs: {str(e)}")
+        logger.error(f"Failed to retrieve fine-tuning logs: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve logs")
 
 
 @router.post("/jobs/{job_id}/cancel")
@@ -428,7 +435,8 @@ async def cancel_job(job_id: str) -> dict[str, Any]:
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to cancel job: {str(e)}")
+        logger.error(f"Failed to cancel fine-tuning job: {e}")
+        raise HTTPException(status_code=500, detail="Failed to cancel job")
 
 
 @router.get("/health")

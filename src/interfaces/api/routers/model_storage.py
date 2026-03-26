@@ -138,7 +138,8 @@ async def initialize_storage() -> dict[str, str]:
         await storage_service.initialize_bucket()
         return {"status": "success", "message": "Storage bucket initialized"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Initialization failed: {str(e)}")
+        logger.error(f"Storage initialization failed: {e}")
+        raise HTTPException(status_code=500, detail="Initialization failed")
 
 
 @router.get("/{model_name}/versions", response_model=VersionList)
@@ -189,7 +190,8 @@ async def list_model_versions(
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list versions: {str(e)}")
+        logger.error(f"Failed to list versions: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list versions")
 
 
 @router.get("/{model_name}/versions/{version}", response_model=VersionInfo)
@@ -225,9 +227,10 @@ async def get_version_details(model_name: str, version: str) -> VersionInfo:
         )
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Version not found: {str(e)}")
+        logger.error(f"Version not found: {e}")
+        raise HTTPException(status_code=404, detail="Version not found")
 
 
 @router.get("/{model_name}/versions/{version}/download")
@@ -262,9 +265,10 @@ async def download_version(model_name: str, version: str) -> dict[str, Any]:
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Version not found: {str(e)}")
+        logger.error(f"Version not found: {e}")
+        raise HTTPException(status_code=404, detail="Version not found")
 
 
 @router.delete("/{model_name}/versions/{version}")
@@ -291,9 +295,10 @@ async def delete_version(model_name: str, version: str) -> dict[str, str]:
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
+        logger.error(f"Version deletion failed: {e}")
+        raise HTTPException(status_code=500, detail="Deletion failed")
 
 
 @router.post("/{model_name}/rollback", response_model=VersionInfo)
@@ -336,9 +341,10 @@ async def rollback_model(
         )
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Rollback failed: {str(e)}")
+        logger.error(f"Rollback failed: {e}")
+        raise HTTPException(status_code=500, detail="Rollback failed")
 
 
 @router.post("/{model_name}/versions/{version}/activate")
@@ -365,9 +371,10 @@ async def activate_version(model_name: str, version: str) -> dict[str, str]:
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Activation failed: {str(e)}")
+        logger.error(f"Version activation failed: {e}")
+        raise HTTPException(status_code=500, detail="Activation failed")
 
 
 @router.get("/{model_name}/active", response_model=VersionInfo | None)
@@ -404,7 +411,8 @@ async def get_active_version(model_name: str) -> VersionInfo | None:
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get active version: {str(e)}")
+        logger.error(f"Failed to get active version: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get active version")
 
 
 @router.get("/{model_name}/compare")
@@ -446,9 +454,10 @@ async def compare_versions(
         )
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Comparison failed: {str(e)}")
+        logger.error(f"Version comparison failed: {e}")
+        raise HTTPException(status_code=500, detail="Comparison failed")
 
 
 @router.post("/{model_name}/versions/{version}/tag")
@@ -482,9 +491,10 @@ async def tag_version(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Tagging failed: {str(e)}")
+        logger.error(f"Version tagging failed: {e}")
+        raise HTTPException(status_code=500, detail="Tagging failed")
 
 
 @router.post("/{model_name}/versions/{version}/promote")
@@ -516,9 +526,10 @@ async def promote_version(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid version format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid version format")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Promotion failed: {str(e)}")
+        logger.error(f"Version promotion failed: {e}")
+        raise HTTPException(status_code=500, detail="Promotion failed")
 
 
 @router.get("/stats", response_model=StorageStats)
@@ -546,4 +557,5 @@ async def get_storage_stats(
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
+        logger.error(f"Failed to get storage stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get stats")

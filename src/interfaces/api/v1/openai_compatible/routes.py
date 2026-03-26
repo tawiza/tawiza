@@ -108,10 +108,10 @@ async def chat_completions(
 
     except ValueError as e:
         logger.error(f"Validation error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
     except Exception as e:
         logger.error(f"Chat completion error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/models", response_model=ModelList)
@@ -149,7 +149,7 @@ async def list_models(current_user: AuthUser = Depends(get_current_user)):
 
     except Exception as e:
         logger.error(f"Failed to list models: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/embeddings", response_model=EmbeddingResponse)
@@ -233,7 +233,7 @@ async def create_embeddings(
         )
     except Exception as e:
         logger.error(f"Embeddings error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/models/{model_id}")
@@ -262,7 +262,7 @@ async def get_model(model_id: str, current_user: AuthUser = Depends(get_current_
         raise
     except Exception as e:
         logger.error(f"Failed to get model: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/health")

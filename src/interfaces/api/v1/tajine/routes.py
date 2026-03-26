@@ -509,7 +509,7 @@ async def analyze_query(request: TAJINEAnalyzeRequest):
 
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 async def _fetch_territorial_context(department: str | None = None) -> str:
@@ -924,7 +924,7 @@ async def execute_task(request: TAJINETaskRequest, background_tasks: BackgroundT
 
     except Exception as e:
         logger.error(f"Failed to create TAJINE task: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/tasks/{task_id}", response_model=TAJINETaskResult)
@@ -1046,7 +1046,7 @@ async def analyze_territory(request: TAJINEAnalysisRequest):
 
     except Exception as e:
         logger.error(f"Territory analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/validate")
@@ -1078,7 +1078,7 @@ async def validate_claim(request: TAJINEValidationRequest):
 
     except Exception as e:
         logger.error(f"Claim validation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -1147,7 +1147,7 @@ async def run_cognitive_process(
 
     except Exception as e:
         logger.error(f"Cognitive process failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -1174,7 +1174,7 @@ async def get_knowledge_stats():
 
     except Exception as e:
         logger.error(f"Failed to get KG stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/knowledge/query")
@@ -1210,7 +1210,7 @@ async def query_knowledge(
 
     except Exception as e:
         logger.error(f"KG query failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -2638,7 +2638,7 @@ async def get_training_stats() -> dict[str, Any]:
         }
     except Exception as e:
         logger.error(f"Failed to get training stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -2748,7 +2748,7 @@ async def submit_feedback(request: FeedbackRequest) -> dict[str, Any]:
         }
     except Exception as e:
         logger.error(f"Failed to record feedback: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -2849,7 +2849,7 @@ async def export_training_data(
 
     except Exception as e:
         logger.error(f"Failed to export training data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/training/health")
@@ -2971,7 +2971,7 @@ async def investigate_enterprise(
 
     except Exception as e:
         logger.error(f"Investigation failed for {siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/investigate")
@@ -3013,7 +3013,7 @@ async def investigate_enterprise_post(
 
     except Exception as e:
         logger.error(f"Investigation failed for {request.siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/investigate/{siren}/markdown")
@@ -3043,7 +3043,7 @@ async def investigate_enterprise_markdown(
 
     except Exception as e:
         logger.error(f"Investigation failed for {siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/investigate/{siren}/signals")
@@ -3071,7 +3071,7 @@ async def get_investigation_signals(
 
     except Exception as e:
         logger.error(f"Signal extraction failed for {siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -3165,7 +3165,7 @@ async def get_territorial_attractiveness(code: str) -> dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Attractiveness scoring failed for {code}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/territorial/compare")
@@ -3244,7 +3244,7 @@ async def compare_territories(request: TerritorialCompareRequest) -> dict[str, A
 
     except Exception as e:
         logger.error(f"Territory comparison failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/territorial/scenarios")
@@ -3324,7 +3324,7 @@ async def simulate_territorial_impact(
         raise
     except Exception as e:
         logger.error(f"Simulation failed for {request.code}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/territorial/analyze")
@@ -3363,7 +3363,7 @@ async def analyze_territory_full(
         raise
     except Exception as e:
         logger.error(f"Full territorial analysis failed for {request.code}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ============================================================================
@@ -3413,7 +3413,7 @@ async def get_risk_score(
 
     except Exception as e:
         logger.error(f"Risk scoring failed for SIREN {siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/risk/score")
@@ -3454,7 +3454,7 @@ async def score_enterprise_risk(
 
     except Exception as e:
         logger.error(f"Risk explanation failed for SIREN {request.siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/risk/{siren}/markdown")
@@ -3489,7 +3489,7 @@ async def get_risk_markdown_report(
 
     except Exception as e:
         logger.error(f"Risk markdown report failed for SIREN {siren}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # === Knowledge Graph & Active Learning Endpoints ===
@@ -3505,7 +3505,8 @@ async def kg_stats():
         stats = kg.get_stats()
         return stats
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Failed to get KG stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/kg/department/{code}")
@@ -3525,7 +3526,8 @@ async def kg_department(code: str):
             "edges": len(subgraph.edges),
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"KG department query failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/kg/gaps")
@@ -3542,7 +3544,8 @@ async def kg_gaps():
             "gaps": gaps[:30],
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"KG gaps query failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/kg/rebuild")
@@ -3556,7 +3559,8 @@ async def kg_rebuild():
         stats = kg.get_stats()
         return {"status": "rebuilt", **stats}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"KG rebuild failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/active-learning/status")
@@ -3576,7 +3580,8 @@ async def active_learning_status():
             "plan": plan,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Active learning status failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/active-learning/collect")
@@ -3595,4 +3600,5 @@ async def active_learning_collect():
             "plan": plan,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Active learning collect failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -4,6 +4,7 @@ API Router pour EcoCartographe - Cartographie d'écosystèmes territoriaux
 Endpoints REST pour créer et gérer des projets de cartographie d'innovation.
 """
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -637,6 +638,7 @@ async def telecharger_fichier_sortie(filename: str):
     """
     Télécharge un fichier de sortie par son nom.
     """
+    filename = os.path.basename(filename)
     output_dir = Path("workspace/outputs")
     try:
         fichier_path = safe_path(output_dir, filename)

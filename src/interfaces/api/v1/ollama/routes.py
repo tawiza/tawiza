@@ -97,10 +97,11 @@ async def list_models() -> ModelListResponse:
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Ollama connection timeout")
     except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {e}")
+        logger.error(f"Ollama HTTP error listing models: {e}")
+        raise HTTPException(status_code=502, detail="Ollama connection error")
     except Exception as e:
         logger.error(f"Failed to list models: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/models/running")
@@ -163,7 +164,7 @@ async def set_default_model(request: SetDefaultRequest) -> dict[str, Any]:
         raise
     except Exception as e:
         logger.error(f"Failed to set default model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/models/pull")
@@ -192,10 +193,11 @@ async def pull_model(request: PullModelRequest) -> dict[str, Any]:
             detail="Model pull timeout - try pulling directly with 'ollama pull'",
         )
     except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {e}")
+        logger.error(f"Ollama HTTP error pulling model: {e}")
+        raise HTTPException(status_code=502, detail="Ollama connection error")
     except Exception as e:
         logger.error(f"Failed to pull model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.delete("/models/{model_name}")
@@ -213,10 +215,11 @@ async def delete_model(model_name: str) -> dict[str, Any]:
         return {"success": True, "deleted": model_name}
 
     except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {e}")
+        logger.error(f"Ollama HTTP error deleting model: {e}")
+        raise HTTPException(status_code=502, detail="Ollama connection error")
     except Exception as e:
         logger.error(f"Failed to delete model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/models/{model_name}/load")
@@ -242,10 +245,11 @@ async def load_model(model_name: str) -> dict[str, Any]:
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Model load timeout")
     except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {e}")
+        logger.error(f"Ollama HTTP error loading model: {e}")
+        raise HTTPException(status_code=502, detail="Ollama connection error")
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/status")
