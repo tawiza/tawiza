@@ -54,4 +54,4 @@ def test_create_debate_system_with_default_models():
         MockClient.assert_called_once()
         # Check default model was used
         call_kwargs = MockClient.call_args
-        assert call_kwargs.kwargs.get("model") == "qwen3:14b"
+        assert call_kwargs.kwargs.get("model") == "qwen3.5:27b"

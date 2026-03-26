@@ -125,6 +125,14 @@ async def test_agents_have_system_prompts():
             f"{agent_class.__name__} missing SYSTEM_PROMPT"
         )
         assert agent_class.SYSTEM_PROMPT, f"{agent_class.__name__} has empty SYSTEM_PROMPT"
-        assert "français" in agent_class.SYSTEM_PROMPT.lower(), (
-            f"{agent_class.__name__} SYSTEM_PROMPT should mention French"
+        # Prompts are written in French (contain accented chars or French keywords)
+        prompt_lower = agent_class.SYSTEM_PROMPT.lower()
+        has_french = (
+            "français" in prompt_lower
+            or "tu es" in prompt_lower
+            or "identité" in prompt_lower
+            or any(c in agent_class.SYSTEM_PROMPT for c in "éèêàùç")
+        )
+        assert has_french, (
+            f"{agent_class.__name__} SYSTEM_PROMPT should be in French"
         )

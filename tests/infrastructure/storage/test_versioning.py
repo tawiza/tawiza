@@ -207,7 +207,7 @@ class TestModelVersioningService:
         accuracy_diff = comparison["metrics_diff"]["accuracy"]
         assert accuracy_diff["version_a"] == 0.90
         assert accuracy_diff["version_b"] == 0.95
-        assert accuracy_diff["diff"] == 0.05
+        assert abs(accuracy_diff["diff"] - 0.05) < 1e-10
 
         # Check training examples diff
         assert comparison["training_examples_a"] == 100

@@ -174,7 +174,8 @@ class MinIOStorageAdapter(IModelStorageService):
             checksum = self._calculate_checksum(modelfile_content)
             metadata.checksum = checksum
             metadata.modelfile_size_bytes = len(modelfile_content.encode())
-            metadata.storage_path = self._get_object_path(model_name, version, "")
+            validated_name = validate_model_name(model_name)
+            metadata.storage_path = f"{validated_name}/{version}/"
 
             # Store modelfile
             modelfile_path = self._get_object_path(model_name, version, "modelfile")

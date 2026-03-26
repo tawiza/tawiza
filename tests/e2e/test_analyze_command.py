@@ -189,17 +189,18 @@ class TestOutputPipeline:
     @pytest.mark.asyncio
     async def test_generate_with_enrichments(self, temp_dir, sample_enterprises):
         """Test output generation with enrichment data."""
+        from src.infrastructure.agents.camel.services.enrichment_service import EnrichmentResult
         from src.infrastructure.agents.camel.services.output_pipeline import generate_all_outputs
 
-        # Mock enrichments
+        # Mock enrichments using proper EnrichmentResult objects
         enrichments = [
-            {
-                "siret": "12345678901234",
-                "nom": "Test Enterprise 1",
-                "url_found": "https://example.com",
-                "description": "Test description",
-                "enrichment_quality": 0.5,
-            }
+            EnrichmentResult(
+                siret="12345678901234",
+                nom="Test Enterprise 1",
+                url_found="https://example.com",
+                description="Test description",
+                enrichment_quality=0.5,
+            )
         ]
 
         outputs = await generate_all_outputs(

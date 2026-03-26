@@ -453,7 +453,7 @@ class TestHealthCheckIntegration:
     @pytest.mark.asyncio
     async def test_ollama_health_check(self):
         """Test Ollama health check."""
-        ollama = OllamaClient()
+        ollama = OllamaClient(model="qwen3-coder:30b", vision_model="llava:13b")
 
         try:
             with patch.object(ollama.client, "get") as mock_get:
@@ -472,7 +472,7 @@ class TestHealthCheckIntegration:
     @pytest.mark.asyncio
     async def test_system_ready_check(self):
         """Test full system readiness check."""
-        ollama = OllamaClient()
+        ollama = OllamaClient(model="qwen3-coder:30b", vision_model="llava:13b")
         agent = OpenManusAdapter(headless=True)
 
         try:

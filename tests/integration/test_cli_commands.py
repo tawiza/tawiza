@@ -2,15 +2,21 @@
 
 Tests the main CLI commands to ensure they work correctly
 and return the expected output.
+
+Requires the tawiza CLI to be installed in PATH.
 """
 
+import shutil
 import subprocess
 import time
 
 import httpx
 import pytest
 
-# Helper functions
+# Skip all tests in this module if tawiza CLI is not installed
+pytestmark = pytest.mark.skipif(
+    not shutil.which("tawiza"), reason="tawiza CLI not installed"
+)
 
 
 def _check_api_available() -> bool:
@@ -35,7 +41,6 @@ class TestSystemCommands:
     def test_version_command(self):
         """Test that tawiza version works."""
         result = subprocess.run(["tawiza", "version"], capture_output=True, text=True, timeout=10)
-        # Should show version info
         assert "Tawiza" in result.stdout or "version" in result.stdout.lower()
 
     def test_system_help(self):
@@ -55,7 +60,6 @@ class TestSystemCommands:
         result = subprocess.run(
             ["tawiza", "system", "gpu"], capture_output=True, text=True, timeout=10
         )
-        # Command should run (may or may not have GPU)
         assert "GPU" in result.stdout or "Ollama" in result.stdout
 
     @pytest.mark.skipif(not _check_api_available(), reason="API not available")
@@ -64,7 +68,6 @@ class TestSystemCommands:
         result = subprocess.run(
             ["tawiza", "system", "health"], capture_output=True, text=True, timeout=15
         )
-        # Should complete without critical errors
         assert "API" in result.stdout or "health" in result.stdout.lower()
 
     @pytest.mark.skipif(not _check_api_available(), reason="API not available")
@@ -73,7 +76,6 @@ class TestSystemCommands:
         result = subprocess.run(
             ["tawiza", "system", "status"], capture_output=True, text=True, timeout=15
         )
-        # Should show system status
         assert result.returncode == 0 or "status" in result.stdout.lower()
 
     @pytest.mark.skipif(not _check_api_available(), reason="API not available")
@@ -82,7 +84,6 @@ class TestSystemCommands:
         result = subprocess.run(
             ["tawiza", "system", "diagnose"], capture_output=True, text=True, timeout=20
         )
-        # Should run diagnostics
         assert "Diagnostic" in result.stdout or "API" in result.stdout
 
     @pytest.mark.skipif(not _check_api_available(), reason="API not available")
@@ -91,7 +92,6 @@ class TestSystemCommands:
         result = subprocess.run(
             ["tawiza", "system", "services"], capture_output=True, text=True, timeout=20
         )
-        # Should show services table
         assert "Service" in result.stdout or "Status" in result.stdout
 
 
@@ -126,8 +126,6 @@ class TestFineTuneCommands:
         result = subprocess.run(
             ["tawiza", "finetune", "list"], capture_output=True, text=True, timeout=15
         )
-        # Should list jobs (even if empty)
-        # Don't check return code as it might be 1 if API is down
         assert "job" in result.stdout.lower() or "No" in result.stdout or "Error" in result.stdout
 
     @pytest.mark.skipif(not _check_api_available(), reason="API not available")
@@ -136,7 +134,6 @@ class TestFineTuneCommands:
         result = subprocess.run(
             ["tawiza", "finetune", "models"], capture_output=True, text=True, timeout=15
         )
-        # Should list models (even if empty)
         assert "model" in result.stdout.lower() or "No" in result.stdout or "Error" in result.stdout
 
 
@@ -171,9 +168,10 @@ class TestAnnotateCommands:
         result = subprocess.run(
             ["tawiza", "annotate", "list"], capture_output=True, text=True, timeout=15
         )
-        # Should list projects (even if empty)
         assert (
-            "project" in result.stdout.lower() or "No" in result.stdout or "Error" in result.stdout
+            "project" in result.stdout.lower()
+            or "No" in result.stdout
+            or "Error" in result.stdout
         )
 
 
@@ -194,8 +192,6 @@ class TestModelsCommands:
         result = subprocess.run(
             ["tawiza", "models", "list"], capture_output=True, text=True, timeout=15
         )
-        # Should attempt to list models
-        # May fail if Ollama is not running
         pass  # Just checking it doesn't crash
 
 
