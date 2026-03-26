@@ -216,6 +216,7 @@ Aucune IP, email, contenu de chat ou donnée d'entreprise n'est collectée. Code
 
 | Document | Description |
 |----------|-------------|
+| [Docker Quick Start](docs/docker-quickstart.md) | Démarrage rapide avec Docker Compose |
 | [Getting Started](docs/getting-started.md) | Installation détaillée |
 | [Architecture](docs/architecture.md) | Structure du projet |
 | [Configuration](docs/configuration.md) | Variables d'environnement |
