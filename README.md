@@ -1,3 +1,5 @@
+🇬🇧 English | [🇫🇷 Français](README.fr.md)
+
 <div align="center">
 
 ```
@@ -15,102 +17,102 @@
            """
 ```
 
-### Intelligence territoriale open source
+### Open source territorial intelligence
 
-**Tawiza** (ⵜⴰⵡⵉⵣⴰ) - mot amazigh signifiant *entraide collective*.
+**Tawiza** (ⵜⴰⵡⵉⵣⴰ) - Amazigh word meaning *collective mutual aid*.
 
-[![Status: Beta](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](#etat-du-projet)
+[![Status: Beta](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](#project-status)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
 
 </div>
 
-> Ce projet est développé par un dev solo en parallèle d'un stage.
-> Certaines features marchent, d'autres sont en construction.
-> Le README décrit l'état réel, pas la vision finale.
+> This project is developed by a solo dev alongside an internship.
+> Some features work, others are under construction.
+> This README describes the actual state, not the final vision.
 
 ---
 
-## En bref
+## In a nutshell
 
-Tawiza collecte des données depuis les APIs gouvernementales françaises et les organise pour analyser les territoires. Le backend interroge une vingtaine de sources (SIRENE, BODACC, DVF, INSEE, France Travail...), et un agent IA (TAJINE) peut synthétiser les résultats.
+Tawiza collects data from French government APIs and organizes it to analyze territories. The backend queries about twenty sources (SIRENE, BODACC, DVF, INSEE, France Travail...), and an AI agent (TAJINE) can synthesize the results.
 
-**Stack** : Python/FastAPI + Next.js + PostgreSQL + Redis. LLM via Ollama (local) ou cloud (Groq, OpenRouter).
-
----
-
-## État du projet
-
-| Module | État | Note |
-|--------|:----:|------|
-| Dashboard web (7 pages) | En cours | Interface fonctionnelle, pas tout stable |
-| API REST | En cours | Endpoints TAJINE, conversations, export, sources |
-| Sources de données (~19 adaptateurs) | En cours | SIRENE, BODACC, DVF, INSEE, France Travail, etc. Code présent, pas tout testé |
-| Agent TAJINE (cycle PPDSL) | En cours | 5 niveaux définis, résultats dépendant du LLM |
-| Data Hunter (collecte) | En cours | Stratégies bandit et discovery à tester |
-| Crawler adaptatif | En cours | Scheduling MAB, workers HTTPX + Playwright |
-| CLI / TUI | En cours | Pas fonctionnel à 100% |
-| Knowledge Graph (Neo4j) | Présent | Nécessite Neo4j en infra |
-| Fine-tuning (LoRA/DPO) | Présent | Nécessite GPU et MLflow |
-| Veille (Watcher) | Présent | Pollers BOAMP, BODACC, GDELT |
-
-**Légende** : *En cours* = code présent, stabilisation en cours. *Présent* = code réel, nécessite configuration/infra spécifique.
+**Stack**: Python/FastAPI + Next.js + PostgreSQL + Redis. LLM via Ollama (local) or cloud (Groq, OpenRouter).
 
 ---
 
-## Sources de données
+## Project status
 
-19 adaptateurs codés. Les sources sans auth sont utilisables directement, les autres nécessitent des clés API gratuites.
+| Module | Status | Note |
+|--------|:------:|------|
+| Web dashboard (7 pages) | WIP | Functional interface, not fully stable |
+| REST API | WIP | TAJINE endpoints, conversations, export, sources |
+| Data Sources (~19 adapters) | WIP | SIRENE, BODACC, DVF, INSEE, France Travail, etc. Code present, not all tested |
+| TAJINE Agent (PPDSL cycle) | WIP | 5 levels defined, results depend on the LLM |
+| Data Hunter (collection) | WIP | Bandit and discovery strategies to test |
+| Adaptive Crawler | WIP | MAB scheduling, HTTPX + Playwright workers |
+| CLI / TUI | WIP | Not 100% functional |
+| Knowledge Graph (Neo4j) | Present | Requires Neo4j infrastructure |
+| Fine-tuning (LoRA/DPO) | Present | Requires GPU and MLflow |
+| Watcher (monitoring) | Present | BOAMP, BODACC, GDELT pollers |
+
+**Legend**: *WIP* = code present, stabilization in progress. *Present* = real code, requires specific configuration/infrastructure.
+
+---
+
+## Data Sources
+
+19 coded adapters. Sources without auth can be used directly, others require free API keys.
 
 <details>
-<summary>Liste des sources</summary>
+<summary>Source list</summary>
 
 | Source | Description | Auth |
 |--------|------------|:----:|
-| SIRENE | Entreprises françaises (11M+) | Non |
-| BODACC | Annonces légales | Non |
-| BOAMP | Marchés publics | Non |
-| INSEE Local | Statistiques régionales | Oui (gratuit) |
-| France Travail | Offres d'emploi | Oui (OAuth2) |
-| DVF | Transactions immobilières | Non |
-| BAN | Géocodage adresses | Non |
-| RNA | Associations | Non |
-| Subventions | Aides territoriales | Non |
-| OFGL | Finances locales | Non |
-| MELODI | Données douanières | Oui |
-| GDELT | Événements mondiaux | Non |
-| DBNomics | Données macroéconomiques | Non |
-| Google News | Actualités | Non |
-| CommonCrawl | Archive web | Non |
-| PyTrends | Tendances Google | Non |
-| RSS Enhanced | News temps réel | Non |
-| Wikipedia | Pageviews | Non |
-| Geo API | Communes, départements | Non |
+| SIRENE | French businesses registry (11M+) | No |
+| BODACC | Legal announcements (company filings) | No |
+| BOAMP | Public procurement notices | No |
+| INSEE Local | Regional statistics | Yes (free) |
+| France Travail | Job listings (French public employment service) | Yes (OAuth2) |
+| DVF | Real estate transactions | No |
+| BAN | Address geocoding | No |
+| RNA | Associations registry | No |
+| Subventions | Territorial subsidies | No |
+| OFGL | Local government finances | No |
+| MELODI | Customs data | Yes |
+| GDELT | Global events | No |
+| DBNomics | Macroeconomic data | No |
+| Google News | News | No |
+| CommonCrawl | Web archive | No |
+| PyTrends | Google Trends | No |
+| RSS Enhanced | Real-time news | No |
+| Wikipedia | Pageviews | No |
+| Geo API | Municipalities, departments | No |
 
 </details>
 
 ---
 
-## Agent TAJINE
+## TAJINE Agent
 
-L'agent TAJINE suit le cycle PPDSL (Perceive-Plan-Delegate-Synthesize-Learn) avec 5 niveaux :
+The TAJINE agent follows the PPDSL cycle (Perceive-Plan-Delegate-Synthesize-Learn) with 5 levels:
 
-| Niveau | Capacité |
-|--------|----------|
-| Discovery | Extraction factuelle |
-| Causal | Analyse causale (DAG) |
-| Scenario | Simulation Monte Carlo |
-| Strategy | Recommandations |
-| Theoretical | Principes généraux |
+| Level | Capability |
+|-------|-----------|
+| Discovery | Factual extraction |
+| Causal | Causal analysis (DAG) |
+| Scenario | Monte Carlo simulation |
+| Strategy | Recommendations |
+| Theoretical | General principles |
 
-> L'agent est en cours de simplification. Les résultats dépendent du modèle LLM et ne sont pas garantis.
+> The agent is being simplified. Results depend on the LLM model and are not guaranteed.
 
 ---
 
 ## Quick Start
 
-### Prérequis
+### Prerequisites
 
 - Python 3.12+
 - Node.js 20+
@@ -130,14 +132,14 @@ pip install -e ".[dev]"
 cp .env.example .env && alembic upgrade head
 uvicorn src.interfaces.api.main:app --reload --port 8000
 
-# Frontend (autre terminal)
+# Frontend (separate terminal)
 cd frontend && npm install && cp .env.local.example .env.local
 npm run dev
 ```
 
-Backend : http://localhost:8000/docs | Frontend : http://localhost:3000
+Backend: http://localhost:8000/docs | Frontend: http://localhost:3000
 
-### Avec Docker Compose
+### With Docker Compose
 
 ```bash
 git clone https://github.com/tawiza/tawiza.git && cd tawiza
@@ -146,26 +148,26 @@ docker compose up -d
 ```
 
 <details>
-<summary>Configuration LLM</summary>
+<summary>LLM Configuration</summary>
 
-Trois options :
+Three options:
 
-**Ollama (local, gratuit)** - fonctionne avec NVIDIA (CUDA) et AMD (ROCm) :
+**Ollama (local, free)** - works with NVIDIA (CUDA) and AMD (ROCm):
 ```bash
 curl -fsSL https://ollama.ai/install.sh | sh
 ollama pull qwen2.5:7b
 ollama pull nomic-embed-text
 ```
 
-**Cloud (Groq/OpenRouter)** - dans `.env` :
+**Cloud (Groq/OpenRouter)** - in `.env`:
 ```bash
-GROQ_API_KEY=gsk_...          # gratuit, rate-limited
-OPENROUTER_API_KEY=sk-or-...  # payant
+GROQ_API_KEY=gsk_...          # free, rate-limited
+OPENROUTER_API_KEY=sk-or-...  # paid
 ```
 
-**Claude API via OpenRouter** - pour les meilleurs résultats d'analyse.
+**Claude API via OpenRouter** - for the best analysis results.
 
-Fallback chain : Ollama -> Groq -> OpenRouter.
+Fallback chain: Ollama -> Groq -> OpenRouter.
 
 </details>
 
@@ -175,22 +177,22 @@ Fallback chain : Ollama -> Groq -> OpenRouter.
 
 ```
 src/
-├── domain/          # Entités, value objects, events
+├── domain/          # Entities, value objects, events
 ├── application/     # Services, use cases, DTOs
 ├── infrastructure/  # Adapters (DB, APIs, LLM, agents, crawlers)
-└── interfaces/      # API REST, WebSocket, middleware
+└── interfaces/      # REST API, WebSocket, middleware
 ```
 
-Architecture hexagonale (ports & adapters).
+Hexagonal architecture (ports & adapters).
 
 <details>
 <summary>Tech stack</summary>
 
-| Couche | Technologies |
-|--------|-------------|
+| Layer | Technologies |
+|-------|-------------|
 | Backend | Python 3.12+, FastAPI, SQLAlchemy (async), Alembic |
 | Frontend | Next.js 15, TypeScript, Tailwind CSS, shadcn/ui |
-| BDD | PostgreSQL 17 + pgvector |
+| Database | PostgreSQL 17 + pgvector |
 | Cache | Redis |
 | LLM | Ollama (local), Groq, OpenRouter |
 | Monitoring | Prometheus, Grafana |
@@ -200,15 +202,15 @@ Architecture hexagonale (ports & adapters).
 
 ---
 
-## Télémétrie
+## Telemetry
 
-Tawiza collecte des données de télémétrie anonymes via PostHog (EU) pour améliorer la plateforme. Opt-out :
+Tawiza collects anonymous telemetry data via PostHog (EU) to improve the platform. Opt-out:
 
 ```bash
-TELEMETRY_ENABLED=false  # dans .env
+TELEMETRY_ENABLED=false  # in .env
 ```
 
-Aucune IP, email, contenu de chat ou donnée d'entreprise n'est collectée. Code source : [`src/core/telemetry.py`](src/core/telemetry.py).
+No IP, email, chat content, or business data is collected. Source code: [`src/core/telemetry.py`](src/core/telemetry.py).
 
 ---
 
@@ -216,32 +218,32 @@ Aucune IP, email, contenu de chat ou donnée d'entreprise n'est collectée. Code
 
 | Document | Description |
 |----------|-------------|
-| [Docker Quick Start](docs/docker-quickstart.md) | Démarrage rapide avec Docker Compose |
-| [Getting Started](docs/getting-started.md) | Installation détaillée |
-| [Architecture](docs/architecture.md) | Structure du projet |
-| [Configuration](docs/configuration.md) | Variables d'environnement |
-| [Data Sources](docs/data-sources.md) | Catalogue des sources |
-| [API Reference](docs/api-reference.md) | Endpoints REST |
-| [Self-Hosting](docs/self-hosting.md) | Guide de déploiement |
-| [Contributing](CONTRIBUTING.md) | Guide de contribution |
+| [Docker Quick Start](docs/docker-quickstart.md) | Quick start with Docker Compose |
+| [Getting Started](docs/getting-started.md) | Detailed installation guide |
+| [Architecture](docs/architecture.md) | Project structure |
+| [Configuration](docs/configuration.md) | Environment variables |
+| [Data Sources](docs/data-sources.md) | Source catalog |
+| [API Reference](docs/api-reference.md) | REST endpoints |
+| [Self-Hosting](docs/self-hosting.md) | Deployment guide |
+| [Contributing](CONTRIBUTING.md) | Contribution guide |
 
 ---
 
-## Contribuer
+## Contributing
 
-Les contributions sont les bienvenues.
+Contributions are welcome.
 
 ```bash
-git checkout -b feat/ma-feature
+git checkout -b feat/my-feature
 pytest tests/ -v
 ruff check src/
 ```
 
-Voir le [guide de contribution](CONTRIBUTING.md). Les issues [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) sont un bon point de départ.
+See the [contribution guide](CONTRIBUTING.md). Issues labeled [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) are a good starting point.
 
 ---
 
-## Licence
+## License
 
 [MIT](LICENSE)
 
@@ -249,6 +251,6 @@ Voir le [guide de contribution](CONTRIBUTING.md). Les issues [`good first issue`
 
 <div align="center">
 
-*Fait avec du café et des données ouvertes.*
+*Made with coffee and open data.*
 
 </div>
