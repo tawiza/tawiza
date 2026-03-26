@@ -1,49 +1,51 @@
-# Contribuer à Tawiza
+[🇫🇷 Français](CONTRIBUTING.fr.md) | 🇬🇧 English
 
-Merci de votre intérêt pour Tawiza ! Ce guide explique comment contribuer, les règles du projet, et le workflow de validation.
+# Contributing to Tawiza
 
-## Table des matières
+Thank you for your interest in Tawiza! This guide covers how to contribute, project rules, and the validation workflow.
 
-- [Première contribution ?](#première-contribution-)
-- [Mise en place](#mise-en-place)
-- [Workflow de contribution](#workflow-de-contribution)
-- [Règles de la branche main](#règles-de-la-branche-main)
-- [Standards de code](#standards-de-code)
-- [Structure du projet](#structure-du-projet)
-- [Ajouter une source de données](#ajouter-une-source-de-données)
-- [Hooks pre-commit](#hooks-pre-commit)
-- [Licence et droits](#licence-et-droits)
+## Table of Contents
 
----
-
-## Première contribution ?
-
-Regardez les issues avec le label [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue)  -  elles sont spécifiquement préparées pour les nouveaux contributeurs.
-
-Exemples de contributions bienvenues :
-- Ajouter une nouvelle source de données (API gouvernementale, open data)
-- Améliorer le dashboard (nouvelles visualisations, UX)
-- Ajouter des tests pour un module existant
-- Corriger un bug
-- Améliorer la documentation
+- [First contribution?](#first-contribution)
+- [Setup](#setup)
+- [Contribution workflow](#contribution-workflow)
+- [Branch protection rules](#branch-protection-rules)
+- [Code standards](#code-standards)
+- [Project structure](#project-structure)
+- [Adding a data source](#adding-a-data-source)
+- [Pre-commit hooks](#pre-commit-hooks)
+- [License and rights](#license-and-rights)
 
 ---
 
-## Mise en place
+## First contribution?
 
-### Prérequis
+Look for issues labeled [`good first issue`](https://github.com/tawiza/tawiza/labels/good%20first%20issue) or [`contributor-friendly`](https://github.com/tawiza/tawiza/labels/contributor-friendly) — they are specifically prepared for new contributors.
+
+Welcome contributions include:
+- Adding a new data source (French government API, open data)
+- Improving the dashboard (new visualizations, UX)
+- Adding tests for an existing module
+- Fixing a bug
+- Improving documentation
+
+---
+
+## Setup
+
+### Prerequisites
 
 - Python 3.12+
 - Node.js 20+
 - Docker & Docker Compose
-- PostgreSQL 15+ (ou via Docker)
-- Redis 7+ (ou via Docker)
+- PostgreSQL 15+ (or via Docker)
+- Redis 7+ (or via Docker)
 
 ### Installation
 
 ```bash
-# 1. Fork et clone
-git clone https://github.com/VOTRE_USERNAME/tawiza.git
+# 1. Fork and clone
+git clone https://github.com/YOUR_USERNAME/tawiza.git
 cd tawiza
 
 # 2. Services (PostgreSQL + Redis)
@@ -53,9 +55,9 @@ docker compose up -d db redis
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env  # Éditez selon votre config
+cp .env.example .env  # Edit to match your config
 
-# 4. Pre-commit hooks (obligatoire)
+# 4. Pre-commit hooks (mandatory)
 pip install pre-commit
 pre-commit install
 
@@ -68,218 +70,210 @@ npm install
 cp .env.local.example .env.local
 cd ..
 
-# 7. Lancer
-# Terminal 1 : Backend
+# 7. Run
+# Terminal 1: Backend
 uvicorn src.interfaces.api.main:app --reload --port 8000
 
-# Terminal 2 : Frontend
+# Terminal 2: Frontend
 cd frontend && npm run dev
 ```
 
-### Vérification
+### Verification
 
 ```bash
-# Tests backend
+# Backend tests
 pytest tests/ -v
 
 # Lint
 ruff check src/
 ruff format --check src/
 
-# Tests frontend
+# Frontend lint
 cd frontend && npm run lint
 ```
 
 ---
 
-## Workflow de contribution
+## Contribution workflow
 
-### 1. Créer une branche
+### 1. Create a branch
 
 ```bash
-git checkout -b feat/ma-nouvelle-feature
-# ou
-git checkout -b fix/correction-du-bug
+git checkout -b feat/my-new-feature
+# or
+git checkout -b fix/bug-fix
 ```
 
-Conventions de nommage :
-- `feat/`  -  nouvelle fonctionnalité
-- `fix/`  -  correction de bug
-- `docs/`  -  documentation
-- `refactor/`  -  refactoring sans changement fonctionnel
-- `test/`  -  ajout ou modification de tests
-- `chore/`  -  maintenance, dépendances, CI
+Branch naming conventions:
+- `feat/` — new feature
+- `fix/` — bug fix
+- `docs/` — documentation
+- `refactor/` — refactoring without functional change
+- `test/` — adding or modifying tests
+- `chore/` — maintenance, dependencies, CI
 
-### 2. Coder
+### 2. Code
 
-- Suivez les conventions existantes du projet
-- Ajoutez des tests pour tout nouveau code
-- Vérifiez que les tests existants passent
-- Les hooks pre-commit valident automatiquement votre code
+- Follow existing project conventions
+- Add tests for all new code
+- Verify existing tests still pass
+- Pre-commit hooks will automatically validate your code
 
 ### 3. Commit
 
-Nous utilisons [Conventional Commits](https://www.conventionalcommits.org/) :
+We use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat: ajouter l'analyse des subventions régionales
-fix: corriger le parsing des dates BODACC
-docs: mettre à jour le guide d'installation
-refactor: simplifier le pipeline de données SIRENE
-test: ajouter les tests pour le DataHunter
-chore: mettre à jour les dépendances FastAPI
+feat: add regional subsidy analysis
+fix: correct BODACC date parsing
+docs: update installation guide
+refactor: simplify SIRENE data pipeline
+test: add DataHunter tests
+chore: update FastAPI dependencies
 ```
 
 ### 4. Pull Request
 
-- Remplissez le template de PR
-- Liez l'issue concernée (`Fixes #123`)
-- Assurez-vous que la CI passe (obligatoire)
-- Attendez la review d'un mainteneur
+- Fill in the PR template
+- Link the related issue (`Fixes #123`)
+- Make sure CI passes (mandatory)
+- Wait for a maintainer review
 
 ---
 
-## Règles de la branche main
+## Branch protection rules
 
-La branche `main` est protégée :
+The `main` branch is protected:
 
-| Règle | Description |
-|-------|-------------|
-| **CI obligatoire** | Le workflow CI (lint + tests + build) doit être vert |
-| **Branch à jour** | Votre branche doit être à jour avec `main` avant merge |
-| **Force push** | Interdit sur `main` |
-| **Suppression** | Impossible de supprimer `main` |
-| **CODEOWNERS** | Les mainteneurs listés dans `CODEOWNERS` sont automatiquement assignés |
+| Rule | Description |
+|------|-------------|
+| **CI required** | CI workflow (lint + tests + build) must be green |
+| **Branch up to date** | Your branch must be up to date with `main` before merge |
+| **Force push** | Forbidden on `main` |
+| **Deletion** | Cannot delete `main` |
+| **CODEOWNERS** | Listed maintainers are automatically assigned for review |
 
-### Concrètement
+### Merge types
 
-**Pour les contributeurs :**
-1. Vous ouvrez une PR depuis votre fork
-2. La CI tourne automatiquement (lint, tests, build Docker)
-3. Un mainteneur review votre code
-4. Si des modifications sont demandées, vous les faites et poussez
-5. Le mainteneur approuve → la PR est mergée (squash)
-
-### Types de merge autorisés
-
-| Type | Autorisé | Usage |
-|------|:--------:|-------|
-| **Squash merge** | Oui | 1 PR = 1 commit propre dans `main` (recommandé) |
-| **Rebase merge** | Oui | Conserve les commits individuels |
-| **Merge commit** | Non | Désactivé pour garder un historique linéaire |
+| Type | Allowed | Usage |
+|------|:-------:|-------|
+| **Squash merge** | Yes | 1 PR = 1 clean commit in `main` (recommended) |
+| **Rebase merge** | No | Disabled |
+| **Merge commit** | No | Disabled — keeps linear history |
 
 ---
 
-## Standards de code
+## Code standards
 
 ### Python (Backend)
 
-- **Formatter** : `ruff format` (compatible Black)
-- **Linter** : `ruff check` avec les règles du `pyproject.toml`
-- **Types** : Type hints encouragés (pas obligatoires partout)
-- **Tests** : pytest + pytest-asyncio pour le code async
-- **Sécurité** : `bandit` pour le scan de vulnérabilités
+- **Formatter**: `ruff format` (Black-compatible)
+- **Linter**: `ruff check` with rules from `pyproject.toml`
+- **Types**: Type hints encouraged (not required everywhere)
+- **Tests**: pytest + pytest-asyncio for async code
+- **Security**: `bandit` for vulnerability scanning
 
 ### TypeScript (Frontend)
 
-- **Linter** : ESLint avec config Next.js
-- **Style** : Tailwind CSS + shadcn/ui
-- **Composants** : Fonctionnels avec hooks
-- **State** : SWR pour le data fetching
+- **Linter**: ESLint with Next.js config
+- **Style**: Tailwind CSS + shadcn/ui
+- **Components**: Functional with hooks
+- **State**: SWR for data fetching
 
-### Règles générales
+### General rules
 
-- Pas de secrets dans le code (utiliser les variables d'environnement)
-- Pas de `# type: ignore` sans commentaire explicatif
-- Pas de `any` en TypeScript sauf cas justifié
-- Les fonctions publiques ont une docstring
-- Les messages d'erreur sont en anglais (i18n plus tard)
+- No secrets in code (use environment variables)
+- No `# type: ignore` without an explanatory comment
+- No `any` in TypeScript unless justified
+- Public functions have a docstring
+- Error messages are in English
 
 ---
 
-## Structure du projet
+## Project structure
 
 ```
 tawiza/
-├── src/                    # Backend Python
-│   ├── domain/             # Entités métier (zéro dépendance externe)
+├── src/                    # Python backend
+│   ├── domain/             # Business entities (zero external deps)
 │   ├── application/        # Use cases, services, DTOs
-│   ├── infrastructure/     # Adapters concrets
-│   │   ├── agents/tajine/  # Agent TAJINE (cœur IA)
-│   │   ├── agents/camel/   # Workforce multi-agents
-│   │   ├── datasources/    # Adaptateurs 19 APIs
+│   ├── infrastructure/     # Concrete adapters
+│   │   ├── agents/tajine/  # TAJINE agent (AI core)
+│   │   ├── datasources/    # 19 API adapters
 │   │   ├── ml/             # Fine-tuning, active learning
-│   │   ├── crawler/        # Crawler adaptatif
+│   │   ├── crawler/        # Adaptive crawler
 │   │   └── knowledge_graph/# Neo4j client
 │   └── interfaces/api/     # FastAPI routes + WebSocket
 ├── frontend/               # Next.js 15
-│   ├── app/dashboard/      # Pages du dashboard (7)
-│   ├── components/         # Composants React (shadcn/ui)
-│   └── hooks/              # Hooks SWR + custom
+│   ├── app/dashboard/      # Dashboard pages (7)
+│   ├── components/         # React components (shadcn/ui)
+│   └── hooks/              # SWR + custom hooks
 ├── tests/                  # Tests (unit, integration, e2e)
 ├── docs/                   # Documentation
-├── alembic/                # Migrations base de données
-└── docker/                 # Configs Docker supplémentaires
+├── alembic/                # Database migrations
+└── docker/                 # Extra Docker configs
 ```
 
 ---
 
-## Ajouter une source de données
+## Adding a data source
 
-Tawiza est conçu pour intégrer facilement de nouvelles sources. Voir `docs/data-sources.md` pour le guide complet.
+Tawiza is designed to easily integrate new sources. See `docs/data-sources.md` for the full guide.
 
-En résumé :
-1. Créer un adaptateur dans `src/infrastructure/datasources/adapters/`
-2. Implémenter l'interface `DataSourceAdapter`
-3. Enregistrer dans le registry (`manager.py`)
-4. Ajouter les tests dans `tests/unit/datasources/`
-5. Documenter dans le catalogue (`docs/data-sources.md`)
+In short:
+1. Create an adapter in `src/infrastructure/datasources/adapters/`
+2. Implement the `DataSourceAdapter` interface
+3. Register in the registry (`manager.py`)
+4. Add tests in `tests/unit/datasources/`
+5. Document in the catalog (`docs/data-sources.md`)
+
+You can also use the **Data Source Request** issue template to propose a source without coding it yourself.
 
 ---
 
-## Hooks pre-commit
+## Pre-commit hooks
 
-Le projet utilise [pre-commit](https://pre-commit.com/) pour valider automatiquement votre code avant chaque commit :
+The project uses [pre-commit](https://pre-commit.com/) to automatically validate your code before each commit:
 
-| Hook | Rôle |
-|------|------|
-| `trailing-whitespace` | Supprime les espaces en fin de ligne |
-| `end-of-file-fixer` | Assure un saut de ligne en fin de fichier |
-| `check-yaml` | Valide la syntaxe YAML |
-| `check-json` | Valide la syntaxe JSON |
-| `check-added-large-files` | Bloque les fichiers > 1 Mo |
-| `check-merge-conflict` | Détecte les marqueurs de conflit oubliés |
-| `detect-private-key` | Empêche le commit de clés privées |
-| `ruff` | Lint Python (fix automatique) |
-| `ruff-format` | Formatage Python |
-| `gitleaks` | Scanning de secrets dans le code |
+| Hook | Purpose |
+|------|---------|
+| `trailing-whitespace` | Removes trailing spaces |
+| `end-of-file-fixer` | Ensures newline at end of file |
+| `check-yaml` | Validates YAML syntax |
+| `check-json` | Validates JSON syntax |
+| `check-added-large-files` | Blocks files > 1 MB |
+| `check-merge-conflict` | Detects forgotten merge conflict markers |
+| `detect-private-key` | Prevents committing private keys |
+| `ruff` | Python lint (auto-fix) |
+| `ruff-format` | Python formatting |
+| `gitleaks` | Secret scanning in code |
 
 ```bash
-# Installation (à faire une seule fois)
+# Installation (one time)
 pip install pre-commit
 pre-commit install
 
-# Lancer manuellement sur tous les fichiers
+# Run manually on all files
 pre-commit run --all-files
 ```
 
 ---
 
-## Licence et droits
+## License and rights
 
-Tawiza est sous licence **MIT**. En contribuant :
+Tawiza is licensed under **MIT**. By contributing:
 
-- Vous acceptez que vos contributions soient publiées sous licence MIT
-- Vous certifiez que vous avez le droit de soumettre ce code
-- Vous conservez vos droits d'auteur sur vos contributions
-- N'importe qui peut utiliser, modifier, et redistribuer le code (y compris commercialement)
+- You agree that your contributions are published under the MIT license
+- You certify that you have the right to submit this code
+- You retain your copyright on your contributions
+- Anyone can use, modify, and redistribute the code (including commercially)
 
-Voir le fichier [LICENSE](LICENSE) pour le texte complet.
+See the [LICENSE](LICENSE) file for the full text.
 
 ---
 
-## Besoin d'aide ?
+## Need help?
 
-- [GitHub Discussions](https://github.com/tawiza/tawiza/discussions)  -  Questions, idées, retours
-- [Issues](https://github.com/tawiza/tawiza/issues)  -  Bugs et feature requests
-- [Documentation](docs/)  -  Guides techniques
+- [GitHub Discussions](https://github.com/tawiza/tawiza/discussions) — Questions, ideas, feedback
+- [Issues](https://github.com/tawiza/tawiza/issues) — Bugs and feature requests
+- [Documentation](docs/) — Technical guides
