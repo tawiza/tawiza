@@ -147,8 +147,10 @@ jobs:
           echo "new_deps=$NEW_DEPS" >> "$GITHUB_OUTPUT"
 
       # ── Poster le rapport en commentaire ──
+      # continue-on-error: fork PRs have read-only GITHUB_TOKEN, comment will fail
       - name: Post rapport
         if: always()
+        continue-on-error: true
         uses: actions/github-script@v7
         env:
           TROJAN_STATUS: ${{ steps.trojan.outputs.status }}
