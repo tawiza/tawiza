@@ -220,4 +220,4 @@ async def cleanup_old_tasks(
         return {"status": "success", "message": "Old tasks cleaned up successfully"}
     except Exception as e:
         logger.error(f"Failed to cleanup old tasks: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -1,0 +1,18 @@
+extensions:
+  - addsTo:
+      pack: codeql/python-all
+      extensible: summaryModel
+    data:
+      # safe_path acts as a path sanitizer:
+      # It resolves user input within a base directory and raises ValueError
+      # if the resolved path escapes the base directory (path traversal).
+      # Signature: safe_path(base_dir: str|Path, user_path: str) -> Path
+      - ["src.infrastructure.security.validators", "safe_path", "", "Argument[1]", "ReturnValue", "taint", "manual"]
+
+  - addsTo:
+      pack: codeql/python-all
+      extensible: neutralModel
+    data:
+      # Mark safe_path as a barrier for path injection queries:
+      # any data flowing through safe_path is considered sanitized.
+      - ["src.infrastructure.security.validators", "safe_path", "", "PathInjection", "manual"]

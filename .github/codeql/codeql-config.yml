@@ -1,0 +1,9 @@
+name: "Tawiza CodeQL Configuration"
+
+# Extend the default queries with security-extended
+queries:
+  - uses: security-extended
+
+# Model packs to teach CodeQL about custom sanitizers
+model-packs:
+  - .github/codeql/extensions/tawiza-models

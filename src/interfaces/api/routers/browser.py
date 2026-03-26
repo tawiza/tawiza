@@ -191,7 +191,7 @@ async def execute_browser_task(
         logger.error(f"Browser task execution failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Task execution failed: {str(e)}",
+            detail="Task execution failed",
         )
 
 
@@ -290,7 +290,7 @@ async def list_tasks(
         logger.error(f"Failed to list tasks: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list tasks: {str(e)}",
+            detail="Failed to list tasks",
         )
 
 
@@ -329,7 +329,7 @@ async def cancel_task(
         logger.error(f"Failed to cancel task: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to cancel task: {str(e)}",
+            detail="Failed to cancel task",
         )
 
 
@@ -757,5 +757,5 @@ async def stealth_batch_fetch(
         logger.error(f"Stealth batch fetch failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Batch fetch failed: {str(e)}",
+            detail="Batch fetch failed",
         )
