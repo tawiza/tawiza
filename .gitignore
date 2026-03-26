@@ -72,6 +72,15 @@ credentials/
 *.key
 *.crt
 
+# MLflow / experiment tracking
+mlruns/
+mlartifacts/
+None/
+
+# Tool artifacts (not part of the project)
+configs/system_config.json
+prompts/
+
 # Linting
 .ruff_cache/
 

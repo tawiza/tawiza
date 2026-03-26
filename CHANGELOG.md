@@ -5,6 +5,26 @@ All notable changes to Tawiza will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-03-26
+
+### Added
+
+- Sandbox Docker pour scan de sécurité isolé (`Dockerfile.sandbox`, `sandbox-scan.sh`, `pr-scan.sh`)
+- Workflow CI `pr-sandbox.yml` : scan automatique sur chaque Pull Request
+- Workflow CI `security.yml` : CodeQL, Gitleaks, Bandit, Trojan Source, Dependency Review
+- Pre-commit hooks : ruff, bandit, gitleaks, detect-private-key, check-symlinks
+
+### Fixed
+
+- 9 imports cassés dans le backend (alignement tests/code)
+- Build frontend corrigé (ports alignés, configuration cohérente)
+- Accents français manquants dans l'i18n et la documentation
+
+### Changed
+
+- ROADMAP.md restructuré avec liens vers les issues GitHub
+- `.gitignore` étendu pour MLflow et artefacts d'outils
+
 ## [0.1.1] - 2026-03-23
 
 ### Changed
