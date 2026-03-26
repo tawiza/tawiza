@@ -10,6 +10,13 @@
 - [x] Correction des imports cassés et alignement des tests (#54 partiel)
 - [x] Correction des accents français dans l'i18n
 - [x] Alignement des ports et fix du build frontend
+- [x] Branch protection + CodeRabbit activés
+- [x] Auto-merge + squash-only configurés
+- [x] Secret scanning + push protection activés
+- [x] Guide Docker Compose quick-start ([#66](https://github.com/tawiza/tawiza/issues/66)) — PR #74
+- [x] Traduction README en anglais ([#53](https://github.com/tawiza/tawiza/issues/53)) — PR #75
+- [x] Documentation bilingue (CONTRIBUTING.md FR/EN)
+- [x] Discussion de bienvenue pour la communauté (#76)
 
 ## En cours
 
@@ -20,12 +27,9 @@
 
 ## Prévu — Court terme
 
-- [ ] Guide Docker Compose quick-start ([#66](https://github.com/tawiza/tawiza/issues/66))
-- [ ] Traduction du README en anglais ([#53](https://github.com/tawiza/tawiza/issues/53))
-- [ ] Validation OpenAPI schema en CI ([#67](https://github.com/tawiza/tawiza/issues/67))
 - [ ] Auto-détection Ollama + fallback modèles ([#68](https://github.com/tawiza/tawiza/issues/68))
+- [ ] Validation OpenAPI schema en CI ([#67](https://github.com/tawiza/tawiza/issues/67))
 - [ ] Accessibilité du dashboard ([#51](https://github.com/tawiza/tawiza/issues/51))
-- [ ] Activation branch protection + CodeRabbit sur GitHub
 
 ## Prévu — Moyen terme
 

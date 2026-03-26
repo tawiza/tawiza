@@ -1,0 +1,75 @@
+name: "Data Source Request"
+description: "Propose a new French public data source to integrate"
+title: "[Source] "
+labels: ["data source", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new data source! Tawiza currently has 19 adapters for French government APIs.
+
+  - type: input
+    id: source_name
+    attributes:
+      label: Source name
+      description: "Official name of the data source"
+      placeholder: "e.g., DARES (Direction de l'animation de la recherche)"
+    validations:
+      required: true
+
+  - type: input
+    id: api_url
+    attributes:
+      label: API URL
+      description: "Base URL of the API or data portal"
+      placeholder: "https://api.example.gouv.fr"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: auth_type
+    attributes:
+      label: Authentication
+      options:
+        - None (open access)
+        - API key (free registration)
+        - OAuth2
+        - Other (explain below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: data_description
+    attributes:
+      label: What data does it provide?
+      description: "Describe the type of territorial data available"
+      placeholder: "Employment statistics by department, updated monthly..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case for Tawiza
+      description: "How would this data help territorial analysis?"
+      placeholder: "Could be combined with SIRENE data to detect economic trends..."
+
+  - type: dropdown
+    id: format
+    attributes:
+      label: Data format
+      options:
+        - JSON API
+        - CSV download
+        - XML/SOAP
+        - HTML scraping needed
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: volunteer
+    attributes:
+      label: Contribution
+      options:
+        - label: I'm willing to write the adapter for this source
