@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: tawiza_dev
       POSTGRES_USER: tawiza_user
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-changeme}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env}
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
     ports:

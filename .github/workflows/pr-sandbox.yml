@@ -73,8 +73,15 @@ jobs:
       # ── References privees ──
       - name: References privees
         id: private_refs
+        env:
+          PATTERNS: ${{ secrets.PRIVATE_REPO_PATTERNS }}
         run: |
-          PRIV=$(grep -rn 'MPtoO-V2\|hamidedefr/MPtoO\|mptoo-v2\|moltbot-secure' \
+          if [ -z "$PATTERNS" ]; then
+            echo "status=SKIP" >> "$GITHUB_OUTPUT"
+            echo "details=PRIVATE_REPO_PATTERNS secret not set" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PRIV=$(grep -rn "$PATTERNS" \
             --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.md" \
             --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir=".venv" . 2>/dev/null || true)
           if [ -n "$PRIV" ]; then

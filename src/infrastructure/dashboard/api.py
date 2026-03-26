@@ -8,6 +8,7 @@ Usage:
 """
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -114,7 +115,7 @@ async def get_status():
     return {
         "status": "online",
         "mcp_server": "http://localhost:8765/sse",
-        "ollama": "http://100.85.12.36:11434",
+        "ollama": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         "stats": stats.to_dict() if stats else {},
         "timestamp": datetime.now().isoformat(),
     }
