@@ -141,6 +141,7 @@ class AgentOrchestrator:
         # Real agent instances (lazy loaded)
         self._real_agents: dict[str, Any] = {}
         self._agents_initialized = False
+        self._selected_model: str | None = None
 
         # Event callback for WebSocket notifications
         self._event_callback: EventCallback | None = None
@@ -225,6 +226,53 @@ class AgentOrchestrator:
         except Exception as e:
             logger.debug(f"TAJINE event forward failed: {e}")
 
+    async def probe_ollama_models(self) -> str | None:
+        """Probe Ollama at startup: discover models and auto-select the best one.
+
+        Logs available models, validates the configured model, and falls back
+        to the best available model if needed.
+
+        Returns:
+            Selected model name, or None if Ollama is unreachable.
+        """
+        configured_model = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+
+        models = await self.ollama_client.discover_models()
+
+        if not models:
+            logger.error(
+                "No Ollama models found. Is Ollama running at "
+                f"{self.ollama_url}? Run: ollama pull qwen2.5:7b"
+            )
+            return None
+
+        # Log available models with sizes
+        model_list = ", ".join(
+            f"{m['name']} ({self.ollama_client.format_model_size(m['size'])})"
+            for m in models
+        )
+        logger.info(f"Ollama models available: {model_list}")
+
+        # Auto-select best model
+        selected = await self.ollama_client.select_best_model(
+            preferred_model=configured_model
+        )
+
+        if selected == configured_model:
+            logger.info(f"Using configured Ollama model: {selected}")
+        else:
+            logger.warning(
+                f"Configured model '{configured_model}' not found, "
+                f"using '{selected}' instead"
+            )
+
+        # Update the client's model
+        if selected:
+            self.ollama_client.model = selected
+            self._selected_model = selected
+
+        return selected
+
     async def initialize_agents(self) -> dict[str, bool]:
         """Initialize real agent instances.
 
@@ -236,6 +284,9 @@ class AgentOrchestrator:
         """
         if self._agents_initialized:
             return dict.fromkeys(self._real_agents, True)
+
+        # Probe Ollama models before initializing agents
+        selected_model = await self.probe_ollama_models()
 
         results = {}
 
@@ -251,7 +302,7 @@ class AgentOrchestrator:
                 llm_client=self.ollama_client,
                 tool_registry=tool_registry,
                 max_iterations=10,
-                model="qwen3.5:27b",
+                model=self._selected_model or "qwen2.5:7b",
             )
             results["manus"] = True
             logger.info("ManusAgent initialized with ToolRegistry")
@@ -279,7 +330,7 @@ class AgentOrchestrator:
 
             research_agent = DeepResearchAgent(
                 ollama_url=self.ollama_url,
-                ollama_model="qwen3.5:27b",
+                ollama_model=self._selected_model or "qwen2.5:7b",
             )
             self._real_agents["research"] = research_agent
             results["research"] = True
@@ -318,8 +369,8 @@ class AgentOrchestrator:
 
             tajine_agent = TAJINEAgent(
                 name="tajine_main",
-                local_model="qwen3.5:27b",
-                powerful_model="qwen2.5:7b",
+                local_model=self._selected_model or "qwen2.5:7b",
+                powerful_model=self._selected_model or "qwen2.5:7b",
                 ollama_host=self.ollama_url,
             )
             await tajine_agent.initialize()

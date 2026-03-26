@@ -122,7 +122,16 @@ async def lifespan(app: FastAPI):
     # Initialize AgentOrchestrator with all agents
     logger.info("Initializing AgentOrchestrator...")
     orchestrator = await initialize_orchestrator()
-    logger.info(f"AgentOrchestrator ready with {len(orchestrator._real_agents)} agents")
+    if orchestrator._selected_model:
+        logger.info(
+            f"AgentOrchestrator ready — model: {orchestrator._selected_model}, "
+            f"agents: {len(orchestrator._real_agents)}"
+        )
+    else:
+        logger.warning(
+            "AgentOrchestrator ready but NO Ollama model available — "
+            "LLM features will be degraded"
+        )
 
     # Initialize WebSocket
     _ws_manager = get_ws_manager()

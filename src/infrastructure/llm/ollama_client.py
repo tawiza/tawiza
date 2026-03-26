@@ -516,6 +516,77 @@ Return the extracted data as JSON."""
             logger.error(f"Ollama health check failed: {e}")
             return False
 
+    async def discover_models(self) -> list[dict[str, Any]]:
+        """Discover available Ollama models.
+
+        Calls GET /api/tags and returns model info sorted by size (largest first).
+
+        Returns:
+            List of dicts with 'name' and 'size' keys, sorted by size descending.
+            Empty list if Ollama is unreachable.
+        """
+        try:
+            response = await self.client.get(f"{self.base_url}/api/tags")
+            response.raise_for_status()
+            models = response.json().get("models", [])
+
+            result = []
+            for m in models:
+                name = m.get("name", "")
+                size = m.get("size", 0)
+                result.append({"name": name, "size": size})
+
+            # Sort by size descending (largest model first)
+            result.sort(key=lambda x: x["size"], reverse=True)
+            return result
+
+        except Exception as e:
+            logger.warning(f"Ollama model discovery failed: {e}")
+            return []
+
+    async def select_best_model(self, preferred_model: str | None = None) -> str | None:
+        """Auto-select the best available Ollama model.
+
+        Args:
+            preferred_model: Model name to prefer if available.
+
+        Returns:
+            Selected model name, or None if no models available.
+        """
+        models = await self.discover_models()
+
+        if not models:
+            return None
+
+        model_names = [m["name"] for m in models]
+
+        # If preferred model is available, use it
+        if preferred_model and preferred_model in model_names:
+            return preferred_model
+
+        # Filter out embedding models (typically small and not for generation)
+        embedding_keywords = ["embed", "nomic", "bge", "e5"]
+        generation_models = [
+            m for m in models
+            if not any(kw in m["name"].lower() for kw in embedding_keywords)
+        ]
+
+        if generation_models:
+            return generation_models[0]["name"]
+
+        # Fallback: return largest model even if it looks like embedding
+        return models[0]["name"]
+
+    @staticmethod
+    def format_model_size(size_bytes: int) -> str:
+        """Format model size in human-readable format."""
+        if size_bytes >= 1_000_000_000:
+            return f"{size_bytes / 1_000_000_000:.1f}GB"
+        elif size_bytes >= 1_000_000:
+            return f"{size_bytes / 1_000_000:.0f}MB"
+        else:
+            return f"{size_bytes / 1_000:.0f}KB"
+
     async def close(self):
         """Close HTTP client."""
         await self.client.aclose()
