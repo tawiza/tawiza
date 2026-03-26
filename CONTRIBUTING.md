@@ -207,12 +207,12 @@ tawiza/
 │   ├── infrastructure/     # Adapters concrets
 │   │   ├── agents/tajine/  # Agent TAJINE (cœur IA)
 │   │   ├── agents/camel/   # Workforce multi-agents
-│   │   ├── datasources/    # Adaptateurs 18+ APIs
+│   │   ├── datasources/    # Adaptateurs 19 APIs
 │   │   ├── ml/             # Fine-tuning, active learning
 │   │   ├── crawler/        # Crawler adaptatif
 │   │   └── knowledge_graph/# Neo4j client
 │   └── interfaces/api/     # FastAPI routes + WebSocket
-├── frontend/               # Next.js 14
+├── frontend/               # Next.js 15
 │   ├── app/dashboard/      # Pages du dashboard (7)
 │   ├── components/         # Composants React (shadcn/ui)
 │   └── hooks/              # Hooks SWR + custom
