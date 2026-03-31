@@ -40,6 +40,7 @@ dependencies = [
     # Data Processing
     "pandas>=2.2.0",
     "numpy>=1.26.0",
+    "scikit-learn>=1.4.0",
     # Monitoring & Telemetry
     "prometheus-client>=0.19.0",
     "langfuse>=2.0.0",
@@ -98,6 +99,13 @@ dependencies = [
     "playwright>=1.56.0",
     "textual-plotext>=1.0.1",
     "langchain-ollama>=0.3.10",
+    # Runtime deps also needed for tests
+    "aiofiles>=23.0",
+    "slowapi>=0.1.9",
+    "questionary>=2.0.0",
+    "qdrant-client>=1.7.0",
+    "apscheduler>=3.10.0",
+    "pytrends>=4.9.0",
 ]
 
 [project.optional-dependencies]
