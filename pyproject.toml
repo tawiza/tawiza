@@ -106,6 +106,7 @@ dependencies = [
     "qdrant-client>=1.7.0",
     "apscheduler>=3.10.0",
     "pytrends>=4.9.0",
+    "networkx>=3.2",
 ]
 
 [project.optional-dependencies]

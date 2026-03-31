@@ -488,7 +488,7 @@ pipeline = Pipeline([
         """Générer un ID unique pour un dataset"""
         file_path = str(file_path)
         timestamp = str(int(time.time() * 1000))
-        content_hash = hashlib.md5(f"{file_path}{timestamp}".encode()).hexdigest()[:8]
+        content_hash = hashlib.md5(file_path.encode()).hexdigest()[:8]
         return f"dataset_{content_hash}_{timestamp}"
 
     async def generate_data_report(self, analysis_report: DataAnalysisReport) -> str:

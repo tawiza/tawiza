@@ -226,8 +226,10 @@ class TestDataAnalystAgentMethods:
 
         # IDs différents pour fichiers différents
         assert id1 != id2
-        # Même ID pour même fichier
-        assert id1 == id3
+        # Same file produces same hash prefix (timestamp may differ)
+        hash1 = id1.split("_")[1]
+        hash3 = id3.split("_")[1]
+        assert hash1 == hash3
 
 
 # ============================================================================
