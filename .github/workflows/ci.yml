@@ -101,7 +101,7 @@ jobs:
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "auto-fix: nettoyage typographique"
-            git push
+            git push || echo "::notice::Push failed (branch protection), skipping auto-fix commit"
           fi
 
   humanize:
