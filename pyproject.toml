@@ -113,6 +113,7 @@ dev = [
     "questionary>=2.0.0",
     "qdrant-client>=1.7.0",
     "apscheduler>=3.10.0",
+    "pytrends>=4.9.0",
 ]
 
 tajine-core = [

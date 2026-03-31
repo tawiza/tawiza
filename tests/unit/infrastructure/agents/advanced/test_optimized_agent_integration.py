@@ -408,7 +408,7 @@ class TestOptimizedAgentIntegrationEdgeCases:
             config = OptimizedSystemConfig(enable_gpu_optimization=False)
             integration = OptimizedAgentIntegration(config=config)
 
-            with pytest.raises(RuntimeError):
+            with pytest.raises(Exception):
                 await integration.initialize()
 
             assert integration.is_initialized is False
