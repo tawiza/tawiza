@@ -158,7 +158,7 @@ jobs:
       - name: Post rapport
         if: always()
         continue-on-error: true
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           TROJAN_STATUS: ${{ steps.trojan.outputs.status }}
           TROJAN_DETAILS: ${{ steps.trojan.outputs.details }}
