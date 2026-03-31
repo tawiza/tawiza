@@ -252,9 +252,7 @@ class MLEngineerAgent:
                 return await self._grid_search_optimization(X, y, config, param_grids)
             elif config.optimization_method == "random_search":
                 return await self._random_search_optimization(X, y, config, param_grids)
-            elif config.optimization_method == "bayesian":
-                return await self._bayesian_optimization(X, y, config, param_grids)
-            elif config.optimization_method == "optuna":
+            elif config.optimization_method in ("bayesian", "optuna"):
                 return await self._bayesian_optimization(X, y, config, param_grids)
             else:
                 raise ValueError(
