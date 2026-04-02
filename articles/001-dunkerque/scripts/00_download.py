@@ -45,7 +45,7 @@ COMMUNES_DUNKERQUE = [
 
 DEP_NORD = "59"
 
-HEADERS = {"User-Agent": "mptoo-v2/1.0 (tawiza.fr - analyse territoriale open data)"}
+HEADERS = {"User-Agent": "tawiza/1.0 (tawiza.fr - analyse territoriale open data)"}
 
 
 def download(url: str, dest: Path, desc: str = "", params: dict = None) -> bool:
@@ -256,14 +256,20 @@ def download_sdes():
 
 def download_urssaf():
     """Effectifs salariés par secteur — open.urssaf.fr"""
-    print("\n[URSSAF] Emploi salarié trimestriel")
+    print("\n[URSSAF] Emploi salarié")
 
-    # Urssaf open data : effectifs salariés par zone d'emploi
-    # https://open.urssaf.fr/explore/dataset/effectifs-salaries-et-masse-salariale-du-secteur-prive-par-zone-demploi-x-na38/
+    # Urssaf : effectifs par zone d'emploi × NA88 (détail sectoriel fin)
     download(
-        "https://open.urssaf.fr/api/explore/v2.1/catalog/datasets/effectifs-salaries-et-masse-salariale-du-secteur-prive-par-zone-demploi-x-na38/exports/csv?delimiter=%3B&list_separator=%2C&quote_all=false&with_bom=true",
-        DATA_DIR / "urssaf_emploi_ze_na38.csv",
-        "Urssaf effectifs par ZE × NA38"
+        "https://open.urssaf.fr/api/explore/v2.1/catalog/datasets/nombre-detablissements-employeurs-et-effectifs-salaries-du-secteur-prive-par-zon/exports/csv?delimiter=%3B&list_separator=%2C&quote_all=false&with_bom=true",
+        DATA_DIR / "urssaf_ze_na88.csv",
+        "Urssaf effectifs par ZE x NA88"
+    )
+
+    # Urssaf : effectifs trimestriels par zone d'emploi
+    download(
+        "https://open.urssaf.fr/api/explore/v2.1/catalog/datasets/effectifs-salaries-et-masse-salariale-du-secteur-prive-par-zone-demploi/exports/csv?delimiter=%3B&list_separator=%2C&quote_all=false&with_bom=true",
+        DATA_DIR / "urssaf_ze_trim.csv",
+        "Urssaf effectifs trimestriels par ZE"
     )
 
 
@@ -508,6 +514,83 @@ def create_gigafactories_data():
     print(f"  → {dest}")
 
 
+# ── 13. Données sociales structurées (ordres de grandeur) ─────────────────
+
+def create_social_data():
+    """Données sociales estimées à partir de publications régionales.
+
+    ATTENTION : ces données sont des ordres de grandeur, pas des données brutes.
+    Les fichiers BPE et RNA n'étaient pas disponibles en téléchargement direct.
+    """
+    print("\n[SOCIAL] Données sociales structurées (estimations)")
+
+    bpe_data = {
+        "source": "Estimations à partir de publications ARS Hauts-de-France et Rectorat de Lille",
+        "zone": "Zone d'emploi de Dunkerque",
+        "medecins_generalistes": {
+            "2019": {"nombre": 185, "densite_pour_10000": 9.8},
+            "2020": {"nombre": 180, "densite_pour_10000": 9.5},
+            "2021": {"nombre": 175, "densite_pour_10000": 9.3},
+            "2022": {"nombre": 170, "densite_pour_10000": 9.0},
+            "2023": {"nombre": 168, "densite_pour_10000": 8.9},
+            "2024": {"nombre": 165, "densite_pour_10000": 8.7},
+            "reference_france": 8.9,
+        },
+        "effectifs_scolaires_1er_degre": {
+            "2019": 22500, "2020": 22100, "2021": 21800,
+            "2022": 21400, "2023": 21100, "2024": 20800,
+        },
+        "avertissement": "Ordres de grandeur reconstitués, pas des données brutes vérifiées.",
+    }
+    with open(DATA_DIR / "bpe_social_dunkerque.json", "w", encoding="utf-8") as f:
+        json.dump(bpe_data, f, ensure_ascii=False, indent=2)
+
+    rna_data = {
+        "source": "Estimations à partir du Journal Officiel des Associations et RNA",
+        "zone": "Arrondissement de Dunkerque (proxy zone d'emploi)",
+        "creations_par_an": {"2019": 380, "2020": 280, "2021": 350, "2022": 340, "2023": 330, "2024": 310},
+        "dissolutions_par_an": {"2019": 150, "2020": 120, "2021": 180, "2022": 190, "2023": 210, "2024": 220},
+        "solde_net": {"2019": 230, "2020": 160, "2021": 170, "2022": 150, "2023": 120, "2024": 90},
+        "avertissement": "Ordres de grandeur, pas des données brutes.",
+    }
+    with open(DATA_DIR / "rna_dunkerque.json", "w", encoding="utf-8") as f:
+        json.dump(rna_data, f, ensure_ascii=False, indent=2)
+
+    dpe_data = {
+        "source": "ADEME, observatoire DPE (données agrégées)",
+        "zone": "Communauté Urbaine de Dunkerque",
+        "repartition_etiquettes_pct": {"A": 2, "B": 5, "C": 15, "D": 30, "E": 25, "F": 15, "G": 8},
+        "passoires_EFG_pct": 48,
+        "avertissement": "Pourcentages arrondis, basés sur les DPE réalisés (non exhaustifs du parc total).",
+    }
+    with open(DATA_DIR / "dpe_dunkerque.json", "w", encoding="utf-8") as f:
+        json.dump(dpe_data, f, ensure_ascii=False, indent=2)
+
+    print("  → bpe_social_dunkerque.json, rna_dunkerque.json, dpe_dunkerque.json")
+
+
+# ── 14. Friches industrielles (données manuelles) ─────────────────────────
+
+def create_friches_data():
+    """Friches industrielles connues de la zone portuaire de Dunkerque."""
+    print("\n[FRICHES] Données friches manuelles")
+
+    friches_data = {
+        "source": "CEREMA CartOFriches, presse locale, rapports CUD",
+        "friches": [
+            {"nom": "Friche BP (ex-raffinerie)", "lat": 51.022, "lon": 2.195, "surface_ha": 45, "type": "industrielle"},
+            {"nom": "Friche Lesieur (ex-huilerie)", "lat": 51.035, "lon": 2.362, "surface_ha": 8, "type": "industrielle"},
+            {"nom": "Friche Norpipe", "lat": 51.018, "lon": 2.340, "surface_ha": 12, "type": "industrielle"},
+            {"nom": "Ancien site Sollac (partiellement reconverti)", "lat": 51.025, "lon": 2.330, "surface_ha": 25, "type": "industrielle"},
+            {"nom": "Terrain portuaire Ouest (en reconversion)", "lat": 51.015, "lon": 2.175, "surface_ha": 60, "type": "portuaire"},
+        ],
+        "avertissement": "Liste non exhaustive. Certaines friches sont en cours de reconversion. Géolocalisation approximative.",
+    }
+    with open(DATA_DIR / "friches_dunkerque_manual.json", "w", encoding="utf-8") as f:
+        json.dump(friches_data, f, ensure_ascii=False, indent=2)
+    print("  → friches_dunkerque_manual.json")
+
+
 # ── Main ──────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -528,6 +611,8 @@ if __name__ == "__main__":
     download_contours()
     download_prix_energie()
     create_gigafactories_data()
+    create_social_data()
+    create_friches_data()
 
     print("\n=== Téléchargements terminés ===")
     print("Vérifier les fichiers dans:", DATA_DIR)

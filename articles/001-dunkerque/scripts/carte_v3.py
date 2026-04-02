@@ -10,15 +10,12 @@ Améliorations :
 - Légende unique, bien placée
 """
 
-import sys
-sys.path.insert(0, "/root/MPtoO-V2")
-
 import json
 import folium
-from folium.plugins import MiniMap, FloatImage
+from folium.plugins import MiniMap
 from pathlib import Path
 
-BASE = Path("/root/MPtoO-V2/articles/001-dunkerque")
+BASE = Path(__file__).resolve().parent.parent
 RAW = BASE / "data" / "raw"
 CHARTS = BASE / "charts"
 

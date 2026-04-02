@@ -1,9 +1,9 @@
 """
-mptoo_style.py — Style matplotlib pour les graphiques mptoo-v2 / tawiza.fr
+tawiza_style.py — Style matplotlib pour les graphiques tawiza.fr
 
 Palette et typographie alignées sur le design system de tawiza.fr.
 Usage :
-    from src.analysis.mptoo_style import apply_style, save_chart, COLORS
+    from src.analysis.tawiza_style import apply_style, save_chart, COLORS
     apply_style()
     fig, ax = plt.subplots()
     ...
@@ -76,7 +76,7 @@ def _font_available(name: str) -> bool:
 
 
 def apply_style():
-    """Applique le style mptoo-v2 aux graphiques matplotlib."""
+    """Applique le style tawiza.fr aux graphiques matplotlib."""
 
     heading = FONT_HEADING if _font_available(FONT_HEADING) else FONT_FALLBACK_HEADING
     body = FONT_BODY if _font_available(FONT_BODY) else FONT_FALLBACK_BODY

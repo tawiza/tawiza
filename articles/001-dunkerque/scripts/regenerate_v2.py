@@ -4,7 +4,11 @@ espacement corrigé, format français.
 """
 
 import sys
-sys.path.insert(0, "/root/MPtoO-V2")
+from pathlib import Path
+
+# Add repo root to path for src.analysis imports
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 
 import pandas as pd
 import numpy as np
@@ -14,13 +18,12 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import matplotlib.gridspec as gridspec
 from matplotlib.patches import Patch
-from pathlib import Path
 
-from src.analysis.mptoo_style import apply_style, save_chart, set_title, COLORS, fmt_fr
+from src.analysis.tawiza_style import apply_style, save_chart, set_title, COLORS, fmt_fr
 
 apply_style()
 
-BASE = Path("/root/MPtoO-V2/articles/001-dunkerque")
+BASE = Path(__file__).resolve().parent.parent
 RAW = BASE / "data" / "raw"
 CHARTS = BASE / "charts"
 
