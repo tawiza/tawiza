@@ -11,9 +11,10 @@ Usage :
 """
 
 import locale
+
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 from pathlib import Path
 
@@ -182,9 +183,9 @@ def annotate_key_message(ax, x, y, text, color=None):
         text, xy=(x, y),
         xytext=(20, 25), textcoords="offset points",
         fontsize=10, fontweight="bold", color=color,
-        arrowprops=dict(arrowstyle="->", color=color, lw=1.5),
-        bbox=dict(boxstyle="round,pad=0.4", facecolor=COLORS["surface"],
-                  edgecolor=color, alpha=0.9),
+        arrowprops={"arrowstyle": "->", "color": color, "lw": 1.5},
+        bbox={"boxstyle": "round,pad=0.4", "facecolor": COLORS["surface"],
+              "edgecolor": color, "alpha": 0.9},
     )
 
 
