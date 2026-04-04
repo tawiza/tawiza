@@ -11,12 +11,12 @@ Usage :
 """
 
 import locale
+from pathlib import Path
 
 import matplotlib as mpl
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
-from pathlib import Path
 
 # Formateur de nombres français (espace comme séparateur de milliers)
 try:
