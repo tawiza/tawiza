@@ -97,7 +97,6 @@ def download_sirene():
     print("\n[SIRENE] Établissements actifs — département 59")
 
     all_results = []
-    page = 1
     per_page = 25  # API limit
 
     for commune in COMMUNES_DUNKERQUE[:6]:  # Communes principales
