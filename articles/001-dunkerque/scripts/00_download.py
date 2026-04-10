@@ -12,7 +12,6 @@ Usage :
 import requests
 import json
 import time
-import csv
 import io
 from pathlib import Path
 from datetime import datetime
