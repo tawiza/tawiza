@@ -200,7 +200,7 @@ def graph_03():
     bar_colors = [color_map.get(l, COLORS["contexte"]) for l in labels]
 
     fig, ax = plt.subplots(figsize=(11, 6.5))
-    bars = ax.barh(range(len(labels)), values, color=bar_colors, height=0.65)
+    ax.barh(range(len(labels)), values, color=bar_colors, height=0.65)
     ax.set_yticks(range(len(labels)))
     ax.set_yticklabels(labels, fontsize=10)
     ax.set_xlabel("Nombre d'emplois salariés (2024)")
