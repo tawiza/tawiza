@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "article": "002-rga-argiles",
+    "date_collecte": "2026-04-08",
+    "sources": [
+      "CCR - Réassureur public (rapport annuel 2024)",
+      "Géorisques - Carte RGA version 2026 (arrêté 9 janvier 2026)",
+      "Rapport Ledoux (oct 2023, remis au Ministre de l'Intérieur)",
+      "Diagamter - Carte RGA 2026 analyse",
+      "IGEDD - Rapport RGA",
+      "Service-public.fr - Fonds prévention argile",
+      "BD-DICRIM Géorisques"
+    ]
+  },
+  "exposition": {
+    "nb_maisons_exposees": 12100000,
+    "pct_territoire_metropolitain": 55,
+    "pct_territoire_avant_2026": 48,
+    "pct_stock_maisons_individuelles": 61.5,
+    "total_maisons_individuelles_france": 19600000,
+    "nb_maisons_tres_exposees": 4000000
+  },
+  "couts": {
+    "cout_moyen_sinistre_euros": 16500,
+    "cout_annuel_moyen_1995_2015_millions": 375,
+    "cout_annuel_moyen_2018_2022_millions": 1500,
+    "cout_cumule_2020_2050_milliards": 43,
+    "cout_cumule_1989_2019_milliards": 14.3,
+    "part_changement_climatique_milliards": 17,
+    "nb_sinistres_2018_2022": 240000,
+    "pct_total_sinistres_rga_depuis_1989": 58
+  },
+  "catnat": {
+    "taux_reconnaissance_national_pct": 50,
+    "taux_reconnaissance_aura_pct": 10,
+    "communes_demande_aura": 180,
+    "communes_reconnues_aura": 19,
+    "delai_indemnisation_rga_mois": "6-12",
+    "delai_indemnisation_inondation_mois": 2
+  },
+  "fonds_prevention": {
+    "nb_departements_experimentation": 11,
+    "nb_departements_total": 96,
+    "date_lancement": "2025-10",
+    "plafond_diagnostic_euros": 2000,
+    "plafond_travaux_euros": 15000,
+    "taux_subvention_diagnostic_pct": 90,
+    "taux_subvention_travaux_pct": 80,
+    "conditions": "propriétaires occupants, résidence principale, zone forte, sous conditions de revenus"
+  },
+  "dicrim": {
+    "nb_communes_exposees_risque_majeur": 27754,
+    "taux_conformite_bd_dicrim_pct": 8,
+    "taux_conformite_ministere_pct": 20,
+    "obligation_legale": "Article L.125-2 du Code de l'environnement"
+  },
+  "rapport_ledoux": {
+    "date": "2023-10-09",
+    "auteur": "Vincent Ledoux, député du Nord (Renaissance)",
+    "commanditaire": "Ministre de l'Intérieur",
+    "nb_recommandations": 30,
+    "titre": "RGA : n'attendons pas que ce soit la cata !",
+    "recommandations_cles": [
+      "1000 stations météo du sol dans les communes à risque",
+      "Bouclier CatNat pour le relogement des victimes",
+      "Cellule de crise dans chaque département touché",
+      "Élargir les critères de reconnaissance CatNat",
+      "Reconnaître aux sinistrés un statut de victime"
+    ]
+  },
+  "media": {
+    "tf1_grands_reportages": {
+      "titre": "Sécheresse, inondations : ma maison s'écroule",
+      "dates": ["2026-01-04", "2026-01-11"],
+      "angle": "Témoignages de propriétaires vs assureurs"
+    },
+    "euronews": {
+      "date": "2026-04-02",
+      "angle": "Brief international, 12M homes at risk"
+    }
+  },
+  "reglementation": {
+    "erp_obligation_vente": "Depuis 2020, le RGA doit figurer dans l'ERP lors d'une vente",
+    "etude_sol_g1": "Obligatoire pour constructions neuves en zone moyenne/forte (loi ELAN)",
+    "nouvelle_carte_application": "1er juillet 2026",
+    "arrete_mise_a_jour": "9 janvier 2026 (J.O. 31 janvier 2026)",
+    "decret_sinistres_vendeur": "Décret 2024-82 du 5 février 2024 — vendeur doit déclarer les sinistres RGA"
+  }
+}

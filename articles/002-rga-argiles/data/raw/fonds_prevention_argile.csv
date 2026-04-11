@@ -1,0 +1,12 @@
+code_dept,nom_dept,region,dans_experimentation,date_lancement
+03,Allier,Auvergne-Rhône-Alpes,oui,2025-10
+04,Alpes-de-Haute-Provence,Provence-Alpes-Côte d'Azur,oui,2025-10
+24,Dordogne,Nouvelle-Aquitaine,oui,2025-10
+32,Gers,Occitanie,oui,2025-10
+36,Indre,Centre-Val de Loire,oui,2025-10
+47,Lot-et-Garonne,Nouvelle-Aquitaine,oui,2025-10
+54,Meurthe-et-Moselle,Grand Est,oui,2025-10
+59,Nord,Hauts-de-France,oui,2025-10
+63,Puy-de-Dôme,Auvergne-Rhône-Alpes,oui,2025-10
+81,Tarn,Occitanie,oui,2025-10
+82,Tarn-et-Garonne,Occitanie,oui,2025-10

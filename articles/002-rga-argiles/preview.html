@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risque argile : 65% des communes concernées n'ont jamais prévenu leurs habitants | Tawiza</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=El+Messiri:wght@500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --bg: #fafaf9; --text: #1c1917; --text-secondary: #78716c;
+    --text-muted: #a8a29e; --accent: #b45309; --separator: #e7e5e4;
+    --surface: #ffffff; --positif: #2D6A4F; --alerte: #C1554D;
+    --attention: #D4A843; --neutre: #5B7BA5; --social: #8B5E83;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', sans-serif; background: var(--bg);
+    color: var(--text); line-height: 1.75; font-size: 17px;
+}
+.progress { position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--accent); z-index: 100; transition: width 0.1s; }
+nav { padding: 1rem 2rem; border-bottom: 1px solid var(--separator);
+      background: var(--surface); position: sticky; top: 0; z-index: 50; }
+nav a { color: var(--accent); text-decoration: none;
+        font-weight: 600; font-size: 1.1rem; }
+article { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+h1 { font-family: 'El Messiri', serif; font-size: 2.2rem; line-height: 1.2;
+     color: var(--text); margin: 2rem 0 0.5rem; font-weight: 700; }
+.dateline { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+h2 { font-family: 'El Messiri', serif; font-size: 1.5rem; color: var(--text);
+     margin: 3rem 0 1rem; padding-top: 1.5rem;
+     border-top: 1px solid var(--separator); font-weight: 600; }
+h2:first-of-type { border-top: none; }
+h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: var(--text); font-weight: 600; }
+p { margin-bottom: 1.2rem; }
+strong { color: var(--text); font-weight: 600; }
+em { font-style: italic; }
+a { color: var(--accent); }
+.en-bref { background: var(--surface); border-left: 4px solid var(--accent);
+           padding: 1.2rem 1.5rem; margin: 1.5rem 0 2.5rem;
+           border-radius: 0 8px 8px 0;
+           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+           font-size: 0.95rem; line-height: 1.7; }
+.chart { margin: 2rem -1.5rem; text-align: center; }
+.chart img { width: 100%; max-width: 800px; border-radius: 4px; }
+.chart figcaption { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+ul, ol { margin: 0.8rem 0 1.2rem 1.5rem; }
+li { margin-bottom: 0.5rem; }
+.limites { background: #f5f0eb; padding: 1.5rem 2rem;
+           border-radius: 8px; margin: 1.5rem 0; }
+.limites p { font-size: 0.95rem; }
+.limites strong { color: var(--alerte); }
+.action-box { background: var(--surface); border: 2px solid var(--accent);
+              border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem 0; }
+.action-box a { color: var(--accent); font-weight: 600; }
+.action-box p:last-child { margin-bottom: 0; }
+.methodo { font-size: 0.9rem; color: var(--text-secondary); }
+.methodo h3 { color: var(--text); margin-top: 1.5rem; }
+.methodo table { width: 100%; border-collapse: collapse; margin: 1rem 0;
+                 font-size: 0.85rem; }
+.methodo th, .methodo td { padding: 0.5rem;
+                           border-bottom: 1px solid var(--separator);
+                           text-align: left; }
+.methodo th { font-weight: 600; }
+.methodo pre { background: #292524; color: #e7e5e4; padding: 1rem;
+               border-radius: 6px; overflow-x: auto;
+               font-family: 'JetBrains Mono', monospace;
+               font-size: 0.8rem; margin: 1rem 0; }
+.sources { font-size: 0.85rem; color: var(--text-secondary); }
+.sources a { color: var(--neutre); }
+.sources ul { list-style: none; margin-left: 0; }
+.sources li { margin-bottom: 0.4rem; padding-left: 1rem;
+              border-left: 2px solid var(--separator); }
+article table { border-collapse: collapse; width: 100%; margin: 1.5rem 0;
+                font-size: 0.9rem; background: var(--surface);
+                border-radius: 6px; overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+article table th, article table td { padding: 0.6rem 0.8rem;
+                                     border-bottom: 1px solid var(--separator);
+                                     text-align: left; vertical-align: top; }
+article table th { font-weight: 600; background: rgba(180, 83, 9, 0.06);
+                   color: var(--text); }
+article table tr:last-child td { border-bottom: none; }
+.methodo table { box-shadow: none; background: transparent; }
+.methodo table th { background: transparent; }
+blockquote { border-left: 4px solid var(--attention);
+             padding: 0.5rem 1.5rem; margin: 1.5rem 0;
+             color: var(--text-secondary); font-style: italic; }
+article > hr { border: none; border-top: 1px solid var(--separator);
+               margin: 2rem 0; }
+.tawiza-footer { margin: 4rem 0 2rem; text-align: center;
+                 padding-top: 3rem;
+                 border-top: 1px solid var(--separator); }
+.tawiza-footer img { width: 280px; max-width: 70%; height: auto;
+                     image-rendering: pixelated;
+                     image-rendering: crisp-edges;
+                     display: inline-block; margin: 0 auto 1rem; }
+.tawiza-footer p { max-width: 520px; margin: 1rem auto;
+                   font-size: 0.9rem; color: var(--text-muted);
+                   line-height: 1.6; }
+.tawiza-footer p:first-of-type { font-family: 'El Messiri', serif;
+                                 font-size: 1.1rem; color: var(--accent);
+                                 letter-spacing: 0.05em; margin-top: 0.5rem; }
+.tawiza-footer p:last-child { font-size: 0.85rem; font-style: italic; }
+@media (prefers-reduced-motion: reduce) {
+    .tawiza-footer img { animation: none !important; }
+}
+footer { text-align: center; padding: 2rem; color: var(--text-muted);
+         font-size: 0.85rem; border-top: 1px solid var(--separator); }
+@media (max-width: 600px) {
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.25rem; }
+    article { padding: 1rem 1rem 3rem; }
+    .chart { margin: 1.5rem -1rem; }
+    article table { font-size: 0.8rem; }
+    article table th, article table td { padding: 0.4rem 0.5rem; }
+}
+
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <nav><a href="https://tawiza.fr">Tawiza</a> &nbsp;·&nbsp; Analyses</nav>
+    <article>
+        <h1>Risque argile : 65% des communes concernées n'ont jamais prévenu leurs habitants</h1>
+        <p class="dateline">Avril 2026 · Tawiza · Analyse reproductible</p>
+<div class="en-bref"><strong>En bref.</strong> <p>12,1 millions de maisons françaises sont exposées au retrait-gonflement des argiles. La loi oblige les communes à informer leurs habitants. On a compté : 8 031 communes RGA sur 12 354 n'ont jamais produit le document légal. Le coût des sinistres a quadruplé en vingt ans. La surprime d'assurance augmente. Le fonds de prévention couvre 11 départements sur 96. On a regardé qui savait, qui payait, et qui ne disait rien.</p>
+<hr></div>
+
+<h2>Le sol bouge. Personne n'écrit.</h2>
+<p>Août 2025, quelque part entre Orléans et Montargis. Trente-huit degrés depuis trois semaines. Dans un lotissement des années 90, une fissure remonte le long du mur du salon, du carrelage jusqu'à la fenêtre. Nette, verticale, 2 millimètres d'épaisseur. Puis une deuxième au-dessus de la porte du garage, en diagonale - la signature classique d'un tassement différentiel. L'enduit tombe par plaques dans le jardin.</p>
+<p>Le propriétaire appelle son assureur. La réponse tient en une phrase : « Votre commune n'a pas été reconnue en catastrophe naturelle. Ce n'est pas couvert. »</p>
+<p>L'artisan, lui, est plus direct : « Votre maison est sur de l'argile. Quand il fait sec, le sol se rétracte. Quand il repleut, il gonfle. Vos fondations bougent. Comptez entre 15 000 et 40 000 euros pour stabiliser. »</p>
+<p>Quelques semaines plus tard, en cherchant sur Internet, le propriétaire tombe sur un site du gouvernement - georisques.gouv.fr - où une carte en couleurs lui apprend que sa parcelle est classée en exposition « forte » au retrait-gonflement des argiles. Un arrêté du 9 janvier 2026 vient d'étendre cette classification. Sa maison est sur une liste depuis des mois.</p>
+<p>Il ne le savait pas. Il ressort son dossier d'achat et cherche l'État des Risques et Informations sur les Sols - ce document obligatoire depuis 2006 que le vendeur doit remettre à l'acheteur, sous peine de nullité de la vente. Il le trouve. Une case est cochée « retrait-gonflement des argiles ». Personne ne la lui avait commentée. Entre les quinze documents signés ce jour-là chez le notaire, celui-là est passé comme les autres. Ni sa mairie, ni son assureur, ni son notaire ne lui avaient dit ce que cette case voulait dire.</p>
+<p>Il n'est pas seul. Ils sont <strong>12,1 millions</strong>.</p>
+<hr>
+
+<h2>Ce que l'État a fait (et c'est réel)</h2>
+<p>Soyons honnêtes : l'État n'est pas resté les bras croisés. La carte existe. Le BRGM l'a construite et l'affine depuis plus de vingt ans à partir de dizaines de milliers de sondages géologiques - la Banque de données du Sous-Sol (BSS) en recense plus de 800 000, dont une large fraction nourrit la cartographie départementale du RGA. Le ministère l'a mise à jour. L'arrêté du 9 janvier 2026 étend les zones de « moyenne et forte exposition » à <strong>55% du territoire métropolitain</strong>, contre 48% auparavant : près de 12 millions de maisons individuelles sont désormais classées, soit 61,5% du parc, contre 52,5% en 2020. L'élargissement lui-même est une reconnaissance politique de l'ampleur du phénomène.</p>
+<p>Il y a aussi un fonds de prévention argile, lancé en octobre 2025, qui finance diagnostic et travaux préventifs à hauteur de 80-90% pour les propriétaires éligibles. Le député Vincent Ledoux (Nord) a remis 30 recommandations au ministre de l'Intérieur en octobre 2023, dans un rapport au titre prémonitoire : « N'attendons pas que ce soit la cata ! » Il y proposait un « bouclier CatNat », des cellules de crise départementales, 1 000 stations météo du sol.</p>
+<p>Tout cela est vrai.</p>
+<p>Mais le fonds couvre <strong>11 départements sur 96</strong>. Il exige d'être propriétaire occupant, en résidence principale, en zone d'exposition forte, sous conditions de revenus. Et les 30 recommandations Ledoux ? Deux ans plus tard, un pilote beta.gouv.</p>
+<p>Il y a un mot pour ça : de l'information passive dans un pays d'information active. L'État a cartographié le risque. Il attend que vous trouviez la carte.</p>
+<figure class="chart"><img src="charts/01_carte_silence.png" alt="La carte du silence"></figure>
+
+<hr>
+
+<h2>8 031 communes : le document que personne n'a écrit</h2>
+<p>Voici un chiffre que vous ne trouverez nulle part ailleurs. On l'a calculé nous-mêmes, à partir de la base GASPAR du ministère de la Transition écologique (mise à jour décembre 2025).</p>
+<p>La loi est claire. L'article L.125-2 du Code de l'environnement dispose que toute commune exposée à un risque majeur <strong>doit</strong> informer ses habitants via un DICRIM - Document d'Information Communal sur les Risques Majeurs. Ce n'est pas une recommandation. C'est une obligation légale.</p>
+<p>On a compté :</p>
+<ul>
+<li><strong>12 354</strong> communes sont exposées au risque « tassements différentiels » (le nom technique du RGA dans la base GASPAR)</li>
+<li><strong>4 323</strong> ont produit un DICRIM</li>
+<li><strong>8 031</strong> n'en ont jamais produit</li>
+</ul>
+<p>Soit <strong>65% des communes exposées</strong> qui n'ont jamais rédigé le document que la loi leur impose.</p>
+<p>Pour mettre ça en perspective : en Marne, le taux de conformité est de <strong>2,6%</strong>. En Gironde, <strong>5,7%</strong>. Dans le Pas-de-Calais, voisin immédiat du département du député Vincent Ledoux - celui qui a écrit « n'attendons pas que ce soit la cata ! » - il n'est que de <strong>1,3%</strong> : 78 communes exposées sur 79 n'ont pas de DICRIM.</p>
+<p>À l'inverse, le Gard atteint 99,4%. Le Bas-Rhin, 38,6%. La différence ? L'animation préfectorale. Quand la préfecture accompagne les communes, elles suivent. Quand elle laisse faire, c'est le silence.</p>
+<p>Et puis il y a le Nord. Dans la base GASPAR de décembre 2025, le Nord - département du rapporteur Ledoux - ne compte <strong>aucune commune marquée au risque « tassements différentiels »</strong>. Zéro. Pourtant, le Nord figure dans la liste des <strong>11 départements pilotes</strong> du fonds de prévention argile lancé en octobre 2025. L'État finance la prévention là où sa propre base de données ne dit pas qu'il y a un risque à prévenir. Deux administrations, deux vérités. Le RGA existe dans une base et pas dans l'autre.</p>
+<figure class="chart"><img src="charts/02_top_sans_dicrim.png" alt="Top 15 départements sans DICRIM"></figure>
+
+<hr>
+
+<h2>La chaîne d'information cassée</h2>
+<p>Avant d'accuser les maires, il faut regarder ce que l'État leur a officiellement transmis.</p>
+<p>Depuis les années 1990, chaque préfet est tenu d'établir un <strong>Dossier Départemental des Risques Majeurs</strong> (DDRM) et de le transmettre formellement à chaque maire dont la commune est exposée. Cette transmission - appelée TIM, pour <em>Transmission de l'Information aux Maires</em> - est enregistrée dans une table dédiée de GASPAR, avec sa date. Ce n'est pas une circulaire oubliée dans un tiroir : c'est un acte administratif daté, signé, traçable. Elle déclenche l'obligation communale de rédiger un DICRIM.</p>
+<p>On a croisé cette table avec celles qu'on utilisait déjà. Voici ce qu'on trouve pour les 12 354 communes exposées au risque argile :</p>
+<figure class="chart"><img src="charts/08_matrice_tim_dicrim.png" alt="Matrice TIM × DICRIM"></figure>
+
+<p>Le chiffre qui nous intéresse est celui en haut à droite, en rouge : <strong>3 902 communes ont reçu du préfet la transmission officielle de l'information sur les risques, et n'ont jamais publié de DICRIM</strong>. Cela fait <strong>52,4% des communes RGA officiellement prévenues</strong>.</p>
+<p>Et ces communes ne sont pas des retardataires de quelques mois. Voici depuis combien de temps chacune d'elles attend, en décembre 2025 :</p>
+<table>
+<thead>
+<tr>
+<th>Date de la transmission préfectorale reçue</th>
+<th>Communes RGA encore silencieuses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Avant 2010 (≥ 15 ans d'inaction)</td>
+<td><strong>1 355</strong></td>
+</tr>
+<tr>
+<td>2010-2014 (11-15 ans)</td>
+<td><strong>1 595</strong></td>
+</tr>
+<tr>
+<td>2015-2019 (6-10 ans)</td>
+<td>451</td>
+</tr>
+<tr>
+<td>2020-2022 (3-5 ans)</td>
+<td>324</td>
+</tr>
+<tr>
+<td>2023-2025 (&lt; 3 ans, potentiellement trop récent pour juger)</td>
+<td>177</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2 950 communes</strong> ont reçu la transmission préfectorale <strong>avant 2015</strong>. Elles ont eu au moins dix ans pour publier leur document légal. Elles ne l'ont pas fait.</p>
+<p>Pour celles qui finissent par s'exécuter, la cadence est tout aussi révélatrice. Sur les 2 072 communes RGA qui ont réagi en publiant un DICRIM <em>après</em> avoir reçu la transmission, le délai médian entre les deux actes est de <strong>2 949 jours, soit 8,1 ans</strong>. Le système administratif du risque argile opère à rythme quasi décennal.</p>
+<p>Et le rythme se dégrade, pile au moment où le risque se manifeste. Le nombre de DICRIM publiés chaque année dans les communes RGA s'effondre alors que les arrêtés CatNat sécheresse battent des records. En 2013, <strong>531 DICRIM</strong> avaient été publiés dans des communes argile. En 2022 (année record avec 7 946 arrêtés), <strong>106</strong>. En 2023, <strong>82</strong>. En 2024, <strong>77</strong>. En 2025, <strong>30</strong>. Divisé par plus de dix-sept en douze ans.</p>
+<figure class="chart"><img src="charts/07_effet_ciseaux.png" alt="L'effet ciseaux"></figure>
+
+<p>La chaîne formelle d'information existe. Elle a été activée pour la majorité des communes exposées. Elle n'a rien déclenché en aval.</p>
+<p>Ce constat ne dit pas que les maires sont « coupables » au sens moral. Il dit quelque chose de plus froid : le dispositif a un coût administratif - rédiger un DDRM, le signer, le transmettre, tenir le registre - et ce coût a été payé. L'étape suivante, celle qui touche vraiment les habitants, n'a pas suivi pour plus d'une commune prévenue sur deux.</p>
+<p>Ce n'est donc plus exactement de l'ignorance. La section suivante essaie de dire ce que c'est.</p>
+<hr>
+
+<h2>Pourquoi les communes ne font rien</h2>
+<p>On pourrait croire à de la mauvaise volonté. C'est plus simple que ça.</p>
+<p><strong>L'ignorance - mais plus seulement.</strong> Une enquête téléphonique menée auprès de 1 033 communes (Douvinet et al., Cybergeo, 2013) a révélé que plusieurs maires « affirment ne rien savoir sur le DICRIM ». Certains pensent que l'obligation ne concerne que les villes de plus de 5 000 habitants. C'est faux, mais personne ne les a corrigés. Cette explication reste valide pour les communes qui n'ont jamais reçu de transmission préfectorale enregistrée - ce qu'on ne peut pas quantifier précisément, les dossiers les plus anciens n'étant pas tous numérisés dans GASPAR. Elle ne tient plus pour les 3 902 communes où la TIM est documentée, datée, et sans suite. Celles-là savent. Ou plus exactement : l'administration peut prouver qu'elles ont été prévenues.</p>
+<p><strong>Le manque de moyens.</strong> Rédiger un DICRIM demande de l'expertise, du temps, parfois un prestataire. Pour une commune de 300 habitants avec un secrétaire de mairie à mi-temps, c'est un horizon lointain.</p>
+<p><strong>Le non-dit immobilier.</strong> Celui-ci, on ne le trouvera dans aucun rapport officiel. Mais informer officiellement les habitants que leur sol est instable, c'est potentiellement faire baisser les prix. L'agent immobilier du coin a le numéro du maire. Le maire le sait.</p>
+<p><strong>L'absence totale de sanctions.</strong> Aucune sanction n'est prévue pour non-réalisation du DICRIM. La seule condamnation pénale connue d'un maire pour défaut d'information sur un risque majeur concerne La Faute-sur-Mer, après la tempête Xynthia en 2010. Vingt-neuf morts par submersion marine. Quatre ans ferme en première instance, deux avec sursis en appel. Rien à voir avec l'argile - il fallait vingt-neuf cercueils et un risque brutal pour qu'un tribunal regarde si un maire avait fait son travail d'information. Le RGA, lui, tue lentement, au rythme des fissures qui s'élargissent et des patrimoines qui fondent. Aucun cadre juridique ne sait quoi faire d'un risque lent.</p>
+<p>Les maires ne sont pas méchants. Ils sont seuls, pas formés, pas sanctionnés, et parfois un peu arrangés par le silence.</p>
+<hr>
+
+<h2>Le patrimoine qui fond</h2>
+<p>On a croisé deux bases de données que personne ne croise : les zones RGA (GASPAR) et les prix immobiliers (DVF 2024, data.gouv.fr).</p>
+<p>Le résultat est un graphique qui parle tout seul.</p>
+<figure class="chart"><img src="charts/03_patrimoine_expose.png" alt="Patrimoine exposé, habitants non informés"></figure>
+
+<p>En haut à gauche du nuage de points : des départements où les maisons ont un prix médian compris entre 100 et 200 000 euros ET où plus de 70% des communes exposées n'ont pas produit de DICRIM. En bas à droite : les départements plus aisés, avec des taux de conformité DICRIM plus élevés.</p>
+<p>On ne prouve pas, avec un simple nuage de points, que c'est le RGA qui fait baisser les prix, ni que c'est la pauvreté qui empêche les DICRIM. La corrélation ne dit rien de la causalité - on y reviendra en fin d'article. Mais une chose est visible à l'œil nu : le croisement existe. L'information sur le risque ne voyage pas dans les mêmes territoires que le patrimoine.</p>
+<p>Le RGA ne choisit pas ses victimes selon leur revenu. Mais l'information, elle, a des préférences sociales.</p>
+<hr>
+
+<h2>43 milliards : la facture qui arrive</h2>
+<p>Le coût annuel moyen des sinistres RGA a quadruplé en vingt ans.</p>
+<figure class="chart"><img src="charts/05_explosion_sinistres.png" alt="L'explosion des sinistres"></figure>
+
+<p>375 millions d'euros par an entre 1995 et 2015. <strong>1,5 milliard</strong> entre 2018 et 2022. L'année 2022 a battu tous les records : environ <strong>6 800 communes reconnues</strong> en catastrophe naturelle sécheresse, contre 4 437 en 2003 - près du double, pour une population exposée comparable.</p>
+<p>Sur la période 2020-2050, la CCR (réassureur public) estime le coût cumulé à <strong>43 milliards d'euros</strong>. Trois fois la période précédente. Le changement climatique expliquerait à lui seul 17 milliards de cette hausse.</p>
+<p>Le RGA est devenu en 2022 <strong>la première cause d'indemnisation au titre des catastrophes naturelles</strong>, devant les inondations. Et pourtant, quand on demande aux Français de citer un risque naturel, personne ne pense à l'argile.</p>
+<hr>
+
+<h2>Les assureurs : 720 millions de plus, zéro courrier</h2>
+<p>Au 1er janvier 2025, la surprime CatNat sur les contrats d'assurance habitation est passée de 12% à 20%. Sur une prime moyenne de 280 euros, c'est environ 22 euros de plus par an et par contrat.</p>
+<p>Avec environ 32 millions de contrats habitation de particuliers en France, l'ordre de grandeur de la collecte supplémentaire annuelle sur la seule habitation est de <strong>700 à 800 millions d'euros</strong>. Le chiffrage officiel du gouvernement, toutes branches confondues (habitation + entreprises + automobile CatNat), est de <strong>1,2 milliard d'euros supplémentaires par an</strong>.</p>
+<p>Cette collecte est légitime sur le principe : elle doit refinancer le régime catastrophes naturelles, ébranlé par la multiplication des sinistres. Elle n'est pas destinée à la seule prévention argile. Mais elle fait apparaître un écart de deux ordres de grandeur avec ce qui est consacré à prévenir le RGA : le fonds de prévention argile, pour ses 11 départements pilotes, dispose d'une enveloppe <strong>publiquement non chiffrée</strong> - aucun montant officiel n'a été communiqué depuis son lancement en octobre 2025. Les estimations qui circulent dans la presse spécialisée évoquent un ordre de grandeur de quelques dizaines de millions d'euros par an. Entre ce qui est collecté et ce qui est explicitement fléché vers la prévention du risque numéro un en coût CatNat, l'écart se compte en multiples à deux chiffres.</p>
+<figure class="chart"><img src="charts/04_surprime_invisible.png" alt="La surprime invisible"></figure>
+
+<p>Les assureurs utilisent depuis longtemps le risque RGA pour ajuster leurs primes à la parcelle - la Mission Risques Naturels, structure technique des assureurs, croise les données de sinistralité avec l'exposition géologique. Ils pourraient envoyer un courrier à chaque assuré en zone exposée : « Votre maison est en zone RGA. Voici les gestes de prévention. » À la date de cet article, aucun plan d'information ciblée des assurés en zone exposée n'a été annoncé par la Fédération Française de l'Assurance à la suite de la hausse de surprime.</p>
+<p>Et quand un sinistre survient, l'indemnisation prend 6 à 12 mois selon les témoignages collectés par l'Association Urgence Maisons Fissurées - contre 2 mois pour une inondation (délai légal de provisionnement). L'instruction d'un sinistre RGA est techniquement plus longue : il faut une étude géotechnique approfondie, parfois suivre un cycle sec-humide complet, faire intervenir un expert. Mais au-delà de la technique, il y a la condition d'entrée : la commune doit être reconnue en catastrophe naturelle. Ce qui, en Auvergne-Rhône-Alpes, n'arrive que dans <strong>10% des cas</strong> (source : rapport parlementaire Ledoux, 2023, à partir des données CCR).</p>
+<hr>
+
+<h2>La spirale</h2>
+<p>Chaque maillon aggrave le suivant. Sécheresse, fissures, dévaluation, propriétaire piégé, commune appauvrie, moins de prévention, plus de dégâts. La boucle tourne.</p>
+<figure class="chart"><img src="charts/06_spirale_cumulative.png" alt="La spirale cumulative"></figure>
+
+<p>Ce schéma n'est pas une métaphore. C'est un mécanisme documenté. Quand une maison perd sa valeur, le propriétaire ne peut ni vendre ni emprunter pour réparer. Quand les maisons d'un quartier se dévaluent, la base fiscale de la commune s'érode. Quand la commune a moins de revenus, elle investit moins dans la prévention. Et le cycle recommence.</p>
+<p>La question n'est pas de savoir si ça va arriver. C'est de savoir combien de tours de spirale il reste avant que ça coûte plus cher de ne rien faire que d'agir.</p>
+<hr>
+
+<h2>Josette paie</h2>
+<p>Ce que les graphiques ne montrent pas, ce sont les trajectoires individuelles derrière les agrégats.</p>
+<p>En janvier 2026, TF1 a diffusé un documentaire en deux épisodes : « Sécheresse, inondations : ma maison s'écroule » (Grands Reportages, 4 janvier 2026). Le reportage suit notamment, dans l'Oise, une retraitée que le documentaire appelle Josette. Sa maison est fissurée de part en part. Son assureur conteste l'origine des dégâts. Pour prouver que les fissures viennent du sol, il faut une étude géotechnique approfondie - une étude G5. Coût : plusieurs milliers d'euros. C'est le propriétaire qui paie. Selon le documentaire, elle a déjà dépensé <strong>65 000 euros</strong> de sa poche.</p>
+<p>Le même reportage suit un couple, également dans l'Oise, qui vit avec ses trois enfants dans une maison étayée pour l'empêcher de se fendre en deux.</p>
+<p>On rapporte ces cas non pas pour l'émotion - ils sont rapportés par un autre média, nous ne les avons pas rencontrés - mais parce qu'ils documentent un mécanisme. L'Association Urgence Maisons Fissurées (AUMF) recense des milliers de situations comparables. Elle demande 3,3 milliards d'euros pour indemniser les victimes actuelles, 800 millions récurrents pour les sinistres futurs, et surtout l'inversion de la charge de la preuve : quand un assureur conteste un sinistre RGA, ce serait à lui de financer l'étude géotechnique, pas à la retraitée.</p>
+<hr>
+
+<h2>Le Sénat a dit non</h2>
+<p>Le 6 avril 2023, l'Assemblée nationale a voté quasi-unanimement une proposition de loi pour améliorer l'indemnisation des victimes du RGA. Extension des délais de déclaration, inversion de la charge de la preuve face aux assureurs, meilleure prise en charge des sinistres.</p>
+<p>Le 30 mai 2024, la majorité sénatoriale l'a rejetée.</p>
+<p>Depuis, les chiffres continuent de monter. Les fissures continuent de s'ouvrir. Les propriétaires continuent de payer.</p>
+<hr>
+
+<h2>Ce qu'on ne sait pas</h2>
+<div class="limites">
+<p>Ce qu'on vient de montrer a des limites. Les voici, parce qu'un chiffre sans ses nuances ne vaut rien.</p>
+<p><strong>Les refus CatNat sont opaques.</strong> La base GASPAR ne contient que les reconnaissances (arrêtés acceptés). Les demandes refusées ne sont pas publiées en open data. Les taux de refus (50% national, 10% en Auvergne-Rhône-Alpes) viennent de rapports parlementaires et de la CCR, pas de données brutes vérifiables. C'est un point d'opacité majeur.</p>
+<p><strong>Le DICRIM ne garantit rien.</strong> Avoir un DICRIM ne signifie pas que les habitants l'ont lu, ni même qu'ils savent qu'il existe. Un document dans un tiroir de mairie reste un document dans un tiroir de mairie.</p>
+<p><strong>Nos données RGA sont celles de GASPAR, pas de Géorisques.</strong> GASPAR identifie le risque « tassements différentiels » par commune, ce qui ne recouvre pas exactement la même chose que la carte d'exposition RGA de Géorisques (qui fonctionne à la parcelle). Les périmètres peuvent diverger à la marge.</p>
+<p><strong>Le DVF exclut l'Alsace-Moselle.</strong> La Moselle (57), le Bas-Rhin (67) et le Haut-Rhin (68) ne publient pas leurs données de transactions (régime foncier spécifique). Notre croisement prix/RGA est incomplet pour ces trois départements.</p>
+<p><strong>On n'a pas mesuré l'impact réel sur les prix.</strong> Montrer que les zones RGA ont des prix plus bas ne prouve pas que le RGA est la cause. Corrélation n'est pas causalité. Il faudrait un modèle économétrique avec des données longitudinales pour isoler l'effet propre du RGA sur les prix. On ne l'a pas fait.</p>
+<p><strong>Le fonds de prévention n'a aucun bilan public.</strong> Lancé en octobre 2025, aucun chiffre officiel sur le nombre de demandes déposées, de diagnostics réalisés ou de travaux financés n'a été publié à la date de cet article (avril 2026).</p>
+<p><strong>Le DICRIM n'est pas le seul canal d'information réglementaire.</strong> L'État des Risques et Informations sur les Sols (ERRIAL, ex-ERP), obligatoire depuis 2006, est remis à l'acheteur par le vendeur lors de toute transaction en zone exposée. C'est en théorie le canal principal d'information vers les nouveaux propriétaires. Nous ne mesurons pas son taux de conformité réel : aucune base ouverte ne recense les ERRIAL produits, ni n'indique si le document est lu, compris, ou simplement glissé dans la pile. Un document qu'on signe sans savoir ce qu'il contient informe-t-il vraiment ?</p>
+<hr>
+</div>
+
+<h2>Deux liens utiles</h2>
+<div class="action-box">
+<p><strong>Vérifier votre exposition</strong> - Sur <a href="https://www.georisques.gouv.fr">georisques.gouv.fr</a>, entrer une adresse fait apparaître la couche « Retrait-gonflement des argiles » pour la parcelle. C'est gratuit et instantané.</p>
+<p><strong>Demander le DICRIM de votre commune</strong> - L'article L.125-2 du Code de l'environnement en fait un droit d'accès. Un simple passage en mairie suffit. Si le document n'existe pas, la commune est formellement en défaut d'application - sans sanction prévue, mais au moins, la conversation est ouverte.</p>
+<hr>
+</div>
+
+<h2>Méthodologie</h2>
+<div class="methodo">
+<h3>Sources de données</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Date</th>
+<th>Accès</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GASPAR (DICRIM, risques, CatNat)</td>
+<td>Décembre 2025</td>
+<td>georisques.gouv.fr - gaspar.zip</td>
+</tr>
+<tr>
+<td>DVF (transactions immobilières)</td>
+<td>2024</td>
+<td>files.data.gouv.fr/geo-dvf</td>
+</tr>
+<tr>
+<td>Carte RGA exposition par région</td>
+<td>2026</td>
+<td>CCR, Diagamter, arrêté 9 janvier 2026</td>
+</tr>
+<tr>
+<td>Rapport Ledoux</td>
+<td>Octobre 2023</td>
+<td>interieur.gouv.fr</td>
+</tr>
+<tr>
+<td>Rapport Sénat n°628</td>
+<td>Juin 2023</td>
+<td>senat.fr</td>
+</tr>
+</tbody>
+</table>
+<h3>Reproduire cette analyse</h3>
+<pre><code class="language-bash"># 1. Télécharger les données
+python scripts/00_download.py
+
+# 2. Croiser RGA × DICRIM × DVF
+python scripts/01_merge.py
+
+# 3. Générer les graphiques
+python scripts/02_charts.py
+</code></pre>
+<p>Code source : <a href="https://github.com/tawiza/tawiza">github.com/tawiza/tawiza/articles/002-rga-argiles</a></p>
+<h3>Périmètre</h3>
+<p>L'analyse porte sur la <strong>France métropolitaine</strong>. Les DOM-TOM sont exclus, notamment parce que la base GASPAR utilisée n'inclut pas systématiquement les territoires ultramarins pour le risque « tassements différentiels ». La Moselle (57), le Bas-Rhin (67) et le Haut-Rhin (68) ne publient pas leurs données DVF (régime foncier spécifique) ; le croisement prix × RGA est donc incomplet pour ces trois départements.</p>
+<h3>Calcul du taux de conformité DICRIM</h3>
+<p>Formule : sur 12 354 communes identifiées dans GASPAR (décembre 2025) comme exposées au risque « tassements différentiels » - le code risque du RGA - 8 031 n'apparaissent pas dans la table DICRIM de la même base. Soit 8 031 / 12 354 = 65,0%.</p>
+<p>Il faut être précis sur ce que cela signifie exactement. La formulation rigoureuse n'est pas « 8 031 communes n'ont jamais produit de DICRIM » (on ne peut pas le savoir avec certitude depuis une base unique), mais <strong>« 8 031 communes ne figurent pas dans la table DICRIM de GASPAR »</strong>. La table GASPAR est alimentée par les préfectures et n'est pas exhaustive : une commune peut théoriquement avoir rédigé un DICRIM resté local, non remonté. L'ordre de grandeur, lui, est corroboré par la base BD-DICRIM de Géorisques (conformité nationale estimée autour de 8% tous risques) et par les estimations ministérielles (environ 20% de communes ayant produit un DICRIM, tous risques confondus). Ces chiffres sont cohérents entre eux et pointent tous le même constat : le DICRIM est massivement non produit, encore plus massivement non enregistré.</p>
+<h3>Matrice TIM × DICRIM et effet ciseaux</h3>
+<p>La table <code>tim_gaspar.csv</code> de GASPAR contient les dates de Transmission de l'Information aux Maires : c'est-à-dire les dates auxquelles le préfet a remis le DDRM (Dossier Départemental des Risques Majeurs) au maire d'une commune exposée. Pour chaque commune, on retient la date de la <strong>première</strong> TIM enregistrée. On écarte les dates placeholder « 1900-01-01 », qui signalent une valeur manquante dans la base source. Même traitement pour les dates DICRIM.</p>
+<p>La matrice 2×2 croise les 12 354 communes RGA selon deux critères booléens : présence d'une TIM datée dans GASPAR, et présence d'un DICRIM enregistré (quelle que soit la date de ce dernier, pour que la somme reste cohérente avec les 4 323 communes RGA qui ont un DICRIM dans la section précédente).</p>
+<p>Le délai médian entre TIM et DICRIM est calculé sur les 2 072 communes pour lesquelles les deux dates sont publiables et le DICRIM est postérieur à la TIM.</p>
+<p>La timeline annuelle (graphique 7) compte les DICRIM dans les communes RGA uniquement pour les années où la date est interprétable (environ 297 DICRIM sont enregistrés sans date publiable et n'apparaissent pas dans la courbe). Les arrêtés CatNat sécheresse sont agrégés à partir de la répartition annuelle par département publiée dans la base GASPAR. Les années <strong>2024 et 2025 sont tronquées du graphique</strong> : la base de décembre 2025 n'enregistre qu'une fraction minime des arrêtés en cours d'instruction pour ces deux années (3 et 4 arrêtés respectivement, clairement incohérents avec la tendance), ces chiffres seront révisés à la hausse dans les éditions suivantes de GASPAR.</p>
+<p>Une limite majeure à mentionner : les transmissions préfectorales antérieures à 2000 ne sont pas toutes numérisées dans GASPAR. Les <strong>4 129 communes RGA « sans TIM ni DICRIM »</strong> et les <strong>785 communes « DICRIM sans TIM »</strong> s'expliquent probablement en partie par cette incomplétude amont. Le scoop principal de la section « La chaîne d'information cassée » se concentre donc volontairement sur les <strong>3 902 communes pour lesquelles la TIM est documentée et postérieure à la numérisation</strong> - pour celles-là, l'absence de suite est un fait administratif vérifiable, pas un artefact de données manquantes.</p>
+<p>Le taux de 65% concerne uniquement les communes RGA, pas l'ensemble des risques majeurs. Pour mémoire, le taux global de non-conformité DICRIM tous risques confondus est estimé autour de 70% - ce qui signifie que le RGA, avec ses 65%, n'est pas un cas particulièrement mauvais. C'est un cas moyen d'un système qui ne fonctionne pas.</p>
+<h3>Avertissement</h3>
+<p>Cet article est une analyse de données publiques. Il ne constitue pas un conseil juridique, financier ou immobilier. Les données sont reproductibles et vérifiables par quiconque télécharge les mêmes sources. Si vous constatez une erreur, écrivez-nous.</p>
+<hr>
+</div>
+
+<h2>Sources</h2>
+<div class="sources">
+<ul>
+<li><a href="https://www.georisques.gouv.fr/minformer-sur-un-risque/retrait-gonflement-des-argiles">Géorisques - Retrait-gonflement des argiles</a></li>
+<li><a href="https://www.georisques.gouv.fr/donnees/bases-de-donnees/retrait-gonflement-des-argiles-version-2026">Arrêté du 9 janvier 2026 - Carte RGA</a></li>
+<li><a href="https://www.service-public.fr/particuliers/actualites/A18655">Service-public.fr - Fonds prévention argile</a></li>
+<li><a href="https://www.interieur.gouv.fr/sites/minint/files/medias/documents/2023-10/20231019_Rapport_Ledoux_RGA_.pdf">Rapport Ledoux (oct. 2023)</a></li>
+<li><a href="https://www.senat.fr/rap/r22-354/r22-354_mono.html">Rapport Sénat « La sécheresse ébranle les fondations du régime CatNat »</a></li>
+<li><a href="https://journals.openedition.org/cybergeo/26112">Douvinet et al. (2013) - L'information sur les risques majeurs à l'échelle communale, Cybergeo</a></li>
+<li><a href="https://www.ccr.fr/le-rga-un-risque-silencieux-a-surveiller-de-pres/">CCR - Le RGA, un risque silencieux à surveiller de près</a></li>
+<li><a href="https://fonds-prevention-argile.beta.gouv.fr/">Fonds prévention argile - beta.gouv.fr</a></li>
+<li><a href="https://aumf.fr/">Association Urgence Maisons Fissurées (AUMF)</a></li>
+<li><a href="https://consequences-france.org/wp-content/uploads/2024/06/CSQCES_rapport_RGA_VF-1.pdf">CSQCES - Maisons fissurées, 20 millions de Français exposés (rapport 2024)</a></li>
+<li><a href="https://www.coulisses-tv.fr/index.php/magazines/item/50180">TF1 Grands Reportages - « Sécheresse, inondations : ma maison s'écroule » (jan. 2026)</a></li>
+</ul>
+</div>
+
+<div class="tawiza-footer">
+<p><img alt="L'œil Tawiza" src="charts/tawiza_eye_cli.svg"></p>
+<p>Ce sujet reste sous l'œil.</p>
+<p>Cet article est une analyse vivante. Les données sont mises à jour, les signaux sont surveillés, les chiffres sont recomptés. Si le taux de conformité DICRIM bouge, si le fonds de prévention s'étend, si le Sénat revote - on le verra.</p>
+<p><em>Dernière vérification des données : avril 2026.</em></p>
+</div>
+    </article>
+    <footer>
+        Tawiza · Intelligence territoriale · Les donn&eacute;es publiques sont un bien commun<br>
+        <a href="https://tawiza.fr" style="color:var(--accent)">tawiza.fr</a>
+    </footer>
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('progress').style.width = (window.scrollY / h * 100) + '%';
+        });
+    </script>
+</body>
+</html>
