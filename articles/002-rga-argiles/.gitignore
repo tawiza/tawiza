@@ -1,0 +1,18 @@
+# Override le `data/` du .gitignore racine pour permettre de versionner
+# les sources stables et les CSV processed (utiles pour la reproductibilité).
+!data/
+!data/**
+
+# Mais on n'inclut PAS les téléchargements GASPAR (~64 Mo, regénérables
+# par scripts/00_download.py)
+data/raw/gaspar/
+
+# Backups locaux et fichiers temporaires
+*.bak
+*.tmp
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

@@ -1,0 +1,16 @@
+# Données brutes (trop lourdes, générées par 00_download.py)
+data/raw/*.csv
+data/raw/*.csv.gz
+data/raw/*.json
+data/raw/*.xlsx
+data/raw/*.zip
+data/raw/*.geojson
+
+# Graphiques (générés par regenerate_v2.py)
+charts/*.png
+charts/*.svg
+charts/*.html
+
+# Python
+__pycache__/
+*.pyc

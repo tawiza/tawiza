@@ -1,0 +1,20 @@
+{
+  "buckets_tim_sans_dicrim": {
+    "p1_avant_2010": 1355,
+    "p2_2010_2014": 1595,
+    "p3_2015_2019": 451,
+    "p4_2020_2022": 324,
+    "p5_2023_2025": 177
+  },
+  "median_delay_days": 2949,
+  "median_delay_years": 8.1,
+  "n_dicrim_rga": 4323,
+  "n_reactive_dicrim_after_tim": 2072,
+  "n_rga_total": 12354,
+  "n_tim_rga": 7440,
+  "pct_tim_silencieuses": 52.4,
+  "sans_tim_avec_dicrim": 785,
+  "sans_tim_sans_dicrim": 4129,
+  "tim_avec_dicrim": 3538,
+  "tim_sans_dicrim": 3902
+}

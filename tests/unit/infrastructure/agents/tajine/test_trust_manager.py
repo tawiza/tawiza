@@ -490,8 +490,13 @@ class TestTAJINEAgentIntegration:
     async def test_learn_updates_trust_on_failure(self):
         """Test learn() updates trust on failure."""
         from src.infrastructure.agents.tajine import TAJINEAgent
+        from src.infrastructure.agents.tajine.trust import TrustManager
 
         agent = TAJINEAgent()
+        # Reset to a score that can decrease, so the test does not depend
+        # on the persisted state in data/tajine/trust.json (which may
+        # already be at the 0.0 floor from previous runs)
+        agent._trust_manager = TrustManager(initial_score=0.5)
         initial_score = agent.trust_manager.get_trust_score()
 
         await agent.learn({"success": False})

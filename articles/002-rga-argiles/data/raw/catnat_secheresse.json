@@ -1,0 +1,3125 @@
+{
+  "metadata": {
+    "source": "Base GASPAR - Géorisques (Ministère de la Transition écologique)",
+    "url_api": "https://www.georisques.gouv.fr/api/v1/gaspar/catnat",
+    "url_csv": "http://files.georisques.fr/GASPAR/gaspar.zip",
+    "date_extraction": "2026-04-08",
+    "date_derniere_maj_source": "2025-12-16",
+    "description": "Arrêtés CatNat sécheresse (retrait-gonflement des argiles) reconnus par commune. La base GASPAR ne contient QUE les reconnaissances (acceptées). Les refus ne sont pas dans cette base open data.",
+    "avertissement_taux_acceptation": "Le taux d'acceptation ne peut pas être calculé directement depuis GASPAR car les demandes refusées ne sont pas publiées en open data. Les chiffres de refus proviennent de rapports parlementaires et du Sénat (rapport d'information n°628, 2023).",
+    "chiffres_cles_refus_senat": {
+      "source": "Sénat, rapport d'information n°628, juin 2023 + CCR rapports annuels",
+      "taux_acceptation_national_2022": "environ 50%",
+      "note": "Pour la sécheresse 2022 : ~8500 communes ont demandé la reconnaissance, ~4200 reconnues. Taux très variable selon départements et régions."
+    }
+  },
+  "statistiques_nationales": {
+    "total_arretes_secheresse": 47576,
+    "communes_distinctes_reconnues": 14229,
+    "premiere_annee": "1988",
+    "derniere_annee": "2025",
+    "top_10_annees": [
+      {
+        "annee": "2022",
+        "arretes": 7946
+      },
+      {
+        "annee": "2003",
+        "arretes": 4473
+      },
+      {
+        "annee": "2018",
+        "arretes": 4092
+      },
+      {
+        "annee": "1989",
+        "arretes": 3977
+      },
+      {
+        "annee": "2019",
+        "arretes": 3330
+      },
+      {
+        "annee": "2005",
+        "arretes": 3236
+      },
+      {
+        "annee": "2020",
+        "arretes": 2612
+      },
+      {
+        "annee": "2011",
+        "arretes": 2312
+      },
+      {
+        "annee": "2017",
+        "arretes": 2121
+      },
+      {
+        "annee": "1991",
+        "arretes": 1397
+      }
+    ],
+    "repartition_tous_risques": {
+      "Inondations et/ou Coulées de Boue": 146735,
+      "Sécheresse": 47576,
+      "Mouvement de Terrain": 32482,
+      "Tempête": 16187,
+      "Chocs Mécaniques liés à l'action des Vagues": 6867,
+      "Glissement de Terrain": 3903,
+      "Poids de la Neige": 2758,
+      "Inondations Remontée Nappe": 1510,
+      "Grêle": 1491,
+      "Secousse Sismique": 790,
+      "Avalanche": 131,
+      "Effondrement et/ou Affaisement": 122,
+      "Vents Cycloniques": 86,
+      "Eboulement et/ou Chute de Blocs": 70,
+      "Divers": 65,
+      "Lave Torrentielle": 7,
+      "Raz de Marée": 6,
+      "Coulée de Boue": 6,
+      "Glissement et Effondrement de Terrain": 5,
+      "Glissement et Eboulement Rocheux": 1,
+      "Eruption Volcanique": 1
+    }
+  },
+  "par_region": {
+    "Auvergne-Rhône-Alpes": {
+      "arretes_secheresse": 3993,
+      "communes_reconnues": 1403,
+      "departements": {
+        "01": {
+          "nom": "Ain",
+          "arretes": 382,
+          "communes_reconnues": 175
+        },
+        "03": {
+          "nom": "Allier",
+          "arretes": 973,
+          "communes_reconnues": 268
+        },
+        "07": {
+          "nom": "Ardèche",
+          "arretes": 353,
+          "communes_reconnues": 124
+        },
+        "15": {
+          "nom": "Cantal",
+          "arretes": 38,
+          "communes_reconnues": 22
+        },
+        "26": {
+          "nom": "Drôme",
+          "arretes": 259,
+          "communes_reconnues": 153
+        },
+        "38": {
+          "nom": "Isère",
+          "arretes": 122,
+          "communes_reconnues": 82
+        },
+        "42": {
+          "nom": "Loire",
+          "arretes": 267,
+          "communes_reconnues": 105
+        },
+        "43": {
+          "nom": "Haute-Loire",
+          "arretes": 149,
+          "communes_reconnues": 68
+        },
+        "63": {
+          "nom": "Puy-de-Dôme",
+          "arretes": 992,
+          "communes_reconnues": 196
+        },
+        "69": {
+          "nom": "Rhône",
+          "arretes": 332,
+          "communes_reconnues": 115
+        },
+        "73": {
+          "nom": "Savoie",
+          "arretes": 39,
+          "communes_reconnues": 33
+        },
+        "74": {
+          "nom": "Haute-Savoie",
+          "arretes": 87,
+          "communes_reconnues": 62
+        }
+      }
+    },
+    "Bourgogne-Franche-Comté": {
+      "arretes_secheresse": 4380,
+      "communes_reconnues": 1957,
+      "departements": {
+        "21": {
+          "nom": "Côte-d'Or",
+          "arretes": 571,
+          "communes_reconnues": 303
+        },
+        "25": {
+          "nom": "Doubs",
+          "arretes": 446,
+          "communes_reconnues": 192
+        },
+        "39": {
+          "nom": "Jura",
+          "arretes": 866,
+          "communes_reconnues": 298
+        },
+        "58": {
+          "nom": "Nièvre",
+          "arretes": 567,
+          "communes_reconnues": 255
+        },
+        "70": {
+          "nom": "Haute-Saône",
+          "arretes": 289,
+          "communes_reconnues": 208
+        },
+        "71": {
+          "nom": "Saône-et-Loire",
+          "arretes": 1024,
+          "communes_reconnues": 421
+        },
+        "89": {
+          "nom": "Yonne",
+          "arretes": 537,
+          "communes_reconnues": 228
+        },
+        "90": {
+          "nom": "Territoire de Belfort",
+          "arretes": 80,
+          "communes_reconnues": 52
+        }
+      }
+    },
+    "Bretagne": {
+      "arretes_secheresse": 61,
+      "communes_reconnues": 48,
+      "departements": {
+        "22": {
+          "nom": "Côtes-d'Armor",
+          "arretes": 2,
+          "communes_reconnues": 2
+        },
+        "29": {
+          "nom": "Finistère",
+          "arretes": 10,
+          "communes_reconnues": 7
+        },
+        "35": {
+          "nom": "Ille-et-Vilaine",
+          "arretes": 32,
+          "communes_reconnues": 24
+        },
+        "56": {
+          "nom": "Morbihan",
+          "arretes": 17,
+          "communes_reconnues": 15
+        }
+      }
+    },
+    "Centre-Val de Loire": {
+      "arretes_secheresse": 4171,
+      "communes_reconnues": 1202,
+      "departements": {
+        "18": {
+          "nom": "Cher",
+          "arretes": 817,
+          "communes_reconnues": 252
+        },
+        "28": {
+          "nom": "Eure-et-Loir",
+          "arretes": 198,
+          "communes_reconnues": 96
+        },
+        "36": {
+          "nom": "Indre",
+          "arretes": 878,
+          "communes_reconnues": 218
+        },
+        "37": {
+          "nom": "Indre-et-Loire",
+          "arretes": 859,
+          "communes_reconnues": 203
+        },
+        "41": {
+          "nom": "Loir-et-Cher",
+          "arretes": 533,
+          "communes_reconnues": 175
+        },
+        "45": {
+          "nom": "Loiret",
+          "arretes": 886,
+          "communes_reconnues": 258
+        }
+      }
+    },
+    "Corse": {
+      "arretes_secheresse": 4,
+      "communes_reconnues": 4,
+      "departements": {
+        "2A": {
+          "nom": "Corse-du-Sud",
+          "arretes": 1,
+          "communes_reconnues": 1
+        },
+        "2B": {
+          "nom": "Haute-Corse",
+          "arretes": 3,
+          "communes_reconnues": 3
+        }
+      }
+    },
+    "Grand Est": {
+      "arretes_secheresse": 4311,
+      "communes_reconnues": 1612,
+      "departements": {
+        "08": {
+          "nom": "Ardennes",
+          "arretes": 81,
+          "communes_reconnues": 62
+        },
+        "10": {
+          "nom": "Aube",
+          "arretes": 202,
+          "communes_reconnues": 109
+        },
+        "51": {
+          "nom": "Marne",
+          "arretes": 122,
+          "communes_reconnues": 80
+        },
+        "52": {
+          "nom": "Haute-Marne",
+          "arretes": 253,
+          "communes_reconnues": 131
+        },
+        "54": {
+          "nom": "Meurthe-et-Moselle",
+          "arretes": 1377,
+          "communes_reconnues": 369
+        },
+        "55": {
+          "nom": "Meuse",
+          "arretes": 206,
+          "communes_reconnues": 123
+        },
+        "57": {
+          "nom": "Moselle",
+          "arretes": 1520,
+          "communes_reconnues": 479
+        },
+        "67": {
+          "nom": "Bas-Rhin",
+          "arretes": 199,
+          "communes_reconnues": 99
+        },
+        "68": {
+          "nom": "Haut-Rhin",
+          "arretes": 25,
+          "communes_reconnues": 21
+        },
+        "88": {
+          "nom": "Vosges",
+          "arretes": 326,
+          "communes_reconnues": 139
+        }
+      }
+    },
+    "Hauts-de-France": {
+      "arretes_secheresse": 1799,
+      "communes_reconnues": 687,
+      "departements": {
+        "02": {
+          "nom": "Aisne",
+          "arretes": 111,
+          "communes_reconnues": 89
+        },
+        "59": {
+          "nom": "Nord",
+          "arretes": 1162,
+          "communes_reconnues": 302
+        },
+        "60": {
+          "nom": "Oise",
+          "arretes": 108,
+          "communes_reconnues": 71
+        },
+        "62": {
+          "nom": "Pas-de-Calais",
+          "arretes": 397,
+          "communes_reconnues": 205
+        },
+        "80": {
+          "nom": "Somme",
+          "arretes": 21,
+          "communes_reconnues": 20
+        }
+      }
+    },
+    "Normandie": {
+      "arretes_secheresse": 305,
+      "communes_reconnues": 216,
+      "departements": {
+        "14": {
+          "nom": "Calvados",
+          "arretes": 77,
+          "communes_reconnues": 57
+        },
+        "27": {
+          "nom": "Eure",
+          "arretes": 101,
+          "communes_reconnues": 67
+        },
+        "50": {
+          "nom": "Manche",
+          "arretes": 14,
+          "communes_reconnues": 14
+        },
+        "61": {
+          "nom": "Orne",
+          "arretes": 87,
+          "communes_reconnues": 53
+        },
+        "76": {
+          "nom": "Seine-Maritime",
+          "arretes": 26,
+          "communes_reconnues": 25
+        }
+      }
+    },
+    "Nouvelle-Aquitaine": {
+      "arretes_secheresse": 10223,
+      "communes_reconnues": 2625,
+      "departements": {
+        "16": {
+          "nom": "Charente",
+          "arretes": 490,
+          "communes_reconnues": 188
+        },
+        "17": {
+          "nom": "Charente-Maritime",
+          "arretes": 1600,
+          "communes_reconnues": 340
+        },
+        "19": {
+          "nom": "Corrèze",
+          "arretes": 190,
+          "communes_reconnues": 82
+        },
+        "23": {
+          "nom": "Creuse",
+          "arretes": 38,
+          "communes_reconnues": 32
+        },
+        "24": {
+          "nom": "Dordogne",
+          "arretes": 1779,
+          "communes_reconnues": 441
+        },
+        "33": {
+          "nom": "Gironde",
+          "arretes": 1947,
+          "communes_reconnues": 461
+        },
+        "40": {
+          "nom": "Landes",
+          "arretes": 223,
+          "communes_reconnues": 155
+        },
+        "47": {
+          "nom": "Lot-et-Garonne",
+          "arretes": 1553,
+          "communes_reconnues": 309
+        },
+        "64": {
+          "nom": "Pyrénées-Atlantiques",
+          "arretes": 336,
+          "communes_reconnues": 173
+        },
+        "79": {
+          "nom": "Deux-Sèvres",
+          "arretes": 799,
+          "communes_reconnues": 188
+        },
+        "86": {
+          "nom": "Vienne",
+          "arretes": 1220,
+          "communes_reconnues": 225
+        },
+        "87": {
+          "nom": "Haute-Vienne",
+          "arretes": 48,
+          "communes_reconnues": 31
+        }
+      }
+    },
+    "Occitanie": {
+      "arretes_secheresse": 11115,
+      "communes_reconnues": 2689,
+      "departements": {
+        "09": {
+          "nom": "Ariège",
+          "arretes": 225,
+          "communes_reconnues": 105
+        },
+        "11": {
+          "nom": "Aude",
+          "arretes": 935,
+          "communes_reconnues": 294
+        },
+        "12": {
+          "nom": "Aveyron",
+          "arretes": 136,
+          "communes_reconnues": 73
+        },
+        "30": {
+          "nom": "Gard",
+          "arretes": 750,
+          "communes_reconnues": 241
+        },
+        "31": {
+          "nom": "Haute-Garonne",
+          "arretes": 2552,
+          "communes_reconnues": 510
+        },
+        "32": {
+          "nom": "Gers",
+          "arretes": 2420,
+          "communes_reconnues": 457
+        },
+        "34": {
+          "nom": "Hérault",
+          "arretes": 785,
+          "communes_reconnues": 211
+        },
+        "46": {
+          "nom": "Lot",
+          "arretes": 364,
+          "communes_reconnues": 156
+        },
+        "48": {
+          "nom": "Lozère",
+          "arretes": 7,
+          "communes_reconnues": 7
+        },
+        "65": {
+          "nom": "Hautes-Pyrénées",
+          "arretes": 196,
+          "communes_reconnues": 138
+        },
+        "66": {
+          "nom": "Pyrénées-Orientales",
+          "arretes": 68,
+          "communes_reconnues": 42
+        },
+        "81": {
+          "nom": "Tarn",
+          "arretes": 1307,
+          "communes_reconnues": 264
+        },
+        "82": {
+          "nom": "Tarn-et-Garonne",
+          "arretes": 1370,
+          "communes_reconnues": 191
+        }
+      }
+    },
+    "Outre-mer/Autre": {
+      "arretes_secheresse": 1,
+      "communes_reconnues": 1,
+      "departements": {
+        "971": {
+          "nom": "Guadeloupe",
+          "arretes": 1,
+          "communes_reconnues": 1
+        }
+      }
+    },
+    "Pays de la Loire": {
+      "arretes_secheresse": 1531,
+      "communes_reconnues": 541,
+      "departements": {
+        "44": {
+          "nom": "Loire-Atlantique",
+          "arretes": 82,
+          "communes_reconnues": 57
+        },
+        "49": {
+          "nom": "Maine-et-Loire",
+          "arretes": 506,
+          "communes_reconnues": 111
+        },
+        "53": {
+          "nom": "Mayenne",
+          "arretes": 9,
+          "communes_reconnues": 8
+        },
+        "72": {
+          "nom": "Sarthe",
+          "arretes": 405,
+          "communes_reconnues": 191
+        },
+        "85": {
+          "nom": "Vendée",
+          "arretes": 529,
+          "communes_reconnues": 174
+        }
+      }
+    },
+    "Provence-Alpes-Côte d'Azur": {
+      "arretes_secheresse": 2613,
+      "communes_reconnues": 564,
+      "departements": {
+        "04": {
+          "nom": "Alpes-de-Haute-Provence",
+          "arretes": 225,
+          "communes_reconnues": 96
+        },
+        "05": {
+          "nom": "Hautes-Alpes",
+          "arretes": 33,
+          "communes_reconnues": 18
+        },
+        "06": {
+          "nom": "Alpes-Maritimes",
+          "arretes": 337,
+          "communes_reconnues": 85
+        },
+        "13": {
+          "nom": "Bouches-du-Rhône",
+          "arretes": 923,
+          "communes_reconnues": 93
+        },
+        "83": {
+          "nom": "Var",
+          "arretes": 542,
+          "communes_reconnues": 133
+        },
+        "84": {
+          "nom": "Vaucluse",
+          "arretes": 553,
+          "communes_reconnues": 139
+        }
+      }
+    },
+    "Île-de-France": {
+      "arretes_secheresse": 3069,
+      "communes_reconnues": 680,
+      "departements": {
+        "75": {
+          "nom": "Paris",
+          "arretes": 1,
+          "communes_reconnues": 1
+        },
+        "77": {
+          "nom": "Seine-et-Marne",
+          "arretes": 928,
+          "communes_reconnues": 230
+        },
+        "78": {
+          "nom": "Yvelines",
+          "arretes": 774,
+          "communes_reconnues": 178
+        },
+        "91": {
+          "nom": "Essonne",
+          "arretes": 441,
+          "communes_reconnues": 108
+        },
+        "92": {
+          "nom": "Hauts-de-Seine",
+          "arretes": 132,
+          "communes_reconnues": 22
+        },
+        "93": {
+          "nom": "Seine-Saint-Denis",
+          "arretes": 206,
+          "communes_reconnues": 33
+        },
+        "94": {
+          "nom": "Val-de-Marne",
+          "arretes": 231,
+          "communes_reconnues": 39
+        },
+        "95": {
+          "nom": "Val-d'Oise",
+          "arretes": 356,
+          "communes_reconnues": 69
+        }
+      }
+    }
+  },
+  "par_departement": {
+    "01": {
+      "nom": "Ain",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 382,
+      "communes_reconnues": 175,
+      "repartition_annuelle": {
+        "1989": 6,
+        "1990": 2,
+        "2003": 46,
+        "2006": 4,
+        "2009": 5,
+        "2011": 1,
+        "2017": 3,
+        "2018": 112,
+        "2019": 25,
+        "2020": 85,
+        "2022": 85,
+        "2023": 8
+      }
+    },
+    "02": {
+      "nom": "Aisne",
+      "region": "Hauts-de-France",
+      "arretes_secheresse": 111,
+      "communes_reconnues": 89,
+      "repartition_annuelle": {
+        "1989": 2,
+        "1992": 1,
+        "1995": 2,
+        "1996": 2,
+        "1997": 1,
+        "2009": 1,
+        "2018": 25,
+        "2019": 1,
+        "2020": 34,
+        "2022": 42
+      }
+    },
+    "03": {
+      "nom": "Allier",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 973,
+      "communes_reconnues": 268,
+      "repartition_annuelle": {
+        "1989": 45,
+        "1991": 1,
+        "1992": 27,
+        "1993": 6,
+        "1995": 4,
+        "1996": 4,
+        "1997": 7,
+        "1998": 6,
+        "2003": 104,
+        "2009": 2,
+        "2011": 42,
+        "2012": 8,
+        "2015": 1,
+        "2016": 44,
+        "2017": 5,
+        "2018": 214,
+        "2019": 206,
+        "2020": 114,
+        "2022": 40,
+        "2023": 93
+      }
+    },
+    "04": {
+      "nom": "Alpes-de-Haute-Provence",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "arretes_secheresse": 225,
+      "communes_reconnues": 96,
+      "repartition_annuelle": {
+        "1988": 1,
+        "1989": 14,
+        "1990": 6,
+        "1991": 1,
+        "1992": 1,
+        "1993": 2,
+        "1996": 2,
+        "1997": 6,
+        "1998": 8,
+        "1999": 3,
+        "2002": 3,
+        "2005": 8,
+        "2007": 12,
+        "2008": 2,
+        "2012": 2,
+        "2014": 2,
+        "2015": 1,
+        "2016": 7,
+        "2017": 61,
+        "2019": 1,
+        "2020": 1,
+        "2021": 1,
+        "2022": 55,
+        "2023": 25
+      }
+    },
+    "05": {
+      "nom": "Hautes-Alpes",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "arretes_secheresse": 33,
+      "communes_reconnues": 18,
+      "repartition_annuelle": {
+        "1998": 2,
+        "2002": 2,
+        "2006": 2,
+        "2007": 2,
+        "2011": 1,
+        "2016": 4,
+        "2019": 2,
+        "2022": 16,
+        "2023": 2
+      }
+    },
+    "06": {
+      "nom": "Alpes-Maritimes",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "arretes_secheresse": 337,
+      "communes_reconnues": 85,
+      "repartition_annuelle": {
+        "1989": 4,
+        "1990": 1,
+        "1995": 3,
+        "2003": 43,
+        "2004": 46,
+        "2005": 19,
+        "2006": 10,
+        "2007": 78,
+        "2016": 4,
+        "2017": 14,
+        "2018": 1,
+        "2022": 77,
+        "2023": 35,
+        "2024": 1,
+        "2025": 1
+      }
+    },
+    "07": {
+      "nom": "Ardèche",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 353,
+      "communes_reconnues": 124,
+      "repartition_annuelle": {
+        "1989": 3,
+        "1996": 1,
+        "2005": 2,
+        "2007": 8,
+        "2008": 1,
+        "2009": 15,
+        "2011": 14,
+        "2012": 8,
+        "2017": 69,
+        "2018": 8,
+        "2019": 73,
+        "2020": 17,
+        "2022": 84,
+        "2023": 50
+      }
+    },
+    "08": {
+      "nom": "Ardennes",
+      "region": "Grand Est",
+      "arretes_secheresse": 81,
+      "communes_reconnues": 62,
+      "repartition_annuelle": {
+        "1995": 1,
+        "2011": 3,
+        "2018": 10,
+        "2019": 5,
+        "2020": 35,
+        "2022": 27
+      }
+    },
+    "09": {
+      "nom": "Ariège",
+      "region": "Occitanie",
+      "arretes_secheresse": 225,
+      "communes_reconnues": 105,
+      "repartition_annuelle": {
+        "1989": 18,
+        "1992": 5,
+        "1995": 1,
+        "1996": 2,
+        "2002": 13,
+        "2003": 50,
+        "2004": 6,
+        "2006": 5,
+        "2008": 1,
+        "2009": 5,
+        "2011": 3,
+        "2012": 6,
+        "2015": 2,
+        "2016": 11,
+        "2017": 12,
+        "2019": 4,
+        "2021": 7,
+        "2022": 59,
+        "2023": 15
+      }
+    },
+    "10": {
+      "nom": "Aube",
+      "region": "Grand Est",
+      "arretes_secheresse": 202,
+      "communes_reconnues": 109,
+      "repartition_annuelle": {
+        "1989": 21,
+        "1990": 2,
+        "1992": 1,
+        "2003": 21,
+        "2011": 8,
+        "2018": 23,
+        "2019": 38,
+        "2020": 55,
+        "2021": 1,
+        "2022": 32
+      }
+    },
+    "11": {
+      "nom": "Aude",
+      "region": "Occitanie",
+      "arretes_secheresse": 935,
+      "communes_reconnues": 294,
+      "repartition_annuelle": {
+        "1988": 2,
+        "1989": 27,
+        "1990": 1,
+        "1991": 4,
+        "1992": 7,
+        "1995": 13,
+        "1996": 4,
+        "1997": 3,
+        "1998": 29,
+        "1999": 1,
+        "2002": 23,
+        "2003": 118,
+        "2004": 1,
+        "2005": 2,
+        "2007": 5,
+        "2008": 21,
+        "2009": 8,
+        "2010": 9,
+        "2012": 17,
+        "2015": 2,
+        "2016": 132,
+        "2017": 74,
+        "2018": 5,
+        "2019": 39,
+        "2020": 2,
+        "2021": 60,
+        "2022": 226,
+        "2023": 100
+      }
+    },
+    "12": {
+      "nom": "Aveyron",
+      "region": "Occitanie",
+      "arretes_secheresse": 136,
+      "communes_reconnues": 73,
+      "repartition_annuelle": {
+        "1990": 2,
+        "1991": 1,
+        "1992": 4,
+        "2003": 2,
+        "2005": 2,
+        "2009": 1,
+        "2010": 2,
+        "2011": 14,
+        "2016": 1,
+        "2017": 5,
+        "2018": 6,
+        "2019": 13,
+        "2021": 7,
+        "2022": 58,
+        "2023": 18
+      }
+    },
+    "13": {
+      "nom": "Bouches-du-Rhône",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "arretes_secheresse": 923,
+      "communes_reconnues": 93,
+      "repartition_annuelle": {
+        "1988": 3,
+        "1989": 47,
+        "1990": 3,
+        "1991": 8,
+        "1992": 43,
+        "1993": 18,
+        "1994": 2,
+        "1996": 1,
+        "1998": 53,
+        "2001": 3,
+        "2002": 32,
+        "2004": 61,
+        "2005": 72,
+        "2006": 79,
+        "2007": 205,
+        "2008": 8,
+        "2012": 4,
+        "2016": 64,
+        "2017": 32,
+        "2018": 20,
+        "2019": 31,
+        "2021": 2,
+        "2022": 79,
+        "2023": 53
+      }
+    },
+    "14": {
+      "nom": "Calvados",
+      "region": "Normandie",
+      "arretes_secheresse": 77,
+      "communes_reconnues": 57,
+      "repartition_annuelle": {
+        "1989": 3,
+        "1990": 3,
+        "1991": 1,
+        "1992": 3,
+        "1993": 2,
+        "1994": 1,
+        "1995": 2,
+        "1996": 15,
+        "2011": 5,
+        "2017": 3,
+        "2018": 3,
+        "2022": 36
+      }
+    },
+    "15": {
+      "nom": "Cantal",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 38,
+      "communes_reconnues": 22,
+      "repartition_annuelle": {
+        "1989": 1,
+        "2003": 1,
+        "2005": 2,
+        "2006": 2,
+        "2018": 8,
+        "2019": 16,
+        "2020": 1,
+        "2022": 7
+      }
+    },
+    "16": {
+      "nom": "Charente",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 490,
+      "communes_reconnues": 188,
+      "repartition_annuelle": {
+        "1989": 34,
+        "1990": 12,
+        "1991": 5,
+        "1992": 9,
+        "1995": 10,
+        "1996": 2,
+        "1997": 1,
+        "1998": 2,
+        "2002": 1,
+        "2003": 92,
+        "2005": 110,
+        "2009": 26,
+        "2010": 11,
+        "2011": 92,
+        "2017": 14,
+        "2018": 2,
+        "2019": 2,
+        "2021": 1,
+        "2022": 64
+      }
+    },
+    "17": {
+      "nom": "Charente-Maritime",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 1600,
+      "communes_reconnues": 340,
+      "repartition_annuelle": {
+        "1989": 150,
+        "1990": 4,
+        "1991": 78,
+        "1992": 14,
+        "1993": 6,
+        "1996": 13,
+        "1997": 5,
+        "1998": 1,
+        "2002": 10,
+        "2003": 253,
+        "2005": 728,
+        "2009": 41,
+        "2011": 116,
+        "2017": 35,
+        "2018": 41,
+        "2021": 2,
+        "2022": 103
+      }
+    },
+    "18": {
+      "nom": "Cher",
+      "region": "Centre-Val de Loire",
+      "arretes_secheresse": 817,
+      "communes_reconnues": 252,
+      "repartition_annuelle": {
+        "1989": 96,
+        "1990": 2,
+        "1991": 39,
+        "1992": 17,
+        "1993": 9,
+        "1994": 3,
+        "1995": 2,
+        "1996": 6,
+        "1997": 9,
+        "1998": 3,
+        "2002": 30,
+        "2003": 19,
+        "2006": 17,
+        "2009": 6,
+        "2011": 56,
+        "2016": 13,
+        "2017": 5,
+        "2018": 197,
+        "2019": 191,
+        "2020": 64,
+        "2022": 11,
+        "2023": 22
+      }
+    },
+    "19": {
+      "nom": "Corrèze",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 190,
+      "communes_reconnues": 82,
+      "repartition_annuelle": {
+        "1989": 2,
+        "1992": 1,
+        "1994": 1,
+        "2005": 2,
+        "2011": 9,
+        "2015": 1,
+        "2017": 2,
+        "2018": 49,
+        "2019": 58,
+        "2020": 25,
+        "2022": 40
+      }
+    },
+    "21": {
+      "nom": "Côte-d'Or",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 571,
+      "communes_reconnues": 303,
+      "repartition_annuelle": {
+        "2003": 162,
+        "2011": 3,
+        "2016": 1,
+        "2018": 127,
+        "2019": 77,
+        "2020": 108,
+        "2021": 1,
+        "2022": 89,
+        "2023": 3
+      }
+    },
+    "22": {
+      "nom": "Côtes-d'Armor",
+      "region": "Bretagne",
+      "arretes_secheresse": 2,
+      "communes_reconnues": 2,
+      "repartition_annuelle": {
+        "2022": 2
+      }
+    },
+    "23": {
+      "nom": "Creuse",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 38,
+      "communes_reconnues": 32,
+      "repartition_annuelle": {
+        "2018": 4,
+        "2019": 20,
+        "2020": 1,
+        "2022": 10,
+        "2023": 3
+      }
+    },
+    "24": {
+      "nom": "Dordogne",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 1779,
+      "communes_reconnues": 441,
+      "repartition_annuelle": {
+        "1989": 296,
+        "1990": 2,
+        "1991": 59,
+        "1992": 210,
+        "1993": 4,
+        "1994": 1,
+        "1995": 91,
+        "1996": 14,
+        "1997": 73,
+        "1998": 1,
+        "2003": 81,
+        "2005": 332,
+        "2009": 36,
+        "2010": 1,
+        "2011": 337,
+        "2012": 6,
+        "2015": 5,
+        "2017": 23,
+        "2018": 12,
+        "2019": 26,
+        "2020": 1,
+        "2022": 167,
+        "2025": 1
+      }
+    },
+    "25": {
+      "nom": "Doubs",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 446,
+      "communes_reconnues": 192,
+      "repartition_annuelle": {
+        "2003": 10,
+        "2011": 1,
+        "2018": 125,
+        "2019": 50,
+        "2020": 15,
+        "2022": 221,
+        "2023": 24
+      }
+    },
+    "26": {
+      "nom": "Drôme",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 259,
+      "communes_reconnues": 153,
+      "repartition_annuelle": {
+        "1989": 5,
+        "1990": 1,
+        "1997": 2,
+        "1998": 1,
+        "2005": 2,
+        "2007": 3,
+        "2009": 3,
+        "2011": 3,
+        "2012": 1,
+        "2016": 2,
+        "2017": 52,
+        "2019": 39,
+        "2020": 23,
+        "2022": 96,
+        "2023": 26
+      }
+    },
+    "27": {
+      "nom": "Eure",
+      "region": "Normandie",
+      "arretes_secheresse": 101,
+      "communes_reconnues": 67,
+      "repartition_annuelle": {
+        "1989": 5,
+        "1990": 1,
+        "1991": 1,
+        "1994": 1,
+        "1996": 11,
+        "2003": 18,
+        "2006": 1,
+        "2011": 9,
+        "2017": 12,
+        "2018": 7,
+        "2019": 4,
+        "2022": 30,
+        "2025": 1
+      }
+    },
+    "28": {
+      "nom": "Eure-et-Loir",
+      "region": "Centre-Val de Loire",
+      "arretes_secheresse": 198,
+      "communes_reconnues": 96,
+      "repartition_annuelle": {
+        "1989": 37,
+        "1991": 10,
+        "1992": 12,
+        "1993": 4,
+        "1995": 4,
+        "1996": 15,
+        "1997": 5,
+        "1998": 2,
+        "2001": 2,
+        "2002": 1,
+        "2003": 17,
+        "2005": 1,
+        "2009": 15,
+        "2011": 9,
+        "2018": 44,
+        "2020": 16,
+        "2022": 2,
+        "2023": 2
+      }
+    },
+    "29": {
+      "nom": "Finistère",
+      "region": "Bretagne",
+      "arretes_secheresse": 10,
+      "communes_reconnues": 7,
+      "repartition_annuelle": {
+        "2022": 10
+      }
+    },
+    "2A": {
+      "nom": "Corse-du-Sud",
+      "region": "Corse",
+      "arretes_secheresse": 1,
+      "communes_reconnues": 1,
+      "repartition_annuelle": {
+        "2022": 1
+      }
+    },
+    "2B": {
+      "nom": "Haute-Corse",
+      "region": "Corse",
+      "arretes_secheresse": 3,
+      "communes_reconnues": 3,
+      "repartition_annuelle": {
+        "2017": 1,
+        "2023": 2
+      }
+    },
+    "30": {
+      "nom": "Gard",
+      "region": "Occitanie",
+      "arretes_secheresse": 750,
+      "communes_reconnues": 241,
+      "repartition_annuelle": {
+        "1989": 8,
+        "1990": 10,
+        "1991": 1,
+        "1992": 4,
+        "1993": 4,
+        "1995": 4,
+        "1998": 18,
+        "2000": 6,
+        "2003": 1,
+        "2007": 6,
+        "2008": 1,
+        "2009": 1,
+        "2011": 6,
+        "2012": 66,
+        "2013": 3,
+        "2014": 1,
+        "2016": 41,
+        "2017": 200,
+        "2018": 20,
+        "2019": 105,
+        "2020": 1,
+        "2021": 2,
+        "2022": 148,
+        "2023": 93
+      }
+    },
+    "31": {
+      "nom": "Haute-Garonne",
+      "region": "Occitanie",
+      "arretes_secheresse": 2552,
+      "communes_reconnues": 510,
+      "repartition_annuelle": {
+        "1989": 374,
+        "1990": 27,
+        "1991": 85,
+        "1992": 81,
+        "1993": 88,
+        "1994": 43,
+        "1995": 4,
+        "1996": 18,
+        "1997": 16,
+        "1998": 131,
+        "1999": 41,
+        "2000": 32,
+        "2002": 161,
+        "2003": 444,
+        "2004": 1,
+        "2005": 14,
+        "2006": 21,
+        "2007": 19,
+        "2008": 17,
+        "2009": 1,
+        "2010": 1,
+        "2011": 165,
+        "2012": 108,
+        "2013": 2,
+        "2015": 45,
+        "2016": 178,
+        "2017": 127,
+        "2019": 20,
+        "2020": 53,
+        "2021": 8,
+        "2022": 179,
+        "2023": 48
+      }
+    },
+    "32": {
+      "nom": "Gers",
+      "region": "Occitanie",
+      "arretes_secheresse": 2420,
+      "communes_reconnues": 457,
+      "repartition_annuelle": {
+        "1989": 427,
+        "1990": 8,
+        "1991": 68,
+        "1992": 63,
+        "1993": 193,
+        "1994": 14,
+        "1995": 5,
+        "1996": 18,
+        "1997": 11,
+        "1998": 151,
+        "1999": 32,
+        "2000": 18,
+        "2002": 231,
+        "2003": 200,
+        "2005": 16,
+        "2006": 9,
+        "2007": 3,
+        "2008": 6,
+        "2009": 24,
+        "2011": 146,
+        "2012": 109,
+        "2015": 43,
+        "2016": 125,
+        "2017": 121,
+        "2019": 36,
+        "2021": 1,
+        "2022": 342
+      }
+    },
+    "33": {
+      "nom": "Gironde",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 1947,
+      "communes_reconnues": 461,
+      "repartition_annuelle": {
+        "1989": 155,
+        "1990": 33,
+        "1991": 44,
+        "1992": 22,
+        "1993": 7,
+        "1994": 2,
+        "1995": 29,
+        "1996": 7,
+        "1997": 11,
+        "1998": 4,
+        "2002": 59,
+        "2003": 282,
+        "2005": 375,
+        "2009": 47,
+        "2010": 36,
+        "2011": 189,
+        "2012": 90,
+        "2015": 50,
+        "2017": 150,
+        "2018": 8,
+        "2022": 347
+      }
+    },
+    "34": {
+      "nom": "Hérault",
+      "region": "Occitanie",
+      "arretes_secheresse": 785,
+      "communes_reconnues": 211,
+      "repartition_annuelle": {
+        "1988": 2,
+        "1989": 11,
+        "1990": 24,
+        "1991": 10,
+        "1992": 1,
+        "1993": 5,
+        "1995": 27,
+        "1996": 4,
+        "1998": 65,
+        "1999": 8,
+        "2000": 37,
+        "2002": 5,
+        "2005": 4,
+        "2007": 13,
+        "2008": 27,
+        "2009": 4,
+        "2010": 4,
+        "2011": 1,
+        "2012": 25,
+        "2013": 1,
+        "2014": 26,
+        "2016": 45,
+        "2017": 81,
+        "2018": 33,
+        "2019": 113,
+        "2020": 1,
+        "2021": 33,
+        "2022": 53,
+        "2023": 122
+      }
+    },
+    "35": {
+      "nom": "Ille-et-Vilaine",
+      "region": "Bretagne",
+      "arretes_secheresse": 32,
+      "communes_reconnues": 24,
+      "repartition_annuelle": {
+        "1989": 2,
+        "1995": 1,
+        "2003": 10,
+        "2005": 6,
+        "2018": 1,
+        "2022": 11,
+        "2025": 1
+      }
+    },
+    "36": {
+      "nom": "Indre",
+      "region": "Centre-Val de Loire",
+      "arretes_secheresse": 878,
+      "communes_reconnues": 218,
+      "repartition_annuelle": {
+        "1988": 3,
+        "1989": 128,
+        "1990": 12,
+        "1991": 74,
+        "1992": 94,
+        "1993": 42,
+        "1994": 5,
+        "1995": 6,
+        "1996": 9,
+        "1997": 11,
+        "1998": 13,
+        "2002": 18,
+        "2003": 2,
+        "2005": 2,
+        "2006": 12,
+        "2009": 13,
+        "2011": 53,
+        "2016": 44,
+        "2017": 12,
+        "2018": 148,
+        "2019": 126,
+        "2020": 3,
+        "2021": 1,
+        "2022": 46,
+        "2023": 1
+      }
+    },
+    "37": {
+      "nom": "Indre-et-Loire",
+      "region": "Centre-Val de Loire",
+      "arretes_secheresse": 859,
+      "communes_reconnues": 203,
+      "repartition_annuelle": {
+        "1989": 43,
+        "1990": 117,
+        "1991": 29,
+        "1992": 56,
+        "1993": 34,
+        "1994": 1,
+        "1995": 16,
+        "1996": 72,
+        "1997": 51,
+        "2002": 2,
+        "2003": 39,
+        "2004": 1,
+        "2005": 85,
+        "2006": 2,
+        "2009": 1,
+        "2011": 71,
+        "2017": 16,
+        "2018": 28,
+        "2019": 48,
+        "2022": 146,
+        "2023": 1
+      }
+    },
+    "38": {
+      "nom": "Isère",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 122,
+      "communes_reconnues": 82,
+      "repartition_annuelle": {
+        "2003": 5,
+        "2005": 1,
+        "2009": 2,
+        "2011": 1,
+        "2012": 1,
+        "2018": 36,
+        "2019": 4,
+        "2020": 18,
+        "2022": 48,
+        "2023": 6
+      }
+    },
+    "39": {
+      "nom": "Jura",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 866,
+      "communes_reconnues": 298,
+      "repartition_annuelle": {
+        "1989": 2,
+        "1991": 2,
+        "2003": 187,
+        "2011": 1,
+        "2017": 12,
+        "2018": 217,
+        "2019": 49,
+        "2020": 115,
+        "2021": 2,
+        "2022": 279
+      }
+    },
+    "40": {
+      "nom": "Landes",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 223,
+      "communes_reconnues": 155,
+      "repartition_annuelle": {
+        "1989": 41,
+        "1990": 1,
+        "1991": 8,
+        "1992": 1,
+        "1995": 1,
+        "1997": 1,
+        "2002": 3,
+        "2003": 14,
+        "2005": 1,
+        "2010": 1,
+        "2011": 5,
+        "2012": 3,
+        "2017": 7,
+        "2021": 2,
+        "2022": 134
+      }
+    },
+    "41": {
+      "nom": "Loir-et-Cher",
+      "region": "Centre-Val de Loire",
+      "arretes_secheresse": 533,
+      "communes_reconnues": 175,
+      "repartition_annuelle": {
+        "1989": 113,
+        "1990": 8,
+        "1991": 54,
+        "1992": 50,
+        "1993": 44,
+        "1994": 4,
+        "1995": 2,
+        "1996": 27,
+        "1997": 4,
+        "1998": 1,
+        "2005": 43,
+        "2006": 7,
+        "2009": 6,
+        "2011": 22,
+        "2018": 39,
+        "2019": 57,
+        "2020": 8,
+        "2022": 44
+      }
+    },
+    "42": {
+      "nom": "Loire",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 267,
+      "communes_reconnues": 105,
+      "repartition_annuelle": {
+        "1989": 1,
+        "2003": 20,
+        "2011": 1,
+        "2016": 1,
+        "2018": 39,
+        "2019": 32,
+        "2020": 33,
+        "2021": 2,
+        "2022": 73,
+        "2023": 65
+      }
+    },
+    "43": {
+      "nom": "Haute-Loire",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 149,
+      "communes_reconnues": 68,
+      "repartition_annuelle": {
+        "1995": 1,
+        "2003": 27,
+        "2011": 8,
+        "2016": 3,
+        "2018": 2,
+        "2019": 7,
+        "2020": 6,
+        "2021": 1,
+        "2022": 57,
+        "2023": 37
+      }
+    },
+    "44": {
+      "nom": "Loire-Atlantique",
+      "region": "Pays de la Loire",
+      "arretes_secheresse": 82,
+      "communes_reconnues": 57,
+      "repartition_annuelle": {
+        "1989": 23,
+        "1991": 1,
+        "1995": 1,
+        "1996": 3,
+        "1997": 1,
+        "2003": 14,
+        "2005": 6,
+        "2009": 1,
+        "2011": 3,
+        "2017": 7,
+        "2018": 1,
+        "2022": 21
+      }
+    },
+    "45": {
+      "nom": "Loiret",
+      "region": "Centre-Val de Loire",
+      "arretes_secheresse": 886,
+      "communes_reconnues": 258,
+      "repartition_annuelle": {
+        "1989": 159,
+        "1990": 8,
+        "1991": 61,
+        "1992": 50,
+        "1993": 143,
+        "1994": 1,
+        "1995": 2,
+        "1996": 33,
+        "1997": 5,
+        "1998": 3,
+        "2003": 18,
+        "2006": 42,
+        "2009": 1,
+        "2011": 24,
+        "2018": 228,
+        "2019": 69,
+        "2020": 21,
+        "2022": 18
+      }
+    },
+    "46": {
+      "nom": "Lot",
+      "region": "Occitanie",
+      "arretes_secheresse": 364,
+      "communes_reconnues": 156,
+      "repartition_annuelle": {
+        "1989": 83,
+        "1990": 1,
+        "1991": 9,
+        "1992": 10,
+        "1993": 3,
+        "1995": 4,
+        "1996": 1,
+        "1997": 4,
+        "2002": 2,
+        "2003": 3,
+        "2005": 5,
+        "2009": 11,
+        "2011": 32,
+        "2012": 3,
+        "2015": 6,
+        "2017": 17,
+        "2018": 26,
+        "2019": 50,
+        "2020": 16,
+        "2022": 78
+      }
+    },
+    "47": {
+      "nom": "Lot-et-Garonne",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 1553,
+      "communes_reconnues": 309,
+      "repartition_annuelle": {
+        "1989": 93,
+        "1990": 8,
+        "1991": 49,
+        "1992": 2,
+        "1993": 3,
+        "1995": 4,
+        "1996": 11,
+        "1997": 4,
+        "1998": 5,
+        "2002": 74,
+        "2003": 215,
+        "2005": 334,
+        "2006": 44,
+        "2008": 4,
+        "2009": 69,
+        "2011": 203,
+        "2012": 34,
+        "2015": 6,
+        "2016": 3,
+        "2017": 159,
+        "2022": 229
+      }
+    },
+    "48": {
+      "nom": "Lozère",
+      "region": "Occitanie",
+      "arretes_secheresse": 7,
+      "communes_reconnues": 7,
+      "repartition_annuelle": {
+        "2003": 1,
+        "2011": 1,
+        "2017": 1,
+        "2019": 1,
+        "2022": 3
+      }
+    },
+    "49": {
+      "nom": "Maine-et-Loire",
+      "region": "Pays de la Loire",
+      "arretes_secheresse": 506,
+      "communes_reconnues": 111,
+      "repartition_annuelle": {
+        "1989": 58,
+        "1991": 5,
+        "1992": 18,
+        "1993": 2,
+        "1994": 1,
+        "1995": 12,
+        "1996": 18,
+        "1997": 4,
+        "1998": 3,
+        "2003": 84,
+        "2004": 44,
+        "2005": 135,
+        "2006": 22,
+        "2009": 7,
+        "2011": 4,
+        "2017": 14,
+        "2021": 3,
+        "2022": 72
+      }
+    },
+    "50": {
+      "nom": "Manche",
+      "region": "Normandie",
+      "arretes_secheresse": 14,
+      "communes_reconnues": 14,
+      "repartition_annuelle": {
+        "2011": 1,
+        "2018": 1,
+        "2022": 12
+      }
+    },
+    "51": {
+      "nom": "Marne",
+      "region": "Grand Est",
+      "arretes_secheresse": 122,
+      "communes_reconnues": 80,
+      "repartition_annuelle": {
+        "2003": 14,
+        "2009": 1,
+        "2011": 1,
+        "2018": 20,
+        "2019": 8,
+        "2020": 44,
+        "2022": 34
+      }
+    },
+    "52": {
+      "nom": "Haute-Marne",
+      "region": "Grand Est",
+      "arretes_secheresse": 253,
+      "communes_reconnues": 131,
+      "repartition_annuelle": {
+        "1990": 1,
+        "1991": 1,
+        "2003": 17,
+        "2011": 1,
+        "2018": 28,
+        "2019": 95,
+        "2020": 64,
+        "2021": 1,
+        "2022": 45
+      }
+    },
+    "53": {
+      "nom": "Mayenne",
+      "region": "Pays de la Loire",
+      "arretes_secheresse": 9,
+      "communes_reconnues": 8,
+      "repartition_annuelle": {
+        "2003": 7,
+        "2005": 1,
+        "2009": 1
+      }
+    },
+    "54": {
+      "nom": "Meurthe-et-Moselle",
+      "region": "Grand Est",
+      "arretes_secheresse": 1377,
+      "communes_reconnues": 369,
+      "repartition_annuelle": {
+        "1989": 25,
+        "1990": 2,
+        "1992": 4,
+        "1993": 8,
+        "1994": 3,
+        "1996": 2,
+        "1997": 2,
+        "1998": 1,
+        "2003": 129,
+        "2011": 5,
+        "2014": 5,
+        "2017": 15,
+        "2018": 191,
+        "2019": 299,
+        "2020": 140,
+        "2022": 546
+      }
+    },
+    "55": {
+      "nom": "Meuse",
+      "region": "Grand Est",
+      "arretes_secheresse": 206,
+      "communes_reconnues": 123,
+      "repartition_annuelle": {
+        "1996": 1,
+        "2003": 6,
+        "2011": 2,
+        "2018": 36,
+        "2019": 61,
+        "2020": 59,
+        "2022": 41
+      }
+    },
+    "56": {
+      "nom": "Morbihan",
+      "region": "Bretagne",
+      "arretes_secheresse": 17,
+      "communes_reconnues": 15,
+      "repartition_annuelle": {
+        "1990": 1,
+        "1991": 1,
+        "2003": 2,
+        "2017": 1,
+        "2022": 12
+      }
+    },
+    "57": {
+      "nom": "Moselle",
+      "region": "Grand Est",
+      "arretes_secheresse": 1520,
+      "communes_reconnues": 479,
+      "repartition_annuelle": {
+        "1989": 11,
+        "1992": 1,
+        "1993": 2,
+        "1996": 4,
+        "2003": 191,
+        "2006": 2,
+        "2011": 12,
+        "2012": 1,
+        "2014": 8,
+        "2015": 4,
+        "2016": 20,
+        "2017": 35,
+        "2018": 253,
+        "2019": 178,
+        "2020": 208,
+        "2021": 6,
+        "2022": 584
+      }
+    },
+    "58": {
+      "nom": "Nièvre",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 567,
+      "communes_reconnues": 255,
+      "repartition_annuelle": {
+        "1989": 12,
+        "1990": 2,
+        "1992": 1,
+        "1993": 4,
+        "1996": 6,
+        "1997": 1,
+        "2003": 77,
+        "2011": 15,
+        "2016": 1,
+        "2018": 194,
+        "2019": 155,
+        "2020": 95,
+        "2022": 3,
+        "2023": 1
+      }
+    },
+    "59": {
+      "nom": "Nord",
+      "region": "Hauts-de-France",
+      "arretes_secheresse": 1162,
+      "communes_reconnues": 302,
+      "repartition_annuelle": {
+        "1989": 104,
+        "1990": 170,
+        "1991": 139,
+        "1992": 76,
+        "1993": 106,
+        "1994": 19,
+        "1995": 25,
+        "1996": 29,
+        "1997": 7,
+        "2006": 1,
+        "2009": 34,
+        "2011": 29,
+        "2015": 7,
+        "2017": 19,
+        "2018": 28,
+        "2019": 27,
+        "2020": 138,
+        "2022": 204
+      }
+    },
+    "60": {
+      "nom": "Oise",
+      "region": "Hauts-de-France",
+      "arretes_secheresse": 108,
+      "communes_reconnues": 71,
+      "repartition_annuelle": {
+        "1989": 1,
+        "1990": 2,
+        "1993": 1,
+        "1995": 3,
+        "1996": 4,
+        "1997": 1,
+        "2005": 16,
+        "2006": 9,
+        "2011": 4,
+        "2017": 2,
+        "2018": 9,
+        "2019": 1,
+        "2020": 10,
+        "2022": 45
+      }
+    },
+    "61": {
+      "nom": "Orne",
+      "region": "Normandie",
+      "arretes_secheresse": 87,
+      "communes_reconnues": 53,
+      "repartition_annuelle": {
+        "1989": 5,
+        "1992": 1,
+        "1994": 1,
+        "1995": 3,
+        "1996": 4,
+        "2003": 8,
+        "2009": 5,
+        "2010": 1,
+        "2011": 2,
+        "2017": 5,
+        "2018": 8,
+        "2020": 28,
+        "2022": 16
+      }
+    },
+    "62": {
+      "nom": "Pas-de-Calais",
+      "region": "Hauts-de-France",
+      "arretes_secheresse": 397,
+      "communes_reconnues": 205,
+      "repartition_annuelle": {
+        "1989": 78,
+        "1990": 1,
+        "1991": 37,
+        "1992": 3,
+        "1993": 6,
+        "1994": 1,
+        "1995": 12,
+        "1996": 22,
+        "1997": 1,
+        "1998": 2,
+        "2000": 2,
+        "2009": 4,
+        "2011": 4,
+        "2015": 4,
+        "2017": 2,
+        "2018": 18,
+        "2020": 46,
+        "2022": 154
+      }
+    },
+    "63": {
+      "nom": "Puy-de-Dôme",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 992,
+      "communes_reconnues": 196,
+      "repartition_annuelle": {
+        "1989": 65,
+        "1990": 4,
+        "1991": 20,
+        "1992": 42,
+        "1993": 3,
+        "1994": 1,
+        "1995": 1,
+        "1996": 45,
+        "1997": 3,
+        "1998": 65,
+        "1999": 19,
+        "2000": 17,
+        "2001": 19,
+        "2002": 43,
+        "2003": 9,
+        "2005": 7,
+        "2006": 9,
+        "2010": 7,
+        "2011": 8,
+        "2013": 1,
+        "2016": 30,
+        "2018": 123,
+        "2019": 153,
+        "2020": 30,
+        "2022": 131,
+        "2023": 137
+      }
+    },
+    "64": {
+      "nom": "Pyrénées-Atlantiques",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 336,
+      "communes_reconnues": 173,
+      "repartition_annuelle": {
+        "1989": 71,
+        "1990": 14,
+        "1991": 6,
+        "1992": 2,
+        "1994": 7,
+        "1995": 1,
+        "1996": 1,
+        "1998": 2,
+        "2002": 17,
+        "2003": 28,
+        "2005": 9,
+        "2007": 1,
+        "2011": 18,
+        "2012": 18,
+        "2017": 3,
+        "2019": 2,
+        "2021": 14,
+        "2022": 122
+      }
+    },
+    "65": {
+      "nom": "Hautes-Pyrénées",
+      "region": "Occitanie",
+      "arretes_secheresse": 196,
+      "communes_reconnues": 138,
+      "repartition_annuelle": {
+        "1989": 67,
+        "1990": 2,
+        "1991": 1,
+        "1993": 1,
+        "1994": 3,
+        "1996": 2,
+        "1997": 1,
+        "2002": 5,
+        "2003": 54,
+        "2004": 1,
+        "2011": 2,
+        "2016": 2,
+        "2017": 7,
+        "2019": 1,
+        "2021": 3,
+        "2022": 44
+      }
+    },
+    "66": {
+      "nom": "Pyrénées-Orientales",
+      "region": "Occitanie",
+      "arretes_secheresse": 68,
+      "communes_reconnues": 42,
+      "repartition_annuelle": {
+        "1989": 3,
+        "1991": 3,
+        "1998": 4,
+        "2005": 2,
+        "2016": 2,
+        "2017": 2,
+        "2021": 2,
+        "2022": 32,
+        "2023": 18
+      }
+    },
+    "67": {
+      "nom": "Bas-Rhin",
+      "region": "Grand Est",
+      "arretes_secheresse": 199,
+      "communes_reconnues": 99,
+      "repartition_annuelle": {
+        "1990": 3,
+        "2003": 22,
+        "2006": 1,
+        "2015": 2,
+        "2018": 23,
+        "2019": 35,
+        "2020": 57,
+        "2021": 1,
+        "2022": 55
+      }
+    },
+    "68": {
+      "nom": "Haut-Rhin",
+      "region": "Grand Est",
+      "arretes_secheresse": 25,
+      "communes_reconnues": 21,
+      "repartition_annuelle": {
+        "1995": 1,
+        "2017": 2,
+        "2018": 4,
+        "2020": 6,
+        "2021": 1,
+        "2022": 11
+      }
+    },
+    "69": {
+      "nom": "Rhône",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 332,
+      "communes_reconnues": 115,
+      "repartition_annuelle": {
+        "1989": 1,
+        "1990": 1,
+        "1995": 1,
+        "1997": 1,
+        "1998": 1,
+        "2002": 3,
+        "2003": 42,
+        "2005": 4,
+        "2006": 2,
+        "2008": 2,
+        "2009": 11,
+        "2011": 11,
+        "2018": 65,
+        "2019": 16,
+        "2020": 62,
+        "2022": 80,
+        "2023": 29
+      }
+    },
+    "70": {
+      "nom": "Haute-Saône",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 289,
+      "communes_reconnues": 208,
+      "repartition_annuelle": {
+        "2003": 34,
+        "2018": 135,
+        "2019": 31,
+        "2020": 33,
+        "2021": 1,
+        "2022": 51,
+        "2023": 4
+      }
+    },
+    "71": {
+      "nom": "Saône-et-Loire",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 1024,
+      "communes_reconnues": 421,
+      "repartition_annuelle": {
+        "1996": 2,
+        "2003": 211,
+        "2009": 1,
+        "2011": 7,
+        "2016": 1,
+        "2017": 1,
+        "2018": 282,
+        "2019": 180,
+        "2020": 176,
+        "2022": 158,
+        "2023": 5
+      }
+    },
+    "72": {
+      "nom": "Sarthe",
+      "region": "Pays de la Loire",
+      "arretes_secheresse": 405,
+      "communes_reconnues": 191,
+      "repartition_annuelle": {
+        "1989": 76,
+        "1991": 22,
+        "1992": 3,
+        "1993": 16,
+        "1994": 3,
+        "1995": 2,
+        "1996": 19,
+        "1997": 1,
+        "1998": 3,
+        "2003": 78,
+        "2005": 62,
+        "2009": 33,
+        "2011": 20,
+        "2017": 1,
+        "2018": 6,
+        "2020": 42,
+        "2022": 18
+      }
+    },
+    "73": {
+      "nom": "Savoie",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 39,
+      "communes_reconnues": 33,
+      "repartition_annuelle": {
+        "2003": 4,
+        "2018": 11,
+        "2022": 21,
+        "2023": 3
+      }
+    },
+    "74": {
+      "nom": "Haute-Savoie",
+      "region": "Auvergne-Rhône-Alpes",
+      "arretes_secheresse": 87,
+      "communes_reconnues": 62,
+      "repartition_annuelle": {
+        "2003": 13,
+        "2017": 1,
+        "2018": 32,
+        "2022": 41
+      }
+    },
+    "75": {
+      "nom": "Paris",
+      "region": "Île-de-France",
+      "arretes_secheresse": 1,
+      "communes_reconnues": 1,
+      "repartition_annuelle": {
+        "2003": 1
+      }
+    },
+    "76": {
+      "nom": "Seine-Maritime",
+      "region": "Normandie",
+      "arretes_secheresse": 26,
+      "communes_reconnues": 25,
+      "repartition_annuelle": {
+        "2018": 2,
+        "2019": 6,
+        "2020": 3,
+        "2022": 15
+      }
+    },
+    "77": {
+      "nom": "Seine-et-Marne",
+      "region": "Île-de-France",
+      "arretes_secheresse": 928,
+      "communes_reconnues": 230,
+      "repartition_annuelle": {
+        "1989": 134,
+        "1990": 1,
+        "1991": 57,
+        "1992": 62,
+        "1993": 53,
+        "1994": 3,
+        "1995": 41,
+        "1996": 39,
+        "1997": 23,
+        "1998": 3,
+        "2003": 66,
+        "2005": 62,
+        "2006": 20,
+        "2009": 20,
+        "2011": 41,
+        "2017": 2,
+        "2018": 118,
+        "2019": 4,
+        "2020": 134,
+        "2022": 45
+      }
+    },
+    "78": {
+      "nom": "Yvelines",
+      "region": "Île-de-France",
+      "arretes_secheresse": 774,
+      "communes_reconnues": 178,
+      "repartition_annuelle": {
+        "1989": 109,
+        "1990": 5,
+        "1991": 33,
+        "1992": 30,
+        "1993": 34,
+        "1994": 4,
+        "1995": 5,
+        "1996": 41,
+        "1997": 19,
+        "2003": 38,
+        "2004": 33,
+        "2005": 84,
+        "2006": 16,
+        "2009": 26,
+        "2011": 28,
+        "2017": 12,
+        "2018": 91,
+        "2020": 65,
+        "2022": 101
+      }
+    },
+    "79": {
+      "nom": "Deux-Sèvres",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 799,
+      "communes_reconnues": 188,
+      "repartition_annuelle": {
+        "1989": 78,
+        "1991": 56,
+        "1992": 21,
+        "1993": 4,
+        "1995": 16,
+        "1996": 56,
+        "1997": 1,
+        "2003": 87,
+        "2004": 7,
+        "2005": 124,
+        "2006": 6,
+        "2009": 30,
+        "2011": 45,
+        "2016": 3,
+        "2017": 87,
+        "2018": 2,
+        "2021": 39,
+        "2022": 137
+      }
+    },
+    "80": {
+      "nom": "Somme",
+      "region": "Hauts-de-France",
+      "arretes_secheresse": 21,
+      "communes_reconnues": 20,
+      "repartition_annuelle": {
+        "1989": 2,
+        "1996": 1,
+        "2011": 1,
+        "2017": 1,
+        "2018": 2,
+        "2022": 14
+      }
+    },
+    "81": {
+      "nom": "Tarn",
+      "region": "Occitanie",
+      "arretes_secheresse": 1307,
+      "communes_reconnues": 264,
+      "repartition_annuelle": {
+        "1989": 55,
+        "1990": 59,
+        "1991": 3,
+        "1992": 26,
+        "1994": 1,
+        "1995": 1,
+        "1996": 6,
+        "1998": 100,
+        "2002": 33,
+        "2003": 206,
+        "2005": 45,
+        "2007": 20,
+        "2008": 30,
+        "2009": 7,
+        "2010": 30,
+        "2011": 114,
+        "2012": 61,
+        "2013": 19,
+        "2016": 75,
+        "2017": 119,
+        "2018": 6,
+        "2019": 12,
+        "2020": 13,
+        "2021": 7,
+        "2022": 219,
+        "2023": 40
+      }
+    },
+    "82": {
+      "nom": "Tarn-et-Garonne",
+      "region": "Occitanie",
+      "arretes_secheresse": 1370,
+      "communes_reconnues": 191,
+      "repartition_annuelle": {
+        "1989": 162,
+        "1990": 4,
+        "1991": 82,
+        "1992": 109,
+        "1993": 9,
+        "1994": 2,
+        "1995": 10,
+        "1996": 9,
+        "1997": 5,
+        "1998": 106,
+        "1999": 21,
+        "2000": 6,
+        "2002": 69,
+        "2003": 166,
+        "2005": 37,
+        "2006": 41,
+        "2007": 18,
+        "2008": 31,
+        "2009": 68,
+        "2010": 2,
+        "2011": 133,
+        "2012": 63,
+        "2015": 22,
+        "2016": 25,
+        "2017": 67,
+        "2018": 21,
+        "2019": 1,
+        "2021": 1,
+        "2022": 76,
+        "2023": 4
+      }
+    },
+    "83": {
+      "nom": "Var",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "arretes_secheresse": 542,
+      "communes_reconnues": 133,
+      "repartition_annuelle": {
+        "1989": 32,
+        "1990": 4,
+        "1991": 3,
+        "1992": 4,
+        "1993": 3,
+        "1994": 1,
+        "1995": 2,
+        "1996": 1,
+        "1997": 1,
+        "1998": 35,
+        "1999": 1,
+        "2002": 27,
+        "2004": 17,
+        "2005": 7,
+        "2006": 8,
+        "2007": 27,
+        "2008": 5,
+        "2012": 1,
+        "2016": 29,
+        "2017": 93,
+        "2018": 4,
+        "2019": 28,
+        "2020": 9,
+        "2021": 6,
+        "2022": 118,
+        "2023": 76
+      }
+    },
+    "84": {
+      "nom": "Vaucluse",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "arretes_secheresse": 553,
+      "communes_reconnues": 139,
+      "repartition_annuelle": {
+        "1989": 9,
+        "1990": 12,
+        "1991": 5,
+        "1992": 3,
+        "1994": 1,
+        "1995": 2,
+        "1996": 4,
+        "1997": 3,
+        "1998": 20,
+        "2004": 5,
+        "2005": 16,
+        "2006": 8,
+        "2007": 39,
+        "2008": 7,
+        "2011": 4,
+        "2012": 19,
+        "2014": 2,
+        "2016": 39,
+        "2017": 48,
+        "2018": 17,
+        "2019": 55,
+        "2020": 6,
+        "2021": 17,
+        "2022": 128,
+        "2023": 84
+      }
+    },
+    "85": {
+      "nom": "Vendée",
+      "region": "Pays de la Loire",
+      "arretes_secheresse": 529,
+      "communes_reconnues": 174,
+      "repartition_annuelle": {
+        "1989": 54,
+        "1991": 29,
+        "1992": 5,
+        "1995": 4,
+        "1996": 4,
+        "2003": 37,
+        "2005": 76,
+        "2009": 1,
+        "2011": 16,
+        "2012": 4,
+        "2017": 83,
+        "2018": 73,
+        "2021": 19,
+        "2022": 124
+      }
+    },
+    "86": {
+      "nom": "Vienne",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 1220,
+      "communes_reconnues": 225,
+      "repartition_annuelle": {
+        "1989": 102,
+        "1990": 3,
+        "1991": 68,
+        "1992": 24,
+        "1993": 17,
+        "1994": 6,
+        "1995": 8,
+        "1996": 44,
+        "1997": 8,
+        "1998": 5,
+        "2002": 10,
+        "2003": 112,
+        "2005": 202,
+        "2009": 6,
+        "2011": 99,
+        "2015": 3,
+        "2016": 43,
+        "2017": 147,
+        "2018": 31,
+        "2019": 35,
+        "2020": 20,
+        "2021": 18,
+        "2022": 196,
+        "2023": 13
+      }
+    },
+    "87": {
+      "nom": "Haute-Vienne",
+      "region": "Nouvelle-Aquitaine",
+      "arretes_secheresse": 48,
+      "communes_reconnues": 31,
+      "repartition_annuelle": {
+        "2003": 1,
+        "2018": 9,
+        "2019": 13,
+        "2020": 3,
+        "2022": 20,
+        "2023": 2
+      }
+    },
+    "88": {
+      "nom": "Vosges",
+      "region": "Grand Est",
+      "arretes_secheresse": 326,
+      "communes_reconnues": 139,
+      "repartition_annuelle": {
+        "1996": 1,
+        "2003": 12,
+        "2015": 2,
+        "2017": 9,
+        "2018": 42,
+        "2019": 161,
+        "2020": 33,
+        "2022": 64,
+        "2023": 2
+      }
+    },
+    "89": {
+      "nom": "Yonne",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 537,
+      "communes_reconnues": 228,
+      "repartition_annuelle": {
+        "1989": 11,
+        "1990": 4,
+        "1991": 5,
+        "1992": 2,
+        "1993": 7,
+        "1996": 2,
+        "1997": 2,
+        "2003": 73,
+        "2006": 1,
+        "2009": 2,
+        "2011": 16,
+        "2018": 134,
+        "2019": 127,
+        "2020": 67,
+        "2022": 84
+      }
+    },
+    "90": {
+      "nom": "Territoire de Belfort",
+      "region": "Bourgogne-Franche-Comté",
+      "arretes_secheresse": 80,
+      "communes_reconnues": 52,
+      "repartition_annuelle": {
+        "2003": 2,
+        "2017": 2,
+        "2018": 48,
+        "2019": 8,
+        "2020": 1,
+        "2022": 17,
+        "2023": 2
+      }
+    },
+    "91": {
+      "nom": "Essonne",
+      "region": "Île-de-France",
+      "arretes_secheresse": 441,
+      "communes_reconnues": 108,
+      "repartition_annuelle": {
+        "1989": 62,
+        "1990": 11,
+        "1991": 46,
+        "1992": 21,
+        "1993": 35,
+        "1994": 1,
+        "1995": 6,
+        "1996": 15,
+        "1997": 24,
+        "1998": 1,
+        "2003": 46,
+        "2005": 31,
+        "2006": 17,
+        "2009": 3,
+        "2011": 3,
+        "2018": 75,
+        "2020": 37,
+        "2022": 6,
+        "2024": 1
+      }
+    },
+    "92": {
+      "nom": "Hauts-de-Seine",
+      "region": "Île-de-France",
+      "arretes_secheresse": 132,
+      "communes_reconnues": 22,
+      "repartition_annuelle": {
+        "1989": 10,
+        "1990": 7,
+        "1991": 4,
+        "1992": 4,
+        "1993": 2,
+        "1996": 5,
+        "1997": 6,
+        "1998": 1,
+        "2003": 19,
+        "2005": 33,
+        "2006": 8,
+        "2009": 1,
+        "2018": 13,
+        "2020": 18,
+        "2022": 1
+      }
+    },
+    "93": {
+      "nom": "Seine-Saint-Denis",
+      "region": "Île-de-France",
+      "arretes_secheresse": 206,
+      "communes_reconnues": 33,
+      "repartition_annuelle": {
+        "1989": 26,
+        "1990": 6,
+        "1991": 15,
+        "1992": 1,
+        "1993": 13,
+        "1995": 4,
+        "1996": 7,
+        "1997": 10,
+        "1998": 1,
+        "1999": 1,
+        "2003": 19,
+        "2004": 10,
+        "2005": 26,
+        "2006": 13,
+        "2009": 3,
+        "2011": 5,
+        "2018": 17,
+        "2020": 28,
+        "2022": 1
+      }
+    },
+    "94": {
+      "nom": "Val-de-Marne",
+      "region": "Île-de-France",
+      "arretes_secheresse": 231,
+      "communes_reconnues": 39,
+      "repartition_annuelle": {
+        "1989": 31,
+        "1991": 23,
+        "1992": 17,
+        "1993": 18,
+        "1995": 1,
+        "1996": 9,
+        "1997": 13,
+        "2003": 38,
+        "2005": 19,
+        "2006": 9,
+        "2009": 6,
+        "2011": 3,
+        "2018": 20,
+        "2020": 24
+      }
+    },
+    "95": {
+      "nom": "Val-d'Oise",
+      "region": "Île-de-France",
+      "arretes_secheresse": 356,
+      "communes_reconnues": 69,
+      "repartition_annuelle": {
+        "1989": 44,
+        "1990": 3,
+        "1991": 30,
+        "1992": 7,
+        "1993": 3,
+        "1995": 1,
+        "1996": 9,
+        "1997": 13,
+        "2003": 1,
+        "2004": 54,
+        "2005": 64,
+        "2006": 23,
+        "2017": 9,
+        "2018": 31,
+        "2020": 41,
+        "2022": 23
+      }
+    },
+    "971": {
+      "nom": "Guadeloupe",
+      "region": "Outre-mer/Autre",
+      "arretes_secheresse": 1,
+      "communes_reconnues": 1,
+      "repartition_annuelle": {
+        "2024": 1
+      }
+    }
+  },
+  "focus_auvergne_rhone_alpes": {
+    "total_arretes": 3993,
+    "communes_reconnues": 1403,
+    "contexte": "En AURA, le taux de reconnaissance sécheresse est historiquement bas (~10% pour certaines années selon les rapports préfectoraux). Le Puy-de-Dôme (63) et l'Allier (03) concentrent l'essentiel des reconnaissances, tandis que les départements alpins (73, 74, 15) sont quasi-absents.",
+    "par_departement": {
+      "01": {
+        "nom": "Ain",
+        "arretes_secheresse": 382,
+        "communes_reconnues": 175,
+        "top_annees": [
+          {
+            "annee": "2018",
+            "arretes": 112
+          },
+          {
+            "annee": "2020",
+            "arretes": 85
+          },
+          {
+            "annee": "2022",
+            "arretes": 85
+          },
+          {
+            "annee": "2003",
+            "arretes": 46
+          },
+          {
+            "annee": "2019",
+            "arretes": 25
+          }
+        ]
+      },
+      "03": {
+        "nom": "Allier",
+        "arretes_secheresse": 973,
+        "communes_reconnues": 268,
+        "top_annees": [
+          {
+            "annee": "2018",
+            "arretes": 214
+          },
+          {
+            "annee": "2019",
+            "arretes": 206
+          },
+          {
+            "annee": "2020",
+            "arretes": 114
+          },
+          {
+            "annee": "2003",
+            "arretes": 104
+          },
+          {
+            "annee": "2023",
+            "arretes": 93
+          }
+        ]
+      },
+      "07": {
+        "nom": "Ardèche",
+        "arretes_secheresse": 353,
+        "communes_reconnues": 124,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 84
+          },
+          {
+            "annee": "2019",
+            "arretes": 73
+          },
+          {
+            "annee": "2017",
+            "arretes": 69
+          },
+          {
+            "annee": "2023",
+            "arretes": 50
+          },
+          {
+            "annee": "2020",
+            "arretes": 17
+          }
+        ]
+      },
+      "15": {
+        "nom": "Cantal",
+        "arretes_secheresse": 38,
+        "communes_reconnues": 22,
+        "top_annees": [
+          {
+            "annee": "2019",
+            "arretes": 16
+          },
+          {
+            "annee": "2018",
+            "arretes": 8
+          },
+          {
+            "annee": "2022",
+            "arretes": 7
+          },
+          {
+            "annee": "2005",
+            "arretes": 2
+          },
+          {
+            "annee": "2006",
+            "arretes": 2
+          }
+        ]
+      },
+      "26": {
+        "nom": "Drôme",
+        "arretes_secheresse": 259,
+        "communes_reconnues": 153,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 96
+          },
+          {
+            "annee": "2017",
+            "arretes": 52
+          },
+          {
+            "annee": "2019",
+            "arretes": 39
+          },
+          {
+            "annee": "2023",
+            "arretes": 26
+          },
+          {
+            "annee": "2020",
+            "arretes": 23
+          }
+        ]
+      },
+      "38": {
+        "nom": "Isère",
+        "arretes_secheresse": 122,
+        "communes_reconnues": 82,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 48
+          },
+          {
+            "annee": "2018",
+            "arretes": 36
+          },
+          {
+            "annee": "2020",
+            "arretes": 18
+          },
+          {
+            "annee": "2023",
+            "arretes": 6
+          },
+          {
+            "annee": "2003",
+            "arretes": 5
+          }
+        ]
+      },
+      "42": {
+        "nom": "Loire",
+        "arretes_secheresse": 267,
+        "communes_reconnues": 105,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 73
+          },
+          {
+            "annee": "2023",
+            "arretes": 65
+          },
+          {
+            "annee": "2018",
+            "arretes": 39
+          },
+          {
+            "annee": "2020",
+            "arretes": 33
+          },
+          {
+            "annee": "2019",
+            "arretes": 32
+          }
+        ]
+      },
+      "43": {
+        "nom": "Haute-Loire",
+        "arretes_secheresse": 149,
+        "communes_reconnues": 68,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 57
+          },
+          {
+            "annee": "2023",
+            "arretes": 37
+          },
+          {
+            "annee": "2003",
+            "arretes": 27
+          },
+          {
+            "annee": "2011",
+            "arretes": 8
+          },
+          {
+            "annee": "2019",
+            "arretes": 7
+          }
+        ]
+      },
+      "63": {
+        "nom": "Puy-de-Dôme",
+        "arretes_secheresse": 992,
+        "communes_reconnues": 196,
+        "top_annees": [
+          {
+            "annee": "2019",
+            "arretes": 153
+          },
+          {
+            "annee": "2023",
+            "arretes": 137
+          },
+          {
+            "annee": "2022",
+            "arretes": 131
+          },
+          {
+            "annee": "2018",
+            "arretes": 123
+          },
+          {
+            "annee": "1998",
+            "arretes": 65
+          }
+        ]
+      },
+      "69": {
+        "nom": "Rhône",
+        "arretes_secheresse": 332,
+        "communes_reconnues": 115,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 80
+          },
+          {
+            "annee": "2018",
+            "arretes": 65
+          },
+          {
+            "annee": "2020",
+            "arretes": 62
+          },
+          {
+            "annee": "2003",
+            "arretes": 42
+          },
+          {
+            "annee": "2023",
+            "arretes": 29
+          }
+        ]
+      },
+      "73": {
+        "nom": "Savoie",
+        "arretes_secheresse": 39,
+        "communes_reconnues": 33,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 21
+          },
+          {
+            "annee": "2018",
+            "arretes": 11
+          },
+          {
+            "annee": "2003",
+            "arretes": 4
+          },
+          {
+            "annee": "2023",
+            "arretes": 3
+          }
+        ]
+      },
+      "74": {
+        "nom": "Haute-Savoie",
+        "arretes_secheresse": 87,
+        "communes_reconnues": 62,
+        "top_annees": [
+          {
+            "annee": "2022",
+            "arretes": 41
+          },
+          {
+            "annee": "2018",
+            "arretes": 32
+          },
+          {
+            "annee": "2003",
+            "arretes": 13
+          },
+          {
+            "annee": "2017",
+            "arretes": 1
+          }
+        ]
+      }
+    }
+  },
+  "arretes_details_count": 47576
+}
