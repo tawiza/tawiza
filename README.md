@@ -16,10 +16,15 @@
            >>=========================================================<<
            """
 ```
+<img width="1419" height="842" alt="Capture d’écran 2026-03-09 à 02 21 20" src="https://github.com/user-attachments/assets/162815f1-196d-4243-b718-b5bf7077ec63" />
+
+<img width="1419" height="842" alt="Capture d’écran 2026-03-09 à 02 10 36" src="https://github.com/user-attachments/assets/00bcad50-ca76-4548-8d9c-67dc2c6e2608" />
+
+<img width="1419" height="842" alt="Capture d’écran 2026-03-09 à 02 09 21" src="https://github.com/user-attachments/assets/fd21461b-be55-4e8d-a357-526917686603" />
 
 ### Open source territorial intelligence
 
-**Tawiza** (ⵜⴰⵡⵉⵣⴰ) - Amazigh word meaning *collective mutual aid*.
+**Tawiza** - Amazigh word meaning *collective mutual aid*.
 
 [![Status: Beta](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](#project-status)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://opensource.org/licenses/MIT)
