@@ -198,7 +198,6 @@ Documentation = "https://github.com/tawiza/tawiza/tree/main/docs"
 
 [project.scripts]
 tawiza = "src.cli.v2.entrypoint:main"
-tawiza-legacy = "src.cli.entrypoint:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

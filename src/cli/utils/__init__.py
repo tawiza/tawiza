@@ -1,23 +1,9 @@
-"""CLI utilities."""
+"""Tawiza CLI utilities (legacy v1 - retained subset).
 
-from .api_client import APIClient, APIConnectionError, api
-from .formatters import (
-    format_error,
-    format_health_status,
-    format_status,
-    format_success,
-    format_table,
-    format_tree,
-)
+Only `async_runner` remains; the other v1 utility modules were removed alongside
+the v1 entrypoint.
+"""
 
-__all__ = [
-    "APIClient",
-    "api",
-    "APIConnectionError",
-    "format_table",
-    "format_status",
-    "format_error",
-    "format_success",
-    "format_tree",
-    "format_health_status",
-]
+from .async_runner import run_async
+
+__all__ = ["run_async"]
