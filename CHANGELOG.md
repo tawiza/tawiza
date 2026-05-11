@@ -5,6 +5,35 @@ All notable changes to Tawiza will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **Note on versioning**: `pyproject.toml` carries the internal `2.0.x` series
+> (Tawiza V2 iterations) inherited from MPtoO-V2. The changelog below tracks the
+> public history. Earlier `0.1.x` entries predate the internal version reset.
+
+## [2.0.4] - 2026-05-11
+
+### Removed
+
+- Legacy v1 CLI (`src/cli/{entrypoint,main,completion}.py`,
+  `src/cli/{base,config,helpers,services,types}/`, all v1 commands except
+  `unified_agent`). Production CLI is `src.cli.v2` (entry point `tawiza`).
+- `tawiza-legacy` entry point from `pyproject.toml`.
+- Dead application services: `territorial_service.py`,
+  `territorial_history_service.py` (never instantiated).
+- Dead module `src/analysis/` (legacy styling utilities, no imports).
+- Dead `src/collector/factors.py` (superseded by `src/collector/quant/factors.py`).
+- Dead frontend components: `components/routes.tsx`, `components/sidebar/`
+  (entire dir), `components/MessageBox.tsx`, `components/TextBlock.tsx`.
+
+### Fixed
+
+- pytest collection errors: added `pytest-timeout` to dev deps (referenced by
+  `pytest.ini` but missing); added `__test__ = False` to `TestEvent` fixture
+  class to silence pytest collection warning.
+
+### Changed
+
+- Test coverage improved from 15.73% to 16.46% (removed code had 0% coverage).
+
 ## [0.1.2] - 2026-03-26
 
 ### Added

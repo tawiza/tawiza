@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tawiza"
-version = "2.0.3"
+version = "2.0.4"
 description = "Intelligence territoriale open source - donnees publiques francaises, analyse de territoires"
 readme = "README.md"
 requires-python = ">=3.12"
