@@ -29,7 +29,7 @@
 - [ ] Auto-détection Ollama + fallback modèles ([#68](https://github.com/tawiza/tawiza/issues/68))
 - [ ] Validation OpenAPI schema en CI ([#67](https://github.com/tawiza/tawiza/issues/67))
 - [ ] Accessibilité du dashboard ([#51](https://github.com/tawiza/tawiza/issues/51))
-- [ ] Réactiver le scan sécurité CI (CodeQL via Default Setup ou nouveau workflow). L'ancien `.github/workflows/security.yml` a été supprimé : 81 runs consécutifs en `startup_failure` sans qu'aucun job ne soit jamais créé. En attendant, les pre-commit hooks (`bandit`, `gitleaks`, `detect-private-key`) fournissent une couverture locale.
+- [ ] Renforcer le scan sécurité CI au-delà de CodeQL Default Setup. L'ancien `.github/workflows/security.yml` était silencieusement en conflit avec CodeQL Default Setup (déjà activé dans `Settings → Code security`) : GitHub rejetait le workflow YAML pour éviter le double scan, sans message d'erreur explicite — d'où 81 runs en `startup_failure` consécutifs. Depuis sa suppression, CodeQL Default Setup analyse Python et JavaScript/TypeScript sur chaque PR. Pour aller plus loin : envisager un workflow propre avec Gitleaks + Bandit + dependency-review (sans bloc CodeQL).
 
 ## Prévu — Moyen terme
 
