@@ -3,8 +3,7 @@
 ## Fait
 
 - [x] Réduction du dashboard (19 pages → 7 pages essentielles)
-- [x] Pipeline de sécurité CI (CodeQL, Gitleaks, Bandit, Trojan Source)
-- [x] Dependabot + Dependency Review sur les PRs
+- [x] Dependabot sur les PRs
 - [x] Scan automatique de sécurité sur chaque PR (sandbox Docker)
 - [x] Pre-commit hooks (ruff, bandit, gitleaks, detect-private-key)
 - [x] Correction des imports cassés et alignement des tests (#54 partiel)
@@ -30,6 +29,7 @@
 - [ ] Auto-détection Ollama + fallback modèles ([#68](https://github.com/tawiza/tawiza/issues/68))
 - [ ] Validation OpenAPI schema en CI ([#67](https://github.com/tawiza/tawiza/issues/67))
 - [ ] Accessibilité du dashboard ([#51](https://github.com/tawiza/tawiza/issues/51))
+- [ ] Renforcer le scan sécurité CI au-delà de CodeQL Default Setup. L'ancien `.github/workflows/security.yml` était silencieusement en conflit avec CodeQL Default Setup (déjà activé dans `Settings → Code security`) : GitHub rejetait le workflow YAML pour éviter le double scan, sans message d'erreur explicite — d'où 81 runs en `startup_failure` consécutifs. Depuis sa suppression, CodeQL Default Setup analyse Python et JavaScript/TypeScript sur chaque PR. Pour aller plus loin : envisager un workflow propre avec Gitleaks + Bandit + dependency-review (sans bloc CodeQL).
 
 ## Prévu — Moyen terme
 
