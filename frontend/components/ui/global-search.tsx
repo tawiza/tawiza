@@ -32,7 +32,7 @@ export function GlobalSearch() {
   const [error, setError] = useState<string | null>(null);
   const [totalEmbeddings, setTotalEmbeddings] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const router = useRouter();
 
   // Cmd+K shortcut
