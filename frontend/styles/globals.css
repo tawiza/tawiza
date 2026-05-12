@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+@custom-variant dark (&:is(.dark *));
 
 /* Tawiza Dashboard Theme - Monochrome Zinc + Blue Accent
    Minimalist, ultra-clean design system
@@ -308,7 +308,11 @@ input:checked.defaultCheckbox::before {
   }
 
   .glass-card {
-    @apply glass;
+    /* Tailwind v4 @apply only works with utility classes, not custom CSS
+       classes like .glass. Inline the .glass properties instead. */
+    background: hsl(var(--card));
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
     padding: 1rem;
     transition: box-shadow var(--transition-normal), transform var(--transition-normal);
   }
