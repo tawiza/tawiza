@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   security:
@@ -283,3 +284,48 @@ jobs:
           tags: tawiza:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  notify-on-failure:
+    name: Notify on failure
+    runs-on: ubuntu-latest
+    needs: [security, humanize, test, frontend-build, docker]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(needs.*.result, 'failure')
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Collect failed jobs and short SHA
+        id: collect
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+          FULL_SHA: ${{ github.sha }}
+        run: |
+          FAILED=$(echo "$NEEDS" | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          failed = [name for name, j in data.items() if j.get('result') == 'failure']
+          print('\n'.join(f'- {n}' for n in failed) or '- (unknown)')
+          ")
+          {
+            echo 'list<<EOF'
+            echo "$FAILED"
+            echo 'EOF'
+            echo "short_sha=${FULL_SHA:0:7}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or update CI failure issue
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW: ${{ github.workflow }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHORT_SHA: ${{ steps.collect.outputs.short_sha }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          FAILED_JOBS: ${{ steps.collect.outputs.list }}
+          DATE: ${{ github.event.head_commit.timestamp }}
+        with:
+          filename: .github/ci-failure-issue.md
+          update_existing: true
+          search_existing: open
