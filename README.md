@@ -65,6 +65,16 @@ Tawiza collects data from French government APIs and organizes it to analyze ter
 
 ---
 
+## Co-founders wanted
+
+Tawiza is being transitioned to a French non-profit (*association loi 1901*). I'm looking for two or three co-founders to share governance and signatures - not to write code, not to do growth.
+
+If reading badly-published open data gives you the same itch as me, the call is here: [tawiza.fr/association](https://tawiza.fr/association).
+
+Spoiler: unpaid. Funding follows the structure, not the other way around.
+
+---
+
 ## Data Sources
 
 19 coded adapters. Sources without auth can be used directly, others require free API keys.
