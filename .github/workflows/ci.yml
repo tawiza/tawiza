@@ -250,7 +250,11 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        # Not using --frozen-lockfile: bun.lock occasionally drifts because
+        # Dependabot updates package.json without regenerating bun.lock
+        # (Dependabot manages package-lock.json via npm ecosystem). Letting
+        # bun reconcile on install is the pragmatic compromise.
+        run: bun install
 
       - name: Type check
         run: bunx tsc --noEmit
