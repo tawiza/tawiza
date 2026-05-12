@@ -61,6 +61,16 @@ Tawiza collecte des données depuis les APIs gouvernementales françaises et les
 
 ---
 
+## Appel à co-fondation
+
+Tawiza est en cours de constitution en association loi 1901. Je cherche deux ou trois co-fondateur·rices pour partager la gouvernance et les signatures - pas pour écrire du code, pas pour faire du growth.
+
+Si lire des données publiques mal publiées vous démange autant que moi, l'appel est ici : [tawiza.fr/association](https://tawiza.fr/association).
+
+Spoiler : non rémunéré. Le financement suit la structure, pas l'inverse.
+
+---
+
 ## Sources de données
 
 19 adaptateurs codés. Les sources sans auth sont utilisables directement, les autres nécessitent des clés API gratuites.

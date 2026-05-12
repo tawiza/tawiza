@@ -19,6 +19,7 @@
 
 ## En cours
 
+- [ ] Constitution en association loi 1901 — appel à co-fondateur·rices en cours ([tawiza.fr/association](https://tawiza.fr/association))
 - [ ] Tests unitaires fonctionnels ([#54](https://github.com/tawiza/tawiza/issues/54))
 - [ ] Tests end-to-end des adaptateurs de sources ([#52](https://github.com/tawiza/tawiza/issues/52))
 - [ ] Stabilisation de l'agent TAJINE (niveaux Causal et Scénario)
