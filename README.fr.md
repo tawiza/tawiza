@@ -180,10 +180,16 @@ src/
 ├── domain/          # Entités, value objects, events
 ├── application/     # Services, use cases, DTOs
 ├── infrastructure/  # Adapters (DB, APIs, LLM, agents, crawlers)
-└── interfaces/      # API REST, WebSocket, middleware
+├── interfaces/      # API REST, WebSocket, middleware
+├── collector/       # Adapters de sources et pipelines d'ingestion
+├── cli/             # CLI v2 (production) et v3 (TUI en cours)
+├── core/            # Constantes partagées, télémétrie, configuration
+└── scripts/         # Scripts batch standalone (cron, one-shot)
 ```
 
-Architecture hexagonale (ports & adapters).
+Architecture hexagonale (ports & adapters) pour les quatre couches principales.
+Les modules `collector/`, `cli/`, `core/` et `scripts/` sont des préoccupations
+transversales plutôt que des couches.
 
 <details>
 <summary>Tech stack</summary>
@@ -218,13 +224,27 @@ Aucune IP, email, contenu de chat ou donnée d'entreprise n'est collectée. Code
 
 | Document | Description |
 |----------|-------------|
+| [Docker Quick Start](docs/docker-quickstart.md) | Démarrage rapide Docker Compose |
 | [Getting Started](docs/getting-started.md) | Installation détaillée |
 | [Architecture](docs/architecture.md) | Structure du projet |
 | [Configuration](docs/configuration.md) | Variables d'environnement |
 | [Data Sources](docs/data-sources.md) | Catalogue des sources |
 | [API Reference](docs/api-reference.md) | Endpoints REST |
 | [Self-Hosting](docs/self-hosting.md) | Guide de déploiement |
+| [Telemetry](docs/telemetry.md) | Détails de la télémétrie anonyme |
 | [Contributing](CONTRIBUTING.md) | Guide de contribution |
+
+### Documentation par module
+
+Documentation détaillée pour chaque sous-système :
+[CLI/TUI](docs/modules/cli-tui.md) ·
+[Crawler](docs/modules/crawler.md) ·
+[Data Hunter](docs/modules/data-hunter.md) ·
+[TAJINE](docs/modules/tajine.md) ·
+[Knowledge Graph](docs/modules/knowledge-graph.md) ·
+[Signaux](docs/modules/signaux.md) ·
+[Investigation](docs/modules/investigation.md) ·
+[Décisions](docs/modules/decisions.md)
 
 ---
 

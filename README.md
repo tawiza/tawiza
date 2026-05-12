@@ -184,10 +184,16 @@ src/
 ├── domain/          # Entities, value objects, events
 ├── application/     # Services, use cases, DTOs
 ├── infrastructure/  # Adapters (DB, APIs, LLM, agents, crawlers)
-└── interfaces/      # REST API, WebSocket, middleware
+├── interfaces/      # REST API, WebSocket, middleware
+├── collector/       # Data source adapters and ingestion pipelines
+├── cli/             # CLI v2 (production) and v3 (TUI in progress)
+├── core/            # Shared constants, telemetry, configuration
+└── scripts/         # Standalone batch scripts (cron jobs, one-shot tools)
 ```
 
-Hexagonal architecture (ports & adapters).
+Hexagonal architecture (ports & adapters) for the four main layers. The
+`collector/`, `cli/`, `core/`, and `scripts/` modules sit alongside as
+horizontal concerns rather than layers.
 
 <details>
 <summary>Tech stack</summary>
@@ -229,7 +235,20 @@ No IP, email, chat content, or business data is collected. Source code: [`src/co
 | [Data Sources](docs/data-sources.md) | Source catalog |
 | [API Reference](docs/api-reference.md) | REST endpoints |
 | [Self-Hosting](docs/self-hosting.md) | Deployment guide |
+| [Telemetry](docs/telemetry.md) | Anonymous telemetry details |
 | [Contributing](CONTRIBUTING.md) | Contribution guide |
+
+### Module deep-dives
+
+Detailed documentation for individual subsystems:
+[CLI/TUI](docs/modules/cli-tui.md) ·
+[Crawler](docs/modules/crawler.md) ·
+[Data Hunter](docs/modules/data-hunter.md) ·
+[TAJINE](docs/modules/tajine.md) ·
+[Knowledge Graph](docs/modules/knowledge-graph.md) ·
+[Signaux](docs/modules/signaux.md) ·
+[Investigation](docs/modules/investigation.md) ·
+[Decisions](docs/modules/decisions.md)
 
 ---
 

@@ -1,44 +1,9 @@
-#!/usr/bin/env python3
-"""
-Commandes CLI pour Tawiza-V2 (Consolide)
+"""Tawiza CLI commands (legacy v1 - retained subset).
+
+Only `unified_agent` remains from the v1 CLI. The v1 entrypoint and its other
+commands were removed; the production CLI lives under `src.cli.v2`.
 """
 
-from . import (
-    agents,
-    annotate,
-    browser,
-    captcha,
-    chat,
-    completion_cmd,
-    credentials,
-    data,
-    debug,
-    ecocartographe,
-    finetune,
-    live,
-    models,
-    prompts,
-    system,
-    training,
-    vm_sandbox_commands,
-)
+from . import unified_agent
 
-__all__ = [
-    "agents",
-    "debug",
-    "system",
-    "models",
-    "captcha",
-    "chat",
-    "completion_cmd",
-    "live",
-    "annotate",
-    "finetune",
-    "prompts",
-    "credentials",
-    "vm_sandbox_commands",
-    "browser",
-    "data",
-    "training",
-    "ecocartographe",
-]
+__all__ = ["unified_agent"]

@@ -12,6 +12,8 @@ from src.infrastructure.messaging.event_bus import EventBus
 class TestEvent(DomainEvent):
     """Test domain event."""
 
+    __test__ = False  # Prevent pytest from collecting this as a test class
+
     def __init__(self, aggregate_id, data: str):
         super().__init__(aggregate_id)
         object.__setattr__(self, "data", data)
