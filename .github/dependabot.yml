@@ -20,12 +20,55 @@ updates:
           - "mlflow"
           - "datasets"
           - "accelerate"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       monitoring:
         patterns:
           - "prometheus-*"
           - "opentelemetry-*"
           - "sentry-*"
           - "langfuse"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+      python-dev-tools:
+        patterns:
+          - "pytest*"
+          - "ruff"
+          - "black"
+          - "mypy"
+          - "bandit"
+          - "pre-commit"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+      python-runtime:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "transformers"
+          - "peft"
+          - "trl"
+          - "mlflow"
+          - "datasets"
+          - "accelerate"
+          - "prometheus-*"
+          - "opentelemetry-*"
+          - "sentry-*"
+          - "langfuse"
+          - "pytest*"
+          - "ruff"
+          - "black"
+          - "mypy"
+          - "bandit"
+          - "pre-commit"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Node.js dependencies (npm)
   - package-ecosystem: "npm"
@@ -44,12 +87,47 @@ updates:
           - "react"
           - "react-dom"
           - "@next/*"
+          - "eslint-config-next"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       ui-components:
         patterns:
           - "@radix-ui/*"
           - "tailwindcss"
           - "class-variance-authority"
           - "lucide-react"
+          - "react-resizable-panels"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+      typescript-tooling:
+        patterns:
+          - "typescript"
+          - "@types/*"
+          - "eslint"
+          - "eslint-*"
+          - "@typescript-eslint/*"
+          - "prettier"
+        exclude-patterns:
+          - "eslint-config-next"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+      data-libs:
+        patterns:
+          - "zod"
+          - "apexcharts"
+          - "eventsource-parser"
+          - "date-fns"
+          - "axios"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
 
   # Docker base images
   - package-ecosystem: "docker"
@@ -68,3 +146,11 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
