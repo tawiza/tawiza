@@ -153,6 +153,17 @@ The `main` branch is protected:
 | **Deletion** | Cannot delete `main` |
 | **CODEOWNERS** | Listed maintainers are automatically assigned for review |
 
+### CI failure alerts
+
+When the CI workflow fails on `main` (push event), the `notify-on-failure`
+job automatically opens or updates a single issue tagged `ci-failure`
+listing the failed jobs and the run URL. The issue stays open until a
+maintainer closes it (typically after the next green run).
+
+The list of failed jobs is computed from `needs.*.result`, so a job that
+times out or is cancelled also triggers the alert. No external secret is
+required — the issue uses the default `GITHUB_TOKEN` with `issues: write`.
+
 ### Merge types
 
 | Type | Allowed | Usage |
