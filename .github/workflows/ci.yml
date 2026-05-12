@@ -292,40 +292,55 @@ jobs:
     if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(needs.*.result, 'failure')
 
     steps:
-      - uses: actions/checkout@v6
-
-      - name: Collect failed jobs and short SHA
-        id: collect
+      - name: Open or update CI failure issue
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
           NEEDS: ${{ toJSON(needs) }}
+          WORKFLOW: ${{ github.workflow }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           FULL_SHA: ${{ github.sha }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          ACTOR: ${{ github.actor }}
         run: |
+          set -e
+          SHORT_SHA="${FULL_SHA:0:7}"
           FAILED=$(echo "$NEEDS" | python3 -c "
           import json, sys
           data = json.load(sys.stdin)
           failed = [name for name, j in data.items() if j.get('result') == 'failure']
           print('\n'.join(f'- {n}' for n in failed) or '- (unknown)')
           ")
-          {
-            echo 'list<<EOF'
-            echo "$FAILED"
-            echo 'EOF'
-            echo "short_sha=${FULL_SHA:0:7}"
-          } >> "$GITHUB_OUTPUT"
+          TITLE="CI failure on main"
+          BODY=$(cat <<EOF
+          Un workflow CI a échoué sur \`main\`.
 
-      - name: Open or update CI failure issue
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WORKFLOW: ${{ github.workflow }}
-          RUN_NUMBER: ${{ github.run_number }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          SHORT_SHA: ${{ steps.collect.outputs.short_sha }}
-          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
-          ACTOR: ${{ github.actor }}
-          FAILED_JOBS: ${{ steps.collect.outputs.list }}
-          DATE: ${{ github.event.head_commit.timestamp }}
-        with:
-          filename: .github/ci-failure-issue.md
-          update_existing: true
-          search_existing: open
+          ## Run en échec
+
+          - **Workflow** : ${WORKFLOW}
+          - **Run** : [#${RUN_NUMBER}](${RUN_URL})
+          - **Commit** : [\`${SHORT_SHA}\`](${COMMIT_URL}) par @${ACTOR}
+
+          ## Jobs en échec
+
+          ${FAILED}
+
+          ## Actions
+
+          1. Ouvrir le run via le lien ci-dessus
+          2. Identifier le job rouge et la première erreur
+          3. Soit fixer sur \`main\` (si trivial), soit ouvrir une PR de fix
+          4. Fermer cette issue une fois le prochain run vert
+
+          > Issue créée et mise à jour automatiquement par \`.github/workflows/ci.yml\`.
+          EOF
+          )
+          EXISTING=$(gh issue list --repo "$REPO" --state open --search "\"$TITLE\" in:title" --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -1)
+          if [ -n "$EXISTING" ]; then
+            echo "Updating issue #$EXISTING"
+            gh issue edit "$EXISTING" --repo "$REPO" --body "$BODY"
+          else
+            echo "Creating new issue"
+            gh issue create --repo "$REPO" --title "$TITLE" --body "$BODY" --label ci-failure
+          fi
