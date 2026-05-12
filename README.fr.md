@@ -122,6 +122,16 @@ L'agent TAJINE suit le cycle PPDSL (Perceive-Plan-Delegate-Synthesize-Learn) ave
 
 ## Quick Start
 
+> [!IMPORTANT]
+> **Toujours exécuter Tawiza dans un environnement isolé.** Le projet tire une grosse arborescence de dépendances (FastAPI, SQLAlchemy, clients Ollama, Playwright, ~470 packages transitifs) et un ensemble de services (PostgreSQL, Redis, éventuellement Neo4j). Les installer en global sur la machine hôte est une mauvaise idée pour la reproductibilité comme pour la sécurité.
+>
+> Choisir l'une des options :
+> - **Docker Compose** (recommandé pour un run complet) : `docker compose up -d` — chaque service tourne dans son conteneur, l'hôte n'est pas touché.
+> - **Virtualenv Python** (pour le dev backend en local) : `python -m venv .venv && source .venv/bin/activate` avant `pip install`. Jamais de `sudo pip install` ni d'installation au niveau user/système.
+> - **VM dédiée / dev container / nix-shell** pour isoler aussi l'hôte.
+>
+> Si vous voulez seulement tester l'API ou le dashboard, la voie *Avec Docker Compose* ci-dessous est la plus sûre.
+
 ### Prérequis
 
 - Python 3.12+
