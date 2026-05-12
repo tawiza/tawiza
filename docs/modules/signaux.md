@@ -99,7 +99,7 @@ src/interfaces/api/v1/
 └── signals.py                # API signaux (requêtes simples)
 
 src/scripts/
-└── detect_microsignals_v2.py # Script de détection batch
+└── detect_anomalies_v2.py    # Détection batch (Isolation Forest + DBSCAN)
 ```
 
 ## Configuration
