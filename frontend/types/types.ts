@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+import type { ComponentType, JSX } from 'react';
 
 // TAJINE Cognitive Levels
 export type TAJINELevel =
