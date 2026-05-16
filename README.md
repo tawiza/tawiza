@@ -256,6 +256,7 @@ No IP, email, chat content, or business data is collected. Source code: [`src/co
 | [API Reference](docs/api-reference.md) | REST endpoints |
 | [Self-Hosting](docs/self-hosting.md) | Deployment guide |
 | [Telemetry](docs/telemetry.md) | Anonymous telemetry details |
+| [Health & Probes](docs/health-and-probes.md) | Healthcheck endpoints and probe configuration |
 | [Contributing](CONTRIBUTING.md) | Contribution guide |
 
 ### Module deep-dives
