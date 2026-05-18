@@ -101,14 +101,7 @@ server {
 }
 ```
 
-Nginx surveille le backend via les connexions TCP. Pour un healthcheck HTTP actif, utilisez le module `ngx_http_upstream_hc_module` (disponible dans Nginx Plus) :
-
-```nginx
-upstream tawiza {
-    server 127.0.0.1:8000;
-    keepalive 32;
-}
-```
+Nginx surveille le backend via les connexions TCP. Les healthchecks HTTP actifs (polling du backend avec retrait automatique en cas d'échec) nécessitent le module `ngx_http_upstream_hc_module`, disponible uniquement dans **Nginx Plus**.
 
 ### Traefik
 
