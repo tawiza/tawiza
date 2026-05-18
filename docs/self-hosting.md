@@ -164,6 +164,10 @@ curl http://localhost:8000/metrics
 
 Intégrez avec votre stack de monitoring (Grafana, Datadog, etc.).
 
+## Health & Probes
+
+Voir [docs/health-and-probes.md](health-and-probes.md) pour la configuration des healthchecks Docker, Kubernetes et reverse proxy.
+
 ## Sécurité en production
 
 - [ ] Mots de passe par défaut changés
