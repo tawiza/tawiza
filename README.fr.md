@@ -260,6 +260,7 @@ Documentation détaillée pour chaque sous-système :
 [CLI/TUI](docs/modules/cli-tui.md) ·
 [Crawler](docs/modules/crawler.md) ·
 [Data Hunter](docs/modules/data-hunter.md) ·
+[LLM](docs/modules/llm.md) ·
 [TAJINE](docs/modules/tajine.md) ·
 [Knowledge Graph](docs/modules/knowledge-graph.md) ·
 [Signaux](docs/modules/signaux.md) ·

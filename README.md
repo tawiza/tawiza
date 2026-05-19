@@ -256,6 +256,7 @@ No IP, email, chat content, or business data is collected. Source code: [`src/co
 | [API Reference](docs/api-reference.md) | REST endpoints |
 | [Self-Hosting](docs/self-hosting.md) | Deployment guide |
 | [Telemetry](docs/telemetry.md) | Anonymous telemetry details |
+| [Health & Probes](docs/health-and-probes.md) | Healthcheck endpoints and probe configuration |
 | [Contributing](CONTRIBUTING.md) | Contribution guide |
 
 ### Module deep-dives
@@ -264,6 +265,7 @@ Detailed documentation for individual subsystems:
 [CLI/TUI](docs/modules/cli-tui.md) ·
 [Crawler](docs/modules/crawler.md) ·
 [Data Hunter](docs/modules/data-hunter.md) ·
+[LLM](docs/modules/llm.md) ·
 [TAJINE](docs/modules/tajine.md) ·
 [Knowledge Graph](docs/modules/knowledge-graph.md) ·
 [Signaux](docs/modules/signaux.md) ·
