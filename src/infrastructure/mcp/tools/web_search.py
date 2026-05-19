@@ -9,6 +9,68 @@ from loguru import logger
 from mcp.server.fastmcp import Context, FastMCP
 
 
+async def web_search_impl(
+    query: str,
+    max_results: int = 10,
+    region: str = "fr-fr",
+    search_type: str = "auto",
+) -> list[dict]:
+    """Run a DuckDuckGo web search and return a list of result dicts.
+
+    Module-level helper reused by both the MCP `web_search` tool and other
+    callers (e.g. lead enrichment in `prospection.py`).
+    """
+    import warnings
+
+    from duckduckgo_search import DDGS
+
+    results: list[dict] = []
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        with DDGS() as ddgs:
+            if search_type in ("text", "auto"):
+                try:
+                    for r in ddgs.text(query, region=region, max_results=max_results):
+                        url = r.get("href", "")
+                        if ".cn" not in url and "baidu" not in url:
+                            results.append(
+                                {
+                                    "title": r.get("title", ""),
+                                    "url": url,
+                                    "description": r.get("body", ""),
+                                    "type": "web",
+                                }
+                            )
+                except Exception as e:
+                    logger.debug(f"Text search failed: {e}")
+
+            if (search_type == "auto" and len(results) < 3) or search_type == "news":
+                try:
+                    for r in ddgs.news(query, region=region, max_results=max_results):
+                        results.append(
+                            {
+                                "title": r.get("title", ""),
+                                "url": r.get("url", ""),
+                                "description": r.get("body", ""),
+                                "source": r.get("source", ""),
+                                "date": r.get("date", ""),
+                                "type": "news",
+                            }
+                        )
+                except Exception as e:
+                    logger.debug(f"News search failed: {e}")
+
+    seen_urls: set[str] = set()
+    unique_results: list[dict] = []
+    for r in results:
+        if r["url"] not in seen_urls:
+            seen_urls.add(r["url"])
+            unique_results.append(r)
+
+    return unique_results[:max_results]
+
+
 def register_web_search_tools(mcp: FastMCP) -> None:
     """Register web search tools on the MCP server."""
 
@@ -32,65 +94,13 @@ def register_web_search_tools(mcp: FastMCP) -> None:
             Résultats de recherche avec titre, URL et description
         """
         try:
-            import warnings
-
-            from duckduckgo_search import DDGS
-
-            warnings.filterwarnings("ignore")
-
             if ctx:
                 ctx.info(f"[WebSearch] Searching: {query}")
                 ctx.report_progress(0, 100, f"Searching: {query}")
 
-            results = []
-            ddgs = DDGS()
-
-            # Try text search first if requested
-            if search_type in ("text", "auto"):
-                try:
-                    for r in ddgs.text(query, region=region, max_results=limit):
-                        # Filter out non-French/English results for French queries
-                        url = r.get("href", "")
-                        if ".cn" not in url and "baidu" not in url:
-                            results.append(
-                                {
-                                    "title": r.get("title", ""),
-                                    "url": url,
-                                    "description": r.get("body", ""),
-                                    "type": "web",
-                                }
-                            )
-                except Exception as e:
-                    logger.debug(f"Text search failed: {e}")
-                    pass
-
-            # Fallback to news if text search returned poor results
-            if (search_type == "auto" and len(results) < 3) or search_type == "news":
-                try:
-                    for r in ddgs.news(query, region=region, max_results=limit):
-                        results.append(
-                            {
-                                "title": r.get("title", ""),
-                                "url": r.get("url", ""),
-                                "description": r.get("body", ""),
-                                "source": r.get("source", ""),
-                                "date": r.get("date", ""),
-                                "type": "news",
-                            }
-                        )
-                except Exception as e:
-                    logger.debug(f"News search failed: {e}")
-                    pass
-
-            # Deduplicate by URL
-            seen_urls = set()
-            unique_results = []
-            for r in results:
-                if r["url"] not in seen_urls:
-                    seen_urls.add(r["url"])
-                    unique_results.append(r)
-
-            results = unique_results[:limit]
+            results = await web_search_impl(
+                query, max_results=limit, region=region, search_type=search_type
+            )
 
             if ctx:
                 ctx.info(f"[WebSearch] Found {len(results)} results")
