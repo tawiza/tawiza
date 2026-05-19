@@ -24,42 +24,42 @@ async def web_search_impl(
 
     from duckduckgo_search import DDGS
 
-    warnings.filterwarnings("ignore")
-
     results: list[dict] = []
-    ddgs = DDGS()
 
-    if search_type in ("text", "auto"):
-        try:
-            for r in ddgs.text(query, region=region, max_results=max_results):
-                url = r.get("href", "")
-                if ".cn" not in url and "baidu" not in url:
-                    results.append(
-                        {
-                            "title": r.get("title", ""),
-                            "url": url,
-                            "description": r.get("body", ""),
-                            "type": "web",
-                        }
-                    )
-        except Exception as e:
-            logger.debug(f"Text search failed: {e}")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        with DDGS() as ddgs:
+            if search_type in ("text", "auto"):
+                try:
+                    for r in ddgs.text(query, region=region, max_results=max_results):
+                        url = r.get("href", "")
+                        if ".cn" not in url and "baidu" not in url:
+                            results.append(
+                                {
+                                    "title": r.get("title", ""),
+                                    "url": url,
+                                    "description": r.get("body", ""),
+                                    "type": "web",
+                                }
+                            )
+                except Exception as e:
+                    logger.debug(f"Text search failed: {e}")
 
-    if (search_type == "auto" and len(results) < 3) or search_type == "news":
-        try:
-            for r in ddgs.news(query, region=region, max_results=max_results):
-                results.append(
-                    {
-                        "title": r.get("title", ""),
-                        "url": r.get("url", ""),
-                        "description": r.get("body", ""),
-                        "source": r.get("source", ""),
-                        "date": r.get("date", ""),
-                        "type": "news",
-                    }
-                )
-        except Exception as e:
-            logger.debug(f"News search failed: {e}")
+            if (search_type == "auto" and len(results) < 3) or search_type == "news":
+                try:
+                    for r in ddgs.news(query, region=region, max_results=max_results):
+                        results.append(
+                            {
+                                "title": r.get("title", ""),
+                                "url": r.get("url", ""),
+                                "description": r.get("body", ""),
+                                "source": r.get("source", ""),
+                                "date": r.get("date", ""),
+                                "type": "news",
+                            }
+                        )
+                except Exception as e:
+                    logger.debug(f"News search failed: {e}")
 
     seen_urls: set[str] = set()
     unique_results: list[dict] = []
