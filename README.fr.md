@@ -42,6 +42,31 @@ Tawiza collecte des données depuis les APIs gouvernementales françaises et les
 
 ---
 
+## Captures d'écran
+
+<table>
+  <tr>
+    <td><img src="docs/images/01-login.png" alt="Page de connexion"></td>
+    <td><img src="docs/images/03-tajine-territories.png" alt="Analyse territoriale avec carte de France interactive"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Connexion</sub></td>
+    <td align="center"><sub>Analyse territoriale (carte interactive)</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/04-ai-chat.png" alt="Chat IA avec l'agent TAJINE"></td>
+    <td><img src="docs/images/05-settings.png" alt="Page de configuration"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Agent IA TAJINE</sub></td>
+    <td align="center"><sub>Configuration</sub></td>
+  </tr>
+</table>
+
+Capturé sur une installation locale fraîche. Les données d'exemple sont vides à dessein ; seules la structure et l'interface sont illustrées.
+
+---
+
 ## État du projet
 
 | Module | État | Note |

@@ -46,6 +46,31 @@ Tawiza collects data from French government APIs and organizes it to analyze ter
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="docs/images/01-login.png" alt="Login page"></td>
+    <td><img src="docs/images/03-tajine-territories.png" alt="Territorial analysis with interactive France map"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Login</sub></td>
+    <td align="center"><sub>Territorial analysis (interactive map)</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/04-ai-chat.png" alt="AI chat with the TAJINE agent"></td>
+    <td><img src="docs/images/05-settings.png" alt="Configuration page"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>TAJINE AI agent</sub></td>
+    <td align="center"><sub>Configuration</sub></td>
+  </tr>
+</table>
+
+Captured on a fresh local install. Sample data is empty by design; only the structure and UI are illustrated.
+
+---
+
 ## Project status
 
 | Module | Status | Note |
