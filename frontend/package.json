@@ -52,7 +52,7 @@
     "@tanstack/react-table": "^8.17.3",
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
-    "@tsparticles/slim": "^3.9.1",
+    "@tsparticles/slim": "^4.0.4",
     "@types/d3": "^7.4.3",
     "@types/leaflet": "^1.9.21",
     "@types/react-grid-layout": "^2.1.0",
