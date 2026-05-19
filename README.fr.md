@@ -63,7 +63,7 @@ Tawiza collecte des données depuis les APIs gouvernementales françaises et les
   </tr>
 </table>
 
-Capturé sur une installation locale fraîche. Les données d'exemple sont vides à dessein ; seuls la structure et l'interface sont illustrées.
+Capturé sur une installation locale fraîche. Les données d'exemple sont vides à dessein ; seules la structure et l'interface sont illustrées.
 
 ---
 
