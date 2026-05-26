@@ -51,7 +51,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-table": "^8.17.3",
     "@tsparticles/engine": "^3.9.1",
-    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/react": "^4.0.5",
     "@tsparticles/slim": "^3.9.1",
     "@types/d3": "^7.4.3",
     "@types/leaflet": "^1.9.21",
