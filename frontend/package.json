@@ -50,7 +50,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-table": "^8.17.3",
-    "@tsparticles/engine": "^3.9.1",
+    "@tsparticles/engine": "^4.0.5",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
     "@types/d3": "^7.4.3",
