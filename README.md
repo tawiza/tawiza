@@ -280,6 +280,7 @@ No IP, email, chat content, or business data is collected. Source code: [`src/co
 | [Data Sources](docs/data-sources.md) | Source catalog |
 | [API Reference](docs/api-reference.md) | REST endpoints |
 | [Self-Hosting](docs/self-hosting.md) | Deployment guide |
+| [Ops Runbook](docs/runbook.md) | Deploy, rollback, logs, common incidents |
 | [Telemetry](docs/telemetry.md) | Anonymous telemetry details |
 | [Health & Probes](docs/health-and-probes.md) | Healthcheck endpoints and probe configuration |
 | [Contributing](CONTRIBUTING.md) | Contribution guide |
