@@ -94,30 +94,6 @@ BENCHMARK_TESTS = {
         "expected_min_results": 20,
         "timeout": 60,
     },
-    "geocoding": {
-        "name": "Géocodage BAN",
-        "description": "Test de géocodage d'adresses",
-        "tool": "geocode_address",
-        "params": {"address": "1 rue de la République, Lille"},
-        "expected_min_results": 1,
-        "timeout": 15,
-    },
-    "news_search": {
-        "name": "Recherche actualités",
-        "description": "Test de recherche d'actualités économiques",
-        "tool": "news_search",
-        "params": {"query": "startup levée de fonds", "limit": 10},
-        "expected_min_results": 3,
-        "timeout": 30,
-    },
-    "bodacc_search": {
-        "name": "Recherche BODACC",
-        "description": "Test de recherche dans les annonces légales",
-        "tool": "bodacc_search",
-        "params": {"query": "création entreprise Lille"},
-        "expected_min_results": 1,
-        "timeout": 30,
-    },
     "market_analysis": {
         "name": "Analyse de marché complète",
         "description": "Test de l'analyse multi-sources",
@@ -161,8 +137,8 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
 
         Args:
             tests: Liste des tests à exécuter. Si vide, exécute tous les tests.
-                   Tests disponibles: sirene_basic, sirene_advanced, geocoding,
-                   news_search, bodacc_search, market_analysis, comparison, prospect
+                   Tests disponibles: sirene_basic, sirene_advanced,
+                   market_analysis, comparison, prospect
             quick_mode: Si True, exécute seulement les tests rapides (< 60s)
 
         Returns:
@@ -210,9 +186,6 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         # Import tools for testing
         try:
             from src.infrastructure.agents.camel.tools.territorial_tools import (
-                bodacc_search,
-                geocode_address,
-                news_search,
                 sirene_search,
             )
         except ImportError as e:
@@ -228,9 +201,6 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         # Map tool names to functions
         tool_functions = {
             "sirene_search": sirene_search,
-            "geocode_address": geocode_address,
-            "news_search": news_search,
-            "bodacc_search": bodacc_search,
         }
 
         # Run tests
@@ -408,7 +378,7 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         Mesure la performance moyenne et la stabilité d'un outil.
 
         Args:
-            tool_name: Nom de l'outil à tester (sirene_search, geocode_address, etc.)
+            tool_name: Nom de l'outil à tester (sirene_search)
             iterations: Nombre d'itérations (1-10)
 
         Returns:
@@ -422,9 +392,6 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
         # Import tools
         try:
             from src.infrastructure.agents.camel.tools.territorial_tools import (
-                bodacc_search,
-                geocode_address,
-                news_search,
                 sirene_search,
             )
         except ImportError as e:
@@ -441,18 +408,6 @@ def register_benchmark_tools(mcp: FastMCP) -> None:
             "sirene_search": {
                 "func": sirene_search,
                 "params": {"query": "tech Lille", "limite": 20},
-            },
-            "geocode_address": {
-                "func": geocode_address,
-                "params": {"address": "1 rue de la République, Lille"},
-            },
-            "news_search": {
-                "func": news_search,
-                "params": {"query": "startup tech", "limit": 10},
-            },
-            "bodacc_search": {
-                "func": bodacc_search,
-                "params": {"query": "création Lille"},
             },
         }
 

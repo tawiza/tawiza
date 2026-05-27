@@ -20,9 +20,6 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     """Create the relation_snapshots table for timeline tracking."""
-    # CREATE TABLE cannot use IF NOT EXISTS inside an Alembic transaction
-    # when combined with index creation, so we handle it cleanly.
-    op.execute("COMMIT")
     op.execute("""
         CREATE TABLE IF NOT EXISTS relation_snapshots (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -38,11 +35,12 @@ def upgrade() -> None:
             density FLOAT NOT NULL DEFAULT 0.0,
             communities_count INT NOT NULL DEFAULT 0,
             metrics_json JSONB DEFAULT '{}'
-        );
-        CREATE INDEX IF NOT EXISTS idx_snapshots_dept_time
-            ON relation_snapshots(department_code, snapshot_at DESC);
+        )
     """)
-    op.execute("BEGIN")
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS idx_snapshots_dept_time "
+        "ON relation_snapshots(department_code, snapshot_at DESC)"
+    )
 
 
 def downgrade() -> None:

@@ -1,28 +1,28 @@
 import Link from "next/link";
 
-export default function DataSourcesPage() {
+export default function FineTuningPage() {
   return (
     <div className="flex h-full w-full items-center justify-center p-8">
       <div className="max-w-xl space-y-4 text-center">
-        <h1 className="text-2xl font-semibold">Sources de données</h1>
+        <h1 className="text-2xl font-semibold">Fine-tuning</h1>
         <p className="text-muted-foreground">
-          La vue détaillée des sources n&apos;est pas encore disponible dans
-          cette version. En attendant, un récapitulatif des sources actives
-          est affiché sur le tableau de bord principal, et l&apos;API REST
-          expose la liste complète.
+          L&apos;interface de fine-tuning n&apos;est pas encore disponible
+          dans cette version. L&apos;entrainement et l&apos;amélioration du
+          modèle se font via les scripts <code>src/</code> et MLflow, en
+          dehors du tableau de bord.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <Link
-            href="/dashboard/main"
+            href="/dashboard/settings"
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
-            Voir le tableau de bord
+            Retour aux paramètres
           </Link>
           <Link
-            href="/api/v1/sources/"
+            href="https://github.com/tawiza/tawiza/blob/main/docs/modules/llm.md"
             className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
           >
-            API: GET /api/v1/sources/
+            Documentation LLM
           </Link>
         </div>
       </div>

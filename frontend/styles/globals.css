@@ -205,10 +205,6 @@ input.defaultCheckbox::before {
   transform: translate(-50%, 0px);
 }
 
-input.defaultCheckbox::before path {
-  fill: currentColor;
-}
-
 input:checked.defaultCheckbox::before {
   opacity: 1;
 }

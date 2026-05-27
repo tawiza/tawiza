@@ -46,6 +46,31 @@ Tawiza collects data from French government APIs and organizes it to analyze ter
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="docs/images/01-login.png" alt="Login page"></td>
+    <td><img src="docs/images/03-tajine-territories.png" alt="Territorial analysis with interactive France map"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Login</sub></td>
+    <td align="center"><sub>Territorial analysis (interactive map)</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/04-ai-chat.png" alt="AI chat with the TAJINE agent"></td>
+    <td><img src="docs/images/05-settings.png" alt="Configuration page"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>TAJINE AI agent</sub></td>
+    <td align="center"><sub>Configuration</sub></td>
+  </tr>
+</table>
+
+Captured on a fresh local install. Sample data is empty by design; only the structure and UI are illustrated.
+
+---
+
 ## Project status
 
 | Module | Status | Note |
@@ -256,6 +281,7 @@ No IP, email, chat content, or business data is collected. Source code: [`src/co
 | [API Reference](docs/api-reference.md) | REST endpoints |
 | [Self-Hosting](docs/self-hosting.md) | Deployment guide |
 | [Telemetry](docs/telemetry.md) | Anonymous telemetry details |
+| [Health & Probes](docs/health-and-probes.md) | Healthcheck endpoints and probe configuration |
 | [Contributing](CONTRIBUTING.md) | Contribution guide |
 
 ### Module deep-dives
@@ -264,6 +290,7 @@ Detailed documentation for individual subsystems:
 [CLI/TUI](docs/modules/cli-tui.md) ·
 [Crawler](docs/modules/crawler.md) ·
 [Data Hunter](docs/modules/data-hunter.md) ·
+[LLM](docs/modules/llm.md) ·
 [TAJINE](docs/modules/tajine.md) ·
 [Knowledge Graph](docs/modules/knowledge-graph.md) ·
 [Signaux](docs/modules/signaux.md) ·
