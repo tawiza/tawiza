@@ -1,19 +1,33 @@
-"""Tests for system state management.
+"""Unit tests for system state management (issue #161, batch 3 coverage).
 
-This module tests:
-- InitializationConfig immutable dataclass
-- SystemState immutable dataclass with functional updates
-- SystemStateManager singleton pattern
-- Thread safety
-- Convenience functions
+Target module: ``src.core.system_state``.
+
+Covers:
+- ``InitializationConfig`` immutable (frozen) dataclass: construction,
+  defaults, custom values, immutability.
+- ``SystemState`` immutable (frozen) dataclass: construction, derived
+  properties (``is_initialized`` / ``has_gpu`` / ``has_monitoring``),
+  functional ``with_updates`` and immutability.
+- ``SystemStateManager`` thread-safe singleton: double-checked-locking
+  ``__new__`` returns the same instance, state transitions, type checks,
+  history management and trimming, metrics, increments (with clamping),
+  ``get_state_or_raise`` and ``__repr__``.
+- Thread safety of reads and increments.
+- Module-level convenience functions.
+
+The production code is the source of truth. ``SystemStateManager`` is a
+process-wide singleton, so each test runs against a *freshly reset* instance
+(``_instance`` is set back to ``None`` by an autouse fixture) to guarantee
+isolation -- otherwise ``_state`` and ``_history`` would leak between tests.
 """
 
-from datetime import datetime
-from threading import Barrier, Thread
-from unittest.mock import MagicMock, patch
+from datetime import datetime, timezone
+from threading import Thread
+from unittest.mock import MagicMock
 
 import pytest
 
+from src.core.exceptions import SystemNotInitializedError
 from src.core.system_state import (
     InitializationConfig,
     SystemState,
@@ -25,25 +39,39 @@ from src.core.system_state import (
 )
 
 
+def _now() -> datetime:
+    """Timezone-aware UTC timestamp (avoids utcnow() deprecation noise)."""
+    return datetime.now(timezone.utc)
+
+
+@pytest.fixture(autouse=True)
+def reset_singleton():
+    """Reset the SystemStateManager singleton before and after each test.
+
+    The manager has no public reset hook, so we clear the class-level
+    ``_instance`` directly. This forces ``__new__`` to rebuild a pristine
+    instance (fresh ``_state`` and ``_history``) for every test, isolating
+    them from one another.
+    """
+    SystemStateManager._instance = None
+    yield
+    SystemStateManager._instance = None
+
+
+# ---------------------------------------------------------------------------
+# InitializationConfig
+# ---------------------------------------------------------------------------
 class TestInitializationConfig:
-    """Test suite for InitializationConfig dataclass."""
+    """Test suite for the InitializationConfig frozen dataclass."""
 
     def test_creation_with_required_fields(self):
-        """Config should be created with required fields."""
-        config = InitializationConfig(
-            gpu_enabled=True,
-            monitoring_enabled=False,
-        )
+        config = InitializationConfig(gpu_enabled=True, monitoring_enabled=False)
 
         assert config.gpu_enabled is True
         assert config.monitoring_enabled is False
 
     def test_default_values(self):
-        """Config should have sensible defaults."""
-        config = InitializationConfig(
-            gpu_enabled=False,
-            monitoring_enabled=True,
-        )
+        config = InitializationConfig(gpu_enabled=False, monitoring_enabled=True)
 
         assert config.max_concurrent_tasks == 5
         assert config.auto_scale is True
@@ -51,7 +79,6 @@ class TestInitializationConfig:
         assert config.verbose is False
 
     def test_custom_values(self):
-        """Config should accept custom values."""
         config = InitializationConfig(
             gpu_enabled=True,
             monitoring_enabled=True,
@@ -67,21 +94,35 @@ class TestInitializationConfig:
         assert config.verbose is True
 
     def test_immutability(self):
-        """Config should be immutable (frozen)."""
-        config = InitializationConfig(
-            gpu_enabled=True,
-            monitoring_enabled=True,
-        )
+        config = InitializationConfig(gpu_enabled=True, monitoring_enabled=True)
 
         with pytest.raises(AttributeError):
             config.gpu_enabled = False
 
+    def test_equality(self):
+        a = InitializationConfig(gpu_enabled=True, monitoring_enabled=True)
+        b = InitializationConfig(gpu_enabled=True, monitoring_enabled=True)
+        c = InitializationConfig(gpu_enabled=False, monitoring_enabled=True)
 
+        assert a == b
+        assert a != c
+
+    def test_is_hashable(self):
+        # Frozen dataclasses are hashable, so they can live in sets / dict keys.
+        a = InitializationConfig(gpu_enabled=True, monitoring_enabled=True)
+        b = InitializationConfig(gpu_enabled=True, monitoring_enabled=True)
+
+        assert hash(a) == hash(b)
+        assert len({a, b}) == 1
+
+
+# ---------------------------------------------------------------------------
+# SystemState
+# ---------------------------------------------------------------------------
 class TestSystemState:
-    """Test suite for SystemState dataclass."""
+    """Test suite for the SystemState frozen dataclass."""
 
     def test_creation_with_defaults(self):
-        """State should be created with defaults."""
         state = SystemState()
 
         assert state.agents is None
@@ -94,159 +135,195 @@ class TestSystemState:
         assert state.failed_tasks == 0
 
     def test_is_initialized_property(self):
-        """is_initialized should check initialized_at."""
-        state_uninit = SystemState()
-        state_init = SystemState(initialized_at=datetime.utcnow())
-
-        assert state_uninit.is_initialized is False
-        assert state_init.is_initialized is True
+        assert SystemState().is_initialized is False
+        assert SystemState(initialized_at=_now()).is_initialized is True
 
     def test_has_gpu_property_no_config(self):
-        """has_gpu should return False when no config."""
-        state = SystemState()
-
-        assert state.has_gpu is False
+        assert SystemState().has_gpu is False
 
     def test_has_gpu_property_with_config(self):
-        """has_gpu should check config.gpu_enabled."""
         config_gpu = InitializationConfig(gpu_enabled=True, monitoring_enabled=False)
         config_no_gpu = InitializationConfig(gpu_enabled=False, monitoring_enabled=False)
 
-        state_gpu = SystemState(config=config_gpu)
-        state_no_gpu = SystemState(config=config_no_gpu)
-
-        assert state_gpu.has_gpu is True
-        assert state_no_gpu.has_gpu is False
+        assert SystemState(config=config_gpu).has_gpu is True
+        assert SystemState(config=config_no_gpu).has_gpu is False
 
     def test_has_monitoring_property(self):
-        """has_monitoring should check monitoring field."""
-        state_no_mon = SystemState()
-        state_mon = SystemState(monitoring=MagicMock())
-
-        assert state_no_mon.has_monitoring is False
-        assert state_mon.has_monitoring is True
+        assert SystemState().has_monitoring is False
+        assert SystemState(monitoring=MagicMock()).has_monitoring is True
 
     def test_with_updates_creates_new_state(self):
-        """with_updates should create new state, not modify original."""
         original = SystemState(active_tasks=5)
         updated = original.with_updates(active_tasks=10)
 
-        assert original.active_tasks == 5  # Original unchanged
-        assert updated.active_tasks == 10  # New state updated
+        assert original.active_tasks == 5  # original untouched
+        assert updated.active_tasks == 10
         assert original is not updated
 
     def test_with_updates_preserves_other_fields(self):
-        """with_updates should preserve fields not being updated."""
-        original = SystemState(
-            active_tasks=5,
-            completed_tasks=10,
-            version="2.0.3",
-        )
+        original = SystemState(active_tasks=5, completed_tasks=10, version="2.0.3")
         updated = original.with_updates(active_tasks=6)
 
+        assert updated.active_tasks == 6
         assert updated.completed_tasks == 10
         assert updated.version == "2.0.3"
 
+    def test_with_updates_no_args_returns_equal_copy(self):
+        original = SystemState(active_tasks=3)
+        copy = original.with_updates()
+
+        assert copy == original
+        assert copy is not original
+
     def test_immutability(self):
-        """State should be immutable (frozen)."""
         state = SystemState(active_tasks=5)
 
         with pytest.raises(AttributeError):
             state.active_tasks = 10
 
+    def test_post_init_runs(self):
+        # __post_init__ only logs; assert it does not raise for either branch.
+        SystemState()
+        SystemState(initialized_at=_now())
 
-class TestSystemStateManager:
-    """Test suite for SystemStateManager singleton."""
 
-    def setup_method(self):
-        """Reset singleton state before each test."""
-        # Clear the singleton's state (not the instance itself)
-        manager = SystemStateManager()
-        manager.clear_state()
+# ---------------------------------------------------------------------------
+# SystemStateManager singleton / double-checked locking
+# ---------------------------------------------------------------------------
+class TestSystemStateManagerSingleton:
+    """Singleton identity and double-checked-locking behaviour."""
 
     def test_singleton_pattern(self):
-        """SystemStateManager should be a singleton."""
-        manager1 = SystemStateManager()
-        manager2 = SystemStateManager()
+        assert SystemStateManager() is SystemStateManager()
 
-        assert manager1 is manager2
+    def test_get_instance_returns_same_after_reset(self):
+        first = SystemStateManager()
+        # Force a rebuild and confirm a new instance is created post-reset.
+        SystemStateManager._instance = None
+        second = SystemStateManager()
 
-    def test_initial_state_is_none(self):
-        """Initial state should be None."""
+        assert first is not second
+        # But repeated calls keep returning the new one.
+        assert second is SystemStateManager()
+
+    def test_fresh_instance_has_clean_state_and_history(self):
         manager = SystemStateManager()
-        manager.clear_state()
 
         assert manager.state is None
+        assert manager.get_history() == []
+
+    def test_double_checked_locking_concurrent_creation(self):
+        # Reset, then build the singleton from many threads at once. Every
+        # thread must observe the *same* object (double-checked locking).
+        SystemStateManager._instance = None
+        instances = []
+
+        def build():
+            instances.append(SystemStateManager())
+
+        threads = [Thread(target=build) for _ in range(25)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert len(instances) == 25
+        assert all(inst is instances[0] for inst in instances)
+
+
+# ---------------------------------------------------------------------------
+# SystemStateManager state transitions and behaviour
+# ---------------------------------------------------------------------------
+class TestSystemStateManager:
+    """State transitions, type checks, history, metrics, increments."""
+
+    def test_initial_state_is_none(self):
+        assert SystemStateManager().state is None
 
     def test_update_state(self):
-        """Should be able to update state."""
         manager = SystemStateManager()
-        state = SystemState(initialized_at=datetime.utcnow())
+        state = SystemState(initialized_at=_now())
 
         manager.update_state(state)
 
         assert manager.state is state
 
-    def test_update_state_type_checking(self):
-        """update_state should reject non-SystemState values."""
+    @pytest.mark.parametrize("bad", ["not a state", {"k": "v"}, 42, None, object()])
+    def test_update_state_type_checking(self, bad):
         manager = SystemStateManager()
 
         with pytest.raises(TypeError):
-            manager.update_state("not a state")
+            manager.update_state(bad)
 
-        with pytest.raises(TypeError):
-            manager.update_state({"key": "value"})
+    def test_update_state_pushes_previous_to_history(self):
+        manager = SystemStateManager()
+        first = SystemState(active_tasks=1)
+        second = SystemState(active_tasks=2)
+
+        manager.update_state(first)  # no previous -> history stays empty
+        assert manager.get_history() == []
+
+        manager.update_state(second)  # first becomes history
+        history = manager.get_history()
+        assert len(history) == 1
+        assert history[-1] is first
+        assert manager.state is second
 
     def test_clear_state(self):
-        """clear_state should set state to None."""
         manager = SystemStateManager()
-        manager.update_state(SystemState(initialized_at=datetime.utcnow()))
+        state = SystemState(initialized_at=_now())
+        manager.update_state(state)
 
         manager.clear_state()
 
         assert manager.state is None
+        # Cleared state is archived in history.
+        assert manager.get_history()[-1] is state
+
+    def test_clear_state_when_already_none(self):
+        manager = SystemStateManager()
+
+        manager.clear_state()  # nothing to archive
+
+        assert manager.state is None
+        assert manager.get_history() == []
 
     def test_is_initialized_method(self):
-        """is_initialized should check if state exists and is initialized."""
         manager = SystemStateManager()
-        manager.clear_state()
 
+        assert manager.is_initialized() is False  # state is None
+
+        manager.update_state(SystemState())  # state exists but not initialized
         assert manager.is_initialized() is False
 
-        # Uninitialized state
-        manager.update_state(SystemState())
-        assert manager.is_initialized() is False
-
-        # Initialized state
-        manager.update_state(SystemState(initialized_at=datetime.utcnow()))
+        manager.update_state(SystemState(initialized_at=_now()))
         assert manager.is_initialized() is True
 
     def test_get_state_or_raise_when_initialized(self):
-        """get_state_or_raise should return state when initialized."""
         manager = SystemStateManager()
-        state = SystemState(initialized_at=datetime.utcnow())
+        state = SystemState(initialized_at=_now())
         manager.update_state(state)
 
-        result = manager.get_state_or_raise()
+        assert manager.get_state_or_raise() is state
 
-        assert result is state
-
-    def test_get_state_or_raise_when_not_initialized(self):
-        """get_state_or_raise should raise when not initialized."""
-        from src.core.exceptions import SystemNotInitializedError
-
+    def test_get_state_or_raise_when_state_none(self):
         manager = SystemStateManager()
-        manager.clear_state()
+
+        with pytest.raises(SystemNotInitializedError):
+            manager.get_state_or_raise()
+
+    def test_get_state_or_raise_when_state_uninitialized(self):
+        manager = SystemStateManager()
+        manager.update_state(SystemState())  # present but initialized_at is None
 
         with pytest.raises(SystemNotInitializedError):
             manager.get_state_or_raise()
 
     def test_increment_tasks(self):
-        """increment_tasks should update task counters."""
         manager = SystemStateManager()
         manager.update_state(
             SystemState(
-                initialized_at=datetime.utcnow(),
+                initialized_at=_now(),
                 active_tasks=5,
                 completed_tasks=10,
                 failed_tasks=2,
@@ -260,69 +337,86 @@ class TestSystemStateManager:
         assert manager.state.failed_tasks == 3
 
     def test_increment_tasks_prevents_negative_active(self):
-        """increment_tasks should not allow negative active tasks."""
+        manager = SystemStateManager()
+        manager.update_state(SystemState(initialized_at=_now(), active_tasks=2))
+
+        manager.increment_tasks(active=-5)  # would be -3
+
+        assert manager.state.active_tasks == 0  # clamped to 0
+
+    def test_increment_tasks_negative_completed_not_clamped(self):
+        # Only active_tasks is clamped; completed/failed are free to go negative.
         manager = SystemStateManager()
         manager.update_state(
-            SystemState(
-                initialized_at=datetime.utcnow(),
-                active_tasks=2,
-            )
+            SystemState(initialized_at=_now(), completed_tasks=1, failed_tasks=1)
         )
 
-        manager.increment_tasks(active=-5)  # Would go to -3
+        manager.increment_tasks(completed=-5, failed=-5)
 
-        assert manager.state.active_tasks == 0  # Clamped to 0
+        assert manager.state.completed_tasks == -4
+        assert manager.state.failed_tasks == -4
 
-    def test_get_history(self):
-        """get_history should return previous states."""
+    def test_increment_tasks_noop_when_state_none(self):
         manager = SystemStateManager()
-        manager.clear_state()
 
-        state1 = SystemState(active_tasks=1)
-        state2 = SystemState(active_tasks=2)
-        state3 = SystemState(active_tasks=3)
+        manager.increment_tasks(active=3, completed=3, failed=3)  # no state yet
 
-        manager.update_state(state1)
-        manager.update_state(state2)
-        manager.update_state(state3)
+        assert manager.state is None
+
+    def test_increment_tasks_does_not_archive_to_history(self):
+        # increment_tasks replaces _state directly, bypassing update_state,
+        # so it must NOT add to history.
+        manager = SystemStateManager()
+        manager.update_state(SystemState(initialized_at=_now(), active_tasks=0))
+
+        manager.increment_tasks(active=1)
+
+        assert manager.get_history() == []
+
+    def test_get_history_returns_copy(self):
+        manager = SystemStateManager()
+        manager.update_state(SystemState(active_tasks=1))
+        manager.update_state(SystemState(active_tasks=2))
 
         history = manager.get_history()
+        history.append(SystemState(active_tasks=999))
 
-        assert len(history) >= 2
-        assert history[-1].active_tasks == 2  # Previous state
+        # External mutation must not affect the manager's internal history.
+        assert len(manager.get_history()) == 1
 
     def test_history_max_size(self):
-        """History should be limited to max size."""
         manager = SystemStateManager()
-        manager.clear_state()
 
-        # Add more than max_history states
         for i in range(15):
             manager.update_state(SystemState(active_tasks=i))
 
         history = manager.get_history()
 
-        # Should be capped at 10
-        assert len(history) <= 10
+        # First update has no previous state, so 14 are archived then trimmed to 10.
+        assert len(history) == 10
+        # Should hold the 10 most recent archived states (active_tasks 4..13).
+        assert [s.active_tasks for s in history] == list(range(4, 14))
 
     def test_get_metrics_uninitialized(self):
-        """get_metrics should work when not initialized."""
         manager = SystemStateManager()
-        manager.clear_state()
 
         metrics = manager.get_metrics()
 
-        assert metrics["initialized"] is False
-        assert metrics["active_tasks"] == 0
+        assert metrics == {
+            "initialized": False,
+            "active_tasks": 0,
+            "completed_tasks": 0,
+            "failed_tasks": 0,
+        }
 
     def test_get_metrics_initialized(self):
-        """get_metrics should return full metrics when initialized."""
         manager = SystemStateManager()
         config = InitializationConfig(gpu_enabled=True, monitoring_enabled=True)
+        ts = _now()
         manager.update_state(
             SystemState(
                 config=config,
-                initialized_at=datetime.utcnow(),
+                initialized_at=ts,
                 active_tasks=5,
                 completed_tasks=100,
                 failed_tasks=2,
@@ -333,42 +427,59 @@ class TestSystemStateManager:
 
         assert metrics["initialized"] is True
         assert metrics["gpu_enabled"] is True
-        assert metrics["monitoring_enabled"] is False  # monitoring field is None
+        # has_monitoring inspects the `monitoring` field (None here), NOT config.
+        assert metrics["monitoring_enabled"] is False
         assert metrics["active_tasks"] == 5
         assert metrics["completed_tasks"] == 100
         assert metrics["failed_tasks"] == 2
-        assert "initialized_at" in metrics
+        assert metrics["initialized_at"] == ts.isoformat()
         assert metrics["version"] == "2.0.3"
 
-    def test_repr(self):
-        """__repr__ should return useful string."""
+    def test_get_metrics_monitoring_enabled_via_field(self):
         manager = SystemStateManager()
-        manager.clear_state()
-
-        assert "None" in repr(manager)
-
-        manager.update_state(SystemState(initialized_at=datetime.utcnow()))
-        assert "initialized=True" in repr(manager)
-
-
-class TestSystemStateManagerThreadSafety:
-    """Test suite for thread safety of SystemStateManager."""
-
-    def setup_method(self):
-        """Reset singleton state before each test."""
-        manager = SystemStateManager()
-        manager.clear_state()
         manager.update_state(
-            SystemState(
-                initialized_at=datetime.utcnow(),
-                active_tasks=0,
-                completed_tasks=0,
-            )
+            SystemState(initialized_at=_now(), monitoring=MagicMock())
         )
 
-    def test_concurrent_reads(self):
-        """Multiple threads should be able to read state concurrently."""
+        assert manager.get_metrics()["monitoring_enabled"] is True
+
+    def test_get_metrics_initialized_at_none(self):
+        # State present but initialized_at is None -> isoformat branch skipped.
         manager = SystemStateManager()
+        manager.update_state(SystemState(active_tasks=1))
+
+        metrics = manager.get_metrics()
+
+        assert metrics["initialized"] is False
+        assert metrics["initialized_at"] is None
+
+    def test_repr_none(self):
+        manager = SystemStateManager()
+
+        assert repr(manager) == "SystemStateManager(state=None)"
+
+    def test_repr_initialized(self):
+        manager = SystemStateManager()
+        manager.update_state(SystemState(initialized_at=_now()))
+
+        assert repr(manager) == "SystemStateManager(initialized=True)"
+
+    def test_repr_present_but_uninitialized(self):
+        manager = SystemStateManager()
+        manager.update_state(SystemState())
+
+        assert repr(manager) == "SystemStateManager(initialized=False)"
+
+
+# ---------------------------------------------------------------------------
+# Thread safety
+# ---------------------------------------------------------------------------
+class TestSystemStateManagerThreadSafety:
+    """Concurrency tests for reads and atomic increments."""
+
+    def test_concurrent_reads(self):
+        manager = SystemStateManager()
+        manager.update_state(SystemState(initialized_at=_now()))
         results = []
 
         def read_state():
@@ -383,13 +494,12 @@ class TestSystemStateManagerThreadSafety:
         for t in threads:
             t.join()
 
-        # All reads should succeed
         assert len(results) == 1000
-        assert all(r is True for r in results)
+        assert all(results)
 
     def test_concurrent_increments(self):
-        """Concurrent increment_tasks should be atomic."""
         manager = SystemStateManager()
+        manager.update_state(SystemState(initialized_at=_now(), completed_tasks=0))
         num_threads = 10
         increments_per_thread = 100
 
@@ -403,65 +513,45 @@ class TestSystemStateManagerThreadSafety:
         for t in threads:
             t.join()
 
-        # All increments should be counted
         assert manager.state.completed_tasks == num_threads * increments_per_thread
 
 
+# ---------------------------------------------------------------------------
+# Module-level convenience functions
+# ---------------------------------------------------------------------------
 class TestConvenienceFunctions:
-    """Test suite for module-level convenience functions."""
+    """Tests for the module-level helper functions."""
 
-    def setup_method(self):
-        """Reset singleton state before each test."""
-        manager = SystemStateManager()
-        manager.clear_state()
+    def test_get_system_state_manager_returns_singleton(self):
+        m1 = get_system_state_manager()
+        m2 = get_system_state_manager()
 
-    def test_get_system_state_manager(self):
-        """get_system_state_manager should return singleton."""
-        manager1 = get_system_state_manager()
-        manager2 = get_system_state_manager()
-
-        assert manager1 is manager2
-        assert isinstance(manager1, SystemStateManager)
+        assert m1 is m2
+        assert isinstance(m1, SystemStateManager)
+        # It is the very same object as the class-level singleton.
+        assert m1 is SystemStateManager()
 
     def test_get_current_state(self):
-        """get_current_state should return current state."""
-        manager = get_system_state_manager()
-        manager.clear_state()
-
         assert get_current_state() is None
 
-        state = SystemState(initialized_at=datetime.utcnow())
-        manager.update_state(state)
+        state = SystemState(initialized_at=_now())
+        get_system_state_manager().update_state(state)
 
         assert get_current_state() is state
 
     def test_is_system_initialized(self):
-        """is_system_initialized should check initialization status."""
-        manager = get_system_state_manager()
-        manager.clear_state()
-
         assert is_system_initialized() is False
 
-        manager.update_state(SystemState(initialized_at=datetime.utcnow()))
+        get_system_state_manager().update_state(SystemState(initialized_at=_now()))
 
         assert is_system_initialized() is True
 
     def test_require_initialized_success(self):
-        """require_initialized should return state when initialized."""
-        manager = get_system_state_manager()
-        state = SystemState(initialized_at=datetime.utcnow())
-        manager.update_state(state)
+        state = SystemState(initialized_at=_now())
+        get_system_state_manager().update_state(state)
 
-        result = require_initialized()
-
-        assert result is state
+        assert require_initialized() is state
 
     def test_require_initialized_failure(self):
-        """require_initialized should raise when not initialized."""
-        from src.core.exceptions import SystemNotInitializedError
-
-        manager = get_system_state_manager()
-        manager.clear_state()
-
         with pytest.raises(SystemNotInitializedError):
             require_initialized()
