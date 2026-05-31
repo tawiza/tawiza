@@ -290,7 +290,13 @@ Documentation détaillée pour chaque sous-système :
 [Knowledge Graph](docs/modules/knowledge-graph.md) ·
 [Signaux](docs/modules/signaux.md) ·
 [Investigation](docs/modules/investigation.md) ·
-[Décisions](docs/modules/decisions.md)
+[Décisions](docs/modules/decisions.md) ·
+[Core](docs/modules/core.md) ·
+[Application](docs/modules/application.md) ·
+[API](docs/modules/api.md) ·
+[MCP](docs/modules/mcp.md) ·
+[Collecteur](docs/modules/collector.md) ·
+[Scripts](docs/modules/scripts.md)
 
 ---
 
