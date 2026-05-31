@@ -1,0 +1,93 @@
+name: Security Extras
+
+# Gating security checks that complement the report-only scans in pr-sandbox.yml.
+# - gitleaks: fails the build on any committed secret (config: .gitleaks.toml).
+# - dependency-review: fails a PR that introduces a high-severity vulnerable dep.
+# - bandit: Python SAST, reported to the job summary (non-gating for now: there is
+#   a known backlog of HIGH findings — triage before turning this into a gate).
+#
+# Security note: no untrusted event input (issue/PR title, commit message, head_ref,
+# ...) is ever interpolated into a run: block, so this workflow is not susceptible to
+# GitHub Actions script injection.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-extras-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    name: Gitleaks (secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so detect scans every commit, not just HEAD
+      - name: Install gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.22.1/gitleaks_8.22.1_linux_x64.tar.gz" \
+            | tar xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Scan for secrets
+        run: gitleaks detect --source . --config .gitleaks.toml --redact --verbose --exit-code 1
+
+  dependency-review:
+    name: Dependency review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  bandit:
+    name: Bandit (Python SAST)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bandit
+        run: pip install --quiet "bandit[toml]"
+      - name: Run bandit
+        run: |
+          # -ll = MEDIUM and HIGH only. Non-gating (|| true) until the known HIGH
+          # backlog is triaged; results are surfaced in the job summary below.
+          bandit -r src/ -c pyproject.toml -ll -f json -o bandit.json || true
+      - name: Summarize findings
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          p = pathlib.Path("bandit.json")
+          if not p.exists():
+              print("## Bandit\n\nNo report produced."); raise SystemExit
+          data = json.loads(p.read_text())
+          results = data.get("results", [])
+          from collections import Counter
+          sev = Counter(r["issue_severity"] for r in results)
+          print("## Bandit (Python SAST)\n")
+          print(f"- HIGH: {sev.get('HIGH', 0)}")
+          print(f"- MEDIUM: {sev.get('MEDIUM', 0)}")
+          print(f"- Total (medium+): {len(results)}\n")
+          if results:
+              print("| Severity | Test | Location |")
+              print("|---|---|---|")
+              for r in results[:40]:
+                  loc = f"{r['filename']}:{r['line_number']}"
+                  print(f"| {r['issue_severity']} | {r['test_id']} | `{loc}` |")
+          PY

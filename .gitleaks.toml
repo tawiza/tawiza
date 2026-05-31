@@ -1,5 +1,12 @@
 title = "Tawiza Gitleaks Config"
 
+# Use gitleaks' built-in ruleset. WITHOUT this, a custom config that defines no
+# [[rules]] disables ALL detection: gitleaks scans with zero rules and always
+# reports "no leaks found" (a silent no-op). This line is what makes the
+# pre-commit hook and the pr-sandbox CI scan actually detect secrets.
+[extend]
+useDefault = true
+
 [allowlist]
 description = "Global allowlist"
 paths = [
@@ -9,4 +16,13 @@ paths = [
     '''tests/.*''',
     '''frontend/bun\.lock$''',
     '''frontend/package-lock\.json$''',
+]
+# Public-by-design keys (NOT secrets) — allowlisted so the scan stays green and
+# only flags genuinely sensitive credentials. Keeps the team trusting the signal.
+regexes = [
+    # PostHog project API key: write-only, client-side ingestion key, public by design.
+    '''phc_[A-Za-z0-9]{40,}''',
+    # Google reCAPTCHA *site* key (public, embedded in pages). Exact value pinned so a
+    # future reCAPTCHA *secret* key (same 6L... shape) would still be flagged.
+    '''6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-''',
 ]
