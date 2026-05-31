@@ -12,6 +12,11 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1/health", tags=["Health"])
 
+# Per-service timeout (seconds)
+SERVICE_CHECK_TIMEOUT = 3.0
+# Global endpoint timeout (seconds)
+GLOBAL_HEALTH_TIMEOUT = 10.0
+
 
 class ServiceStatus(BaseModel):
     """Status of a single service."""
@@ -31,6 +36,25 @@ class DetailedHealth(BaseModel):
     checked_at: str
 
 
+async def _with_timeout(coro, name: str, timeout: float = SERVICE_CHECK_TIMEOUT) -> ServiceStatus:
+    """Wrap a health check coroutine with a timeout."""
+    try:
+        return await asyncio.wait_for(coro, timeout=timeout)
+    except TimeoutError:
+        return ServiceStatus(
+            name=name,
+            status="disconnected",
+            message=f"Health check timed out after {timeout}s",
+        )
+    except Exception as e:
+        logger.error(f"Health check {name} failed: {e}")
+        return ServiceStatus(
+            name=name,
+            status="disconnected",
+            message=str(e)[:100],
+        )
+
+
 async def check_backend() -> ServiceStatus:
     """Check backend API (always connected if we're responding)."""
     return ServiceStatus(
@@ -47,7 +71,7 @@ async def check_ollama() -> ServiceStatus:
 
     try:
         start = time.time()
-        async with httpx.AsyncClient(timeout=5.0) as client:
+        async with httpx.AsyncClient(timeout=SERVICE_CHECK_TIMEOUT) as client:
             resp = await client.get(f"{ollama_url}/api/tags")
             latency = (time.time() - start) * 1000
 
@@ -98,22 +122,27 @@ async def check_neo4j() -> ServiceStatus:
                 os.getenv("NEO4J_USER", "neo4j"),
                 os.getenv("NEO4J_PASSWORD", "password"),
             ),
+            connection_timeout=SERVICE_CHECK_TIMEOUT,
+            max_transaction_retry_time=1.0,
+            connection_acquisition_timeout=SERVICE_CHECK_TIMEOUT,
         )
 
-        async with driver.session() as session:
-            result = await session.run("RETURN 1 as n")
-            await result.consume()
+        try:
+            async with driver.session() as session:
+                result = await session.run("RETURN 1 as n")
+                await result.consume()
 
-        await driver.close()
-        latency = (time.time() - start) * 1000
+            latency = (time.time() - start) * 1000
 
-        return ServiceStatus(
-            name="neo4j",
-            status="connected",
-            latency_ms=round(latency, 1),
-            message="Graph database ready",
-            details={"uri": neo4j_uri},
-        )
+            return ServiceStatus(
+                name="neo4j",
+                status="connected",
+                latency_ms=round(latency, 1),
+                message="Graph database ready",
+                details={"uri": neo4j_uri},
+            )
+        finally:
+            await driver.close()
     except ImportError:
         return ServiceStatus(
             name="neo4j",
@@ -137,9 +166,17 @@ async def check_postgresql() -> ServiceStatus:
         from sqlalchemy import text
         from sqlalchemy.ext.asyncio import create_async_engine
 
-        # Convert to async URL
+        # Convert to async URL if needed
         async_url = db_url.replace("postgresql://", "postgresql+asyncpg://")
-        engine = create_async_engine(async_url, pool_pre_ping=True)
+        # Avoid double replacement if DATABASE_URL already has asyncpg
+        async_url = async_url.replace("postgresql+asyncpg+asyncpg://", "postgresql+asyncpg://")
+
+        engine = create_async_engine(
+            async_url,
+            pool_pre_ping=True,
+            connect_args={"timeout": SERVICE_CHECK_TIMEOUT},
+            pool_timeout=SERVICE_CHECK_TIMEOUT,
+        )
 
         start = time.time()
         async with engine.connect() as conn:
@@ -195,7 +232,7 @@ async def check_scheduler() -> ServiceStatus:
         from src.application.services.tajine_scheduler import get_tajine_scheduler
 
         scheduler = get_tajine_scheduler()
-        is_running = scheduler._running if hasattr(scheduler, "_running") else False
+        is_running = getattr(scheduler, "_is_running", False)
 
         return ServiceStatus(
             name="scheduler",
@@ -213,9 +250,7 @@ async def check_scheduler() -> ServiceStatus:
 
 async def check_telemetry() -> ServiceStatus:
     """Check telemetry/metrics status."""
-    # Check if Prometheus metrics are available
     try:
-        # Simple check - telemetry is considered active if we can collect metrics
         import psutil
 
         cpu = psutil.cpu_percent(interval=0.1)
@@ -238,35 +273,53 @@ async def check_telemetry() -> ServiceStatus:
 
 @router.get("/detailed", response_model=DetailedHealth)
 async def get_detailed_health() -> DetailedHealth:
-    """Get detailed health status of all services."""
+    """Get detailed health status of all services.
+
+    Each service check has a 3s individual timeout.
+    The entire endpoint has a 10s global timeout.
+    """
     from datetime import datetime
 
-    # Run all checks concurrently
-    results = await asyncio.gather(
-        check_backend(),
-        check_ollama(),
-        check_neo4j(),
-        check_postgresql(),
-        check_websocket(),
-        check_scheduler(),
-        check_telemetry(),
-        return_exceptions=True,
-    )
+    async def _run_all_checks() -> list[ServiceStatus]:
+        # Run all checks concurrently, each wrapped with individual timeout
+        results = await asyncio.gather(
+            _with_timeout(check_backend(), "backend"),
+            _with_timeout(check_ollama(), "ollama"),
+            _with_timeout(check_neo4j(), "neo4j"),
+            _with_timeout(check_postgresql(), "postgresql"),
+            _with_timeout(check_websocket(), "websocket"),
+            _with_timeout(check_scheduler(), "scheduler"),
+            _with_timeout(check_telemetry(), "telemetry"),
+            return_exceptions=True,
+        )
 
-    # Process results
-    services = []
-    for result in results:
-        if isinstance(result, Exception):
-            logger.error(f"Health check failed: {result}")
-            services.append(
-                ServiceStatus(
-                    name="unknown",
-                    status="disconnected",
-                    message=str(result)[:100],
+        services = []
+        for result in results:
+            if isinstance(result, Exception):
+                logger.error(f"Health check failed: {result}")
+                services.append(
+                    ServiceStatus(
+                        name="unknown",
+                        status="disconnected",
+                        message=str(result)[:100],
+                    )
                 )
+            else:
+                services.append(result)
+        return services
+
+    # Global timeout for the entire endpoint
+    try:
+        services = await asyncio.wait_for(_run_all_checks(), timeout=GLOBAL_HEALTH_TIMEOUT)
+    except TimeoutError:
+        logger.error("Global health check timed out")
+        services = [
+            ServiceStatus(
+                name="all",
+                status="disconnected",
+                message=f"Global health check timed out after {GLOBAL_HEALTH_TIMEOUT}s",
             )
-        else:
-            services.append(result)
+        ]
 
     # Determine overall status
     statuses = [s.status for s in services]
@@ -304,4 +357,4 @@ async def get_service_health(service_name: str) -> ServiceStatus:
             message=f"Unknown service: {service_name}",
         )
 
-    return await checkers[service_name]()
+    return await _with_timeout(checkers[service_name](), service_name)

@@ -82,10 +82,30 @@ export function setAccessToken(token: string | null): void {
   accessToken = token;
 }
 
+// Quand on est derriere Cloudflare Access (NEXT_PUBLIC_SKIP_AUTH=true),
+// l'utilisateur est deja authentifie par CF avant d'arriver ici.
+// On instancie un user local mock pour court-circuiter l'auth Tawiza.
+const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
+
+const CF_ACCESS_USER: User = {
+  id: 'cf-access',
+  email: 'cf-access@tawiza.fr',
+  name: 'CF Access',
+  role: 'admin',
+  preferences: {
+    theme: 'dark',
+    default_level: 'analytical',
+    notifications: true,
+    language: 'fr',
+  },
+  created_at: new Date(0).toISOString(),
+  last_login: null,
+};
+
 // Auth Provider Component
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(SKIP_AUTH ? CF_ACCESS_USER : null);
+  const [isLoading, setIsLoading] = useState(!SKIP_AUTH);
   const router = useRouter();
 
   // Fetch current user profile
@@ -207,6 +227,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize auth state on mount
   useEffect(() => {
+    if (SKIP_AUTH) {
+      // Bypass complet : CF Access fait l'auth, pas besoin de session Tawiza
+      setIsLoading(false);
+      return;
+    }
     const initAuth = async () => {
       setIsLoading(true);
 
