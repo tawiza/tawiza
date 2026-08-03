@@ -107,15 +107,15 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
-    "@types/node": "^25.7.0",
+    "@types/node": "^26.1.2",
     "@types/react": "^19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react-dom": "19.2.4",
     "autoprefixer": "^10.4.19",
     "eslint": "^10.3.0",
     "eslint-config-next": "^16.2.6",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^4.2.2",
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }
